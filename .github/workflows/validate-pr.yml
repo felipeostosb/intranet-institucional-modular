@@ -1,20 +1,26 @@
-name: Guardián de Aislamiento de Módulos (Zero-Blast-Radius)
+name: Guardián de Aislamiento y Auto-Merge (Zero-Blast-Radius)
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened]
     branches: [ main ]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
-  validate-module-scope:
+  validate-and-automerge:
     runs-on: ubuntu-latest
-    name: Validar Límites de Carpeta por Módulo
+    name: Validar Límites, Compilar y Auto-Merge
     steps:
       - name: 1. Checkout del código
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 2. Verificar archivos modificados
+      - name: 2. Auditar aislamiento de carpetas
+        id: check_isolation
         run: |
           echo "========================================================"
           echo "🛡️ AUDITORÍA DE AISLAMIENTO MODULAR (ZERO-BLAST-RADIUS)"
@@ -28,19 +34,11 @@ jobs:
           
           # Si el PR lo abre Felipe (Lead Architect / Admin), tiene pase total
           if [ "$PR_AUTHOR" = "felipeostosb" ]; then
-            echo "✅ Usuario Administrador ($PR_AUTHOR) detectado. Pase irrestricto concedido."
+            echo "✅ Usuario Administrador ($PR_AUTHOR) detectado. Pase total concedido."
             exit 0
           fi
           
-          # Detectar el módulo correspondiente según el nombre de la rama (ej: feature/modulo-01-login)
           MODULO_NUM=$(echo "$HEAD_REF" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | tr '[:upper:]' '[:lower:]')
-          
-          if [ -z "$MODULO_NUM" ]; then
-            echo "⚠️ ADVERTENCIA: La rama '$HEAD_REF' no sigue la convención 'feature/modulo-01-nombre-tarea'."
-            echo "El sistema analizará si todos los cambios pertenecen a un solo módulo."
-          fi
-          
-          # Obtener la lista de archivos modificados en este PR comparado con main
           CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
           echo "📄 Archivos modificados en este Pull Request:"
           echo "$CHANGED_FILES"
@@ -48,24 +46,22 @@ jobs:
           
           VIOLATIONS=0
           
-          # Si se detectó el módulo desde la rama (ej: modulo01 -> Intranet.Modulo01)
           if [ -n "$MODULO_NUM" ]; then
-            # Convertir modulo01 -> 01
             NUM_SOLO=$(echo "$MODULO_NUM" | grep -o -E '[0-9]{2}')
             ALLOWED_PATH="src/02_Modulos/Intranet.Modulo${NUM_SOLO}/"
             echo "🔒 Ruta permitida para esta rama: $ALLOWED_PATH"
             
             for file in $CHANGED_FILES; do
               if [[ "$file" != "$ALLOWED_PATH"* ]]; then
-                echo "❌ VIOLACIÓN DETECTADA: El archivo '$file' está FUERA de tu carpeta permitida ('$ALLOWED_PATH')."
+                echo "❌ VIOLACIÓN: El archivo '$file' está fuera de '$ALLOWED_PATH'."
                 VIOLATIONS=$((VIOLATIONS + 1))
               fi
             done
           else
-            # Si no nombraron bien la rama, verificar si tocaron Core, Web o más de un módulo
+            # Si el nombre de la rama no tiene 'modulo-XX', prohibir tocar Core, Web y configs
             for file in $CHANGED_FILES; do
               if [[ "$file" == "src/01_Core/"* ]] || [[ "$file" == "src/03_Web/"* ]] || [[ "$file" == ".github/"* ]] || [[ "$file" == "Dockerfile" ]] || [[ "$file" == "Directory.Build.props" ]]; then
-                echo "❌ VIOLACIÓN DETECTADA: No tienes permisos para modificar archivos de sistema o del Core: '$file'."
+                echo "❌ VIOLACIÓN: No tienes permisos para modificar el Core o Configuración: '$file'."
                 VIOLATIONS=$((VIOLATIONS + 1))
               fi
             done
@@ -73,10 +69,30 @@ jobs:
           
           if [ $VIOLATIONS -gt 0 ]; then
             echo "========================================================"
-            echo "⛔ RECHAZO AUTOMÁTICO: Se detectaron $VIOLATIONS violaciones de aislamiento."
-            echo "👉 Cada equipo solo puede modificar su carpeta en 'src/02_Modulos/Intranet.ModuloXX/'."
+            echo "⛔ RECHAZO: Se detectaron $VIOLATIONS violaciones de aislamiento."
             echo "========================================================"
             exit 1
           fi
           
-          echo "✅ AUDITORÍA EXITOSA: Todos los cambios están 100% aislados dentro de su módulo."
+          echo "✅ AUDITORÍA EXITOSA: Aislamiento verificado."
+
+      - name: 3. Configurar SDK de .NET 10
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: 4. Probar Compilación Limpia
+        run: |
+          echo "🔨 Compilando la solución con los cambios del PR..."
+          dotnet restore "IntranetInstitucional.sln"
+          dotnet build "IntranetInstitucional.sln" -c Release --no-restore
+          echo "✅ COMPILACIÓN EXITOSA (0 Errores)."
+
+      - name: 5. Auto-Merge a la rama main
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🚀 Todas las pruebas pasaron. Fusionando automáticamente a main..."
+          gh pr merge ${{ github.event.pull_request.number }} --squash --auto --delete-branch || \
+          gh pr merge ${{ github.event.pull_request.number }} --squash --delete-branch
+          echo "🎉 ¡Pull Request fusionado con éxito a main! Despliegue en camino."
