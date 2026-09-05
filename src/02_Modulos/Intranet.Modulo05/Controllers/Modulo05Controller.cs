@@ -10,7 +10,7 @@ public class Modulo05Controller : ModuloBaseController
     [HttpGet("Index")]
     public IActionResult Index()
     {
-        ViewData["Title"] = "Módulo 05 - Tesorería y Pagos";
+        ViewData["Title"] = "Módulo 05 - Panel Principal";
         ViewData["TeamName"] = "Equipo 05";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;

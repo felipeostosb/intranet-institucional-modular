@@ -1,224 +1,137 @@
 @{
-    ViewData["Title"] = "Admisión y Postulantes";
+    ViewData["Title"] = "Módulo 01";
 }
 
-<div class="space-y-6 font-light">
-    <!-- Header del Módulo Apple Style con Icono Pastel -->
-    <div class="bg-white rounded-3xl p-6 border border-[#e5e5e7] shadow-[0_2px_12px_rgba(0,0,0,0.015)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div class="flex items-center gap-3.5">
-            <div class="w-12 h-12 rounded-2xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+<div class="space-y-6">
+    <!-- Header del Módulo con Tono Pastel e Icono Llamativo -->
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center shrink-0 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
             </div>
             <div>
-                <div class="flex items-center gap-2 mb-0.5">
-                    <span class="text-[10px] font-mono bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full border border-sky-200/60">M01</span>
-                    <span class="text-[11px] text-slate-400 font-light">db_modulo01 • Equipo 01</span>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold bg-sky-100 text-sky-800 px-2.5 py-0.5 rounded-full border border-sky-200">Módulo 01</span>
+                    <span class="text-xs text-slate-400 font-medium">db_modulo01 • Equipo 01</span>
                 </div>
-                <h1 class="text-xl sm:text-2xl font-normal text-slate-900 tracking-tight">
-                    Admisión & Postulantes 2026-II
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                    Módulo 01 — Espacio de Trabajo
                 </h1>
-                <p class="text-xs text-slate-500 font-light">
-                    Control de inscripciones por carrera (DSI, Contabilidad, Administración).
+                <p class="text-xs text-slate-500">
+                    Panel administrado por el <strong>Equipo 01</strong>. Conectado a la base de datos <code class="text-sky-700 font-mono font-bold">db_modulo01</code>.
                 </p>
             </div>
         </div>
         <div class="flex gap-2">
-            <button class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-normal transition shadow-sm flex items-center gap-1.5" onclick="modal_nuevo_postulante.showModal()">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                <span>Nuevo Postulante</span>
-            </button>
-            <button class="px-3.5 py-2 rounded-xl bg-[#f5f5f7] hover:bg-slate-200/70 text-slate-700 text-xs font-normal transition border border-slate-200/60">
-                Exportar Actas
+            <button class="btn bg-sky-600 hover:bg-sky-700 text-white btn-sm rounded-xl font-bold border-0 shadow-sm text-xs px-4" onclick="modal_nuevo_01.showModal()">
+                + Nuevo Registro
             </button>
         </div>
     </div>
 
-    <!-- Indicadores Apple Style con Iconos Pasteles -->
+    <!-- Indicadores del Módulo -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl p-4 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-sky-200 transition">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-normal text-slate-400 uppercase tracking-wider">Total Postulantes</span>
-                <div class="w-7 h-7 rounded-lg bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                </div>
-            </div>
-            <div class="text-2xl font-light text-slate-900 mt-1">680</div>
-            <p class="text-[10px] text-sky-600/80 font-light mt-0.5">Capacidad: 750 vacantes</p>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Registros Activos</span>
+            <div class="text-2xl font-extrabold text-sky-600 mt-1">24</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">En db_modulo01</p>
         </div>
-        
-        <div class="bg-white rounded-2xl p-4 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-indigo-200 transition">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-normal text-slate-400 uppercase tracking-wider">Desarrollo Sistemas</span>
-                <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" /></svg>
-                </div>
-            </div>
-            <div class="text-2xl font-light text-slate-900 mt-1">310</div>
-            <p class="text-[10px] text-indigo-600/80 font-light mt-0.5">45% de demanda</p>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Equipo Responsable</span>
+            <div class="text-lg font-bold text-slate-800 mt-1">Equipo 01</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">4 Desarrolladores</p>
         </div>
-        
-        <div class="bg-white rounded-2xl p-4 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-emerald-200 transition">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-normal text-slate-400 uppercase tracking-wider">Contabilidad</span>
-                <div class="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z" /></svg>
-                </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estado de Conexión</span>
+            <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>En Línea</span>
             </div>
-            <div class="text-2xl font-light text-slate-900 mt-1">220</div>
-            <p class="text-[10px] text-emerald-600/80 font-light mt-0.5">Turno diurno / noche</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Aislamiento Zero-Blast</p>
         </div>
-
-        <div class="bg-white rounded-2xl p-4 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-amber-200 transition">
-            <div class="flex items-center justify-between">
-                <span class="text-[10px] font-normal text-slate-400 uppercase tracking-wider">Administración</span>
-                <div class="w-7 h-7 rounded-lg bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
-                </div>
-            </div>
-            <div class="text-2xl font-light text-slate-900 mt-1">150</div>
-            <p class="text-[10px] text-amber-600/80 font-light mt-0.5">Examen programado</p>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Sesión Activa</span>
+            <div class="text-sm font-bold text-slate-800 mt-1 truncate">@ViewData["UsuarioNombre"]</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Rol: @ViewData["UsuarioRol"]</p>
         </div>
     </div>
 
-    <!-- Padrón de Postulantes (Clean Apple Table) -->
-    <div class="bg-white rounded-2xl border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] overflow-hidden">
-        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+    <!-- Tabla de Registros del Módulo -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50/50">
             <div>
-                <h2 class="text-xs sm:text-sm font-normal text-slate-900">Padrón de Postulantes</h2>
-                <p class="text-[11px] text-slate-400 font-light">Datos de la base de datos `db_modulo01`.</p>
+                <h2 class="text-sm font-bold text-slate-800">Listado de Datos — Módulo 01</h2>
+                <p class="text-xs text-slate-400">Plantilla lista para vincular a consultas SQL o modelos C#.</p>
             </div>
-            <div class="flex gap-2 w-full sm:w-auto">
-                <input type="text" placeholder="Buscar por DNI..." class="px-3 py-1 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:outline-none focus:border-[#0071e3] w-full sm:w-48 font-light" />
-                <select class="px-2.5 py-1 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:outline-none text-slate-600 font-light">
-                    <option selected>Todas las Carreras</option>
-                    <option>Desarrollo de Sistemas</option>
-                    <option>Contabilidad</option>
-                    <option>Administración</option>
-                </select>
+            <div class="flex gap-2">
+                <input type="text" placeholder="Buscar registro..." class="input input-sm input-bordered rounded-xl bg-white text-xs w-48" />
             </div>
         </div>
 
         <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs divide-y divide-slate-100">
+            <table class="table table-zebra w-full text-xs">
                 <thead>
-                    <tr class="bg-[#fbfbfd] text-slate-400 text-[10px] uppercase font-normal tracking-wider">
-                        <th class="py-2.5 px-4 font-normal">Expediente</th>
-                        <th class="py-2.5 px-4 font-normal">DNI</th>
-                        <th class="py-2.5 px-4 font-normal">Postulante</th>
-                        <th class="py-2.5 px-4 font-normal">Carrera</th>
-                        <th class="py-2.5 px-4 font-normal">Modalidad</th>
-                        <th class="py-2.5 px-4 font-normal">Puntaje</th>
-                        <th class="py-2.5 px-4 font-normal">Estado</th>
-                        <th class="py-2.5 px-4 font-normal text-right">Acción</th>
+                    <tr class="bg-slate-100/70 text-slate-600 font-bold uppercase text-[10px]">
+                        <th>#</th>
+                        <th>Código</th>
+                        <th>Descripción del Registro</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th class="text-right">Acción</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 font-light text-slate-700">
-                    <tr class="hover:bg-slate-50/50 transition">
-                        <td class="py-3 px-4 font-mono text-[11px] text-slate-500">EXP-2026-001</td>
-                        <td class="py-3 px-4 font-mono text-[11px]">74892011</td>
-                        <td class="py-3 px-4 font-normal text-slate-900">Jean Pierre Huamán Soto</td>
-                        <td class="py-3 px-4 text-slate-600">Desarrollo de Sistemas</td>
-                        <td class="py-3 px-4 text-slate-500">Ordinario</td>
-                        <td class="py-3 px-4 font-mono text-slate-900 font-normal">88.50</td>
-                        <td class="py-3 px-4"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">Admitido</span></td>
-                        <td class="py-3 px-4 text-right"><button class="text-[11px] text-[#0071e3] hover:underline font-normal">Ver</button></td>
+                <tbody class="text-slate-700">
+                    <tr class="hover">
+                        <td class="font-bold text-slate-400">1</td>
+                        <td><span class="font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-lg border border-sky-200">REG-01-001</span></td>
+                        <td class="font-medium text-slate-900">Registro de prueba inicial para el Módulo 01</td>
+                        <td class="text-slate-400 font-mono">@DateTime.Now.ToString("dd/MM/yyyy")</td>
+                        <td><span class="badge badge-success badge-sm font-semibold">Completado</span></td>
+                        <td class="text-right"><button class="btn btn-ghost btn-xs text-sky-700 font-bold">Ver</button></td>
                     </tr>
-                    <tr class="hover:bg-slate-50/50 transition">
-                        <td class="py-3 px-4 font-mono text-[11px] text-slate-500">EXP-2026-002</td>
-                        <td class="py-3 px-4 font-mono text-[11px]">71203948</td>
-                        <td class="py-3 px-4 font-normal text-slate-900">Valeria Alexandra Gómez Vega</td>
-                        <td class="py-3 px-4 text-slate-600">Contabilidad</td>
-                        <td class="py-3 px-4 text-slate-500">Primeros Puestos</td>
-                        <td class="py-3 px-4 font-mono text-slate-900 font-normal">92.00</td>
-                        <td class="py-3 px-4"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">Admitido</span></td>
-                        <td class="py-3 px-4 text-right"><button class="text-[11px] text-[#0071e3] hover:underline font-normal">Ver</button></td>
-                    </tr>
-                    <tr class="hover:bg-slate-50/50 transition">
-                        <td class="py-3 px-4 font-mono text-[11px] text-slate-500">EXP-2026-003</td>
-                        <td class="py-3 px-4 font-mono text-[11px]">75839201</td>
-                        <td class="py-3 px-4 font-normal text-slate-900">Marcos Antonio Rivas Pérez</td>
-                        <td class="py-3 px-4 text-slate-600">Administración</td>
-                        <td class="py-3 px-4 text-slate-500">Ordinario</td>
-                        <td class="py-3 px-4 font-mono text-slate-900 font-normal">68.00</td>
-                        <td class="py-3 px-4"><span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200/60">En Evaluación</span></td>
-                        <td class="py-3 px-4 text-right"><button class="text-[11px] text-[#0071e3] hover:underline font-normal">Ver</button></td>
-                    </tr>
-                    <tr class="hover:bg-slate-50/50 transition">
-                        <td class="py-3 px-4 font-mono text-[11px] text-slate-500">EXP-2026-004</td>
-                        <td class="py-3 px-4 font-mono text-[11px]">72910482</td>
-                        <td class="py-3 px-4 font-normal text-slate-900">Camila Belén Mendoza Quispe</td>
-                        <td class="py-3 px-4 text-slate-600">Desarrollo de Sistemas</td>
-                        <td class="py-3 px-4 text-slate-500">Ordinario</td>
-                        <td class="py-3 px-4 font-mono text-slate-900 font-normal">84.00</td>
-                        <td class="py-3 px-4"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">Admitido</span></td>
-                        <td class="py-3 px-4 text-right"><button class="text-[11px] text-[#0071e3] hover:underline font-normal">Ver</button></td>
+                    <tr class="hover">
+                        <td class="font-bold text-slate-400">2</td>
+                        <td><span class="font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-lg border border-sky-200">REG-01-002</span></td>
+                        <td class="font-medium text-slate-900">Segundo registro de demostración</td>
+                        <td class="text-slate-400 font-mono">@DateTime.Now.ToString("dd/MM/yyyy")</td>
+                        <td><span class="badge badge-info badge-sm font-semibold">En Proceso</span></td>
+                        <td class="text-right"><button class="btn btn-ghost btn-xs text-sky-700 font-bold">Ver</button></td>
                     </tr>
                 </tbody>
             </table>
         </div>
-
-        <!-- Paginación Apple -->
-        <div class="p-3 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-2">
-            <span class="text-[11px] text-slate-400 font-light">1 a 4 de 680 postulantes</span>
-            <div class="flex items-center gap-1">
-                <button class="px-2.5 py-1 text-xs rounded-lg text-slate-400 hover:bg-slate-100 disabled:opacity-40" disabled>«</button>
-                <button class="px-2.5 py-1 text-xs rounded-lg bg-slate-900 text-white font-normal">1</button>
-                <button class="px-2.5 py-1 text-xs rounded-lg text-slate-600 hover:bg-slate-100">2</button>
-                <button class="px-2.5 py-1 text-xs rounded-lg text-slate-600 hover:bg-slate-100">3</button>
-                <button class="px-2.5 py-1 text-xs rounded-lg text-slate-600 hover:bg-slate-100">»</button>
-            </div>
-        </div>
     </div>
 </div>
 
-<!-- Modal Apple Style -->
-<dialog id="modal_nuevo_postulante" class="modal">
-    <div class="modal-box max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 font-light">
-        <h3 class="text-base font-normal text-slate-900 mb-1">
-            Nuevo Postulante
+<!-- Modal Formulario -->
+<dialog id="modal_nuevo_01" class="modal">
+    <div class="modal-box max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200">
+        <h3 class="text-base font-bold text-slate-900 mb-1">
+            Nuevo Registro — Módulo 01
         </h3>
-        <p class="text-xs text-slate-400 font-light mb-4">Registro en `db_modulo01` (Equipo 01).</p>
+        <p class="text-xs text-slate-400 mb-4">Formulario listo para vincular a tu controlador en C#.</p>
         
         <div class="space-y-3 text-xs">
-            <div class="grid grid-cols-2 gap-2.5">
-                <div>
-                    <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">DNI</label>
-                    <input type="text" maxlength="8" placeholder="8 dígitos" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:bg-white focus:outline-none focus:border-[#0071e3]" />
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Modalidad</label>
-                    <select class="w-full px-2.5 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs text-slate-700 focus:outline-none">
-                        <option>Ordinario</option>
-                        <option>Primeros Puestos</option>
-                        <option>Traslado</option>
-                    </select>
-                </div>
-            </div>
-
             <div>
-                <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Nombres y Apellidos</label>
-                <input type="text" placeholder="Juan Carlos Pérez" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:bg-white focus:outline-none focus:border-[#0071e3]" />
+                <label class="font-bold text-slate-600 block mb-1">Código / Identificador</label>
+                <input type="text" placeholder="Ej: REG-01-003" class="input input-sm input-bordered w-full rounded-xl" />
             </div>
-
             <div>
-                <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Carrera</label>
-                <select class="w-full px-2.5 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs text-slate-700 focus:outline-none">
-                    <option>Desarrollo de Sistemas de Información</option>
-                    <option>Contabilidad</option>
-                    <option>Administración de Empresas</option>
-                </select>
+                <label class="font-bold text-slate-600 block mb-1">Título / Nombre</label>
+                <input type="text" placeholder="Nombre del registro" class="input input-sm input-bordered w-full rounded-xl" />
             </div>
-
             <div>
-                <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Correo Electrónico</label>
-                <input type="email" placeholder="postulante@gmail.com" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:bg-white focus:outline-none focus:border-[#0071e3]" />
+                <label class="font-bold text-slate-600 block mb-1">Descripción</label>
+                <textarea class="textarea textarea-bordered w-full rounded-xl text-xs" rows="3" placeholder="Detalle adicional..."></textarea>
             </div>
         </div>
 
-        <div class="modal-action mt-6">
-            <form method="dialog" class="flex gap-2">
-                <button class="px-3.5 py-1.5 text-xs text-slate-500 hover:bg-slate-100 rounded-xl">Cancelar</button>
-                <button class="px-4 py-1.5 text-xs rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white font-normal">Guardar</button>
+        <div class="modal-action mt-6 flex gap-2">
+            <form method="dialog">
+                <button class="btn btn-ghost btn-sm rounded-xl">Cancelar</button>
+                <button class="btn bg-sky-600 hover:bg-sky-700 text-white btn-sm rounded-xl font-bold border-0">Guardar</button>
             </form>
         </div>
     </div>

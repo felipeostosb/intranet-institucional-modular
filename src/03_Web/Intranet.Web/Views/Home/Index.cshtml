@@ -1,347 +1,253 @@
 @{
-    ViewData["Title"] = "Panel General";
+    ViewData["Title"] = "Panel Principal";
 }
 
-<div class="space-y-8 font-light">
-    <!-- Hero Banner Apple Style con Acentos Pasteles -->
-    <div class="bg-white rounded-3xl p-6 sm:p-10 border border-[#e5e5e7] shadow-[0_4px_20px_rgba(0,0,0,0.02)] flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
-        <div class="absolute -right-16 -top-16 w-64 h-64 bg-gradient-to-br from-sky-100/40 via-indigo-100/30 to-purple-100/20 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div class="space-y-2 max-w-2xl relative z-10">
-            <div class="flex items-center gap-2">
-                <span class="text-[11px] font-normal text-sky-700 bg-sky-50 px-3 py-1 rounded-full border border-sky-200/60 flex items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse"></span>
-                    Semestre Académico 2026-II
-                </span>
-                <span class="text-[11px] font-light text-slate-400">
-                    Sede Lima Centro
-                </span>
+<div class="space-y-6">
+    <!-- Banner Principal Azul Institucional -->
+    <div class="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg border border-blue-500/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+        <div class="relative z-10 space-y-2">
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold text-blue-100 border border-white/20">
+                <span>🏛️ Intranet Institucional IESTP Argentina</span>
+                <span>•</span>
+                <span>Periodo 2026</span>
             </div>
-            
-            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-normal text-slate-900 tracking-tight">
-                IESTP "Argentina"
+            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white">
+                Panel de Control & Módulos
             </h1>
-            
-            <p class="text-xs sm:text-sm text-slate-500 font-light leading-relaxed">
-                Plataforma ERP Institucional integrada para las carreras de <strong>Desarrollo de Sistemas de Información</strong>, <strong>Contabilidad</strong> y <strong>Administración de Empresas</strong>.
+            <p class="text-sm text-blue-100/90 max-w-2xl font-normal leading-relaxed">
+                Sistema modular integrado para la comunidad educativa. 9 módulos independientes desarrollados con arquitectura <strong>Zero-Blast-Radius</strong> en <strong>.NET 10 LTS</strong>.
             </p>
         </div>
-        
-        <div class="p-4 rounded-2xl bg-[#f5f5f7]/90 border border-slate-200/80 text-slate-800 text-xs shrink-0 w-full md:w-auto relative z-10">
-            <div class="text-[11px] font-medium text-slate-400">Estado de Servidores</div>
-            <div class="text-base font-medium text-slate-900 mt-0.5 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                9 Módulos Operativos
-            </div>
-            <div class="text-[10px] text-slate-400 font-light mt-0.5">.NET 10 LTS • MariaDB 10.11</div>
+        <div class="flex flex-wrap gap-2.5 relative z-10">
+            <a href="/Account/Login" class="btn bg-white hover:bg-blue-50 text-blue-800 font-bold border-0 rounded-2xl shadow-md px-5 text-xs h-11">
+                Iniciar Sesión
+            </a>
+            <a href="http://35.208.213.59:8080" target="_blank" class="btn bg-white/15 hover:bg-white/25 text-white font-semibold border border-white/25 rounded-2xl backdrop-blur-md px-4 text-xs h-11">
+                🗄️ Base de Datos
+            </a>
         </div>
+        <!-- Efecto de Fondo -->
+        <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
     </div>
 
-    <!-- Indicadores Clave con Iconos Pasteles -->
+    <!-- Indicadores de Estado del Sistema -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-sky-200 transition">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-normal text-slate-400 uppercase tracking-wider">Estudiantes</span>
-                <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Módulos Activos</span>
+                <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
+                    9
                 </div>
             </div>
-            <div class="text-3xl font-light text-slate-900 mt-2 tracking-tight">2,450</div>
-            <p class="text-[11px] text-sky-600/80 font-light mt-1">DSI, Contabilidad y Adm.</p>
+            <div class="text-2xl font-extrabold text-slate-900 mt-2">100%</div>
+            <p class="text-xs text-emerald-600 font-semibold mt-1">✓ Todos en línea</p>
         </div>
 
-        <div class="bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-emerald-200 transition">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-normal text-slate-400 uppercase tracking-wider">Plana Docente</span>
-                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Desarrolladores</span>
+                <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
+                    👥
                 </div>
             </div>
-            <div class="text-3xl font-light text-slate-900 mt-2 tracking-tight">86</div>
-            <p class="text-[11px] text-emerald-600/80 font-light mt-1">Turno diurno y nocturno</p>
+            <div class="text-2xl font-extrabold text-slate-900 mt-2">36 Devs</div>
+            <p class="text-xs text-indigo-600 font-semibold mt-1">9 Equipos de 4</p>
         </div>
 
-        <div class="bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-amber-200 transition">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-normal text-slate-400 uppercase tracking-wider">Mesa de Partes</span>
-                <div class="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Base de Datos</span>
+                <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
+                    🗄️
                 </div>
             </div>
-            <div class="text-3xl font-light text-slate-900 mt-2 tracking-tight">142</div>
-            <p class="text-[11px] text-amber-600/80 font-light mt-1">FUTs y expedientes activos</p>
+            <div class="text-2xl font-extrabold text-slate-900 mt-2">MariaDB</div>
+            <p class="text-xs text-purple-600 font-semibold mt-1">10 Esquemas Aislados</p>
         </div>
 
-        <div class="bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-purple-200 transition">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
             <div class="flex items-center justify-between">
-                <span class="text-[11px] font-normal text-slate-400 uppercase tracking-wider">Recaudación</span>
-                <div class="w-8 h-8 rounded-xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Infraestructura</span>
+                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
+                    ⚡
                 </div>
             </div>
-            <div class="text-3xl font-light text-slate-900 mt-2 tracking-tight">94.8%</div>
-            <p class="text-[11px] text-purple-600/80 font-light mt-1">Tasas educativas canceladas</p>
+            <div class="text-2xl font-extrabold text-slate-900 mt-2">GCP Free</div>
+            <p class="text-xs text-emerald-600 font-semibold mt-1">$0.00 / S/. 0.00 Mensual</p>
         </div>
     </div>
 
-    <!-- Catálogo de los 9 Módulos con Iconos Pasteles Vibrantes y Limpios -->
+    <!-- Catálogo de los 9 Módulos con Tonos Pasteles e Iconos Llamativos -->
     <div>
-        <div class="flex items-center justify-between mb-5 px-1">
+        <div class="flex items-center justify-between mb-4">
             <div>
-                <h2 class="text-base sm:text-lg font-normal text-slate-900 tracking-tight">Módulos del Sistema</h2>
-                <p class="text-xs text-slate-400 font-light">Espacios de trabajo independientes con bases de datos dedicadas.</p>
+                <h2 class="text-lg font-bold text-slate-900">Acceso a los Módulos de la Intranet</h2>
+                <p class="text-xs text-slate-500">Selecciona el módulo correspondiente para acceder a su espacio de trabajo.</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Módulo 01: Admisión (Sky Pastel) -->
-            <a href="/Modulo01" class="group bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-sky-300 hover:shadow-[0_8px_24px_rgba(14,165,233,0.08)] transition flex flex-col justify-between">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <!-- Módulo 01 (Sky) -->
+            <a href="/Modulo01" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-sky-300 transition group flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-sky-50 text-sky-600 border border-sky-100 flex items-center justify-center group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" /></svg>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-11 h-11 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-mono bg-sky-50 text-sky-700 px-2 py-0.5 rounded-full border border-sky-200/60">M01</span>
-                            <span class="text-[10px] font-mono text-slate-400">db_modulo01</span>
-                        </div>
+                        <span class="text-xs font-bold bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full border border-sky-200">Equipo 01</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-sky-600 transition">Admisión & Postulantes</h3>
-                    <p class="text-xs text-slate-500 font-light mt-1.5 leading-relaxed">Inscripciones al examen ordinario y primeros puestos, padrón de postulantes y actas de ingreso.</p>
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-sky-700 transition">Módulo 01</h3>
+                    <p class="text-xs text-slate-500 mt-1">Espacio de trabajo asignado al Equipo 01. Base de datos: <code class="text-sky-700 font-mono">db_modulo01</code>.</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px] font-light">Equipo 01</span>
-                    <span class="text-[11px] text-sky-600 font-normal group-hover:translate-x-0.5 transition inline-flex items-center gap-1">Ingresar →</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-sky-700">
+                    <span>Ingresar al módulo</span>
+                    <span class="group-hover:translate-x-1 transition">→</span>
                 </div>
             </a>
 
-            <!-- Módulo 02: Matrícula (Indigo Pastel) -->
-            <a href="/Modulo02" class="group bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-indigo-300 hover:shadow-[0_8px_24px_rgba(99,102,241,0.08)] transition flex flex-col justify-between">
+            <!-- Módulo 02 (Indigo) -->
+            <a href="/Modulo02" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-indigo-300 transition group flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 border border-indigo-100 flex items-center justify-center group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l9-5-9-5-9 5 9 5z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z" /></svg>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-11 h-11 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-mono bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-200/60">M02</span>
-                            <span class="text-[10px] font-mono text-slate-400">db_modulo02</span>
-                        </div>
+                        <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-full border border-indigo-200">Equipo 02</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-indigo-600 transition">Matrícula & Cursos</h3>
-                    <p class="text-xs text-slate-500 font-light mt-1.5 leading-relaxed">Inscripción por ciclo académico, control de créditos, cruce de horarios y ficha de matrícula oficial.</p>
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-indigo-700 transition">Módulo 02</h3>
+                    <p class="text-xs text-slate-500 mt-1">Espacio de trabajo asignado al Equipo 02. Base de datos: <code class="text-indigo-700 font-mono">db_modulo02</code>.</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px] font-light">Equipo 02</span>
-                    <span class="text-[11px] text-indigo-600 font-normal group-hover:translate-x-0.5 transition inline-flex items-center gap-1">Ingresar →</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-indigo-700">
+                    <span>Ingresar al módulo</span>
+                    <span class="group-hover:translate-x-1 transition">→</span>
                 </div>
             </a>
 
-            <!-- Módulo 03: Gestión Docente (Emerald Pastel) -->
-            <a href="/Modulo03" class="group bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-emerald-300 hover:shadow-[0_8px_24px_rgba(16,185,129,0.08)] transition flex flex-col justify-between">
+            <!-- Módulo 03 (Emerald) -->
+            <a href="/Modulo03" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-emerald-300 transition group flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 border border-emerald-100 flex items-center justify-center group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-mono bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">M03</span>
-                            <span class="text-[10px] font-mono text-slate-400">db_modulo03</span>
-                        </div>
+                        <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-200">Equipo 03</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-emerald-600 transition">Gestión Docente</h3>
-                    <p class="text-xs text-slate-500 font-light mt-1.5 leading-relaxed">Asignación de carga lectiva, control de asistencia biométrica docente y aprobación de sílabos.</p>
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition">Módulo 03</h3>
+                    <p class="text-xs text-slate-500 mt-1">Espacio de trabajo asignado al Equipo 03. Base de datos: <code class="text-emerald-700 font-mono">db_modulo03</code>.</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px] font-light">Equipo 03</span>
-                    <span class="text-[11px] text-emerald-600 font-normal group-hover:translate-x-0.5 transition inline-flex items-center gap-1">Ingresar →</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-emerald-700">
+                    <span>Ingresar al módulo</span>
+                    <span class="group-hover:translate-x-1 transition">→</span>
                 </div>
             </a>
 
-            <!-- Módulo 04: Calificaciones (Amber Pastel) -->
-            <a href="/Modulo04" class="group bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-amber-300 hover:shadow-[0_8px_24px_rgba(245,158,11,0.08)] transition flex flex-col justify-between">
+            <!-- Módulo 04 (Amber) -->
+            <a href="/Modulo04" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-amber-300 transition group flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-amber-50 text-amber-600 border border-amber-100 flex items-center justify-center group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" /></svg>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-mono bg-amber-50 text-amber-700 px-2 py-0.5 rounded-full border border-amber-200/60">M04</span>
-                            <span class="text-[10px] font-mono text-slate-400">db_modulo04</span>
-                        </div>
+                        <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full border border-amber-200">Equipo 04</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-amber-600 transition">Calificaciones & Actas</h3>
-                    <p class="text-xs text-slate-500 font-light mt-1.5 leading-relaxed">Registro de evaluaciones continuas (EC1, EC2, EF), promedios ponderados y actas oficiales.</p>
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-amber-700 transition">Módulo 04</h3>
+                    <p class="text-xs text-slate-500 mt-1">Espacio de trabajo asignado al Equipo 04. Base de datos: <code class="text-amber-700 font-mono">db_modulo04</code>.</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px] font-light">Equipo 04</span>
-                    <span class="text-[11px] text-amber-600 font-normal group-hover:translate-x-0.5 transition inline-flex items-center gap-1">Ingresar →</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-amber-700">
+                    <span>Ingresar al módulo</span>
+                    <span class="group-hover:translate-x-1 transition">→</span>
                 </div>
             </a>
 
-            <!-- Módulo 05: Tesorería (Purple Pastel) -->
-            <a href="/Modulo05" class="group bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-purple-300 hover:shadow-[0_8px_24px_rgba(168,85,247,0.08)] transition flex flex-col justify-between">
+            <!-- Módulo 05 (Purple) -->
+            <a href="/Modulo05" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-purple-300 transition group flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-purple-50 text-purple-600 border border-purple-100 flex items-center justify-center group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-mono bg-purple-50 text-purple-700 px-2 py-0.5 rounded-full border border-purple-200/60">M05</span>
-                            <span class="text-[10px] font-mono text-slate-400">db_modulo05</span>
-                        </div>
+                        <span class="text-xs font-bold bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full border border-purple-200">Equipo 05</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-purple-600 transition">Tesorería & Pagos</h3>
-                    <p class="text-xs text-slate-500 font-light mt-1.5 leading-relaxed">Emisión de recibos de matrícula, constancias de estudio, certificados y arqueo diario de caja.</p>
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-purple-700 transition">Módulo 05</h3>
+                    <p class="text-xs text-slate-500 mt-1">Espacio de trabajo asignado al Equipo 05. Base de datos: <code class="text-purple-700 font-mono">db_modulo05</code>.</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px] font-light">Equipo 05</span>
-                    <span class="text-[11px] text-purple-600 font-normal group-hover:translate-x-0.5 transition inline-flex items-center gap-1">Ingresar →</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-purple-700">
+                    <span>Ingresar al módulo</span>
+                    <span class="group-hover:translate-x-1 transition">→</span>
                 </div>
             </a>
 
-            <!-- Módulo 06: Biblioteca (Rose Pastel) -->
-            <a href="/Modulo06" class="group bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-rose-300 hover:shadow-[0_8px_24px_rgba(244,63,94,0.08)] transition flex flex-col justify-between">
+            <!-- Módulo 06 (Rose) -->
+            <a href="/Modulo06" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-rose-300 transition group flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-11 h-11 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-mono bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full border border-rose-200/60">M06</span>
-                            <span class="text-[10px] font-mono text-slate-400">db_modulo06</span>
-                        </div>
+                        <span class="text-xs font-bold bg-rose-100 text-rose-800 px-2.5 py-1 rounded-full border border-rose-200">Equipo 06</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-rose-600 transition">Biblioteca Virtual</h3>
-                    <p class="text-xs text-slate-500 font-light mt-1.5 leading-relaxed">Catálogo digital de libros, tesis, proyectos de titulación y préstamos físicos con código QR.</p>
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-rose-700 transition">Módulo 06</h3>
+                    <p class="text-xs text-slate-500 mt-1">Espacio de trabajo asignado al Equipo 06. Base de datos: <code class="text-rose-700 font-mono">db_modulo06</code>.</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px] font-light">Equipo 06</span>
-                    <span class="text-[11px] text-rose-600 font-normal group-hover:translate-x-0.5 transition inline-flex items-center gap-1">Ingresar →</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-rose-700">
+                    <span>Ingresar al módulo</span>
+                    <span class="group-hover:translate-x-1 transition">→</span>
                 </div>
             </a>
 
-            <!-- Módulo 07: Mesa de Partes (Teal Pastel) -->
-            <a href="/Modulo07" class="group bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-teal-300 hover:shadow-[0_8px_24px_rgba(20,184,166,0.08)] transition flex flex-col justify-between">
+            <!-- Módulo 07 (Teal) -->
+            <a href="/Modulo07" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-teal-300 transition group flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-teal-50 text-teal-600 border border-teal-100 flex items-center justify-center group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-11 h-11 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-mono bg-teal-50 text-teal-700 px-2 py-0.5 rounded-full border border-teal-200/60">M07</span>
-                            <span class="text-[10px] font-mono text-slate-400">db_modulo07</span>
-                        </div>
+                        <span class="text-xs font-bold bg-teal-100 text-teal-800 px-2.5 py-1 rounded-full border border-teal-200">Equipo 07</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-teal-600 transition">Mesa de Partes (FUT)</h3>
-                    <p class="text-xs text-slate-500 font-light mt-1.5 leading-relaxed">Recepción de solicitudes vía Formulario Único de Trámite (FUT), derivación de expedientes y seguimiento.</p>
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-teal-700 transition">Módulo 07</h3>
+                    <p class="text-xs text-slate-500 mt-1">Espacio de trabajo asignado al Equipo 07. Base de datos: <code class="text-teal-700 font-mono">db_modulo07</code>.</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px] font-light">Equipo 07</span>
-                    <span class="text-[11px] text-teal-600 font-normal group-hover:translate-x-0.5 transition inline-flex items-center gap-1">Ingresar →</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-teal-700">
+                    <span>Ingresar al módulo</span>
+                    <span class="group-hover:translate-x-1 transition">→</span>
                 </div>
             </a>
 
-            <!-- Módulo 08: Prácticas EFSRT (Orange Pastel) -->
-            <a href="/Modulo08" class="group bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-orange-300 hover:shadow-[0_8px_24px_rgba(249,115,22,0.08)] transition flex flex-col justify-between">
+            <!-- Módulo 08 (Orange) -->
+            <a href="/Modulo08" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-orange-300 transition group flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-orange-50 text-orange-600 border border-orange-100 flex items-center justify-center group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" /></svg>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-mono bg-orange-50 text-orange-700 px-2 py-0.5 rounded-full border border-orange-200/60">M08</span>
-                            <span class="text-[10px] font-mono text-slate-400">db_modulo08</span>
-                        </div>
+                        <span class="text-xs font-bold bg-orange-100 text-orange-800 px-2.5 py-1 rounded-full border border-orange-200">Equipo 08</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-orange-600 transition">Bolsa & Prácticas EFSRT</h3>
-                    <p class="text-xs text-slate-500 font-light mt-1.5 leading-relaxed">Convenios con empresas, registro de módulos formativos y emisión de constancias EFSRT.</p>
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-orange-700 transition">Módulo 08</h3>
+                    <p class="text-xs text-slate-500 mt-1">Espacio de trabajo asignado al Equipo 08. Base de datos: <code class="text-orange-700 font-mono">db_modulo08</code>.</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px] font-light">Equipo 08</span>
-                    <span class="text-[11px] text-orange-600 font-normal group-hover:translate-x-0.5 transition inline-flex items-center gap-1">Ingresar →</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-orange-700">
+                    <span>Ingresar al módulo</span>
+                    <span class="group-hover:translate-x-1 transition">→</span>
                 </div>
             </a>
 
-            <!-- Módulo 09: Mesa de Ayuda TI (Cyan Pastel) -->
-            <a href="/Modulo09" class="group bg-white rounded-2xl p-5 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] hover:border-cyan-300 hover:shadow-[0_8px_24px_rgba(6,182,212,0.08)] transition flex flex-col justify-between">
+            <!-- Módulo 09 (Cyan) -->
+            <a href="/Modulo09" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-cyan-300 transition group flex flex-col justify-between">
                 <div>
-                    <div class="flex items-center justify-between mb-3.5">
-                        <div class="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-600 border border-cyan-100 flex items-center justify-center group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    <div class="flex items-center justify-between mb-3">
+                        <div class="w-11 h-11 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] font-mono bg-cyan-50 text-cyan-700 px-2 py-0.5 rounded-full border border-cyan-200/60">M09</span>
-                            <span class="text-[10px] font-mono text-slate-400">db_modulo09</span>
-                        </div>
+                        <span class="text-xs font-bold bg-cyan-100 text-cyan-800 px-2.5 py-1 rounded-full border border-cyan-200">Equipo 09</span>
                     </div>
-                    <h3 class="text-xs sm:text-sm font-medium text-slate-900 group-hover:text-cyan-600 transition">Mesa de Ayuda TI</h3>
-                    <p class="text-xs text-slate-500 font-light mt-1.5 leading-relaxed">Atención de incidentes técnicos en laboratorios de cómputo, redes y mantenimiento informático.</p>
+                    <h3 class="text-base font-bold text-slate-900 group-hover:text-cyan-700 transition">Módulo 09</h3>
+                    <p class="text-xs text-slate-500 mt-1">Espacio de trabajo asignado al Equipo 09. Base de datos: <code class="text-cyan-700 font-mono">db_modulo09</code>.</p>
                 </div>
-                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 text-[11px] font-light">Equipo 09</span>
-                    <span class="text-[11px] text-cyan-600 font-normal group-hover:translate-x-0.5 transition inline-flex items-center gap-1">Ingresar →</span>
+                <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-cyan-700">
+                    <span>Ingresar al módulo</span>
+                    <span class="group-hover:translate-x-1 transition">→</span>
                 </div>
             </a>
-        </div>
-    </div>
-
-    <!-- Anuncios y Datos Institucionales (Apple Style Cards con badges pasteles) -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div class="lg:col-span-2 bg-white rounded-3xl p-6 sm:p-8 border border-[#e5e5e7] shadow-[0_2px_12px_rgba(0,0,0,0.015)]">
-            <div class="flex items-center justify-between mb-4">
-                <h3 class="text-sm font-medium text-slate-900">
-                    Comunicados de Dirección General
-                </h3>
-                <span class="text-[11px] text-slate-400 font-light">Semestre 2026-II</span>
-            </div>
-            <div class="space-y-3">
-                <div class="p-4 rounded-2xl bg-[#f5f5f7]/80 border border-slate-200/50 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center hover:bg-white hover:shadow-sm transition">
-                    <div>
-                        <span class="text-[10px] font-normal text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200/60">Académico</span>
-                        <h4 class="text-xs font-medium text-slate-900 mt-1">Cronograma de Evaluaciones Parciales Semestre 2026-II</h4>
-                        <p class="text-[11px] text-slate-500 font-light mt-0.5">Ingreso de notas de la Evaluación Continua 1 en el Módulo 04 de Calificaciones.</p>
-                    </div>
-                    <span class="text-[11px] text-slate-400 font-mono shrink-0">05 Sep 2026</span>
-                </div>
-
-                <div class="p-4 rounded-2xl bg-[#f5f5f7]/80 border border-slate-200/50 flex flex-col sm:flex-row gap-3 justify-between items-start sm:items-center hover:bg-white hover:shadow-sm transition">
-                    <div>
-                        <span class="text-[10px] font-normal text-purple-700 bg-purple-50 px-2.5 py-0.5 rounded-full border border-purple-200/60">Innovación</span>
-                        <h4 class="text-xs font-medium text-slate-900 mt-1">Feria Tecnológica & Proyectos de Software 2026</h4>
-                        <p class="text-[11px] text-slate-500 font-light mt-0.5">Convocatoria para proyectos de Desarrollo de Sistemas e Inteligencia Artificial.</p>
-                    </div>
-                    <span class="text-[11px] text-slate-400 font-mono shrink-0">12 Sep 2026</span>
-                </div>
-            </div>
-        </div>
-
-        <div class="bg-white rounded-3xl p-6 sm:p-8 border border-[#e5e5e7] shadow-[0_2px_12px_rgba(0,0,0,0.015)]">
-            <h3 class="text-sm font-medium text-slate-900 mb-4">
-                Ficha Institucional
-            </h3>
-            <div class="space-y-3 text-xs font-light text-slate-600">
-                <div class="flex justify-between py-1.5 border-b border-slate-100">
-                    <span class="text-slate-400">Institución</span>
-                    <span class="font-normal text-slate-900 text-right">IESTP "Argentina"</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-100">
-                    <span class="text-slate-400">Ubicación</span>
-                    <span class="text-right text-slate-700">Av. Alfonso Ugarte 599, Lima</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-100">
-                    <span class="text-slate-400">Carreras</span>
-                    <span class="text-right text-slate-700">DSI, Contabilidad, Adm.</span>
-                </div>
-                <div class="flex justify-between py-1.5 border-b border-slate-100">
-                    <span class="text-slate-400">Tecnología</span>
-                    <span class="text-[11px] font-mono text-slate-700 bg-slate-100 px-2 py-0.5 rounded">.NET 10 LTS</span>
-                </div>
-                <div class="flex justify-between py-1.5">
-                    <span class="text-slate-400">Bases de Datos</span>
-                    <span class="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200/50">10 DBs Aisladas</span>
-                </div>
-            </div>
         </div>
     </div>
 </div>
-
