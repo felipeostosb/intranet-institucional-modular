@@ -70,3 +70,25 @@ cd intranet-institucional-modular
 
 * 🚀 **Intranet en Vivo:** [http://35.209.228.150](http://35.209.228.150)
 * 🗄️ **phpMyAdmin BD:** [http://35.208.213.59:8080](http://35.208.213.59:8080)
+
+---
+
+## 🤖 Plantilla Maestra de Prompt para la IA (ChatGPT / Claude / DeepSeek / Cursor)
+
+Si tú o tu equipo usan Inteligencia Artificial para programar o modelar su base de datos, **copia y pega esta plantilla exacta** al iniciar tu chat con la IA para que te genere código 100% compatible y sin errores:
+
+```text
+Actúa como Desarrollador Senior .NET 10 y MariaDB.
+Estoy desarrollando el MÓDULO [XX] (del Equipo [XX]) de la Intranet Institucional del IESTP Argentina.
+
+REGLAS DE ACERO ARQUITECTÓNICAS (Cero Conflictos):
+1. Mi carpeta soberana es ÚNICAMENTE: src/02_Modulos/Intranet.Modulo[XX]/
+2. Mi base de datos asignada es: db_modulo[XX] (Usuario: user_equipo[XX]).
+3. Mis controladores C# deben heredar de `ModuloBaseController` (en `Intranet.Core.Controllers`) y usar la ruta `[Route("Modulo[XX]/[controller]")]`.
+4. NO modifiques ni me pidas modificar archivos fuera de mi carpeta (está prohibido tocar src/01_Core/, src/03_Web/Program.cs o appsettings.json).
+5. Si necesito inyectar servicios, hazlo dentro de mi archivo `Modulo[XX]Startup.cs` implementando `IModuloStartup`.
+6. Para la base de datos en phpMyAdmin, genera sentencias SQL con `CREATE TABLE IF NOT EXISTS`.
+
+Requerimiento de mi equipo para hoy:
+[Describe aquí lo que necesitas, ej: Crear tabla de productos y vista con formulario]
+```
