@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # ==============================================================================
-# 🏛️ IESTP ARGENTINA - ASISTENTE DE DESARROLLO (CLI SENCILLO)
+# 🏛️ IESTP ARGENTINA - ASISTENTE DE DESARROLLO (CLI RESILIENTE Y SENCILLO)
 # ==============================================================================
 
 set -e
@@ -15,6 +15,7 @@ NC='\033[0m'
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
+# Instalar guardián local contra push a main de forma silenciosa
 if [ -d .git ] && [ ! -f .git/hooks/pre-push ]; then
     mkdir -p .git/hooks
     cat << 'HOOK_EOF' > .git/hooks/pre-push
@@ -31,15 +32,17 @@ fi
 
 show_menu() {
     clear
+    CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "desconocida")
     echo -e "${BLUE}======================================================================${NC}"
     echo -e "${BLUE}🏛️  INTRANET INSTITUCIONAL IESTP ARGENTINA — ASISTENTE DEV${NC}"
     echo -e "${BLUE}======================================================================${NC}"
     echo -e "  ${CYAN}Plataforma .NET 10 LTS • MariaDB • 9 Módulos Desacoplados${NC}"
+    echo -e "  🌿 Rama actual: ${YELLOW}${CURRENT_BRANCH}${NC}"
     echo -e "${BLUE}----------------------------------------------------------------------${NC}\n"
     echo -e "  ${GREEN}1)${NC} 🚀 ${CYAN}Iniciar Intranet${NC} (Ver cambios en vivo en tu navegador)"
-    echo -e "  ${GREEN}2)${NC} 🌿 ${CYAN}Crear mi Rama de Trabajo${NC} (Elige tu equipo 01 al 09)"
+    echo -e "  ${GREEN}2)${NC} 🌿 ${CYAN}Crear / Cambiar a mi Rama de Equipo${NC} (Elige tu equipo 01 al 09)"
     echo -e "  ${GREEN}3)${NC} ⚡ ${CYAN}Generar Formulario / Tabla${NC} (Para tu módulo)"
-    echo -e "  ${GREEN}4)${NC} 📤 ${CYAN}Subir mi Trabajo a GitHub${NC} (Guardar y enviar)"
+    echo -e "  ${GREEN}4)${NC} 📤 ${CYAN}Subir mi Trabajo a GitHub${NC} (Guarda y sincroniza siempre)"
     echo -e "  ${GREEN}0)${NC} 🚪 ${YELLOW}Salir${NC}\n"
 }
 
@@ -50,7 +53,7 @@ start_app() {
 }
 
 create_branch() {
-    echo -e "\n${BLUE}🌿 CREAR MI RAMA DE EQUIPO${NC}"
+    echo -e "\n${BLUE}🌿 CONFIGURAR RAMA DE TRABAJO${NC}"
     read -p "👉 ¿Qué número de equipo eres? (1 al 9): " num
     num=$(printf "%02d" $((10#$num)))
     
@@ -60,16 +63,25 @@ create_branch() {
     fi
     
     read -p "👉 ¿Qué tarea vas a hacer? (ej: formulario-registro): " tarea
+    if [ -z "$tarea" ]; then
+        tarea="avance"
+    fi
     tarea=$(echo "$tarea" | tr '[:upper:]' '[:lower:]' | tr ' ' '-' | tr -cd 'a-z0-9-')
     
     branch="modulo${num}/${tarea}"
     
-    echo -e "\n${CYAN}Actualizando código con 'main'...${NC}"
-    git checkout main >/dev/null 2>&1 || true
-    git pull origin main >/dev/null 2>&1 || true
+    # Verificar si la rama ya existe localmente
+    if git show-ref --verify --quiet "refs/heads/$branch"; then
+        echo -e "\n${CYAN}Cambiando a tu rama existente: ${branch}...${NC}"
+        git checkout "$branch"
+    else
+        echo -e "\n${CYAN}Sincronizando con 'main' antes de crear la rama...${NC}"
+        git checkout main >/dev/null 2>&1 || true
+        git pull origin main >/dev/null 2>&1 || true
+        git checkout -b "$branch"
+        echo -e "\n${GREEN}✅ ¡Rama creada con éxito: ${CYAN}${branch}${NC}!"
+    fi
     
-    git checkout -b "$branch"
-    echo -e "\n${GREEN}✅ ¡Listo! Ya estás en tu rama segura: ${CYAN}${branch}${NC}"
     echo -e "${YELLOW}Recuerda programar en: src/02_Modulos/Intranet.Modulo${num}/${NC}"
 }
 
@@ -79,6 +91,10 @@ scaffold_code() {
     num=$(printf "%02d" $((10#$num)))
     
     read -p "👉 Nombre del registro (ej: Alumno, Producto, Pago): " entidad
+    if [ -z "$entidad" ]; then
+        echo -e "${RED}❌ El nombre de la entidad es obligatorio.${NC}"
+        return
+    fi
     entidad="$(tr '[:lower:]' '[:upper:]' <<< ${entidad:0:1})${entidad:1}"
     
     mod_path="src/02_Modulos/Intranet.Modulo${num}"
@@ -216,25 +232,46 @@ VIEW_EOF
     echo -e "Ruta web: ${CYAN}http://localhost:5000/Modulo${num}/${entidad}${NC}"
 }
 
+# 4. Subir a GitHub (Maneja Primera Vez y Sincronizaciones Posteriores)
 push_work() {
-    echo -e "\n${BLUE}📤 SUBIR MI TRABAJO A GITHUB${NC}"
+    echo -e "\n${BLUE}📤 SUBIR Y SINCRONIZAR MI TRABAJO CON GITHUB${NC}"
     branch=$(git rev-parse --abbrev-ref HEAD)
     
     if [ "$branch" = "main" ]; then
-        echo -e "${RED}⛔ Estás en 'main'. Usa la opción 2 para crear tu rama antes de subir.${NC}"
+        echo -e "${RED}⛔ Estás en 'main'. Usa la opción 2 para crear o cambiar a tu rama antes de subir.${NC}"
         return
     fi
     
-    read -p "👉 Describe brevemente qué hiciste (ej: formulario de registro): " msg
+    echo -e "🌿 Rama de trabajo: ${CYAN}${branch}${NC}"
     
-    git add .
-    git commit -m "$msg"
+    # 1. Comprobar si hay cambios pendientes por guardar
+    STATUS=$(git status --porcelain)
+    if [ -n "$STATUS" ]; then
+        read -p "👉 Describe qué cambiaste (ej: agregue formulario): " msg
+        if [ -z "$msg" ]; then
+            msg="feat(${branch}): actualizacion de avance"
+        fi
+        git add .
+        git commit -m "$msg"
+        echo -e "${GREEN}✓ Cambios guardados localmente.${NC}"
+    else
+        echo -e "${YELLOW}ℹ️ No hay archivos nuevos por guardar, sincronizando con GitHub...${NC}"
+    fi
     
-    echo -e "\n${CYAN}Enviando a GitHub...${NC}"
-    git push origin "$branch"
+    # 2. Descargar posibles cambios remotos de compañeros de equipo
+    echo -e "${CYAN}Sincronizando con GitHub...${NC}"
+    git pull --rebase origin "$branch" >/dev/null 2>&1 || true
     
-    echo -e "\n${GREEN}✅ ¡Trabajo subido con éxito a la rama: ${CYAN}${branch}${NC}!"
-    echo -e "👉 Abre tu Pull Request aquí: ${BLUE}https://github.com/felipeostosb/intranet-institucional-modular/pulls${NC}"
+    # 3. Publicar en GitHub (Cubre Primera Vez con -u y Siguientes veces)
+    echo -e "${CYAN}Publicando rama '${branch}' en GitHub...${NC}"
+    if git push -u origin "$branch"; then
+        echo -e "\n${GREEN}======================================================================${NC}"
+        echo -e "${GREEN}🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!${NC}"
+        echo -e "${GREEN}======================================================================${NC}"
+        echo -e "👉 Abre o revisa tu Pull Request aquí:\n   ${CYAN}https://github.com/felipeostosb/intranet-institucional-modular/pulls${NC}"
+    else
+        echo -e "\n${RED}❌ Hubo un inconveniente al subir a GitHub. Revisa tu conexión o permisos.${NC}"
+    fi
 }
 
 while true; do
