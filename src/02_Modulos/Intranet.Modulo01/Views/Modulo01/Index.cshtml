@@ -1,73 +1,69 @@
 @{
-    ViewData["Title"] = "Módulo 01 - Admisión y Postulantes";
+    ViewData["Title"] = "Admisión y Postulantes";
 }
 
-<div class="space-y-6 font-sans">
-    <!-- Header del Módulo -->
-    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
-        <div class="flex items-center justify-between flex-wrap gap-4">
-            <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800">Módulo 01</span>
-                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600">Equipo 01 • db_modulo01</span>
-                </div>
-                <h1 class="text-xl sm:text-2xl font-black text-slate-900">
-                    📝 Gestión de Admisión & Postulantes 2026-II
-                </h1>
-                <p class="text-xs text-slate-500 mt-1">
-                    Control de postulantes inscritos, modalidades de examen y padrón por carrera profesional (DSI, Contabilidad, Adm.).
-                </p>
+<div class="space-y-6 font-light">
+    <!-- Header del Módulo Apple Style -->
+    <div class="bg-white rounded-2xl p-6 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="text-[10px] font-mono text-slate-400">M01</span>
+                <span class="text-[11px] text-slate-400 font-light">db_modulo01 • Equipo 01</span>
             </div>
-            <div class="flex gap-2">
-                <button class="btn bg-sky-600 hover:bg-sky-700 text-white btn-sm font-bold text-xs rounded-xl shadow-sm shadow-sky-600/30 border-0" onclick="modal_nuevo_postulante.showModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                    Nuevo Postulante
-                </button>
-                <button class="btn btn-outline btn-sm font-semibold text-xs rounded-xl border-slate-300 text-slate-700 hover:bg-slate-100">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                    Exportar Actas
-                </button>
-            </div>
+            <h1 class="text-xl sm:text-2xl font-normal text-slate-900 tracking-tight">
+                Admisión & Postulantes 2026-II
+            </h1>
+            <p class="text-xs text-slate-500 font-light mt-0.5">
+                Control de inscripciones por carrera (DSI, Contabilidad, Administración).
+            </p>
+        </div>
+        <div class="flex gap-2">
+            <button class="px-3.5 py-1.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-normal transition shadow-sm" onclick="modal_nuevo_postulante.showModal()">
+                + Nuevo Postulante
+            </button>
+            <button class="px-3.5 py-1.5 rounded-xl bg-[#f5f5f7] hover:bg-slate-200/70 text-slate-700 text-xs font-normal transition border border-slate-200/60">
+                Exportar Actas
+            </button>
         </div>
     </div>
 
-    <!-- Estadísticas Pastel de Admisión -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-gradient-to-br from-sky-50 to-blue-50/60 rounded-2xl p-4 border border-sky-100 shadow-sm">
-            <div class="text-xs font-bold text-slate-500">Total Postulantes</div>
-            <div class="text-2xl font-black text-sky-900 mt-1.5">680</div>
-            <div class="text-[11px] font-semibold text-emerald-700 mt-1">Capacidad: 750 Vacantes</div>
+    <!-- Indicadores Apple Style -->
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)]">
+            <span class="text-[10px] font-normal text-slate-400 uppercase tracking-wider">Total Postulantes</span>
+            <div class="text-2xl font-light text-slate-900 mt-1">680</div>
+            <p class="text-[10px] text-slate-400 font-light mt-0.5">Capacidad: 750 vacantes</p>
         </div>
         
-        <div class="bg-gradient-to-br from-indigo-50 to-purple-50/60 rounded-2xl p-4 border border-indigo-100 shadow-sm">
-            <div class="text-xs font-bold text-slate-500">Desarrollo de Sistemas (DSI)</div>
-            <div class="text-2xl font-black text-indigo-900 mt-1.5">310</div>
-            <div class="text-[11px] font-medium text-slate-500 mt-1">45% de la demanda total</div>
+        <div class="bg-white rounded-2xl p-4 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)]">
+            <span class="text-[10px] font-normal text-slate-400 uppercase tracking-wider">Desarrollo Sistemas</span>
+            <div class="text-2xl font-light text-slate-900 mt-1">310</div>
+            <p class="text-[10px] text-slate-400 font-light mt-0.5">45% de demanda</p>
         </div>
         
-        <div class="bg-gradient-to-br from-cyan-50 to-blue-50/60 rounded-2xl p-4 border border-cyan-100 shadow-sm">
-            <div class="text-xs font-bold text-slate-500">Contabilidad</div>
-            <div class="text-2xl font-black text-cyan-900 mt-1.5">220</div>
-            <div class="text-[11px] font-medium text-slate-500 mt-1">Turnos Diurno y Nocturno</div>
+        <div class="bg-white rounded-2xl p-4 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)]">
+            <span class="text-[10px] font-normal text-slate-400 uppercase tracking-wider">Contabilidad</span>
+            <div class="text-2xl font-light text-slate-900 mt-1">220</div>
+            <p class="text-[10px] text-slate-400 font-light mt-0.5">Turno diurno / noche</p>
         </div>
 
-        <div class="bg-gradient-to-br from-amber-50 to-orange-50/60 rounded-2xl p-4 border border-amber-100 shadow-sm">
-            <div class="text-xs font-bold text-slate-500">Administración</div>
-            <div class="text-2xl font-black text-amber-900 mt-1.5">150</div>
-            <div class="text-[11px] font-medium text-slate-500 mt-1">Examen programado</div>
+        <div class="bg-white rounded-2xl p-4 border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)]">
+            <span class="text-[10px] font-normal text-slate-400 uppercase tracking-wider">Administración</span>
+            <div class="text-2xl font-light text-slate-900 mt-1">150</div>
+            <p class="text-[10px] text-slate-400 font-light mt-0.5">Examen programado</p>
         </div>
     </div>
 
-    <!-- Padrón de Postulantes (Tabla Pastel DaisyUI) -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
-        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+    <!-- Padrón de Postulantes (Clean Apple Table) -->
+    <div class="bg-white rounded-2xl border border-[#e5e5e7] shadow-[0_2px_8px_rgba(0,0,0,0.015)] overflow-hidden">
+        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
-                <h2 class="text-sm sm:text-base font-bold text-slate-900">Padrón Oficial de Postulantes 2026-II</h2>
-                <p class="text-[11px] text-slate-500">Base de datos modular `db_modulo01` (Equipo 01).</p>
+                <h2 class="text-xs sm:text-sm font-normal text-slate-900">Padrón de Postulantes</h2>
+                <p class="text-[11px] text-slate-400 font-light">Datos de la base de datos `db_modulo01`.</p>
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
-                <input type="text" placeholder="Buscar por DNI o Apellidos..." class="input input-bordered input-sm w-full sm:w-60 rounded-xl text-xs" />
-                <select class="select select-bordered select-sm rounded-xl text-xs">
+                <input type="text" placeholder="Buscar por DNI..." class="px-3 py-1 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:outline-none focus:border-[#0071e3] w-full sm:w-48 font-light" />
+                <select class="px-2.5 py-1 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:outline-none text-slate-600 font-light">
                     <option selected>Todas las Carreras</option>
                     <option>Desarrollo de Sistemas</option>
                     <option>Contabilidad</option>
@@ -77,146 +73,126 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="table table-sm w-full text-xs">
+            <table class="w-full text-left text-xs divide-y divide-slate-100">
                 <thead>
-                    <tr class="bg-slate-50/80 text-slate-500 border-b border-slate-100">
-                        <th>N° EXP</th>
-                        <th>DNI</th>
-                        <th>POSTULANTE</th>
-                        <th>CARRERA</th>
-                        <th>MODALIDAD</th>
-                        <th>PUNTAJE</th>
-                        <th>ESTADO</th>
-                        <th class="text-right">ACCIONES</th>
+                    <tr class="bg-[#fbfbfd] text-slate-400 text-[10px] uppercase font-normal tracking-wider">
+                        <th class="py-2.5 px-4 font-normal">Expediente</th>
+                        <th class="py-2.5 px-4 font-normal">DNI</th>
+                        <th class="py-2.5 px-4 font-normal">Postulante</th>
+                        <th class="py-2.5 px-4 font-normal">Carrera</th>
+                        <th class="py-2.5 px-4 font-normal">Modalidad</th>
+                        <th class="py-2.5 px-4 font-normal">Puntaje</th>
+                        <th class="py-2.5 px-4 font-normal">Estado</th>
+                        <th class="py-2.5 px-4 font-normal text-right">Acción</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
-                    <tr class="hover:bg-slate-50/60 transition">
-                        <td class="font-mono font-bold text-sky-700">EXP-2026-001</td>
-                        <td class="font-mono text-slate-600">74892011</td>
-                        <td>
-                            <div class="font-bold text-slate-900">Jean Pierre Huamán Soto</div>
-                            <div class="text-[10px] text-slate-400">jean.huaman@gmail.com</div>
-                        </td>
-                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800">Desarrollo de Sistemas</span></td>
-                        <td class="text-slate-600">Examen Ordinario</td>
-                        <td class="font-bold text-emerald-700">88.50 / 100</td>
-                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Admitido</span></td>
-                        <td class="text-right">
-                            <button class="btn btn-ghost btn-xs text-sky-700 hover:bg-sky-50 font-semibold rounded-lg">Ver Ficha</button>
-                        </td>
+                <tbody class="divide-y divide-slate-100 font-light text-slate-700">
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="py-3 px-4 font-mono text-[11px] text-slate-500">EXP-2026-001</td>
+                        <td class="py-3 px-4 font-mono text-[11px]">74892011</td>
+                        <td class="py-3 px-4 font-normal text-slate-900">Jean Pierre Huamán Soto</td>
+                        <td class="py-3 px-4 text-slate-600">Desarrollo de Sistemas</td>
+                        <td class="py-3 px-4 text-slate-500">Ordinario</td>
+                        <td class="py-3 px-4 font-mono text-slate-900 font-normal">88.50</td>
+                        <td class="py-3 px-4"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">Admitido</span></td>
+                        <td class="py-3 px-4 text-right"><button class="text-[11px] text-[#0071e3] hover:underline font-normal">Ver</button></td>
                     </tr>
-                    <tr class="hover:bg-slate-50/60 transition">
-                        <td class="font-mono font-bold text-sky-700">EXP-2026-002</td>
-                        <td class="font-mono text-slate-600">71203948</td>
-                        <td>
-                            <div class="font-bold text-slate-900">Valeria Alexandra Gómez Vega</div>
-                            <div class="text-[10px] text-slate-400">valeria.gomez@gmail.com</div>
-                        </td>
-                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">Contabilidad</span></td>
-                        <td class="text-slate-600">Primeros Puestos</td>
-                        <td class="font-bold text-emerald-700">92.00 / 100</td>
-                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Admitido</span></td>
-                        <td class="text-right">
-                            <button class="btn btn-ghost btn-xs text-sky-700 hover:bg-sky-50 font-semibold rounded-lg">Ver Ficha</button>
-                        </td>
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="py-3 px-4 font-mono text-[11px] text-slate-500">EXP-2026-002</td>
+                        <td class="py-3 px-4 font-mono text-[11px]">71203948</td>
+                        <td class="py-3 px-4 font-normal text-slate-900">Valeria Alexandra Gómez Vega</td>
+                        <td class="py-3 px-4 text-slate-600">Contabilidad</td>
+                        <td class="py-3 px-4 text-slate-500">Primeros Puestos</td>
+                        <td class="py-3 px-4 font-mono text-slate-900 font-normal">92.00</td>
+                        <td class="py-3 px-4"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">Admitido</span></td>
+                        <td class="py-3 px-4 text-right"><button class="text-[11px] text-[#0071e3] hover:underline font-normal">Ver</button></td>
                     </tr>
-                    <tr class="hover:bg-slate-50/60 transition">
-                        <td class="font-mono font-bold text-sky-700">EXP-2026-003</td>
-                        <td class="font-mono text-slate-600">75839201</td>
-                        <td>
-                            <div class="font-bold text-slate-900">Marcos Antonio Rivas Pérez</div>
-                            <div class="text-[10px] text-slate-400">marcos.rivas@gmail.com</div>
-                        </td>
-                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-100 text-cyan-800">Administración</span></td>
-                        <td class="text-slate-600">Examen Ordinario</td>
-                        <td class="font-bold text-amber-700">68.00 / 100</td>
-                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">En Evaluación</span></td>
-                        <td class="text-right">
-                            <button class="btn btn-ghost btn-xs text-sky-700 hover:bg-sky-50 font-semibold rounded-lg">Ver Ficha</button>
-                        </td>
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="py-3 px-4 font-mono text-[11px] text-slate-500">EXP-2026-003</td>
+                        <td class="py-3 px-4 font-mono text-[11px]">75839201</td>
+                        <td class="py-3 px-4 font-normal text-slate-900">Marcos Antonio Rivas Pérez</td>
+                        <td class="py-3 px-4 text-slate-600">Administración</td>
+                        <td class="py-3 px-4 text-slate-500">Ordinario</td>
+                        <td class="py-3 px-4 font-mono text-slate-900 font-normal">68.00</td>
+                        <td class="py-3 px-4"><span class="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200/60">En Evaluación</span></td>
+                        <td class="py-3 px-4 text-right"><button class="text-[11px] text-[#0071e3] hover:underline font-normal">Ver</button></td>
                     </tr>
-                    <tr class="hover:bg-slate-50/60 transition">
-                        <td class="font-mono font-bold text-sky-700">EXP-2026-004</td>
-                        <td class="font-mono text-slate-600">72910482</td>
-                        <td>
-                            <div class="font-bold text-slate-900">Camila Belén Mendoza Quispe</div>
-                            <div class="text-[10px] text-slate-400">camila.mendoza@gmail.com</div>
-                        </td>
-                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800">Desarrollo de Sistemas</span></td>
-                        <td class="text-slate-600">Examen Ordinario</td>
-                        <td class="font-bold text-emerald-700">84.00 / 100</td>
-                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Admitido</span></td>
-                        <td class="text-right">
-                            <button class="btn btn-ghost btn-xs text-sky-700 hover:bg-sky-50 font-semibold rounded-lg">Ver Ficha</button>
-                        </td>
+                    <tr class="hover:bg-slate-50/50 transition">
+                        <td class="py-3 px-4 font-mono text-[11px] text-slate-500">EXP-2026-004</td>
+                        <td class="py-3 px-4 font-mono text-[11px]">72910482</td>
+                        <td class="py-3 px-4 font-normal text-slate-900">Camila Belén Mendoza Quispe</td>
+                        <td class="py-3 px-4 text-slate-600">Desarrollo de Sistemas</td>
+                        <td class="py-3 px-4 text-slate-500">Ordinario</td>
+                        <td class="py-3 px-4 font-mono text-slate-900 font-normal">84.00</td>
+                        <td class="py-3 px-4"><span class="text-[10px] bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200/60">Admitido</span></td>
+                        <td class="py-3 px-4 text-right"><button class="text-[11px] text-[#0071e3] hover:underline font-normal">Ver</button></td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <!-- Paginación -->
-        <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <span class="text-[11px] text-slate-500 font-medium">Mostrando 1 a 4 de 680 postulantes</span>
-            <div class="join">
-                <button class="join-item btn btn-xs btn-disabled bg-slate-100">«</button>
-                <button class="join-item btn btn-xs bg-sky-600 text-white font-bold">1</button>
-                <button class="join-item btn btn-xs bg-white text-slate-700">2</button>
-                <button class="join-item btn btn-xs bg-white text-slate-700">3</button>
-                <button class="join-item btn btn-xs bg-white text-slate-700">»</button>
+        <!-- Paginación Apple -->
+        <div class="p-3 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-2">
+            <span class="text-[11px] text-slate-400 font-light">1 a 4 de 680 postulantes</span>
+            <div class="flex items-center gap-1">
+                <button class="px-2.5 py-1 text-xs rounded-lg text-slate-400 hover:bg-slate-100 disabled:opacity-40" disabled>«</button>
+                <button class="px-2.5 py-1 text-xs rounded-lg bg-slate-900 text-white font-normal">1</button>
+                <button class="px-2.5 py-1 text-xs rounded-lg text-slate-600 hover:bg-slate-100">2</button>
+                <button class="px-2.5 py-1 text-xs rounded-lg text-slate-600 hover:bg-slate-100">3</button>
+                <button class="px-2.5 py-1 text-xs rounded-lg text-slate-600 hover:bg-slate-100">»</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Modal para Registrar Nuevo Postulante -->
+<!-- Modal Apple Style -->
 <dialog id="modal_nuevo_postulante" class="modal">
-    <div class="modal-box max-w-lg bg-white rounded-3xl p-6 shadow-2xl border border-slate-200">
-        <h3 class="font-black text-base text-slate-900 mb-1 flex items-center gap-2">
-            📝 Inscribir Nuevo Postulante
+    <div class="modal-box max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 font-light">
+        <h3 class="text-base font-normal text-slate-900 mb-1">
+            Nuevo Postulante
         </h3>
-        <p class="text-xs text-slate-500 mb-4">Registro en base de datos modular `db_modulo01` (Equipo 01).</p>
+        <p class="text-xs text-slate-400 font-light mb-4">Registro en `db_modulo01` (Equipo 01).</p>
         
         <div class="space-y-3 text-xs">
-            <div class="grid grid-cols-2 gap-3">
-                <div class="form-control">
-                    <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">DNI</span></label>
-                    <input type="text" maxlength="8" placeholder="8 dígitos" class="input input-sm input-bordered w-full rounded-xl" />
+            <div class="grid grid-cols-2 gap-2.5">
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">DNI</label>
+                    <input type="text" maxlength="8" placeholder="8 dígitos" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:bg-white focus:outline-none focus:border-[#0071e3]" />
                 </div>
-                <div class="form-control">
-                    <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">Modalidad</span></label>
-                    <select class="select select-bordered select-sm w-full rounded-xl text-xs">
-                        <option>Examen Ordinario</option>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Modalidad</label>
+                    <select class="w-full px-2.5 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs text-slate-700 focus:outline-none">
+                        <option>Ordinario</option>
                         <option>Primeros Puestos</option>
-                        <option>Traslado Externo</option>
+                        <option>Traslado</option>
                     </select>
                 </div>
             </div>
 
-            <div class="form-control">
-                <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">Nombres y Apellidos</span></label>
-                <input type="text" placeholder="Ej: Juan Carlos Pérez Ramos" class="input input-sm input-bordered w-full rounded-xl" />
+            <div>
+                <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Nombres y Apellidos</label>
+                <input type="text" placeholder="Juan Carlos Pérez" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:bg-white focus:outline-none focus:border-[#0071e3]" />
             </div>
 
-            <div class="form-control">
-                <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">Carrera Profesional</span></label>
-                <select class="select select-bordered select-sm w-full rounded-xl text-xs">
+            <div>
+                <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Carrera</label>
+                <select class="w-full px-2.5 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs text-slate-700 focus:outline-none">
                     <option>Desarrollo de Sistemas de Información</option>
                     <option>Contabilidad</option>
                     <option>Administración de Empresas</option>
                 </select>
             </div>
 
-            <div class="form-control">
-                <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">Correo Electrónico</span></label>
-                <input type="email" placeholder="postulante@gmail.com" class="input input-sm input-bordered w-full rounded-xl" />
+            <div>
+                <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Correo Electrónico</label>
+                <input type="email" placeholder="postulante@gmail.com" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:bg-white focus:outline-none focus:border-[#0071e3]" />
             </div>
         </div>
 
         <div class="modal-action mt-6">
             <form method="dialog" class="flex gap-2">
-                <button class="btn btn-sm btn-ghost text-xs rounded-xl">Cancelar</button>
-                <button class="btn btn-sm bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl border-0 shadow-sm shadow-sky-600/30">Guardar Postulante</button>
+                <button class="px-3.5 py-1.5 text-xs text-slate-500 hover:bg-slate-100 rounded-xl">Cancelar</button>
+                <button class="px-4 py-1.5 text-xs rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white font-normal">Guardar</button>
             </form>
         </div>
     </div>

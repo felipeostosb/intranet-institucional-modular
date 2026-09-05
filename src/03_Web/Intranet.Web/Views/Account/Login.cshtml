@@ -10,93 +10,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
     
-    <!-- Fuente Montserrat Oficial -->
+    <!-- Fuente Montserrat Oficial (Pesos Finos) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
 
     <style>
         body {
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: -0.01em;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            letter-spacing: -0.015em;
         }
     </style>
 </head>
-<body class="bg-gradient-to-br from-slate-100 via-sky-50/50 to-indigo-50/40 min-h-screen flex items-center justify-center p-4">
-    <div class="card w-full max-w-lg bg-white shadow-xl shadow-sky-950/5 border border-slate-200/80 rounded-3xl">
-        <div class="card-body p-6 sm:p-8">
-            <div class="text-center mb-6">
-                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center text-2xl font-black mx-auto mb-3 shadow-md shadow-sky-500/20">
-                    AR
-                </div>
-                <h1 class="text-xl sm:text-2xl font-black tracking-tight text-slate-900">IESTP "Argentina"</h1>
-                <p class="text-xs font-bold text-sky-700 mt-0.5">Intranet Institucional • Semestre 2026-II</p>
-                <p class="text-[11px] text-slate-500 mt-0.5">Av. Alfonso Ugarte 599, Lima</p>
+<body class="bg-[#fbfbfd] min-h-screen flex items-center justify-center p-4 font-light text-slate-800">
+    <div class="w-full max-w-md bg-white rounded-3xl p-8 sm:p-10 border border-[#e5e5e7] shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
+        <div class="text-center mb-8">
+            <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-sm font-medium mx-auto mb-4">
+                AR
+            </div>
+            <h1 class="text-xl font-normal text-slate-900 tracking-tight">IESTP "Argentina"</h1>
+            <p class="text-xs text-slate-400 font-light mt-1">Intranet Institucional • Semestre 2026-II</p>
+        </div>
+
+        @if (ViewBag.Error != null)
+        {
+            <div role="alert" class="p-3 rounded-2xl bg-[#f5f5f7] border border-rose-200/80 text-rose-700 text-xs font-light mb-5 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4 text-rose-500" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                <span>@ViewBag.Error</span>
+            </div>
+        }
+
+        <form method="post" asp-action="Login" asp-controller="Account" class="space-y-4">
+            <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+            <div class="space-y-1">
+                <label class="text-[11px] font-normal text-slate-500 uppercase tracking-wider block">
+                    DNI o Código Institucional
+                </label>
+                <input type="text" id="identificador" name="identificador" required placeholder="87654321 o COORD-DSI" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#fbfbfd] text-slate-900 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 focus:border-[#0071e3] transition font-normal" />
             </div>
 
-            @if (ViewBag.Error != null)
-            {
-                <div role="alert" class="p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium mb-4 flex items-center gap-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4 text-rose-600" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                    <span>@ViewBag.Error</span>
-                </div>
-            }
+            <div class="space-y-1">
+                <label class="text-[11px] font-normal text-slate-500 uppercase tracking-wider block">
+                    Contraseña
+                </label>
+                <input type="password" id="password" name="password" required placeholder="Tu contraseña" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 bg-[#fbfbfd] text-slate-900 text-xs focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0071e3]/30 focus:border-[#0071e3] transition font-normal" />
+            </div>
 
-            <form method="post" asp-action="Login" asp-controller="Account" class="space-y-3.5">
-                <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
-
-                <div class="form-control">
-                    <label class="label py-1">
-                        <span class="label-text font-bold text-xs text-slate-700">DNI o Código Institucional</span>
-                    </label>
-                    <input type="text" id="identificador" name="identificador" required placeholder="Ej: 87654321 o COORD-DSI" class="input input-sm input-bordered w-full rounded-xl focus:input-primary font-medium text-xs h-10" />
-                </div>
-
-                <div class="form-control">
-                    <label class="label py-1">
-                        <span class="label-text font-bold text-xs text-slate-700">Contraseña</span>
-                    </label>
-                    <input type="password" id="password" name="password" required placeholder="Tu contraseña o DNI" class="input input-sm input-bordered w-full rounded-xl focus:input-primary font-medium text-xs h-10" />
-                </div>
-
-                <div class="form-control pt-2">
-                    <button type="submit" class="btn bg-sky-600 hover:bg-sky-700 text-white w-full font-bold text-xs rounded-xl shadow-md shadow-sky-600/20 border-0 h-10 min-h-0">
-                        Ingresar a la Intranet
-                    </button>
-                </div>
-            </form>
-
-            <div class="divider my-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Cuentas Demo (Clic para Rellenar)</div>
-            
-            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                <button type="button" onclick="setLogin('10000001', '123456')" class="p-2 rounded-xl bg-sky-50 hover:bg-sky-100 border border-sky-100 text-left transition flex flex-col justify-between">
-                    <span class="font-bold text-[11px] text-sky-900">🏛️ Director</span>
-                    <span class="text-[9px] text-slate-500 font-medium">Lic. Alvarado</span>
-                </button>
-                <button type="button" onclick="setLogin('20000001', '123456')" class="p-2 rounded-xl bg-indigo-50 hover:bg-indigo-100 border border-indigo-100 text-left transition flex flex-col justify-between">
-                    <span class="font-bold text-[11px] text-indigo-900">💻 Coordinador</span>
-                    <span class="text-[9px] text-slate-500 font-medium">Ing. Mendoza (DSI)</span>
-                </button>
-                <button type="button" onclick="setLogin('30000001', '123456')" class="p-2 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-100 text-left transition flex flex-col justify-between">
-                    <span class="font-bold text-[11px] text-amber-900">📑 Secretaria</span>
-                    <span class="text-[9px] text-slate-500 font-medium">Lic. Morales</span>
-                </button>
-                <button type="button" onclick="setLogin('40000001', '123456')" class="p-2 rounded-xl bg-emerald-50 hover:bg-emerald-100 border border-emerald-100 text-left transition flex flex-col justify-between">
-                    <span class="font-bold text-[11px] text-emerald-900">💰 Tesorería</span>
-                    <span class="text-[9px] text-slate-500 font-medium">Lic. Ramos</span>
-                </button>
-                <button type="button" onclick="setLogin('12345678', '123456')" class="p-2 rounded-xl bg-cyan-50 hover:bg-cyan-100 border border-cyan-100 text-left transition flex flex-col justify-between">
-                    <span class="font-bold text-[11px] text-cyan-900">👨‍🏫 Docente</span>
-                    <span class="text-[9px] text-slate-500 font-medium">Mg. Sánchez</span>
-                </button>
-                <button type="button" onclick="setLogin('87654321', '123456')" class="p-2 rounded-xl bg-purple-50 hover:bg-purple-100 border border-purple-100 text-left transition flex flex-col justify-between">
-                    <span class="font-bold text-[11px] text-purple-900">🎓 Alumno</span>
-                    <span class="text-[9px] text-slate-500 font-medium">Felipe Ostos</span>
+            <div class="pt-2">
+                <button type="submit" class="w-full py-2.5 rounded-xl bg-[#0071e3] hover:bg-[#0077ed] text-white text-xs font-normal transition shadow-sm">
+                    Iniciar Sesión
                 </button>
             </div>
+        </form>
+
+        <div class="my-6 border-t border-slate-100 relative text-center">
+            <span class="bg-white px-3 text-[10px] text-slate-400 font-light relative -top-2.5">Cuentas Demo</span>
+        </div>
+        
+        <div class="grid grid-cols-3 gap-1.5 text-center">
+            <button type="button" onclick="setLogin('10000001', '123456')" class="p-2 rounded-xl bg-[#f5f5f7] hover:bg-slate-200/60 border border-slate-200/60 transition text-[11px]">
+                <div class="font-normal text-slate-800">Director</div>
+                <div class="text-[9px] text-slate-400 font-light">Alvarado</div>
+            </button>
+            <button type="button" onclick="setLogin('20000001', '123456')" class="p-2 rounded-xl bg-[#f5f5f7] hover:bg-slate-200/60 border border-slate-200/60 transition text-[11px]">
+                <div class="font-normal text-slate-800">Coord.</div>
+                <div class="text-[9px] text-slate-400 font-light">Mendoza</div>
+            </button>
+            <button type="button" onclick="setLogin('30000001', '123456')" class="p-2 rounded-xl bg-[#f5f5f7] hover:bg-slate-200/60 border border-slate-200/60 transition text-[11px]">
+                <div class="font-normal text-slate-800">Secretaría</div>
+                <div class="text-[9px] text-slate-400 font-light">Morales</div>
+            </button>
+            <button type="button" onclick="setLogin('40000001', '123456')" class="p-2 rounded-xl bg-[#f5f5f7] hover:bg-slate-200/60 border border-slate-200/60 transition text-[11px]">
+                <div class="font-normal text-slate-800">Tesorería</div>
+                <div class="text-[9px] text-slate-400 font-light">Ramos</div>
+            </button>
+            <button type="button" onclick="setLogin('12345678', '123456')" class="p-2 rounded-xl bg-[#f5f5f7] hover:bg-slate-200/60 border border-slate-200/60 transition text-[11px]">
+                <div class="font-normal text-slate-800">Docente</div>
+                <div class="text-[9px] text-slate-400 font-light">Sánchez</div>
+            </button>
+            <button type="button" onclick="setLogin('87654321', '123456')" class="p-2 rounded-xl bg-[#f5f5f7] hover:bg-slate-200/60 border border-slate-200/60 transition text-[11px]">
+                <div class="font-normal text-slate-800">Alumno</div>
+                <div class="text-[9px] text-slate-400 font-light">Felipe</div>
+            </button>
         </div>
     </div>
 

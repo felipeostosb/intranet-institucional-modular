@@ -5,10 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - IESTP Argentina</title>
     
-    <!-- Fuente Montserrat Oficial -->
+    <!-- Fuente Montserrat Oficial (Pesos Finos y Elegantes 300, 400, 500, 600) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
@@ -18,30 +18,17 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Montserrat', 'sans-serif'],
+                        sans: ['Montserrat', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
                     },
                     colors: {
-                        argentina: {
-                            50: '#f0f7ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                        },
-                        pastel: {
-                            blue: '#e0f2fe',
-                            indigo: '#e0e7ff',
-                            sky: '#f0f9ff',
-                            emerald: '#d1fae5',
-                            amber: '#fef3c7',
-                            rose: '#ffe4e6',
-                            purple: '#f3e8ff',
-                            slate: '#f8fafc'
+                        apple: {
+                            blue: '#0071e3',
+                            hover: '#0077ed',
+                            bg: '#fbfbfd',
+                            sidebar: '#f5f5f7',
+                            border: '#e5e5e7',
+                            subtext: '#86868b',
+                            card: '#ffffff'
                         }
                     }
                 }
@@ -50,69 +37,70 @@
     </script>
 
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#0284c7" />
+    <meta name="theme-color" content="#ffffff" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="apple-touch-icon" href="/icons/icon-192.png" />
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
 
     <style>
         body {
-            font-family: 'Montserrat', sans-serif;
-            letter-spacing: -0.01em;
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            letter-spacing: -0.015em;
         }
     </style>
 </head>
-<body class="bg-slate-50/80 min-h-screen flex flex-col text-slate-800">
+<body class="bg-[#fbfbfd] min-h-screen flex flex-col text-slate-800 font-light selection:bg-slate-200">
     <div class="drawer lg:drawer-open flex-1">
         <input id="main-drawer" type="checkbox" class="drawer-toggle" />
         
         <div class="drawer-content flex flex-col">
-            <!-- Barra Superior (Navbar Pastel Institucional) -->
-            <div class="navbar bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-30 px-4 lg:px-8 border-b border-slate-200/80">
+            <!-- Barra Superior (Apple Glass Navbar) -->
+            <div class="navbar bg-white/80 backdrop-blur-xl sticky top-0 z-30 px-4 lg:px-8 border-b border-[#e5e5e7]/80 h-14 min-h-0">
                 <div class="flex-none lg:hidden">
-                    <label for="main-drawer" aria-label="open sidebar" class="btn btn-square btn-ghost text-slate-600">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <label for="main-drawer" aria-label="open sidebar" class="btn btn-square btn-ghost btn-sm text-slate-500">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </label>
                 </div>
-                <div class="flex-1 items-center gap-2">
-                    <a href="/" class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center font-black text-sm shadow-sm shadow-sky-500/30">
+                <div class="flex-1 items-center gap-2.5">
+                    <a href="/" class="flex items-center gap-2">
+                        <div class="w-6 h-6 rounded-lg bg-slate-900 text-white flex items-center justify-center font-medium text-[11px]">
                             AR
                         </div>
-                        <span class="text-base sm:text-lg font-black tracking-tight bg-gradient-to-r from-sky-700 via-blue-800 to-indigo-900 bg-clip-text text-transparent">
-                            IESTP ARGENTINA
+                        <span class="text-xs sm:text-sm font-medium tracking-tight text-slate-900">
+                            IESTP Argentina
                         </span>
+                        <span class="text-[11px] text-slate-400 font-light hidden sm:inline">| Intranet</span>
                     </a>
                 </div>
                 
-                <div class="flex-none gap-3">
-                    <div class="badge bg-sky-100 text-sky-800 border-sky-200 font-semibold text-xs hidden sm:flex">
-                        Semestre 2026-II
-                    </div>
+                <div class="flex-none gap-2.5">
+                    <span class="text-[11px] font-normal text-slate-400 bg-[#f5f5f7] px-2.5 py-1 rounded-full border border-slate-200/60 hidden sm:inline">
+                        2026-II
+                    </span>
                     
                     @if (User.Identity?.IsAuthenticated == true)
                     {
                         <div class="dropdown dropdown-end">
-                            <div tabindex="0" role="button" class="btn btn-ghost btn-sm flex items-center gap-2 normal-case rounded-xl hover:bg-slate-100">
-                                <div class="avatar placeholder">
-                                    <div class="bg-sky-600 text-white rounded-lg w-7 h-7 text-xs font-bold shadow-sm">
-                                        <span>@(User.Identity.Name?[..Math.Min(2, User.Identity.Name.Length)].ToUpper() ?? "US")</span>
-                                    </div>
+                            <div tabindex="0" role="button" class="btn btn-ghost btn-xs flex items-center gap-2 normal-case rounded-full px-2 py-1 h-auto hover:bg-slate-100">
+                                <div class="w-6 h-6 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center text-[10px] font-medium">
+                                    @(User.Identity.Name?[..Math.Min(2, User.Identity.Name.Length)].ToUpper() ?? "US")
                                 </div>
-                                <div class="text-left hidden md:block">
-                                    <p class="text-xs font-bold text-slate-800 leading-tight">@User.Identity.Name</p>
-                                    <p class="text-[10px] font-medium text-sky-700">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno")</p>
+                                <div class="text-left hidden md:block leading-tight">
+                                    <p class="text-xs font-normal text-slate-900">@User.Identity.Name</p>
                                 </div>
+                                <span class="text-[10px] text-slate-400 font-light">▾</span>
                             </div>
-                            <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-xl bg-white rounded-2xl w-56 border border-slate-200 mt-2 text-xs">
-                                <li class="menu-title text-[10px] uppercase font-bold text-slate-400">Usuario Conectado</li>
-                                <li class="px-3 py-1 font-bold text-sky-900">@User.Identity.Name</li>
-                                <li class="px-3 py-0.5 text-[11px] text-slate-500">Rol: <span class="badge badge-xs bg-sky-100 text-sky-800 font-bold">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno")</span></li>
+                            <ul tabindex="0" class="dropdown-content z-[1] menu p-1.5 shadow-[0_10px_30px_rgba(0,0,0,0.08)] bg-white rounded-2xl w-52 border border-slate-200/80 mt-2 text-xs">
+                                <li class="px-3 py-1.5 text-[11px] text-slate-400 font-normal">Cuenta activa</li>
+                                <li class="px-3 py-0.5 text-xs font-medium text-slate-900">@User.Identity.Name</li>
+                                <li class="px-3 py-0.5 text-[11px] text-slate-500 font-light">Rol: @(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno")</li>
                                 <li class="divider my-1"></li>
                                 <li>
-                                    <a href="/Account/Logout" class="text-rose-600 hover:bg-rose-50 font-semibold flex items-center gap-2 rounded-lg">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
+                                    <a href="/Account/Logout" class="text-rose-600 hover:bg-rose-50 font-normal flex items-center gap-2 rounded-xl py-1.5">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
                                         <span>Cerrar Sesión</span>
                                     </a>
                                 </li>
@@ -121,26 +109,18 @@
                     }
                     else
                     {
-                        <a href="/Account/Login" class="btn bg-sky-600 hover:bg-sky-700 text-white btn-sm rounded-xl font-bold shadow-sm shadow-sky-600/30">
-                            Iniciar Sesión
+                        <a href="/Account/Login" class="btn bg-[#0071e3] hover:bg-[#0077ed] text-white btn-xs px-3 py-1 rounded-full font-normal border-0 text-[11px] h-7">
+                            Ingresar
                         </a>
                     }
                 </div>
             </div>
 
             <!-- Contenido Principal -->
-            <main class="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto">
+            <main class="flex-1 p-4 lg:p-8 max-w-6xl w-full mx-auto">
                 @if (TempData["AlertaMensaje"] != null)
                 {
-                    var tipoAlerta = TempData["AlertaTipo"]?.ToString() ?? "info";
-                    var estiloAlerta = tipoAlerta switch
-                    {
-                        "success" => "bg-emerald-50 text-emerald-800 border-emerald-200",
-                        "error" => "bg-rose-50 text-rose-800 border-rose-200",
-                        _ => "bg-sky-50 text-sky-800 border-sky-200"
-                    };
-
-                    <div role="alert" class="alert @estiloAlerta shadow-sm border mb-6 text-xs font-medium rounded-2xl">
+                    <div role="alert" class="bg-white border border-slate-200 shadow-sm p-3.5 mb-6 text-xs text-slate-700 font-light rounded-2xl flex items-center justify-between">
                         <span>@TempData["AlertaMensaje"]</span>
                     </div>
                 }
@@ -148,88 +128,83 @@
                 @RenderBody()
             </main>
 
-            <!-- Footer Institucional -->
-            <footer class="footer footer-center p-4 bg-white text-slate-500 border-t border-slate-200/80 text-xs">
+            <!-- Footer Minimalista Apple -->
+            <footer class="footer footer-center p-6 bg-transparent text-slate-400 text-xs font-light">
                 <div>
-                    <p class="font-medium">© @DateTime.Now.Year - <strong>IESTP "Argentina"</strong> • Av. Alfonso Ugarte 599, Lima • Sistema Integrado .NET 10 LTS</p>
+                    <p>© @DateTime.Now.Year IESTP "Argentina" • Av. Alfonso Ugarte 599, Lima • Arquitectura .NET 10</p>
                 </div>
             </footer>
         </div> 
 
-        <!-- Sidebar / Menú Lateral Pastel -->
+        <!-- Sidebar (macOS System Settings Style) -->
         <div class="drawer-side z-40">
             <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label> 
-            <aside class="bg-white w-72 min-h-screen border-r border-slate-200/80 flex flex-col p-4 shadow-sm">
-                <div class="p-3 mb-2 flex items-center gap-3 bg-gradient-to-r from-sky-50 to-indigo-50 rounded-2xl border border-sky-100">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-sky-500/20">
-                        AR
-                    </div>
-                    <div>
-                        <h2 class="font-bold text-xs text-slate-900 leading-tight">IESTP Argentina</h2>
-                        <span class="text-[10px] text-sky-700 font-semibold">Gestión Institucional</span>
-                    </div>
+            <aside class="bg-[#f5f5f7]/70 backdrop-blur-xl w-64 min-h-screen border-r border-[#e5e5e7] flex flex-col p-3 shadow-none">
+                <div class="px-3 py-4 mb-1">
+                    <h2 class="text-xs font-medium text-slate-900 tracking-tight">Intranet Institucional</h2>
+                    <p class="text-[11px] text-slate-400 font-light">Plataforma Modular</p>
                 </div>
 
-                <ul class="menu menu-sm w-full space-y-1 flex-1 text-slate-700">
+                <ul class="menu menu-xs w-full space-y-0.5 flex-1 text-slate-600 font-light p-0">
                     <li>
-                        <a href="/" class="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-semibold text-xs text-slate-800">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                        <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-slate-200/60 transition text-slate-900 font-normal text-xs">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
                             <span>Dashboard General</span>
                         </a>
                     </li>
-                    <li class="menu-title pt-3 pb-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">Módulos Institucionales (9)</li>
+                    <li class="menu-title pt-4 pb-1 px-3 text-[10px] font-medium uppercase tracking-wider text-slate-400">Módulos (9)</li>
                     <li>
-                        <a href="/Modulo01" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-medium text-xs">
-                            <span class="badge badge-xs bg-sky-100 text-sky-800 font-bold border-0">M01</span>
-                            <span>📝 Admisión & Postulantes</span>
+                        <a href="/Modulo01" class="flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition text-xs text-slate-700">
+                            <span>Admisión & Postulantes</span>
+                            <span class="text-[10px] font-mono text-slate-400">M01</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/Modulo02" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-medium text-xs">
-                            <span class="badge badge-xs bg-indigo-100 text-indigo-800 font-bold border-0">M02</span>
-                            <span>🎓 Matrícula & Cursos</span>
+                        <a href="/Modulo02" class="flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition text-xs text-slate-700">
+                            <span>Matrícula & Cursos</span>
+                            <span class="text-[10px] font-mono text-slate-400">M02</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/Modulo03" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-medium text-xs">
-                            <span class="badge badge-xs bg-cyan-100 text-cyan-800 font-bold border-0">M03</span>
-                            <span>👨‍🏫 Gestión Docente</span>
+                        <a href="/Modulo03" class="flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition text-xs text-slate-700">
+                            <span>Gestión Docente</span>
+                            <span class="text-[10px] font-mono text-slate-400">M03</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/Modulo04" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-medium text-xs">
-                            <span class="badge badge-xs bg-blue-100 text-blue-800 font-bold border-0">M04</span>
-                            <span>📊 Calificaciones & Actas</span>
+                        <a href="/Modulo04" class="flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition text-xs text-slate-700">
+                            <span>Calificaciones & Actas</span>
+                            <span class="text-[10px] font-mono text-slate-400">M04</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/Modulo05" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-medium text-xs">
-                            <span class="badge badge-xs bg-amber-100 text-amber-800 font-bold border-0">M05</span>
-                            <span>💰 Tesorería & Pagos</span>
+                        <a href="/Modulo05" class="flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition text-xs text-slate-700">
+                            <span>Tesorería & Pagos</span>
+                            <span class="text-[10px] font-mono text-slate-400">M05</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/Modulo06" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-medium text-xs">
-                            <span class="badge badge-xs bg-purple-100 text-purple-800 font-bold border-0">M06</span>
-                            <span>📚 Biblioteca Virtual</span>
+                        <a href="/Modulo06" class="flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition text-xs text-slate-700">
+                            <span>Biblioteca Virtual</span>
+                            <span class="text-[10px] font-mono text-slate-400">M06</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/Modulo07" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-medium text-xs">
-                            <span class="badge badge-xs bg-emerald-100 text-emerald-800 font-bold border-0">M07</span>
-                            <span>📑 Mesa de Partes (FUT)</span>
+                        <a href="/Modulo07" class="flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition text-xs text-slate-700">
+                            <span>Mesa de Partes (FUT)</span>
+                            <span class="text-[10px] font-mono text-slate-400">M07</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/Modulo08" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-medium text-xs">
-                            <span class="badge badge-xs bg-rose-100 text-rose-800 font-bold border-0">M08</span>
-                            <span>💼 Bolsa & Prácticas EFSRT</span>
+                        <a href="/Modulo08" class="flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition text-xs text-slate-700">
+                            <span>Bolsa & Prácticas EFSRT</span>
+                            <span class="text-[10px] font-mono text-slate-400">M08</span>
                         </a>
                     </li>
                     <li>
-                        <a href="/Modulo09" class="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-sky-50 hover:text-sky-800 transition font-medium text-xs">
-                            <span class="badge badge-xs bg-slate-200 text-slate-800 font-bold border-0">M09</span>
-                            <span>🛠️ Mesa de Ayuda TI</span>
+                        <a href="/Modulo09" class="flex items-center justify-between px-3 py-1.5 rounded-xl hover:bg-slate-200/60 transition text-xs text-slate-700">
+                            <span>Mesa de Ayuda TI</span>
+                            <span class="text-[10px] font-mono text-slate-400">M09</span>
                         </a>
                     </li>
                 </ul>
@@ -243,8 +218,8 @@
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/service-worker.js')
-                    .then(reg => console.log('✅ Service Worker registrado con éxito:', reg.scope))
-                    .catch(err => console.log('❌ Error registrando Service Worker:', err));
+                    .then(reg => console.log('SW activo:', reg.scope))
+                    .catch(err => console.log('SW error:', err));
             });
         }
     </script>
