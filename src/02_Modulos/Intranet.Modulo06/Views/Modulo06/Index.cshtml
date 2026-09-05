@@ -1,101 +1,53 @@
 @{
-    ViewData["Title"] = "Módulo 06";
+    ViewData["Title"] = "Mesa de Partes Virtual";
 }
 
-<div class="space-y-6">
-    <div class="card bg-base-100 shadow-xl border border-base-200">
-        <div class="card-body">
-            <div class="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                    <div class="badge badge-primary badge-outline font-semibold mb-2">Equipo 06</div>
-                    <h1 class="text-3xl font-bold text-base-content">Módulo 06 - Panel de Control</h1>
-                    <p class="text-base-content/70 mt-1">Este espacio pertenece al <strong>Equipo 06</strong>. Desarrollen aquí sus vistas y formularios.</p>
+<div class="space-y-6 font-light">
+    <div class="bg-white rounded-3xl p-6 border border-[#e5e5e7] shadow-[0_2px_12px_rgba(0,0,0,0.015)] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 border border-rose-100 flex items-center justify-center shrink-0">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+            </div>
+            <div>
+                <div class="flex items-center gap-2 mb-0.5">
+                    <span class="text-[10px] font-mono bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full border border-rose-200/60">M06</span>
+                    <span class="text-[11px] text-slate-400 font-light">db_modulo06 • Equipo 06</span>
                 </div>
-                <button class="btn btn-primary gap-2" onclick="my_modal_6.showModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                    Nuevo Registro
-                </button>
+                <h1 class="text-xl sm:text-2xl font-normal text-slate-900 tracking-tight">
+                    Mesa de Partes Virtual & Trámites FUT
+                </h1>
+                <p class="text-xs text-slate-500 font-light">
+                    Recepción de solicitudes, seguimiento con código de expediente y derivación a áreas.
+                </p>
             </div>
         </div>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="stat bg-base-100 shadow-md rounded-2xl border border-base-200">
-            <div class="stat-figure text-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div class="stat-title">Registros Activos</div>
-            <div class="stat-value text-primary">24</div>
-            <div class="stat-desc">Base de datos: db_modulo06</div>
-        </div>
-        
-        <div class="stat bg-base-100 shadow-md rounded-2xl border border-base-200">
-            <div class="stat-figure text-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-            </div>
-            <div class="stat-title">Operaciones Hoy</div>
-            <div class="stat-value text-secondary">100%</div>
-            <div class="stat-desc">Aislamiento Total OK</div>
-        </div>
-        
-        <div class="stat bg-base-100 shadow-md rounded-2xl border border-base-200">
-            <div class="stat-figure text-accent">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            </div>
-            <div class="stat-title">Estado del Módulo</div>
-            <div class="stat-value text-accent">En Línea</div>
-            <div class="stat-desc">ASP.NET Core .NET 8</div>
-        </div>
-    </div>
-
-    <div class="card bg-base-100 shadow-xl border border-base-200 overflow-hidden">
-        <div class="p-6 border-b border-base-200">
-            <h2 class="text-xl font-bold">Listado de Datos (Equipo 06)</h2>
-            <p class="text-sm text-base-content/70">Diseño responsivo con Tailwind CSS + DaisyUI listo para conectar a MariaDB.</p>
-        </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra w-full">
-                <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Código</th>
-                        <th>Descripción</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <th>1</th>
-                        <td><span class="font-mono font-semibold text-primary">REG-001</span></td>
-                        <td>Registro de prueba del Módulo 06</td>
-                        <td>@DateTime.Now.ToString("dd/MM/yyyy")</td>
-                        <td><span class="badge badge-success gap-1">Completado</span></td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
+        <button class="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-normal transition shadow-sm flex items-center gap-1.5" onclick="modal_tramite.showModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+            <span>Nuevo Trámite FUT</span>
+        </button>
     </div>
 </div>
 
-<dialog id="my_modal_6" class="modal">
-    <div class="modal-box">
-        <h3 class="font-bold text-lg">Nuevo Registro - Módulo 06</h3>
-        <p class="py-2 text-sm text-base-content/70">Formulario listo para vincular al controlador.</p>
-        <div class="space-y-4 my-4">
-            <div class="form-control">
-                <label class="label"><span class="label-text">Código / Título</span></label>
-                <input type="text" placeholder="Ej: REG-2026" class="input input-bordered w-full" />
+<dialog id="modal_tramite" class="modal">
+    <div class="modal-box max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200 font-light">
+        <h3 class="text-base font-normal text-slate-900 mb-1">Mesa de Partes - Nuevo Trámite</h3>
+        <p class="text-xs text-slate-400 font-light mb-4">Registro en `db_modulo06` (Equipo 06).</p>
+        <div class="space-y-3 text-xs">
+            <div>
+                <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Asunto de la Solicitud</label>
+                <input type="text" placeholder="Ej: Solicitud de Rectificación de Matrícula" class="w-full px-3 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs focus:bg-white focus:outline-none focus:border-[#0071e3]" />
             </div>
-            <div class="form-control">
-                <label class="label"><span class="label-text">Descripción</span></label>
-                <textarea class="textarea textarea-bordered h-24" placeholder="Detalle del registro..."></textarea>
+            <div>
+                <label class="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">Área Destino</label>
+                <select class="w-full px-2.5 py-2 rounded-xl border border-slate-200 bg-[#fbfbfd] text-xs text-slate-700">
+                    <option>Dirección General</option><option>Coordinación Académica DSI</option><option>Secretaría Académica</option><option>Tesorería</option>
+                </select>
             </div>
         </div>
-        <div class="modal-action">
+        <div class="modal-action mt-6 flex gap-2">
             <form method="dialog">
-                <button class="btn btn-ghost mr-2">Cancelar</button>
-                <button class="btn btn-primary">Guardar</button>
+                <button class="px-3.5 py-1.5 text-xs text-slate-500 hover:bg-slate-100 rounded-xl">Cancelar</button>
+                <button class="px-4 py-1.5 text-xs rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-normal">Generar Expediente</button>
             </form>
         </div>
     </div>
