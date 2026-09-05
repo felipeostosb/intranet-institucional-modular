@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/01_Core/">
+    <Project Path="src/01_Core/Intranet.Core/Intranet.Core.csproj" />
+    <Project Path="src/01_Core/Intranet.Data/Intranet.Data.csproj" />
+  </Folder>
+  <Folder Name="/src/02_Modulos/">
+    <Project Path="src/02_Modulos/Intranet.Modulo01/Intranet.Modulo01.csproj" />
+    <Project Path="src/02_Modulos/Intranet.Modulo02/Intranet.Modulo02.csproj" />
+    <Project Path="src/02_Modulos/Intranet.Modulo03/Intranet.Modulo03.csproj" />
+    <Project Path="src/02_Modulos/Intranet.Modulo04/Intranet.Modulo04.csproj" />
+    <Project Path="src/02_Modulos/Intranet.Modulo05/Intranet.Modulo05.csproj" />
+    <Project Path="src/02_Modulos/Intranet.Modulo06/Intranet.Modulo06.csproj" />
+    <Project Path="src/02_Modulos/Intranet.Modulo07/Intranet.Modulo07.csproj" />
+    <Project Path="src/02_Modulos/Intranet.Modulo08/Intranet.Modulo08.csproj" />
+    <Project Path="src/02_Modulos/Intranet.Modulo09/Intranet.Modulo09.csproj" />
+  </Folder>
+  <Folder Name="/src/03_Web/">
+    <Project Path="src/03_Web/Intranet.Web/Intranet.Web.csproj" />
+  </Folder>
+</Solution>
