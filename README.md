@@ -1,72 +1,72 @@
-# 🏛️ Intranet Institucional Modular (.NET 10 LTS + Tailwind CSS + MariaDB)
+# 🏛️ Intranet Institucional Modular (.NET 10 LTS + Apple Minimalist + MariaDB)
 
-Bienvenido al proyecto integrador de la Intranet Institucional. Este sistema está construido sobre **.NET 10 LTS (Soporte Oficial a Largo Plazo hasta Noviembre 2028)** y una **Arquitectura Modular Desacoplada** diseñada para que **36 desarrolladores (9 equipos de 4 personas)** trabajen en paralelo con total autonomía y cero colisiones (*Zero-Blast-Radius*).
-
----
-
-## 📋 Requisitos Previos (Instalación en 1 Clic)
-Antes de comenzar, asegúrate de tener instalado el SDK oficial de **.NET 10**:
-* 👉 **[Descargar .NET 10 SDK Oficial de Microsoft](https://dotnet.microsoft.com/download/dotnet/10.0)** (Disponible para Windows, Mac y Linux).
+Bienvenido al proyecto integrador de la Intranet Institucional del **IESTP "Argentina"**. Este sistema está construido sobre **.NET 10 LTS (Soporte Oficial a Largo Plazo hasta Noviembre 2028)** y una **Arquitectura Modular Desacoplada** diseñada para que **36 desarrolladores (9 equipos de 4 personas)** trabajen en paralelo con total autonomía y cero colisiones (*Zero-Blast-Radius*).
 
 ---
 
-## 🚀 Guía de Inicio Rápido para Desarrolladores
+## ⚡ Guía de Inicio Rápido (The Golden Path - 1 Solo Clic)
 
-### 💜 Si usas Visual Studio 2022 (el morado en Windows):
-1. Clona el repositorio:
-   ```bash
-   git clone https://github.com/felipeostosb/intranet-institucional-modular.git
-   ```
-2. Haz doble clic en el archivo **`IntranetInstitucional.sln`**.
-3. Presiona **`F5`** (o clic en el botón verde de reproducir ▶).
-4. ¡Listo! Tu navegador abrirá automáticamente la Intranet en `http://localhost:5000`.
+Hemos creado un **CLI Interactivo** que automatiza todo el flujo de Git, nombres de ramas, scaffolding de código y validaciones locales para que **no cometas ningún error de principiante**:
 
-### 💙 Si usas Visual Studio Code (en Windows, Mac o Linux):
-1. Clona el repositorio y abre la carpeta del proyecto en VS Code.
-2. Abre la terminal integrada (`Ctrl + \``) y ejecuta:
-   ```bash
-   dotnet watch run --project src/03_Web/Intranet.Web
-   ```
-3. Cada vez que modifiques código en tu módulo y guardes (`Ctrl + S`), la web se actualizará sola en **100 milisegundos (Hot Reload)** sin reiniciar el servidor.
+### 🐧 En Linux, macOS o Git Bash:
+```bash
+# 1. Clonar el repositorio
+git clone https://github.com/felipeostosb/intranet-institucional-modular.git
+cd intranet-institucional-modular
 
----
+# 2. Ejecutar el Asistente Interactivo
+./dev.sh
+```
 
-## 👥 Asignación de Carpetas y Bases de Datos por Equipo (9 Módulos):
-Cada equipo tiene su propia carpeta soberana dentro de `src/02_Modulos/` y su base de datos aislada:
+### 🪟 En Windows (PowerShell):
+```powershell
+# 1. Clonar el repositorio
+git clone https://github.com/felipeostosb/intranet-institucional-modular.git
+cd intranet-institucional-modular
 
-| Equipo | Carpeta del Proyecto | Ruta en Navegador | Base de Datos MariaDB | Cadena de Conexión en `appsettings.json` |
-| :--- | :--- | :--- | :--- | :--- |
-| **Equipo 01** | `src/02_Modulos/Intranet.Modulo01/` | `/Modulo01` | `db_modulo01` | `Modulo01Connection` |
-| **Equipo 02** | `src/02_Modulos/Intranet.Modulo02/` | `/Modulo02` | `db_modulo02` | `Modulo02Connection` |
-| **Equipo 03** | `src/02_Modulos/Intranet.Modulo03/` | `/Modulo03` | `db_modulo03` | `Modulo03Connection` |
-| **Equipo 04** | `src/02_Modulos/Intranet.Modulo04/` | `/Modulo04` | `db_modulo04` | `Modulo04Connection` |
-| **Equipo 05** | `src/02_Modulos/Intranet.Modulo05/` | `/Modulo05` | `db_modulo05` | `Modulo05Connection` |
-| **Equipo 06** | `src/02_Modulos/Intranet.Modulo06/` | `/Modulo06` | `db_modulo06` | `Modulo06Connection` |
-| **Equipo 07** | `src/02_Modulos/Intranet.Modulo07/` | `/Modulo07` | `db_modulo07` | `Modulo07Connection` |
-| **Equipo 08** | `src/02_Modulos/Intranet.Modulo08/` | `/Modulo08` | `db_modulo08` | `Modulo08Connection` |
-| **Equipo 09** | `src/02_Modulos/Intranet.Modulo09/` | `/Modulo09` | `db_modulo09` | `Modulo09Connection` |
-
-> 🛡️ **Seguridad Zero-Blast-Radius:** Tu usuario de base de datos solo tiene permisos sobre la base de datos de tu equipo y acceso de solo lectura (`SELECT`) a la tabla maestra `db_core.core_usuarios`. Ningún equipo puede alterar o borrar datos de otro equipo.
+# 2. Ejecutar el Asistente Interactivo
+.\dev.ps1
+```
 
 ---
 
-## 🌿 Flujo de Trabajo en Git (Pull Requests)
-1. Crea tu rama de trabajo:
-   ```bash
-   git checkout -b feature/modulo-01-nombre-tarea
-   ```
-2. Realiza tus cambios dentro de la carpeta de tu módulo (`src/02_Modulos/Intranet.ModuloXX/`).
-3. Sube tu rama y abre un Pull Request en GitHub:
-   ```bash
-   git push origin feature/modulo-01-nombre-tarea
-   ```
+## 🖥️ ¿Qué hace el Asistente `./dev.sh` por ti?
+
+1. **🚀 Iniciar Intranet Local:** Lanza la aplicación en `http://localhost:5000` con **Hot-Reload** (se actualiza sola en 100ms al guardar cambios).
+2. **🌿 Crear Rama Estandarizada:** Te pide tu número de equipo y crea automáticamente ramas seguras como `modulo04/formulario-actas`.
+3. **⚡ Generar Plantilla CRUD Apple:** En 1 segundo genera un Modelo C#, un Controlador y una Vista Razor con diseño Apple 100% responsivo y funcional.
+4. **🔍 Validar mi Código (Local Check):** Audita que no hayas tocado archivos fuera de tu módulo y compila la solución completa.
+5. **📤 Subir Cambios Seguros:** Realiza commit y push directamente a tu rama para abrir tu Pull Request.
+6. **🔧 Instalar Guardián Git (Poka-Yoke):** Bloquea que cualquier persona haga push por error a `main`.
 
 ---
 
-## 🎨 Estilos y Diseño (Tailwind CSS + DaisyUI)
-La Intranet ya viene con **Tailwind CSS y DaisyUI** preconfigurados en el Layout maestro:
-* **Botones modernos:** `<button class="btn btn-primary">Guardar</button>`
-* **Tarjetas:** `<div class="card bg-base-100 shadow-xl p-6">...</div>`
-* **Tablas:** `<table class="table table-zebra w-full">...</table>`
-* **Modales:** `<dialog class="modal">...</dialog>`
-* **Badges:** `<span class="badge badge-accent">Nuevo</span>`
+## 👥 Asignación de Módulos y Bases de Datos (9 Equipos):
+
+| Equipo | Módulo | Carpeta Soberana | Base de Datos MariaDB | Color Distintivo |
+| :---: | :--- | :--- | :--- | :--- |
+| **01** | **Admisión & Postulantes** | `src/02_Modulos/Intranet.Modulo01/` | `db_modulo01` | 🩵 Sky Pastel |
+| **02** | **Matrícula & Registros Académicos** | `src/02_Modulos/Intranet.Modulo02/` | `db_modulo02` | 💙 Indigo Pastel |
+| **03** | **Gestión Docente & Carga Horaria** | `src/02_Modulos/Intranet.Modulo03/` | `db_modulo03` | 💚 Emerald Pastel |
+| **04** | **Calificaciones & Actas Oficiales** | `src/02_Modulos/Intranet.Modulo04/` | `db_modulo04` | 💛 Amber Pastel |
+| **05** | **Tesorería & Control de Pagos** | `src/02_Modulos/Intranet.Modulo05/` | `db_modulo05` | 💜 Purple Pastel |
+| **06** | **Mesa de Partes Virtual & FUT** | `src/02_Modulos/Intranet.Modulo06/` | `db_modulo06` | 🩷 Rose Pastel |
+| **07** | **Biblioteca Virtual & Recursos** | `src/02_Modulos/Intranet.Modulo07/` | `db_modulo07` | 🩵 Teal Pastel |
+| **08** | **Bolsa de Trabajo & Prácticas (EFSRT)** | `src/02_Modulos/Intranet.Modulo08/` | `db_modulo08` | 🧡 Orange Pastel |
+| **09** | **Mesa de Ayuda TI & Soporte** | `src/02_Modulos/Intranet.Modulo09/` | `db_modulo09` | 🌐 Cyan Pastel |
+
+---
+
+## 🛡️ Reglas de Oro del Proyecto (Poka-Yoke)
+
+1. **Aislamiento Estricto:** Programa **únicamente** dentro de tu carpeta `src/02_Modulos/Intranet.ModuloXX/`.
+2. **Prohibido Push a `main`:** Todo cambio se entrega mediante **Pull Request** desde tu rama `moduloXX/tu-tarea`.
+3. **Controladores con Seguridad:** Haz que tus controladores hereden de `ModuloBaseController` para tener acceso a `UsuarioActualRol`, `UsuarioActualNombre`, etc.
+4. **Validación Automática:** Si tu PR modifica solo tu módulo y compila con 0 errores, **GitHub Actions lo fusiona a producción en 45 segundos**.
+
+---
+
+## 🌐 Enlaces de Producción
+
+* 🚀 **Intranet en Vivo:** [http://35.209.228.150](http://35.209.228.150)
+* 🗄️ **phpMyAdmin BD:** [http://35.208.213.59:8080](http://35.208.213.59:8080)
