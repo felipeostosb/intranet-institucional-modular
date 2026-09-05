@@ -2,74 +2,72 @@
     ViewData["Title"] = "Módulo 01 - Admisión y Postulantes";
 }
 
-<div class="space-y-6">
+<div class="space-y-6 font-sans">
     <!-- Header del Módulo -->
-    <div class="card bg-base-100 shadow-sm border border-base-200">
-        <div class="card-body p-6">
-            <div class="flex items-center justify-between flex-wrap gap-4">
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <span class="badge badge-primary font-bold text-xs">Módulo 01</span>
-                        <span class="badge badge-outline text-xs">Equipo 01 • db_modulo01</span>
-                    </div>
-                    <h1 class="text-2xl lg:text-3xl font-black text-base-content">
-                        📝 Gestión de Admisión & Postulantes 2026-II
-                    </h1>
-                    <p class="text-sm text-base-content/70 mt-1">
-                        Control de inscripciones, asignación de aulas de examen y calificación de postulantes por carrera profesional.
-                    </p>
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200/80">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-800">Módulo 01</span>
+                    <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-slate-100 text-slate-600">Equipo 01 • db_modulo01</span>
                 </div>
-                <div class="flex gap-2">
-                    <button class="btn btn-primary btn-sm gap-2 font-bold shadow-md shadow-primary/20" onclick="modal_nuevo_postulante.showModal()">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                        Nuevo Postulante
-                    </button>
-                    <button class="btn btn-outline btn-sm gap-1">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                        Exportar Actas
-                    </button>
-                </div>
+                <h1 class="text-xl sm:text-2xl font-black text-slate-900">
+                    📝 Gestión de Admisión & Postulantes 2026-II
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">
+                    Control de postulantes inscritos, modalidades de examen y padrón por carrera profesional (DSI, Contabilidad, Adm.).
+                </p>
+            </div>
+            <div class="flex gap-2">
+                <button class="btn bg-sky-600 hover:bg-sky-700 text-white btn-sm font-bold text-xs rounded-xl shadow-sm shadow-sky-600/30 border-0" onclick="modal_nuevo_postulante.showModal()">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    Nuevo Postulante
+                </button>
+                <button class="btn btn-outline btn-sm font-semibold text-xs rounded-xl border-slate-300 text-slate-700 hover:bg-slate-100">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Exportar Actas
+                </button>
             </div>
         </div>
     </div>
 
-    <!-- Estadísticas de Admisión -->
+    <!-- Estadísticas Pastel de Admisión -->
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="stat bg-base-100 rounded-2xl shadow-sm border border-base-200 p-4">
-            <div class="stat-title text-xs font-semibold text-base-content/60">Total Postulantes</div>
-            <div class="stat-value text-2xl text-primary font-black">680</div>
-            <div class="stat-desc text-xs text-emerald-600 font-medium">Capacidad: 750 Vacantes</div>
+        <div class="bg-gradient-to-br from-sky-50 to-blue-50/60 rounded-2xl p-4 border border-sky-100 shadow-sm">
+            <div class="text-xs font-bold text-slate-500">Total Postulantes</div>
+            <div class="text-2xl font-black text-sky-900 mt-1.5">680</div>
+            <div class="text-[11px] font-semibold text-emerald-700 mt-1">Capacidad: 750 Vacantes</div>
         </div>
         
-        <div class="stat bg-base-100 rounded-2xl shadow-sm border border-base-200 p-4">
-            <div class="stat-title text-xs font-semibold text-base-content/60">Desarrollo de Sistemas (DSI)</div>
-            <div class="stat-value text-2xl text-secondary font-black">310</div>
-            <div class="stat-desc text-xs text-base-content/60">45% de la demanda total</div>
+        <div class="bg-gradient-to-br from-indigo-50 to-purple-50/60 rounded-2xl p-4 border border-indigo-100 shadow-sm">
+            <div class="text-xs font-bold text-slate-500">Desarrollo de Sistemas (DSI)</div>
+            <div class="text-2xl font-black text-indigo-900 mt-1.5">310</div>
+            <div class="text-[11px] font-medium text-slate-500 mt-1">45% de la demanda total</div>
         </div>
         
-        <div class="stat bg-base-100 rounded-2xl shadow-sm border border-base-200 p-4">
-            <div class="stat-title text-xs font-semibold text-base-content/60">Contabilidad</div>
-            <div class="stat-value text-2xl text-accent font-black">220</div>
-            <div class="stat-desc text-xs text-base-content/60">Turnos Diurno y Nocturno</div>
+        <div class="bg-gradient-to-br from-cyan-50 to-blue-50/60 rounded-2xl p-4 border border-cyan-100 shadow-sm">
+            <div class="text-xs font-bold text-slate-500">Contabilidad</div>
+            <div class="text-2xl font-black text-cyan-900 mt-1.5">220</div>
+            <div class="text-[11px] font-medium text-slate-500 mt-1">Turnos Diurno y Nocturno</div>
         </div>
 
-        <div class="stat bg-base-100 rounded-2xl shadow-sm border border-base-200 p-4">
-            <div class="stat-title text-xs font-semibold text-base-content/60">Administración</div>
-            <div class="stat-value text-2xl text-warning font-black">150</div>
-            <div class="stat-desc text-xs text-base-content/60">Examen programado</div>
+        <div class="bg-gradient-to-br from-amber-50 to-orange-50/60 rounded-2xl p-4 border border-amber-100 shadow-sm">
+            <div class="text-xs font-bold text-slate-500">Administración</div>
+            <div class="text-2xl font-black text-amber-900 mt-1.5">150</div>
+            <div class="text-[11px] font-medium text-slate-500 mt-1">Examen programado</div>
         </div>
     </div>
 
-    <!-- Tabla de Postulantes Registrados (Demo Data IESTP Argentina) -->
-    <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
-        <div class="p-5 border-b border-base-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <!-- Padrón de Postulantes (Tabla Pastel DaisyUI) -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+        <div class="p-5 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
             <div>
-                <h2 class="text-base font-bold">Padrón Oficial de Postulantes 2026-II</h2>
-                <p class="text-xs text-base-content/60">Datos sincronizados con la base de datos modular `db_modulo01`.</p>
+                <h2 class="text-sm sm:text-base font-bold text-slate-900">Padrón Oficial de Postulantes 2026-II</h2>
+                <p class="text-[11px] text-slate-500">Base de datos modular `db_modulo01` (Equipo 01).</p>
             </div>
             <div class="flex gap-2 w-full sm:w-auto">
-                <input type="text" placeholder="Buscar por DNI o Apellidos..." class="input input-bordered input-sm w-full sm:w-64" />
-                <select class="select select-bordered select-sm">
+                <input type="text" placeholder="Buscar por DNI o Apellidos..." class="input input-bordered input-sm w-full sm:w-60 rounded-xl text-xs" />
+                <select class="select select-bordered select-sm rounded-xl text-xs">
                     <option selected>Todas las Carreras</option>
                     <option>Desarrollo de Sistemas</option>
                     <option>Contabilidad</option>
@@ -79,78 +77,78 @@
         </div>
 
         <div class="overflow-x-auto">
-            <table class="table table-zebra table-sm w-full">
+            <table class="table table-sm w-full text-xs">
                 <thead>
-                    <tr class="bg-base-200/50 text-xs">
-                        <th>N° Exp.</th>
+                    <tr class="bg-slate-50/80 text-slate-500 border-b border-slate-100">
+                        <th>N° EXP</th>
                         <th>DNI</th>
-                        <th>Postulante</th>
-                        <th>Carrera Profesional</th>
-                        <th>Modalidad</th>
-                        <th>Puntaje</th>
-                        <th>Estado</th>
-                        <th class="text-right">Acciones</th>
+                        <th>POSTULANTE</th>
+                        <th>CARRERA</th>
+                        <th>MODALIDAD</th>
+                        <th>PUNTAJE</th>
+                        <th>ESTADO</th>
+                        <th class="text-right">ACCIONES</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td class="font-mono font-bold text-xs text-primary">EXP-2026-001</td>
-                        <td class="font-mono text-xs">74892011</td>
+                <tbody class="divide-y divide-slate-100">
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="font-mono font-bold text-sky-700">EXP-2026-001</td>
+                        <td class="font-mono text-slate-600">74892011</td>
                         <td>
-                            <div class="font-bold text-xs">Jean Pierre Huamán Soto</div>
-                            <div class="text-[10px] text-base-content/50">jean.huaman@gmail.com</div>
+                            <div class="font-bold text-slate-900">Jean Pierre Huamán Soto</div>
+                            <div class="text-[10px] text-slate-400">jean.huaman@gmail.com</div>
                         </td>
-                        <td><span class="badge badge-sm badge-outline badge-primary">Desarrollo de Sistemas</span></td>
-                        <td class="text-xs">Examen Ordinario</td>
-                        <td class="font-bold text-xs text-emerald-600">88.50 / 100</td>
-                        <td><span class="badge badge-xs badge-success font-semibold">Admitido</span></td>
+                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800">Desarrollo de Sistemas</span></td>
+                        <td class="text-slate-600">Examen Ordinario</td>
+                        <td class="font-bold text-emerald-700">88.50 / 100</td>
+                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Admitido</span></td>
                         <td class="text-right">
-                            <button class="btn btn-ghost btn-xs">Ver Ficha</button>
+                            <button class="btn btn-ghost btn-xs text-sky-700 hover:bg-sky-50 font-semibold rounded-lg">Ver Ficha</button>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="font-mono font-bold text-xs text-primary">EXP-2026-002</td>
-                        <td class="font-mono text-xs">71203948</td>
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="font-mono font-bold text-sky-700">EXP-2026-002</td>
+                        <td class="font-mono text-slate-600">71203948</td>
                         <td>
-                            <div class="font-bold text-xs">Valeria Alexandra Gómez Vega</div>
-                            <div class="text-[10px] text-base-content/50">valeria.gomez@gmail.com</div>
+                            <div class="font-bold text-slate-900">Valeria Alexandra Gómez Vega</div>
+                            <div class="text-[10px] text-slate-400">valeria.gomez@gmail.com</div>
                         </td>
-                        <td><span class="badge badge-sm badge-outline badge-secondary">Contabilidad</span></td>
-                        <td class="text-xs">Primeros Puestos</td>
-                        <td class="font-bold text-xs text-emerald-600">92.00 / 100</td>
-                        <td><span class="badge badge-xs badge-success font-semibold">Admitido</span></td>
+                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">Contabilidad</span></td>
+                        <td class="text-slate-600">Primeros Puestos</td>
+                        <td class="font-bold text-emerald-700">92.00 / 100</td>
+                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Admitido</span></td>
                         <td class="text-right">
-                            <button class="btn btn-ghost btn-xs">Ver Ficha</button>
+                            <button class="btn btn-ghost btn-xs text-sky-700 hover:bg-sky-50 font-semibold rounded-lg">Ver Ficha</button>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="font-mono font-bold text-xs text-primary">EXP-2026-003</td>
-                        <td class="font-mono text-xs">75839201</td>
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="font-mono font-bold text-sky-700">EXP-2026-003</td>
+                        <td class="font-mono text-slate-600">75839201</td>
                         <td>
-                            <div class="font-bold text-xs">Marcos Antonio Rivas Pérez</div>
-                            <div class="text-[10px] text-base-content/50">marcos.rivas@gmail.com</div>
+                            <div class="font-bold text-slate-900">Marcos Antonio Rivas Pérez</div>
+                            <div class="text-[10px] text-slate-400">marcos.rivas@gmail.com</div>
                         </td>
-                        <td><span class="badge badge-sm badge-outline badge-accent">Administración</span></td>
-                        <td class="text-xs">Examen Ordinario</td>
-                        <td class="font-bold text-xs text-warning font-mono">68.00 / 100</td>
-                        <td><span class="badge badge-xs badge-warning font-semibold">En Evaluación</span></td>
+                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-cyan-100 text-cyan-800">Administración</span></td>
+                        <td class="text-slate-600">Examen Ordinario</td>
+                        <td class="font-bold text-amber-700">68.00 / 100</td>
+                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">En Evaluación</span></td>
                         <td class="text-right">
-                            <button class="btn btn-ghost btn-xs">Ver Ficha</button>
+                            <button class="btn btn-ghost btn-xs text-sky-700 hover:bg-sky-50 font-semibold rounded-lg">Ver Ficha</button>
                         </td>
                     </tr>
-                    <tr>
-                        <td class="font-mono font-bold text-xs text-primary">EXP-2026-004</td>
-                        <td class="font-mono text-xs">72910482</td>
+                    <tr class="hover:bg-slate-50/60 transition">
+                        <td class="font-mono font-bold text-sky-700">EXP-2026-004</td>
+                        <td class="font-mono text-slate-600">72910482</td>
                         <td>
-                            <div class="font-bold text-xs">Camila Belén Mendoza Quispe</div>
-                            <div class="text-[10px] text-base-content/50">camila.mendoza@gmail.com</div>
+                            <div class="font-bold text-slate-900">Camila Belén Mendoza Quispe</div>
+                            <div class="text-[10px] text-slate-400">camila.mendoza@gmail.com</div>
                         </td>
-                        <td><span class="badge badge-sm badge-outline badge-primary">Desarrollo de Sistemas</span></td>
-                        <td class="text-xs">Examen Ordinario</td>
-                        <td class="font-bold text-xs text-emerald-600">84.00 / 100</td>
-                        <td><span class="badge badge-xs badge-success font-semibold">Admitido</span></td>
+                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-100 text-sky-800">Desarrollo de Sistemas</span></td>
+                        <td class="text-slate-600">Examen Ordinario</td>
+                        <td class="font-bold text-emerald-700">84.00 / 100</td>
+                        <td><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">Admitido</span></td>
                         <td class="text-right">
-                            <button class="btn btn-ghost btn-xs">Ver Ficha</button>
+                            <button class="btn btn-ghost btn-xs text-sky-700 hover:bg-sky-50 font-semibold rounded-lg">Ver Ficha</button>
                         </td>
                     </tr>
                 </tbody>
@@ -158,14 +156,14 @@
         </div>
 
         <!-- Paginación -->
-        <div class="p-4 border-t border-base-200 flex flex-col sm:flex-row justify-between items-center gap-3">
-            <span class="text-xs text-base-content/60">Mostrando registros 1 a 4 de 680 postulantes</span>
+        <div class="p-4 border-t border-slate-100 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <span class="text-[11px] text-slate-500 font-medium">Mostrando 1 a 4 de 680 postulantes</span>
             <div class="join">
-                <button class="join-item btn btn-xs btn-disabled">«</button>
-                <button class="join-item btn btn-xs btn-active">1</button>
-                <button class="join-item btn btn-xs">2</button>
-                <button class="join-item btn btn-xs">3</button>
-                <button class="join-item btn btn-xs">»</button>
+                <button class="join-item btn btn-xs btn-disabled bg-slate-100">«</button>
+                <button class="join-item btn btn-xs bg-sky-600 text-white font-bold">1</button>
+                <button class="join-item btn btn-xs bg-white text-slate-700">2</button>
+                <button class="join-item btn btn-xs bg-white text-slate-700">3</button>
+                <button class="join-item btn btn-xs bg-white text-slate-700">»</button>
             </div>
         </div>
     </div>
@@ -173,21 +171,21 @@
 
 <!-- Modal para Registrar Nuevo Postulante -->
 <dialog id="modal_nuevo_postulante" class="modal">
-    <div class="modal-box max-w-lg">
-        <h3 class="font-bold text-lg mb-1 flex items-center gap-2">
+    <div class="modal-box max-w-lg bg-white rounded-3xl p-6 shadow-2xl border border-slate-200">
+        <h3 class="font-black text-base text-slate-900 mb-1 flex items-center gap-2">
             📝 Inscribir Nuevo Postulante
         </h3>
-        <p class="text-xs text-base-content/60 mb-4">Registro en base de datos modular `db_modulo01` (Equipo 01).</p>
+        <p class="text-xs text-slate-500 mb-4">Registro en base de datos modular `db_modulo01` (Equipo 01).</p>
         
-        <div class="space-y-3 text-sm">
+        <div class="space-y-3 text-xs">
             <div class="grid grid-cols-2 gap-3">
                 <div class="form-control">
-                    <label class="label py-1"><span class="label-text font-semibold text-xs">DNI</span></label>
-                    <input type="text" maxlength="8" placeholder="8 dígitos" class="input input-bordered input-sm w-full" />
+                    <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">DNI</span></label>
+                    <input type="text" maxlength="8" placeholder="8 dígitos" class="input input-sm input-bordered w-full rounded-xl" />
                 </div>
                 <div class="form-control">
-                    <label class="label py-1"><span class="label-text font-semibold text-xs">Modalidad</span></label>
-                    <select class="select select-bordered select-sm w-full">
+                    <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">Modalidad</span></label>
+                    <select class="select select-bordered select-sm w-full rounded-xl text-xs">
                         <option>Examen Ordinario</option>
                         <option>Primeros Puestos</option>
                         <option>Traslado Externo</option>
@@ -196,13 +194,13 @@
             </div>
 
             <div class="form-control">
-                <label class="label py-1"><span class="label-text font-semibold text-xs">Nombres y Apellidos</span></label>
-                <input type="text" placeholder="Ej: Juan Carlos Pérez Ramos" class="input input-bordered input-sm w-full" />
+                <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">Nombres y Apellidos</span></label>
+                <input type="text" placeholder="Ej: Juan Carlos Pérez Ramos" class="input input-sm input-bordered w-full rounded-xl" />
             </div>
 
             <div class="form-control">
-                <label class="label py-1"><span class="label-text font-semibold text-xs">Carrera Profesional</span></label>
-                <select class="select select-bordered select-sm w-full">
+                <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">Carrera Profesional</span></label>
+                <select class="select select-bordered select-sm w-full rounded-xl text-xs">
                     <option>Desarrollo de Sistemas de Información</option>
                     <option>Contabilidad</option>
                     <option>Administración de Empresas</option>
@@ -210,15 +208,15 @@
             </div>
 
             <div class="form-control">
-                <label class="label py-1"><span class="label-text font-semibold text-xs">Correo Electrónico</span></label>
-                <input type="email" placeholder="postulante@gmail.com" class="input input-bordered input-sm w-full" />
+                <label class="label py-0.5"><span class="label-text font-bold text-[11px] text-slate-700">Correo Electrónico</span></label>
+                <input type="email" placeholder="postulante@gmail.com" class="input input-sm input-bordered w-full rounded-xl" />
             </div>
         </div>
 
         <div class="modal-action mt-6">
             <form method="dialog" class="flex gap-2">
-                <button class="btn btn-sm btn-ghost">Cancelar</button>
-                <button class="btn btn-sm btn-primary font-bold">Guardar Postulante</button>
+                <button class="btn btn-sm btn-ghost text-xs rounded-xl">Cancelar</button>
+                <button class="btn btn-sm bg-sky-600 hover:bg-sky-700 text-white font-bold text-xs rounded-xl border-0 shadow-sm shadow-sky-600/30">Guardar Postulante</button>
             </form>
         </div>
     </div>
