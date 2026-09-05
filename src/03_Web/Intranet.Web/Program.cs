@@ -1,8 +1,12 @@
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
+using Intranet.Core.Contracts;
 using Intranet.Data;
+using Intranet.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// 1. Registro de Módulos (9 Equipos en Paralelo)
 builder.Services.AddControllersWithViews()
     .AddApplicationPart(typeof(Intranet.Modulo01.Controllers.Modulo01Controller).Assembly)
     .AddApplicationPart(typeof(Intranet.Modulo02.Controllers.Modulo02Controller).Assembly)
@@ -14,6 +18,7 @@ builder.Services.AddControllersWithViews()
     .AddApplicationPart(typeof(Intranet.Modulo08.Controllers.Modulo08Controller).Assembly)
     .AddApplicationPart(typeof(Intranet.Modulo09.Controllers.Modulo09Controller).Assembly);
 
+// 2. Base de Datos Central (Core)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (!string.IsNullOrEmpty(connectionString))
 {
@@ -21,7 +26,39 @@ if (!string.IsNullOrEmpty(connectionString))
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 }
 
+// 3. Inyección de Dependencias de Servicios Core
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
+
+// 4. Autenticación Centralizada (SSO con Cookies)
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/Account/Login";
+        options.LogoutPath = "/Account/Logout";
+        options.AccessDeniedPath = "/Account/AccessDenied";
+        options.ExpireTimeSpan = TimeSpan.FromDays(7);
+        options.SlidingExpiration = true;
+    });
+
 var app = builder.Build();
+
+// 5. Inicialización Automática de Base de Datos al Iniciar
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var db = services.GetService<ApplicationDbContext>();
+        if (db != null)
+        {
+            await DatabaseInitializer.InicializarAsync(db);
+        }
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"[Startup] Error inicializando DB: {ex.Message}");
+    }
+}
 
 if (!app.Environment.IsDevelopment())
 {
@@ -31,6 +68,9 @@ if (!app.Environment.IsDevelopment())
 
 app.UseStaticFiles();
 app.UseRouting();
+
+// 6. Middleware de Seguridad
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

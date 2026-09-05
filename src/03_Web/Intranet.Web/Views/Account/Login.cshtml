@@ -1,0 +1,86 @@
+@{
+    Layout = null;
+    ViewData["Title"] = "Iniciar Sesión - Intranet Institucional";
+}
+
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-base-200 via-base-100 to-base-200 min-h-screen flex items-center justify-center p-4">
+    <div class="card w-full max-w-md bg-base-100 shadow-2xl border border-base-200">
+        <div class="card-body p-8">
+            <div class="text-center mb-6">
+                <div class="w-16 h-16 rounded-2xl bg-primary text-primary-content flex items-center justify-center text-2xl font-black mx-auto mb-3 shadow-lg shadow-primary/30">
+                    🏛️
+                </div>
+                <h1 class="text-2xl font-extrabold tracking-tight">Intranet Institucional</h1>
+                <p class="text-sm text-base-content/60 mt-1">Ingresa con tu DNI o Código Institucional</p>
+            </div>
+
+            @if (ViewBag.Error != null)
+            {
+                <div role="alert" class="alert alert-error text-sm mb-4 py-2 px-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-5 w-5" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                    <span>@ViewBag.Error</span>
+                </div>
+            }
+
+            <form method="post" asp-action="Login" asp-controller="Account" class="space-y-4">
+                <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">DNI o Código Institucional</span>
+                    </label>
+                    <input type="text" name="identificador" required placeholder="Ej: 87654321 o EST-2026-001" class="input input-bordered w-full focus:input-primary" />
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-semibold">Contraseña</span>
+                    </label>
+                    <input type="password" name="password" required placeholder="Tu contraseña o DNI" class="input input-bordered w-full focus:input-primary" />
+                </div>
+
+                <div class="form-control mt-6">
+                    <button type="submit" class="btn btn-primary w-full font-bold shadow-md shadow-primary/20">
+                        Ingresar a la Intranet
+                    </button>
+                </div>
+            </form>
+
+            <div class="divider my-6 text-xs text-base-content/40">Cuentas Semilla de Prueba</div>
+            
+            <div class="bg-base-200/60 rounded-xl p-3 text-xs space-y-1 text-base-content/70">
+                <div class="flex justify-between">
+                    <span class="font-bold">Admin:</span>
+                    <span>DNI: <code>00000001</code> / Pass: <code>123456</code></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-bold">Docente:</span>
+                    <span>DNI: <code>12345678</code> / Pass: <code>123456</code></span>
+                </div>
+                <div class="flex justify-between">
+                    <span class="font-bold">Alumno:</span>
+                    <span>DNI: <code>87654321</code> / Pass: <code>123456</code></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
