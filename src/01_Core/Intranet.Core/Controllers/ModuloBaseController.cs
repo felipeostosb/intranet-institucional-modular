@@ -20,8 +20,14 @@ public abstract class ModuloBaseController : Controller
     public string UsuarioActualRol => User.FindFirst(ClaimTypes.Role)?.Value ?? "Alumno";
 
     public bool EstaAutenticado => User.Identity?.IsAuthenticated ?? false;
+    
+    // Roles Institucionales IESTP Argentina
     public bool EsAdmin => User.IsInRole("Admin");
-    public bool EsDocente => User.IsInRole("Docente") || EsAdmin;
+    public bool EsDirector => User.IsInRole("Director") || EsAdmin;
+    public bool EsCoordinador => User.IsInRole("Coordinador") || EsAdmin;
+    public bool EsSecretaria => User.IsInRole("Secretaria") || EsAdmin;
+    public bool EsTesoreria => User.IsInRole("Tesoreria") || EsAdmin;
+    public bool EsDocente => User.IsInRole("Docente") || EsCoordinador || EsAdmin;
     public bool EsAlumno => User.IsInRole("Alumno");
 
     protected void MostrarAlertaExito(string mensaje)

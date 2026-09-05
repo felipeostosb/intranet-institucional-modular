@@ -1,6 +1,6 @@
 @{
     Layout = null;
-    ViewData["Title"] = "Iniciar Sesión - Intranet Institucional";
+    ViewData["Title"] = "Iniciar Sesión - IESTP Argentina";
 }
 
 <!DOCTYPE html>
@@ -22,14 +22,15 @@
     </style>
 </head>
 <body class="bg-gradient-to-br from-base-200 via-base-100 to-base-200 min-h-screen flex items-center justify-center p-4">
-    <div class="card w-full max-w-md bg-base-100 shadow-2xl border border-base-200">
-        <div class="card-body p-8">
+    <div class="card w-full max-w-xl bg-base-100 shadow-2xl border border-base-200">
+        <div class="card-body p-6 sm:p-8">
             <div class="text-center mb-6">
-                <div class="w-16 h-16 rounded-2xl bg-primary text-primary-content flex items-center justify-center text-2xl font-black mx-auto mb-3 shadow-lg shadow-primary/30">
+                <div class="w-16 h-16 rounded-2xl bg-primary text-primary-content flex items-center justify-center text-3xl font-black mx-auto mb-3 shadow-lg shadow-primary/30">
                     🏛️
                 </div>
-                <h1 class="text-2xl font-extrabold tracking-tight">Intranet Institucional</h1>
-                <p class="text-sm text-base-content/60 mt-1">Ingresa con tu DNI o Código Institucional</p>
+                <h1 class="text-2xl font-extrabold tracking-tight">IESTP Argentina</h1>
+                <p class="text-sm font-semibold text-primary">Intranet Institucional • Semestre 2026-II</p>
+                <p class="text-xs text-base-content/60 mt-1">Av. Alfonso Ugarte, Lima • Plataforma Académica y de Gestión</p>
             </div>
 
             @if (ViewBag.Error != null)
@@ -47,14 +48,14 @@
                     <label class="label">
                         <span class="label-text font-semibold">DNI o Código Institucional</span>
                     </label>
-                    <input type="text" name="identificador" required placeholder="Ej: 87654321 o EST-2026-001" class="input input-bordered w-full focus:input-primary" />
+                    <input type="text" id="identificador" name="identificador" required placeholder="Ej: 87654321 o COORD-DSI" class="input input-bordered w-full focus:input-primary" />
                 </div>
 
                 <div class="form-control">
                     <label class="label">
                         <span class="label-text font-semibold">Contraseña</span>
                     </label>
-                    <input type="password" name="password" required placeholder="Tu contraseña o DNI" class="input input-bordered w-full focus:input-primary" />
+                    <input type="password" id="password" name="password" required placeholder="Tu contraseña o DNI" class="input input-bordered w-full focus:input-primary" />
                 </div>
 
                 <div class="form-control mt-6">
@@ -64,23 +65,42 @@
                 </div>
             </form>
 
-            <div class="divider my-6 text-xs text-base-content/40">Cuentas Semilla de Prueba</div>
+            <div class="divider my-4 text-xs font-semibold text-base-content/50 uppercase tracking-wider">Cuentas Demo por Rol Institucional (Clic para Rellenar)</div>
             
-            <div class="bg-base-200/60 rounded-xl p-3 text-xs space-y-1 text-base-content/70">
-                <div class="flex justify-between">
-                    <span class="font-bold">Admin:</span>
-                    <span>DNI: <code>00000001</code> / Pass: <code>123456</code></span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="font-bold">Docente:</span>
-                    <span>DNI: <code>12345678</code> / Pass: <code>123456</code></span>
-                </div>
-                <div class="flex justify-between">
-                    <span class="font-bold">Alumno:</span>
-                    <span>DNI: <code>87654321</code> / Pass: <code>123456</code></span>
-                </div>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <button type="button" onclick="setLogin('10000001', '123456')" class="btn btn-xs btn-outline hover:btn-primary text-left flex flex-col items-start h-auto py-2">
+                    <span class="font-bold text-[11px]">🏛️ Director</span>
+                    <span class="text-[9px] text-base-content/60">Lic. Alvarado</span>
+                </button>
+                <button type="button" onclick="setLogin('20000001', '123456')" class="btn btn-xs btn-outline hover:btn-primary text-left flex flex-col items-start h-auto py-2">
+                    <span class="font-bold text-[11px]">💻 Coordinador</span>
+                    <span class="text-[9px] text-base-content/60">Ing. Mendoza (DSI)</span>
+                </button>
+                <button type="button" onclick="setLogin('30000001', '123456')" class="btn btn-xs btn-outline hover:btn-primary text-left flex flex-col items-start h-auto py-2">
+                    <span class="font-bold text-[11px]">📑 Secretaria</span>
+                    <span class="text-[9px] text-base-content/60">Lic. Morales</span>
+                </button>
+                <button type="button" onclick="setLogin('40000001', '123456')" class="btn btn-xs btn-outline hover:btn-primary text-left flex flex-col items-start h-auto py-2">
+                    <span class="font-bold text-[11px]">💰 Tesorería</span>
+                    <span class="text-[9px] text-base-content/60">Lic. Ramos</span>
+                </button>
+                <button type="button" onclick="setLogin('12345678', '123456')" class="btn btn-xs btn-outline hover:btn-primary text-left flex flex-col items-start h-auto py-2">
+                    <span class="font-bold text-[11px]">👨‍🏫 Docente</span>
+                    <span class="text-[9px] text-base-content/60">Mg. Sánchez</span>
+                </button>
+                <button type="button" onclick="setLogin('87654321', '123456')" class="btn btn-xs btn-outline hover:btn-primary text-left flex flex-col items-start h-auto py-2">
+                    <span class="font-bold text-[11px]">🎓 Alumno</span>
+                    <span class="text-[9px] text-base-content/60">Felipe Ostos</span>
+                </button>
             </div>
         </div>
     </div>
+
+    <script>
+        function setLogin(id, pass) {
+            document.getElementById('identificador').value = id;
+            document.getElementById('password').value = pass;
+        }
+    </script>
 </body>
 </html>

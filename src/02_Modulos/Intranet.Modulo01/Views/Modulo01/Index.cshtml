@@ -1,101 +1,224 @@
 @{
-    ViewData["Title"] = "Módulo 01";
+    ViewData["Title"] = "Módulo 01 - Admisión y Postulantes";
 }
 
 <div class="space-y-6">
-    <div class="card bg-base-100 shadow-xl border border-base-200">
-        <div class="card-body">
+    <!-- Header del Módulo -->
+    <div class="card bg-base-100 shadow-sm border border-base-200">
+        <div class="card-body p-6">
             <div class="flex items-center justify-between flex-wrap gap-4">
                 <div>
-                    <div class="badge badge-primary badge-outline font-semibold mb-2">Equipo 01</div>
-                    <h1 class="text-3xl font-bold text-base-content">Módulo 01 - Panel de Control</h1>
-                    <p class="text-base-content/70 mt-1">Este espacio pertenece al <strong>Equipo 01</strong>. Desarrollen aquí sus vistas y formularios.</p>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="badge badge-primary font-bold text-xs">Módulo 01</span>
+                        <span class="badge badge-outline text-xs">Equipo 01 • db_modulo01</span>
+                    </div>
+                    <h1 class="text-2xl lg:text-3xl font-black text-base-content">
+                        📝 Gestión de Admisión & Postulantes 2026-II
+                    </h1>
+                    <p class="text-sm text-base-content/70 mt-1">
+                        Control de inscripciones, asignación de aulas de examen y calificación de postulantes por carrera profesional.
+                    </p>
                 </div>
-                <button class="btn btn-primary gap-2" onclick="my_modal_1.showModal()">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
-                    Nuevo Registro
-                </button>
+                <div class="flex gap-2">
+                    <button class="btn btn-primary btn-sm gap-2 font-bold shadow-md shadow-primary/20" onclick="modal_nuevo_postulante.showModal()">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                        Nuevo Postulante
+                    </button>
+                    <button class="btn btn-outline btn-sm gap-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                        Exportar Actas
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div class="stat bg-base-100 shadow-md rounded-2xl border border-base-200">
-            <div class="stat-figure text-primary">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            </div>
-            <div class="stat-title">Registros Activos</div>
-            <div class="stat-value text-primary">24</div>
-            <div class="stat-desc">Base de datos: db_modulo01</div>
+    <!-- Estadísticas de Admisión -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="stat bg-base-100 rounded-2xl shadow-sm border border-base-200 p-4">
+            <div class="stat-title text-xs font-semibold text-base-content/60">Total Postulantes</div>
+            <div class="stat-value text-2xl text-primary font-black">680</div>
+            <div class="stat-desc text-xs text-emerald-600 font-medium">Capacidad: 750 Vacantes</div>
         </div>
         
-        <div class="stat bg-base-100 shadow-md rounded-2xl border border-base-200">
-            <div class="stat-figure text-secondary">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
-            </div>
-            <div class="stat-title">Operaciones Hoy</div>
-            <div class="stat-value text-secondary">100%</div>
-            <div class="stat-desc">Aislamiento Total OK</div>
+        <div class="stat bg-base-100 rounded-2xl shadow-sm border border-base-200 p-4">
+            <div class="stat-title text-xs font-semibold text-base-content/60">Desarrollo de Sistemas (DSI)</div>
+            <div class="stat-value text-2xl text-secondary font-black">310</div>
+            <div class="stat-desc text-xs text-base-content/60">45% de la demanda total</div>
         </div>
         
-        <div class="stat bg-base-100 shadow-md rounded-2xl border border-base-200">
-            <div class="stat-figure text-accent">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-8 h-8 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
-            </div>
-            <div class="stat-title">Estado del Módulo</div>
-            <div class="stat-value text-accent">En Línea</div>
-            <div class="stat-desc">ASP.NET Core .NET 8</div>
+        <div class="stat bg-base-100 rounded-2xl shadow-sm border border-base-200 p-4">
+            <div class="stat-title text-xs font-semibold text-base-content/60">Contabilidad</div>
+            <div class="stat-value text-2xl text-accent font-black">220</div>
+            <div class="stat-desc text-xs text-base-content/60">Turnos Diurno y Nocturno</div>
+        </div>
+
+        <div class="stat bg-base-100 rounded-2xl shadow-sm border border-base-200 p-4">
+            <div class="stat-title text-xs font-semibold text-base-content/60">Administración</div>
+            <div class="stat-value text-2xl text-warning font-black">150</div>
+            <div class="stat-desc text-xs text-base-content/60">Examen programado</div>
         </div>
     </div>
 
-    <div class="card bg-base-100 shadow-xl border border-base-200 overflow-hidden">
-        <div class="p-6 border-b border-base-200">
-            <h2 class="text-xl font-bold">Listado de Datos (Equipo 01)</h2>
-            <p class="text-sm text-base-content/70">Diseño responsivo con Tailwind CSS + DaisyUI listo para conectar a MariaDB.</p>
+    <!-- Tabla de Postulantes Registrados (Demo Data IESTP Argentina) -->
+    <div class="card bg-base-100 shadow-sm border border-base-200 overflow-hidden">
+        <div class="p-5 border-b border-base-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+            <div>
+                <h2 class="text-base font-bold">Padrón Oficial de Postulantes 2026-II</h2>
+                <p class="text-xs text-base-content/60">Datos sincronizados con la base de datos modular `db_modulo01`.</p>
+            </div>
+            <div class="flex gap-2 w-full sm:w-auto">
+                <input type="text" placeholder="Buscar por DNI o Apellidos..." class="input input-bordered input-sm w-full sm:w-64" />
+                <select class="select select-bordered select-sm">
+                    <option selected>Todas las Carreras</option>
+                    <option>Desarrollo de Sistemas</option>
+                    <option>Contabilidad</option>
+                    <option>Administración</option>
+                </select>
+            </div>
         </div>
+
         <div class="overflow-x-auto">
-            <table class="table table-zebra w-full">
+            <table class="table table-zebra table-sm w-full">
                 <thead>
-                    <tr>
-                        <th>#</th>
-                        <th>Código</th>
-                        <th>Descripción</th>
-                        <th>Fecha</th>
+                    <tr class="bg-base-200/50 text-xs">
+                        <th>N° Exp.</th>
+                        <th>DNI</th>
+                        <th>Postulante</th>
+                        <th>Carrera Profesional</th>
+                        <th>Modalidad</th>
+                        <th>Puntaje</th>
                         <th>Estado</th>
+                        <th class="text-right">Acciones</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr>
-                        <th>1</th>
-                        <td><span class="font-mono font-semibold text-primary">REG-001</span></td>
-                        <td>Registro de prueba del Módulo 01</td>
-                        <td>@DateTime.Now.ToString("dd/MM/yyyy")</td>
-                        <td><span class="badge badge-success gap-1">Completado</span></td>
+                        <td class="font-mono font-bold text-xs text-primary">EXP-2026-001</td>
+                        <td class="font-mono text-xs">74892011</td>
+                        <td>
+                            <div class="font-bold text-xs">Jean Pierre Huamán Soto</div>
+                            <div class="text-[10px] text-base-content/50">jean.huaman@gmail.com</div>
+                        </td>
+                        <td><span class="badge badge-sm badge-outline badge-primary">Desarrollo de Sistemas</span></td>
+                        <td class="text-xs">Examen Ordinario</td>
+                        <td class="font-bold text-xs text-emerald-600">88.50 / 100</td>
+                        <td><span class="badge badge-xs badge-success font-semibold">Admitido</span></td>
+                        <td class="text-right">
+                            <button class="btn btn-ghost btn-xs">Ver Ficha</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono font-bold text-xs text-primary">EXP-2026-002</td>
+                        <td class="font-mono text-xs">71203948</td>
+                        <td>
+                            <div class="font-bold text-xs">Valeria Alexandra Gómez Vega</div>
+                            <div class="text-[10px] text-base-content/50">valeria.gomez@gmail.com</div>
+                        </td>
+                        <td><span class="badge badge-sm badge-outline badge-secondary">Contabilidad</span></td>
+                        <td class="text-xs">Primeros Puestos</td>
+                        <td class="font-bold text-xs text-emerald-600">92.00 / 100</td>
+                        <td><span class="badge badge-xs badge-success font-semibold">Admitido</span></td>
+                        <td class="text-right">
+                            <button class="btn btn-ghost btn-xs">Ver Ficha</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono font-bold text-xs text-primary">EXP-2026-003</td>
+                        <td class="font-mono text-xs">75839201</td>
+                        <td>
+                            <div class="font-bold text-xs">Marcos Antonio Rivas Pérez</div>
+                            <div class="text-[10px] text-base-content/50">marcos.rivas@gmail.com</div>
+                        </td>
+                        <td><span class="badge badge-sm badge-outline badge-accent">Administración</span></td>
+                        <td class="text-xs">Examen Ordinario</td>
+                        <td class="font-bold text-xs text-warning font-mono">68.00 / 100</td>
+                        <td><span class="badge badge-xs badge-warning font-semibold">En Evaluación</span></td>
+                        <td class="text-right">
+                            <button class="btn btn-ghost btn-xs">Ver Ficha</button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="font-mono font-bold text-xs text-primary">EXP-2026-004</td>
+                        <td class="font-mono text-xs">72910482</td>
+                        <td>
+                            <div class="font-bold text-xs">Camila Belén Mendoza Quispe</div>
+                            <div class="text-[10px] text-base-content/50">camila.mendoza@gmail.com</div>
+                        </td>
+                        <td><span class="badge badge-sm badge-outline badge-primary">Desarrollo de Sistemas</span></td>
+                        <td class="text-xs">Examen Ordinario</td>
+                        <td class="font-bold text-xs text-emerald-600">84.00 / 100</td>
+                        <td><span class="badge badge-xs badge-success font-semibold">Admitido</span></td>
+                        <td class="text-right">
+                            <button class="btn btn-ghost btn-xs">Ver Ficha</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+
+        <!-- Paginación -->
+        <div class="p-4 border-t border-base-200 flex flex-col sm:flex-row justify-between items-center gap-3">
+            <span class="text-xs text-base-content/60">Mostrando registros 1 a 4 de 680 postulantes</span>
+            <div class="join">
+                <button class="join-item btn btn-xs btn-disabled">«</button>
+                <button class="join-item btn btn-xs btn-active">1</button>
+                <button class="join-item btn btn-xs">2</button>
+                <button class="join-item btn btn-xs">3</button>
+                <button class="join-item btn btn-xs">»</button>
+            </div>
+        </div>
     </div>
 </div>
 
-<dialog id="my_modal_1" class="modal">
-    <div class="modal-box">
-        <h3 class="font-bold text-lg">Nuevo Registro - Módulo 01</h3>
-        <p class="py-2 text-sm text-base-content/70">Formulario listo para vincular al controlador.</p>
-        <div class="space-y-4 my-4">
-            <div class="form-control">
-                <label class="label"><span class="label-text">Código / Título</span></label>
-                <input type="text" placeholder="Ej: REG-2026" class="input input-bordered w-full" />
+<!-- Modal para Registrar Nuevo Postulante -->
+<dialog id="modal_nuevo_postulante" class="modal">
+    <div class="modal-box max-w-lg">
+        <h3 class="font-bold text-lg mb-1 flex items-center gap-2">
+            📝 Inscribir Nuevo Postulante
+        </h3>
+        <p class="text-xs text-base-content/60 mb-4">Registro en base de datos modular `db_modulo01` (Equipo 01).</p>
+        
+        <div class="space-y-3 text-sm">
+            <div class="grid grid-cols-2 gap-3">
+                <div class="form-control">
+                    <label class="label py-1"><span class="label-text font-semibold text-xs">DNI</span></label>
+                    <input type="text" maxlength="8" placeholder="8 dígitos" class="input input-bordered input-sm w-full" />
+                </div>
+                <div class="form-control">
+                    <label class="label py-1"><span class="label-text font-semibold text-xs">Modalidad</span></label>
+                    <select class="select select-bordered select-sm w-full">
+                        <option>Examen Ordinario</option>
+                        <option>Primeros Puestos</option>
+                        <option>Traslado Externo</option>
+                    </select>
+                </div>
             </div>
+
             <div class="form-control">
-                <label class="label"><span class="label-text">Descripción</span></label>
-                <textarea class="textarea textarea-bordered h-24" placeholder="Detalle del registro..."></textarea>
+                <label class="label py-1"><span class="label-text font-semibold text-xs">Nombres y Apellidos</span></label>
+                <input type="text" placeholder="Ej: Juan Carlos Pérez Ramos" class="input input-bordered input-sm w-full" />
+            </div>
+
+            <div class="form-control">
+                <label class="label py-1"><span class="label-text font-semibold text-xs">Carrera Profesional</span></label>
+                <select class="select select-bordered select-sm w-full">
+                    <option>Desarrollo de Sistemas de Información</option>
+                    <option>Contabilidad</option>
+                    <option>Administración de Empresas</option>
+                </select>
+            </div>
+
+            <div class="form-control">
+                <label class="label py-1"><span class="label-text font-semibold text-xs">Correo Electrónico</span></label>
+                <input type="email" placeholder="postulante@gmail.com" class="input input-bordered input-sm w-full" />
             </div>
         </div>
-        <div class="modal-action">
-            <form method="dialog">
-                <button class="btn btn-ghost mr-2">Cancelar</button>
-                <button class="btn btn-primary">Guardar</button>
+
+        <div class="modal-action mt-6">
+            <form method="dialog" class="flex gap-2">
+                <button class="btn btn-sm btn-ghost">Cancelar</button>
+                <button class="btn btn-sm btn-primary font-bold">Guardar Postulante</button>
             </form>
         </div>
     </div>
