@@ -2,6 +2,7 @@ using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.EntityFrameworkCore;
 using Intranet.Core.Contracts;
+using Intranet.Core.Events;
 using Intranet.Data;
 using Intranet.Data.Services;
 
@@ -36,14 +37,15 @@ if (!string.IsNullOrEmpty(connectionString))
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 }
 
-// 3. Inyección de Dependencias Core & Fábrica de Conexiones por Módulo
+// 3. Inyección de Dependencias Core, Fábrica de Conexiones y EventBus Desacoplado
 builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddSingleton<IModuleDbConnectionFactory, ModuleDbConnectionFactory>();
+builder.Services.AddSingleton<IEventPublisher, InMemoryEventBus>();
 
-// 4. Auto-Discovery de Servicios Modulares (IModuloStartup)
-// Permite que cada equipo registre sus servicios en su propio proyecto sin tocar Program.cs
+// 4. Auto-Discovery de Servicios Modulares (IModuloStartup) y Manejadores de Eventos (IEventHandler)
 foreach (var assembly in moduleAssemblies)
 {
+    // A. Startups de Módulo
     var startupTypes = assembly.GetTypes()
         .Where(t => typeof(IModuloStartup).IsAssignableFrom(t) && !t.IsInterface && !t.IsAbstract);
 
@@ -54,6 +56,19 @@ foreach (var assembly in moduleAssemblies)
             startupInstance.ConfigureServices(builder.Services, builder.Configuration);
             Console.WriteLine($"[Auto-Discovery] ✓ Registrado IModuloStartup de: {assembly.GetName().Name}");
         }
+    }
+
+    // B. Event Handlers Inter-Modulares Desacoplados
+    var handlerTypes = assembly.GetTypes()
+        .Where(t => !t.IsAbstract && !t.IsInterface)
+        .SelectMany(t => t.GetInterfaces()
+            .Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEventHandler<>))
+            .Select(i => new { Interface = i, Implementation = t }));
+
+    foreach (var h in handlerTypes)
+    {
+        builder.Services.AddScoped(h.Interface, h.Implementation);
+        Console.WriteLine($"[EventBus] ✓ Registrado {h.Implementation.Name} para evento: {h.Interface.GenericTypeArguments[0].Name}");
     }
 }
 
