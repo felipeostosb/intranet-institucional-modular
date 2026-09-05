@@ -1,26 +1,24 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <Nullable>enable</Nullable>
-    <ImplicitUsings>enable</ImplicitUsings>
+    <TargetFramework>net10.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\01_Core\Intranet.Core\Intranet.Core.csproj" />
-    <ProjectReference Include="..\..\01_Core\Intranet.Data\Intranet.Data.csproj" />
-    <ProjectReference Include="..\..\02_Modulos\Intranet.Modulo01\Intranet.Modulo01.csproj" />
-    <ProjectReference Include="..\..\02_Modulos\Intranet.Modulo02\Intranet.Modulo02.csproj" />
-    <ProjectReference Include="..\..\02_Modulos\Intranet.Modulo03\Intranet.Modulo03.csproj" />
-    <ProjectReference Include="..\..\02_Modulos\Intranet.Modulo04\Intranet.Modulo04.csproj" />
-    <ProjectReference Include="..\..\02_Modulos\Intranet.Modulo05\Intranet.Modulo05.csproj" />
-    <ProjectReference Include="..\..\02_Modulos\Intranet.Modulo06\Intranet.Modulo06.csproj" />
-    <ProjectReference Include="..\..\02_Modulos\Intranet.Modulo07\Intranet.Modulo07.csproj" />
-    <ProjectReference Include="..\..\02_Modulos\Intranet.Modulo08\Intranet.Modulo08.csproj" />
-    <ProjectReference Include="..\..\02_Modulos\Intranet.Modulo09\Intranet.Modulo09.csproj" />
+    <ProjectReference Include="../../01_Core/Intranet.Core/Intranet.Core.csproj" />
+    <ProjectReference Include="../../01_Core/Intranet.Data/Intranet.Data.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo01/Intranet.Modulo01.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo02/Intranet.Modulo02.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo03/Intranet.Modulo03.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo04/Intranet.Modulo04.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo05/Intranet.Modulo05.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo06/Intranet.Modulo06.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo07/Intranet.Modulo07.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo08/Intranet.Modulo08.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo09/Intranet.Modulo09.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.10">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>

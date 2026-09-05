@@ -1,6 +1,13 @@
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+# ==============================================================================
+# 🏛️ DOCKERFILE SPARTAN .NET 10 (LTS hasta Noviembre 2028)
+# Compilación Optimizada Multi-Stage con Alpine Linux
+# ==============================================================================
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
+# 1. Copiar archivos de proyectos para restaurar dependencias con caché
+COPY ["Directory.Build.props", "./"]
 COPY ["src/01_Core/Intranet.Core/Intranet.Core.csproj", "src/01_Core/Intranet.Core/"]
 COPY ["src/01_Core/Intranet.Data/Intranet.Data.csproj", "src/01_Core/Intranet.Data/"]
 COPY ["src/02_Modulos/Intranet.Modulo01/Intranet.Modulo01.csproj", "src/02_Modulos/Intranet.Modulo01/"]
@@ -16,11 +23,13 @@ COPY ["src/03_Web/Intranet.Web/Intranet.Web.csproj", "src/03_Web/Intranet.Web/"]
 
 RUN dotnet restore "src/03_Web/Intranet.Web/Intranet.Web.csproj"
 
+# 2. Copiar el código fuente completo y compilar en Release
 COPY . .
 WORKDIR "/src/src/03_Web/Intranet.Web"
 RUN dotnet publish -c Release -o /app/publish --no-restore
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
+# 3. Imagen de Runtime Ultra-Liviana (.NET 10 ASP.NET Alpine)
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
 COPY --from=build /app/publish .
 

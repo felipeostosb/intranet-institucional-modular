@@ -1,0 +1,9 @@
+<Project>
+  <PropertyGroup>
+    <!-- Framework Unificado .NET 10 (LTS hasta Noviembre 2028) -->
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+</Project>
