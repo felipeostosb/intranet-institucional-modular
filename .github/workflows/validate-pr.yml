@@ -1,0 +1,82 @@
+name: Guardián de Aislamiento de Módulos (Zero-Blast-Radius)
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  validate-module-scope:
+    runs-on: ubuntu-latest
+    name: Validar Límites de Carpeta por Módulo
+    steps:
+      - name: 1. Checkout del código
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 2. Verificar archivos modificados
+        run: |
+          echo "========================================================"
+          echo "🛡️ AUDITORÍA DE AISLAMIENTO MODULAR (ZERO-BLAST-RADIUS)"
+          echo "========================================================"
+          
+          PR_AUTHOR="${{ github.actor }}"
+          HEAD_REF="${{ github.head_ref }}"
+          
+          echo "👤 Autor del PR: $PR_AUTHOR"
+          echo "🌿 Rama de origen: $HEAD_REF"
+          
+          # Si el PR lo abre Felipe (Lead Architect / Admin), tiene pase total
+          if [ "$PR_AUTHOR" = "felipeostosb" ]; then
+            echo "✅ Usuario Administrador ($PR_AUTHOR) detectado. Pase irrestricto concedido."
+            exit 0
+          fi
+          
+          # Detectar el módulo correspondiente según el nombre de la rama (ej: feature/modulo-01-login)
+          MODULO_NUM=$(echo "$HEAD_REF" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | tr '[:upper:]' '[:lower:]')
+          
+          if [ -z "$MODULO_NUM" ]; then
+            echo "⚠️ ADVERTENCIA: La rama '$HEAD_REF' no sigue la convención 'feature/modulo-01-nombre-tarea'."
+            echo "El sistema analizará si todos los cambios pertenecen a un solo módulo."
+          fi
+          
+          # Obtener la lista de archivos modificados en este PR comparado con main
+          CHANGED_FILES=$(git diff --name-only origin/main...HEAD)
+          echo "📄 Archivos modificados en este Pull Request:"
+          echo "$CHANGED_FILES"
+          echo "--------------------------------------------------------"
+          
+          VIOLATIONS=0
+          
+          # Si se detectó el módulo desde la rama (ej: modulo01 -> Intranet.Modulo01)
+          if [ -n "$MODULO_NUM" ]; then
+            # Convertir modulo01 -> 01
+            NUM_SOLO=$(echo "$MODULO_NUM" | grep -o -E '[0-9]{2}')
+            ALLOWED_PATH="src/02_Modulos/Intranet.Modulo${NUM_SOLO}/"
+            echo "🔒 Ruta permitida para esta rama: $ALLOWED_PATH"
+            
+            for file in $CHANGED_FILES; do
+              if [[ "$file" != "$ALLOWED_PATH"* ]]; then
+                echo "❌ VIOLACIÓN DETECTADA: El archivo '$file' está FUERA de tu carpeta permitida ('$ALLOWED_PATH')."
+                VIOLATIONS=$((VIOLATIONS + 1))
+              fi
+            done
+          else
+            # Si no nombraron bien la rama, verificar si tocaron Core, Web o más de un módulo
+            for file in $CHANGED_FILES; do
+              if [[ "$file" == "src/01_Core/"* ]] || [[ "$file" == "src/03_Web/"* ]] || [[ "$file" == ".github/"* ]] || [[ "$file" == "Dockerfile" ]] || [[ "$file" == "Directory.Build.props" ]]; then
+                echo "❌ VIOLACIÓN DETECTADA: No tienes permisos para modificar archivos de sistema o del Core: '$file'."
+                VIOLATIONS=$((VIOLATIONS + 1))
+              fi
+            done
+          fi
+          
+          if [ $VIOLATIONS -gt 0 ]; then
+            echo "========================================================"
+            echo "⛔ RECHAZO AUTOMÁTICO: Se detectaron $VIOLATIONS violaciones de aislamiento."
+            echo "👉 Cada equipo solo puede modificar su carpeta en 'src/02_Modulos/Intranet.ModuloXX/'."
+            echo "========================================================"
+            exit 1
+          fi
+          
+          echo "✅ AUDITORÍA EXITOSA: Todos los cambios están 100% aislados dentro de su módulo."
