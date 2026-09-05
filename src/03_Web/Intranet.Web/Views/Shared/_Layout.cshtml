@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="light">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Intranet Institucional</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@4.12.10/dist/full.min.css" rel="stylesheet" type="text/css" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-base-200/50 min-h-screen flex flex-col">
+    <div class="drawer lg:drawer-open flex-1">
+        <input id="main-drawer" type="checkbox" class="drawer-toggle" />
+        
+        <div class="drawer-content flex flex-col">
+            <div class="navbar bg-base-100 shadow-sm sticky top-0 z-30 px-4 lg:px-8 border-b border-base-200">
+                <div class="flex-none lg:hidden">
+                    <label for="main-drawer" aria-label="open sidebar" class="btn btn-square btn-ghost">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    </label>
+                </div>
+                <div class="flex-1">
+                    <a href="/" class="text-xl font-extrabold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                        🏛️ INTRANET INSTITUCIONAL
+                    </a>
+                </div>
+                <div class="flex-none gap-3">
+                    <div class="badge badge-accent badge-outline hidden sm:flex">36 Desarrolladores</div>
+                    <div class="dropdown dropdown-end">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-circle avatar placeholder">
+                            <div class="bg-primary text-primary-content rounded-full w-10">
+                                <span>FO</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <main class="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto">
+                @RenderBody()
+            </main>
+
+            <footer class="footer footer-center p-4 bg-base-100 text-base-content border-t border-base-200 text-sm">
+                <div>
+                    <p>© @DateTime.Now.Year - Intranet Institucional Modular (.NET 8 + MariaDB + Tailwind CSS)</p>
+                </div>
+            </footer>
+        </div> 
+
+        <div class="drawer-side z-40">
+            <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label> 
+            <aside class="bg-base-100 w-72 min-h-screen border-r border-base-200 flex flex-col p-4">
+                <div class="p-4 mb-2 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-primary-content font-bold shadow-md">
+                        IT
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-base leading-tight">Instituto Argentina</h2>
+                        <span class="text-xs text-base-content/60">Arquitectura Modular</span>
+                    </div>
+                </div>
+
+                <ul class="menu menu-md w-full space-y-1 flex-1">
+                    <li>
+                        <a href="/" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-semibold">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+                            <span>Dashboard General</span>
+                        </a>
+                    </li>
+                    <li class="menu-title pt-4 text-xs font-bold uppercase tracking-wider text-base-content/50">Módulos por Equipo (9)</li>
+                <li>
+                    <a href="/Modulo01" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-medium">
+                        <span class="badge badge-sm badge-primary">M01</span>
+                        <span>Módulo 01</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Modulo02" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-medium">
+                        <span class="badge badge-sm badge-primary">M02</span>
+                        <span>Módulo 02</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Modulo03" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-medium">
+                        <span class="badge badge-sm badge-primary">M03</span>
+                        <span>Módulo 03</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Modulo04" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-medium">
+                        <span class="badge badge-sm badge-primary">M04</span>
+                        <span>Módulo 04</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Modulo05" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-medium">
+                        <span class="badge badge-sm badge-primary">M05</span>
+                        <span>Módulo 05</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Modulo06" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-medium">
+                        <span class="badge badge-sm badge-primary">M06</span>
+                        <span>Módulo 06</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Modulo07" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-medium">
+                        <span class="badge badge-sm badge-primary">M07</span>
+                        <span>Módulo 07</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Modulo08" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-medium">
+                        <span class="badge badge-sm badge-primary">M08</span>
+                        <span>Módulo 08</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="/Modulo09" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-base-200 transition font-medium">
+                        <span class="badge badge-sm badge-primary">M09</span>
+                        <span>Módulo 09</span>
+                    </a>
+                </li>
+                </ul>
+            </aside>
+        </div>
+    </div>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
