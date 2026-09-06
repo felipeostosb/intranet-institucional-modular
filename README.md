@@ -4,6 +4,11 @@ Bienvenido al proyecto integrador de la Intranet Institucional del **IESTP "Arge
 
 ---
 
+> 📖 **¿Primera vez configurando tu entorno?**  
+> Consulta el [**Manual Completo de Instalación y Onboarding (VS Code vs Visual Studio 2026)**](docs/GUIA_INSTALACION.md) para preparar tu PC en 5 minutos.
+
+---
+
 ## ⚡ Guía de Inicio Rápido (The Golden Path - 1 Solo Clic)
 
 Hemos creado un **CLI Interactivo** que automatiza todo el flujo de Git, nombres de ramas, scaffolding de código y validaciones locales para que **no cometas ningún error de principiante**:
