@@ -78,12 +78,45 @@ function Scaffold-Code {
         Write-Host "❌ El nombre de la entidad es obligatorio." -ForegroundColor Red
         return
     }
-    $entidad = (Get-Culture).TextInfo.ToTitleCase($entidad)
+    # Normalizar y validar como identificador C# (PascalCase):
+    # espacios→guiones, solo [a-zA-Z0-9-], debe empezar por letra. Cada
+    # segmento se capitaliza en su primera letra respetando el resto
+    # ('Pago Mensual' → PagoMensual, 'PagoMensual' se mantiene idéntico);
+    # segmentos todo-mayúsculas se tratan como siglas y pasan a Title
+    # ('ACTA DE NOTAS' → ActaDeNotas). Igual de estricto que la opción 2
+    # con las ramas; evita generar 'public class 0'.
+    $entidadRaw = $entidad
+    $entidad = $entidad.Replace(" ", "-") -replace "[^a-zA-Z0-9-]", ""
+    if ($entidad -notmatch "^[a-zA-Z][a-zA-Z0-9-]*$") {
+        Write-Host "❌ '$entidadRaw' no es un nombre válido. Debe empezar por una letra y solo contener letras, números, espacios o guiones (ej: Pago Mensual)." -ForegroundColor Red
+        return
+    }
+    # PascalCase por segmentos: pago-mensual → PagoMensual (idempotente)
+    $entidad = ($entidad -split "-" | ForEach-Object {
+        if ($_.Length -gt 0) {
+            $s = $_
+            if ($s -ceq $s.ToUpper()) { $s = $s.ToLower() }
+            $s.Substring(0,1).ToUpper() + $s.Substring(1)
+        }
+    }) -join ""
+    if ($entidadRaw -ne $entidad) {
+        Write-Host "ℹ️ Nombre normalizado a identificador C#: '$entidad'" -ForegroundColor Cyan
+    }
     
     $modPath = "src/02_Modulos/Intranet.Modulo$numFmt"
     $ctrlDir = "$modPath/Controllers"
     $modelDir = "$modPath/Models"
     $viewDir = "$modPath/Views/$entidad"
+    
+    # Protección de sobrescritura: si ya existe la entidad, respaldar a .bak
+    # antes de regenerar (antes se perdía el trabajo del alumno sin aviso).
+    $existingFiles = @("$modelDir/$entidad.cs", "$ctrlDir/${entidad}Controller.cs", "$viewDir/Index.cshtml")
+    foreach ($existing in $existingFiles) {
+        if (Test-Path $existing) {
+            Copy-Item $existing "$existing.bak"
+            Write-Host "📦 Existente respaldado: $existing.bak" -ForegroundColor Yellow
+        }
+    }
     
     New-Item -ItemType Directory -Force -Path $ctrlDir | Out-Null
     New-Item -ItemType Directory -Force -Path $modelDir | Out-Null
@@ -288,6 +321,21 @@ function Push-Work {
         }
     }
     
+    # Compilar ANTES de pushear: el error se ve aquí en segundos con mensaje
+    # completo, no 2 minutos después en el CI de GitHub. Si no compila, abortar
+    # el push para que puedas corregir y reintentar sin ensuciar la rama remota.
+    Write-Host "🔨 Compilando tu módulo antes de subir (verificación local)..." -ForegroundColor Cyan
+    if (Get-Command dotnet -ErrorAction SilentlyContinue) {
+        dotnet build "IntranetInstitucional.sln" -v q --nologo | Select-Object -Last 20
+        if ($LASTEXITCODE -ne 0) {
+            Write-Host "`n⛔ EL CÓDIGO NO COMPILÓ. No se subió nada a GitHub." -ForegroundColor Red
+            Write-Host "💡 Corrige los errores de arriba y vuelve a ejecutar la opción 4." -ForegroundColor Yellow
+            return
+        }
+    } else {
+        Write-Host "⚠️ 'dotnet' no está instalado: saltando compilación local (el CI de GitHub la hará igual)." -ForegroundColor Yellow
+    }
+    
     Write-Host "Publicando rama '$branch' en GitHub..." -ForegroundColor Cyan
     git push -u origin "$branch"
     
@@ -295,7 +343,9 @@ function Push-Work {
         Write-Host "`n======================================================================" -ForegroundColor Green
         Write-Host "🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!" -ForegroundColor Green
         Write-Host "======================================================================" -ForegroundColor Green
-        Write-Host "👉 Abre o revisa tu Pull Request aquí:`n   https://github.com/felipeostosb/intranet-institucional-modular/pulls" -ForegroundColor Cyan
+        # URL de compare exacta para abrir/ver el PR de ESTA rama (antes era el
+        # listado genérico /pulls y el alumno tenía que buscar su rama a mano).
+        Write-Host "👉 Crea o revisa tu Pull Request aquí:`n   https://github.com/felipeostosb/intranet-institucional-modular/compare/main...$branch" -ForegroundColor Cyan
     } else {
         Write-Host "`n❌ Hubo un inconveniente al subir a GitHub. Revisa tu conexión o permisos." -ForegroundColor Red
     }

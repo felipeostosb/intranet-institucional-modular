@@ -95,9 +95,36 @@ scaffold_code() {
         echo -e "${RED}❌ El nombre de la entidad es obligatorio.${NC}"
         return
     fi
-    entidad="$(tr '[:lower:]' '[:upper:]' <<< ${entidad:0:1})${entidad:1}"
+    # Normalizar y validar como identificador C# (PascalCase):
+    # espacios→guiones, solo [a-zA-Z0-9-], debe empezar por letra. Cada
+    # segmento se capitaliza en su primera letra respetando el resto
+    # ('Pago Mensual' → PagoMensual, 'PagoMensual' se mantiene idéntico);
+    # segmentos todo-mayúsculas se tratan como siglas y pasan a Title
+    # ('ACTA DE NOTAS' → ActaDeNotas). Igual de estricto que la opción 2
+    # con las ramas; evita generar 'public class 0'.
+    entidad_raw="$entidad"
+    entidad=$(echo "$entidad" | tr ' ' '-' | tr -cd 'a-zA-Z0-9-')
+    if ! echo "$entidad" | grep -qE '^[a-zA-Z][a-zA-Z0-9-]*$'; then
+        echo -e "${RED}❌ '$entidad_raw' no es un nombre válido. Debe empezar por una letra y solo contener letras, números, espacios o guiones (ej: Pago Mensual).${NC}"
+        return
+    fi
+    # PascalCase por segmentos: pago-mensual → PagoMensual (idempotente)
+    entidad=$(echo "$entidad" | awk -F'-' '{out=""; for(i=1;i<=NF;i++){s=$i; if(toupper(s)==s) s=tolower(s); out=out toupper(substr(s,1,1)) substr(s,2)}; print out}')
+    if [ "$entidad_raw" != "$entidad" ]; then
+        echo -e "${CYAN}ℹ️ Nombre normalizado a identificador C#: '${entidad}'${NC}"
+    fi
     
     mod_path="src/02_Modulos/Intranet.Modulo${num}"
+    
+    # Protección de sobrescritura: si ya existe la entidad, respaldar a .bak
+    # antes de regenerar (antes se perdía el trabajo del alumno sin aviso).
+    for existing in "$mod_path/Models/${entidad}.cs" "$mod_path/Controllers/${entidad}Controller.cs" "$mod_path/Views/${entidad}/Index.cshtml"; do
+        if [ -f "$existing" ]; then
+            cp "$existing" "$existing.bak"
+            echo -e "${YELLOW}📦 Existente respaldado: ${existing}.bak${NC}"
+        fi
+    done
+    
     mkdir -p "$mod_path/Controllers" "$mod_path/Models" "$mod_path/Views/${entidad}"
     
     cat << MODEL_EOF > "$mod_path/Models/${entidad}.cs"
@@ -289,13 +316,29 @@ push_work() {
         fi
     fi
     
+    # 2.5 Compilar ANTES de pushear: el error se ve aquí en segundos con mensaje
+    # completo, no 2 minutos después en el CI de GitHub. Si no compila, abortar
+    # el push para que puedas corregir y reintentar sin ensuciar la rama remota.
+    echo -e "${CYAN}🔨 Compilando tu módulo antes de subir (verificación local)...${NC}"
+    if command -v dotnet >/dev/null 2>&1; then
+        if ! dotnet build "IntranetInstitucional.sln" -v q --nologo 2>&1 | tail -20; then
+            echo -e "\n${RED}⛔ EL CÓDIGO NO COMPILO. No se subió nada a GitHub.${NC}"
+            echo -e "${YELLOW}💡 Corrige los errores de arriba y vuelve a ejecutar la opción 4.${NC}"
+            return 1
+        fi
+    else
+        echo -e "${YELLOW}⚠️ 'dotnet' no está instalado: saltando compilación local (el CI de GitHub la hará igual).${NC}"
+    fi
+    
     # 3. Publicar en GitHub (Cubre Primera Vez con -u y Siguientes veces)
     echo -e "${CYAN}Publicando rama '${branch}' en GitHub...${NC}"
     if git push -u origin "$branch"; then
         echo -e "\n${GREEN}======================================================================${NC}"
         echo -e "${GREEN}🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!${NC}"
         echo -e "${GREEN}======================================================================${NC}"
-        echo -e "👉 Abre o revisa tu Pull Request aquí:\n   ${CYAN}https://github.com/felipeostosb/intranet-institucional-modular/pulls${NC}"
+        # URL de compare exacta para abrir/ver el PR de ESTA rama (antes era el
+        # listado genérico /pulls y el alumno tenía que buscar su rama a mano).
+        echo -e "👉 Crea o revisa tu Pull Request aquí:\n   ${CYAN}https://github.com/felipeostosb/intranet-institucional-modular/compare/main...${branch}${NC}"
     else
         echo -e "\n${RED}❌ Hubo un inconveniente al subir a GitHub. Revisa tu conexión o permisos.${NC}"
     fi
