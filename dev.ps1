@@ -158,13 +158,20 @@ public class ${entidad}Controller : ModuloBaseController
 }
 
 <div class="space-y-6">
-    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex justify-between items-center">
+    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <div class="badge badge-primary font-bold mb-1">Módulo $numFmt</div>
+            <div class="flex items-center gap-2 mb-1">
+                <a href="/Modulo$numFmt" class="text-xs text-blue-600 font-semibold hover:underline">← Módulo $numFmt</a>
+                <span class="text-slate-300">•</span>
+                <span class="badge badge-primary font-bold text-[10px]">Equipo $numFmt</span>
+            </div>
             <h1 class="text-2xl font-extrabold text-slate-900">Listado de ${entidad}s</h1>
             <p class="text-xs text-slate-500">Módulo del Equipo $numFmt. Usuario: @ViewData["UsuarioNombre"]</p>
         </div>
-        <button class="btn btn-primary btn-sm rounded-xl" onclick="modal_nuevo.showModal()">+ Nuevo $entidad</button>
+        <div class="flex gap-2">
+            <a href="/Modulo$numFmt" class="btn btn-ghost btn-sm rounded-xl text-xs">Volver</a>
+            <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo.showModal()">+ Nuevo $entidad</button>
+        </div>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -269,6 +276,17 @@ function Push-Work {
     
     Write-Host "Sincronizando con GitHub..." -ForegroundColor Cyan
     git pull --rebase origin "$branch" 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        if ((Test-Path ".git/rebase-merge") -or (Test-Path ".git/rebase-apply")) {
+            git rebase --abort 2>$null
+            $randomSuffix = Get-Random -Minimum 100 -Maximum 999
+            Write-Host "`n⚠️  CONFLICTO DETECTADO: Un compañero de tu equipo subió cambios que chocan con los tuyos." -ForegroundColor Red
+            Write-Host "💡 Solución Recomendada (Poka-Yoke):" -ForegroundColor Yellow
+            Write-Host "   1. Usa la opción 2 para crear una rama personal: $branch-$randomSuffix" -ForegroundColor Cyan
+            Write-Host "   2. Sube tus cambios con la opción 4 y abre tu propio Pull Request.`n" -ForegroundColor Cyan
+            return
+        }
+    }
     
     Write-Host "Publicando rama '$branch' en GitHub..." -ForegroundColor Cyan
     git push -u origin "$branch"

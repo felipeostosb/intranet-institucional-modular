@@ -167,13 +167,20 @@ CTRL_EOF
 }
 
 <div class="space-y-6">
-    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex justify-between items-center">
+    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <div class="badge badge-primary font-bold mb-1">Módulo ${num}</div>
+            <div class="flex items-center gap-2 mb-1">
+                <a href="/Modulo${num}" class="text-xs text-blue-600 font-semibold hover:underline">← Módulo ${num}</a>
+                <span class="text-slate-300">•</span>
+                <span class="badge badge-primary font-bold text-[10px]">Equipo ${num}</span>
+            </div>
             <h1 class="text-2xl font-extrabold text-slate-900">Listado de ${entidad}s</h1>
             <p class="text-xs text-slate-500">Módulo del Equipo ${num}. Usuario: @ViewData["UsuarioNombre"]</p>
         </div>
-        <button class="btn btn-primary btn-sm rounded-xl" onclick="modal_nuevo.showModal()">+ Nuevo ${entidad}</button>
+        <div class="flex gap-2">
+            <a href="/Modulo${num}" class="btn btn-ghost btn-sm rounded-xl text-xs">Volver</a>
+            <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo.showModal()">+ Nuevo ${entidad}</button>
+        </div>
     </div>
 
     <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -269,9 +276,18 @@ push_work() {
         echo -e "${YELLOW}ℹ️ No hay archivos nuevos por guardar, sincronizando con GitHub...${NC}"
     fi
     
-    # 2. Descargar posibles cambios remotos de compañeros de equipo
+    # 2. Descargar posibles cambios remotos de compañeros de equipo con protección Poka-Yoke
     echo -e "${CYAN}Sincronizando con GitHub...${NC}"
-    git pull --rebase origin "$branch" >/dev/null 2>&1 || true
+    if ! git pull --rebase origin "$branch" 2>/dev/null; then
+        if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+            git rebase --abort 2>/dev/null || true
+            echo -e "\n${RED}⚠️  CONFLICTO DETECTADO: Un compañero de tu equipo subió cambios que chocan con los tuyos.${NC}"
+            echo -e "${YELLOW}💡 Solución Recomendada (Poka-Yoke):${NC}"
+            echo -e "   1. Usa la opción 2 para crear una rama personal: ${CYAN}${branch}-$(date +%s | tail -c 4)${NC}"
+            echo -e "   2. Sube tus cambios con la opción 4 y abre tu propio Pull Request.\n"
+            return 1
+        fi
+    fi
     
     # 3. Publicar en GitHub (Cubre Primera Vez con -u y Siguientes veces)
     echo -e "${CYAN}Publicando rama '${branch}' en GitHub...${NC}"
