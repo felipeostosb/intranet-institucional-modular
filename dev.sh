@@ -247,6 +247,17 @@ push_work() {
     # 1. Comprobar si hay cambios pendientes por guardar
     STATUS=$(git status --porcelain)
     if [ -n "$STATUS" ]; then
+        MOD_NUM=$(echo "$branch" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | tr '[:upper:]' '[:lower:]' | grep -o -E '[0-9]{2}' || true)
+        if [ -n "$MOD_NUM" ]; then
+            ALLOWED_DIR="src/02_Modulos/Intranet.Modulo${MOD_NUM}/"
+            OUTSIDE_FILES=$(git status --porcelain | awk '{print $2}' | grep -v "^${ALLOWED_DIR}" || true)
+            if [ -n "$OUTSIDE_FILES" ]; then
+                echo -e "\n${YELLOW}⚠️  AVISO DE AISLAMIENTO: Detectamos cambios fuera de tu carpeta '${ALLOWED_DIR}':${NC}"
+                echo -e "${RED}${OUTSIDE_FILES}${NC}"
+                echo -e "${YELLOW}💡 El bot de GitHub solo integrará cambios de tu propio módulo.${NC}\n"
+            fi
+        fi
+
         read -p "👉 Describe qué cambiaste (ej: agregue formulario): " msg
         if [ -z "$msg" ]; then
             msg="feat(${branch}): actualizacion de avance"

@@ -47,6 +47,7 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
     </style>
+    @await RenderSectionAsync("Styles", required: false)
 </head>
 <body class="bg-slate-50/80 min-h-screen flex flex-col text-slate-800 selection:bg-blue-500 selection:text-white">
     <div class="drawer lg:drawer-open flex-1">
@@ -284,5 +285,6 @@
             </aside>
         </div>
     </div>
+    @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

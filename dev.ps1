@@ -237,6 +237,27 @@ function Push-Work {
     
     $status = git status --porcelain
     if (-not [string]::IsNullOrWhiteSpace($status)) {
+        if ($branch -match "modulo-?(\d{2})") {
+            $modNum = $Matches[1]
+            $allowedDir = "src/02_Modulos/Intranet.Modulo$modNum/"
+            $statusLines = $status -split "`n"
+            $outsideFiles = @()
+            foreach ($line in $statusLines) {
+                $trimmed = $line.Trim()
+                if ($trimmed.Length -gt 3) {
+                    $filePath = $trimmed.Substring(3).Trim()
+                    if (-not $filePath.StartsWith($allowedDir) -and -not [string]::IsNullOrWhiteSpace($filePath)) {
+                        $outsideFiles += $filePath
+                    }
+                }
+            }
+            if ($outsideFiles.Count -gt 0) {
+                Write-Host "`n⚠️  AVISO DE AISLAMIENTO: Detectamos cambios fuera de tu carpeta '$allowedDir':" -ForegroundColor Yellow
+                foreach ($f in $outsideFiles) { Write-Host "   - $f" -ForegroundColor Red }
+                Write-Host "💡 El bot de GitHub solo integrará cambios de tu propio módulo.`n" -ForegroundColor Yellow
+            }
+        }
+
         $msg = Read-Host "👉 Describe qué cambiaste (ej: agregue formulario)"
         if ([string]::IsNullOrWhiteSpace($msg)) { $msg = "feat($branch): actualizacion de avance" }
         git add .

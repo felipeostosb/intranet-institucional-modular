@@ -33,8 +33,9 @@ foreach (var assembly in moduleAssemblies)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (!string.IsNullOrEmpty(connectionString))
 {
+    var serverVersion = new MariaDbServerVersion(new Version(10, 11, 8));
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+        options.UseMySql(connectionString, serverVersion));
 }
 
 // 3. Inyección de Dependencias Core, Fábrica de Conexiones y EventBus Desacoplado
