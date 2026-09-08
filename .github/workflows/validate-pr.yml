@@ -15,6 +15,10 @@ jobs:
     name: Validar Límites, Compilar y Auto-Merge
 
     # MariaDB real para el smoke test funcional (login + arranque)
+    # NOTA: no usar 'healthcheck.sh --connect --innodb_status' — el flag
+    # --innodb_status requiere conexiones anonimas y MariaDB 10.11 las trae
+    # deshabilitadas, con lo que el healthcheck falla aunque el servidor
+    # este listo y el job muere en 'Failed to initialize container'.
     services:
       mariadb:
         image: mariadb:10.11
@@ -23,7 +27,7 @@ jobs:
         ports:
           - '3306:3306'
         options: >-
-          --health-cmd "healthcheck.sh --connect --innodb_status"
+          --health-cmd "mariadb-admin ping -uroot -pci_root_2026 --silent"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
