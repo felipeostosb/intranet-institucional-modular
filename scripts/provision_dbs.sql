@@ -38,7 +38,21 @@ CREATE DATABASE IF NOT EXISTS `db_modulo07` CHARACTER SET utf8mb4 COLLATE utf8mb
 CREATE DATABASE IF NOT EXISTS `db_modulo08` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 CREATE DATABASE IF NOT EXISTS `db_modulo09` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 
--- 3. USUARIOS DEDICADOS POR EQUIPO
+-- 3. USUARIO DE APLICACIÓN WEB (CORE)
+-- Acceso de lectura/escritura completo a db_core y solo lectura en módulos
+CREATE USER IF NOT EXISTS 'user_app_core'@'%' IDENTIFIED BY 'CoreApp_Pass2026!';
+GRANT ALL PRIVILEGES ON `db_core`.* TO 'user_app_core'@'%';
+GRANT SELECT ON `db_modulo01`.* TO 'user_app_core'@'%';
+GRANT SELECT ON `db_modulo02`.* TO 'user_app_core'@'%';
+GRANT SELECT ON `db_modulo03`.* TO 'user_app_core'@'%';
+GRANT SELECT ON `db_modulo04`.* TO 'user_app_core'@'%';
+GRANT SELECT ON `db_modulo05`.* TO 'user_app_core'@'%';
+GRANT SELECT ON `db_modulo06`.* TO 'user_app_core'@'%';
+GRANT SELECT ON `db_modulo07`.* TO 'user_app_core'@'%';
+GRANT SELECT ON `db_modulo08`.* TO 'user_app_core'@'%';
+GRANT SELECT ON `db_modulo09`.* TO 'user_app_core'@'%';
+
+-- 4. USUARIOS DEDICADOS POR EQUIPO
 -- Cada equipo tiene ALL PRIVILEGES en su BD y SELECT ONLY en las otras 8 BDs + db_core
 
 -- Equipo 1

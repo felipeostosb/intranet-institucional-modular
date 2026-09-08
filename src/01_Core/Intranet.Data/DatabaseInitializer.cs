@@ -86,8 +86,11 @@ public static class DatabaseInitializer
                         var sql = await File.ReadAllTextAsync(path);
                         if (!string.IsNullOrWhiteSpace(sql))
                         {
-                            var builder = new MySqlConnectionStringBuilder(defaultConn) { Database = dbName };
-                            using var conn = new MySqlConnection(builder.ConnectionString);
+                            var moduleConn = configuration.GetConnectionString($"Modulo{num}Connection");
+                            var connStr = !string.IsNullOrWhiteSpace(moduleConn)
+                                ? moduleConn
+                                : new MySqlConnectionStringBuilder(defaultConn) { Database = dbName }.ConnectionString;
+                            using var conn = new MySqlConnection(connStr);
                             await conn.OpenAsync();
                             using var cmd = new MySqlCommand(sql, conn);
                             await cmd.ExecuteNonQueryAsync();
