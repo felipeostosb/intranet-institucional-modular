@@ -10,8 +10,11 @@ public class HomeController : Controller
         return View();
     }
 
-    public IActionResult Error()
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error(int? statusCode = null)
     {
+        ViewData["StatusCode"] = statusCode ?? 500;
+        ViewData["Title"] = $"Error {statusCode ?? 500}";
         return View();
     }
 }

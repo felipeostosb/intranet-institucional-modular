@@ -19,7 +19,7 @@ public class InMemoryEventBus : IEventPublisher
         using var scope = _serviceProvider.CreateScope();
         var handlers = scope.ServiceProvider.GetServices<IEventHandler<TEvent>>();
 
-        foreach (var handler in handlers)
+        var tasks = handlers.Select(async handler =>
         {
             try
             {
@@ -29,6 +29,8 @@ public class InMemoryEventBus : IEventPublisher
             {
                 _logger.LogError(ex, "[EventBus] Error al procesar evento {EventType} en {HandlerType}", typeof(TEvent).Name, handler.GetType().Name);
             }
-        }
+        });
+
+        await Task.WhenAll(tasks);
     }
 }
