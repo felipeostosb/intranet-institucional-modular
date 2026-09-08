@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/03_Web/Intranet.Web/bin/Debug/net8.0/Intranet.Web.dll",
+            "program": "${workspaceFolder}/src/03_Web/Intranet.Web/bin/Debug/net10.0/Intranet.Web.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/03_Web/Intranet.Web",
             "stopAtEntry": false,
