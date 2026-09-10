@@ -21,13 +21,7 @@ public class ModuleDbConnectionFactory : IModuleDbConnectionFactory
 
         if (string.IsNullOrEmpty(connStr))
         {
-            // Fallback a la conexión por defecto pero apuntando a la base de datos db_moduloXX
-            var defaultConn = _configuration.GetConnectionString("DefaultConnection") ?? "";
-            var builder = new MySqlConnectionStringBuilder(defaultConn)
-            {
-                Database = $"db_modulo{num}"
-            };
-            connStr = builder.ConnectionString;
+            connStr = _configuration.GetConnectionString("DefaultConnection") ?? "";
         }
 
         return new MySqlConnection(connStr);

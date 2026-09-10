@@ -102,7 +102,13 @@
                             <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-2xl bg-white text-slate-800 rounded-2xl w-56 border border-slate-200 mt-2 text-xs">
                                 <li class="px-3 py-1.5 text-[11px] text-slate-400 font-semibold uppercase">Sesión Iniciada</li>
                                 <li class="px-3 py-0.5 text-xs font-bold text-blue-900">@User.Identity.Name</li>
-                                <li class="px-3 py-0.5 text-[11px] text-slate-500">Rol: <span class="badge badge-sm badge-outline badge-primary font-semibold">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno")</span></li>
+                                <li class="px-3 py-0.5 text-[11px] text-slate-500 flex flex-wrap gap-1 items-center">
+                                    <span>Roles:</span>
+                                    @foreach (var rolClaim in User.FindAll(System.Security.Claims.ClaimTypes.Role))
+                                    {
+                                        <span class="badge badge-xs badge-outline badge-primary font-semibold">@rolClaim.Value</span>
+                                    }
+                                </li>
                                 <li class="divider my-1"></li>
                                 <li>
                                     <a href="/Account/Logout" class="text-rose-600 hover:bg-rose-50 font-semibold flex items-center gap-2 rounded-xl py-2">

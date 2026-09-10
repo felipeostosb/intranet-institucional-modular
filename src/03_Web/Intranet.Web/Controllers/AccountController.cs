@@ -58,10 +58,17 @@ public class AccountController : Controller
             new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
             new(ClaimTypes.Name, usuario.NombreCompleto),
             new(ClaimTypes.Email, usuario.Email),
-            new(ClaimTypes.Role, usuario.Rol),
             new("Dni", usuario.Dni),
-            new("CodigoInstitucional", usuario.CodigoInstitucional)
+            new("CodigoInstitucional", usuario.CodigoInstitucional),
+            new("PersonaId", usuario.PersonaId.ToString()),
+            new("RolPrincipal", usuario.RolPrincipal)
         };
+
+        // Multi-rol soportado nativamente en Claims
+        foreach (var rol in usuario.Roles)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, rol));
+        }
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);

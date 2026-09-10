@@ -114,8 +114,6 @@ scaffold_code() {
         echo -e "${CYAN}ℹ️ Nombre normalizado a identificador C#: '${entidad}'${NC}"
     fi
     
-    mod_path="src/02_Modulos/Intranet.Modulo${num}"
-    
     # Protección de sobrescritura: si ya existe la entidad, respaldar a .bak
     # antes de regenerar (antes se perdía el trabajo del alumno sin aviso).
     for existing in "$mod_path/Models/${entidad}.cs" "$mod_path/Controllers/${entidad}Controller.cs" "$mod_path/Views/${entidad}/Index.cshtml"; do
@@ -125,8 +123,22 @@ scaffold_code() {
         fi
     done
     
-    mkdir -p "$mod_path/Controllers" "$mod_path/Models" "$mod_path/Views/${entidad}"
+    mkdir -p "$mod_path/Controllers" "$mod_path/Models" "$mod_path/Sql" "$mod_path/Views/${entidad}"
     
+    entidad_sql=$(echo "$entidad" | tr '[:upper:]' '[:lower:]')
+    schema_file="$mod_path/Sql/schema.sql"
+    
+    cat << SQL_EOF >> "$schema_file"
+CREATE TABLE IF NOT EXISTS \`mod${num}_${entidad_sql}\` (
+  \`Id\` INT AUTO_INCREMENT PRIMARY KEY,
+  \`Codigo\` VARCHAR(30) NOT NULL,
+  \`Nombre\` VARCHAR(150) NOT NULL,
+  \`Descripcion\` TEXT NULL,
+  \`FechaRegistro\` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+SQL_EOF
+
     cat << MODEL_EOF > "$mod_path/Models/${entidad}.cs"
 namespace Intranet.Modulo${num}.Models;
 

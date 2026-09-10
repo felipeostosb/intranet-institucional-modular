@@ -14,10 +14,20 @@ public abstract class ModuloBaseController : Controller
         }
     }
 
+    public int? PersonaActualId
+    {
+        get
+        {
+            var idClaim = User.FindFirst("PersonaId")?.Value;
+            return int.TryParse(idClaim, out var id) ? id : null;
+        }
+    }
+
     public string UsuarioActualDni => User.FindFirst("Dni")?.Value ?? string.Empty;
     public string UsuarioActualCodigo => User.FindFirst("CodigoInstitucional")?.Value ?? string.Empty;
     public string UsuarioActualNombre => User.FindFirst(ClaimTypes.Name)?.Value ?? "Invitado";
     public string UsuarioActualRol => User.FindFirst(ClaimTypes.Role)?.Value ?? "Alumno";
+    public IEnumerable<string> UsuarioActualRoles => User.FindAll(ClaimTypes.Role).Select(c => c.Value);
 
     public bool EstaAutenticado => User.Identity?.IsAuthenticated ?? false;
     
@@ -29,6 +39,8 @@ public abstract class ModuloBaseController : Controller
     public bool EsTesoreria => User.IsInRole("Tesoreria") || EsAdmin;
     public bool EsDocente => User.IsInRole("Docente") || EsCoordinador || EsAdmin;
     public bool EsAlumno => User.IsInRole("Alumno");
+
+    public bool TieneRol(string rol) => User.IsInRole(rol);
 
     protected void MostrarAlertaExito(string mensaje)
     {

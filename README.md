@@ -49,21 +49,24 @@ El asistente te ofrece **4 opciones claras y directas**:
 
 ---
 
-## 👥 Distribución Soberana de los 9 Módulos y Bases de Datos
+## 👥 Distribución Soberana de los 9 Módulos y Prefijos de Base de Datos
 
-Cada equipo cuenta con su propia carpeta de código y esquema de base de datos aislado:
+El sistema opera sobre una **Base de Datos Unificada (`db_intranet_iestp`)** con aislamiento por **Bounded Contexts (Prefijos SQL)** y gestión unificada de personas (**Patrón Party-Role**):
 
-| Equipo | Módulo | Carpeta Soberana | Base de Datos MariaDB | Usuario DB | Color Distintivo |
+* **🌐 Tablas Maestras del Core (`core_*`):** `core_personas`, `core_usuarios`, `core_roles`, `core_usuario_roles`, `core_carreras`, `core_periodos_academicos`, `core_aulas`, `core_unidades_didacticas`, `core_estudiantes`, `core_docentes`, `core_administrativos`, `core_auditoria_logs`.
+* **📦 Tablas Soberanas por Módulo (`modXX_*`):**
+
+| Equipo | Módulo | Carpeta Soberana | Prefijo de Tablas | Usuario MariaDB | Color Distintivo |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| **01** | **Módulo 01** | `src/02_Modulos/Intranet.Modulo01/` | `db_modulo01` | `user_equipo01` | 🩵 Sky Pastel |
-| **02** | **Módulo 02** | `src/02_Modulos/Intranet.Modulo02/` | `db_modulo02` | `user_equipo02` | 💙 Indigo Pastel |
-| **03** | **Módulo 03** | `src/02_Modulos/Intranet.Modulo03/` | `db_modulo03` | `user_equipo03` | 💚 Emerald Pastel |
-| **04** | **Módulo 04** | `src/02_Modulos/Intranet.Modulo04/` | `db_modulo04` | `user_equipo04` | 💛 Amber Pastel |
-| **05** | **Módulo 05** | `src/02_Modulos/Intranet.Modulo05/` | `db_modulo05` | `user_equipo05` | 💜 Purple Pastel |
-| **06** | **Módulo 06** | `src/02_Modulos/Intranet.Modulo06/` | `db_modulo06` | `user_equipo06` | 🩷 Rose Pastel |
-| **07** | **Módulo 07** | `src/02_Modulos/Intranet.Modulo07/` | `db_modulo07` | `user_equipo07` | 🩵 Teal Pastel |
-| **08** | **Módulo 08** | `src/02_Modulos/Intranet.Modulo08/` | `db_modulo08` | `user_equipo08` | 🧡 Orange Pastel |
-| **09** | **Módulo 09** | `src/02_Modulos/Intranet.Modulo09/` | `db_modulo09` | `user_equipo09` | 🌐 Cyan Pastel |
+| **01** | **Módulo 01 (Matrícula)** | `src/02_Modulos/Intranet.Modulo01/` | `mod01_*` | `user_equipo01` | 🩵 Sky Pastel |
+| **02** | **Módulo 02 (Asistencia)** | `src/02_Modulos/Intranet.Modulo02/` | `mod02_*` | `user_equipo02` | 💙 Indigo Pastel |
+| **03** | **Módulo 03 (Calificaciones)** | `src/02_Modulos/Intranet.Modulo03/` | `mod03_*` | `user_equipo03` | 💚 Emerald Pastel |
+| **04** | **Módulo 04 (Horarios & Aulas)** | `src/02_Modulos/Intranet.Modulo04/` | `mod04_*` | `user_equipo04` | 💛 Amber Pastel |
+| **05** | **Módulo 05 (Prácticas EFSRT)** | `src/02_Modulos/Intranet.Modulo05/` | `mod05_*` | `user_equipo05` | 💜 Purple Pastel |
+| **06** | **Módulo 06 (Mesa Partes / TUPA)** | `src/02_Modulos/Intranet.Modulo06/` | `mod06_*` | `user_equipo06` | 🩷 Rose Pastel |
+| **07** | **Módulo 07 (Biblioteca Virtual)** | `src/02_Modulos/Intranet.Modulo07/` | `mod07_*` | `user_equipo07` | 🩵 Teal Pastel |
+| **08** | **Módulo 08 (Bolsa de Trabajo)** | `src/02_Modulos/Intranet.Modulo08/` | `mod08_*` | `user_equipo08` | 🧡 Orange Pastel |
+| **09** | **Módulo 09 (Tesorería / Pagos)** | `src/02_Modulos/Intranet.Modulo09/` | `mod09_*` | `user_equipo09` | 🌐 Cyan Pastel |
 
 ---
 
@@ -88,8 +91,9 @@ Para comunicar módulos sin acoplar código ni dependencias circulares:
   ```
 
 ### 2. 🗄️ Acceso a Datos & Migraciones Automáticas
-* **Conexión:** Inyecta `IModuleDbConnectionFactory` para obtener la conexión SQL hacia MariaDB (`factory.CreateConnection()`).
-* **Migraciones SQL Automáticas:** Todo archivo `.sql` colocado dentro de `src/02_Modulos/Intranet.ModuloXX/Sql/schema.sql` se ejecuta automáticamente al iniciar la aplicación (usa siempre `CREATE TABLE IF NOT EXISTS`).
+* **Conexión:** Inyecta `IModuleDbConnectionFactory` para obtener la conexión SQL hacia MariaDB (`factory.CreateConnection("04")`).
+* **Migraciones SQL Automáticas:** Todo archivo `.sql` colocado dentro de `src/02_Modulos/Intranet.ModuloXX/Sql/schema.sql` se ejecuta automáticamente al iniciar la aplicación (usa siempre `CREATE TABLE IF NOT EXISTS modXX_...`).
+* **Relaciones Foráneas Seguras:** Puedes hacer `FOREIGN KEY` directa a `core_personas(id)`, `core_estudiantes(id)`, `core_carreras(id)` o `core_periodos_academicos(id)`.
 
 ### 3. ⚙️ Inyección de Dependencias Modular (`IModuloStartup`)
 Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` implementando `IModuloStartup`. El sistema los descubre y registra automáticamente al arrancar.
@@ -99,9 +103,10 @@ Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` i
 ## 🛡️ Reglas de Oro del Proyecto (Poka-Yoke)
 
 1. **Aislamiento Estricto:** Programa **únicamente** dentro de tu carpeta `src/02_Modulos/Intranet.ModuloXX/`.
-2. **Prohibido Push a `main`:** Todo cambio se entrega mediante **Pull Request** desde tu rama `moduloXX/tu-tarea`.
-3. **Controladores con Seguridad:** Haz que tus controladores hereden de `ModuloBaseController` para tener acceso a `UsuarioActualRol`, `UsuarioActualNombre` y métodos Toast (`MostrarAlertaExito`, `MostrarAlertaError`).
-4. **Validación Automática en CI/CD:** Si tu PR modifica solo tu módulo y compila con 0 errores, **GitHub Actions lo fusiona a producción en ~45 segundos**.
+2. **Nombres de Tablas con Prefijo:** Toda tabla que crees debe empezar con `modXX_` (ej: `mod04_horarios`).
+3. **Prohibido Push a `main`:** Todo cambio se entrega mediante **Pull Request** desde tu rama `moduloXX/tu-tarea`.
+4. **Controladores con Seguridad:** Haz que tus controladores hereden de `ModuloBaseController` para tener acceso a `UsuarioActualRol`, `UsuarioActualRoles`, `UsuarioActualNombre`, `PersonaActualId` y métodos Toast (`MostrarAlertaExito`, `MostrarAlertaError`).
+5. **Validación Automática en CI/CD:** Si tu PR modifica solo tu módulo y compila con 0 errores, **GitHub Actions lo fusiona a producción en ~45 segundos**.
 
 ---
 
@@ -109,9 +114,10 @@ Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` i
 
 * 🚀 **Intranet en Vivo (.NET 10 en Docker):** [http://35.209.228.150](http://35.209.228.150)
 * 🗄️ **phpMyAdmin BD MariaDB:** [http://35.208.213.59:8080](http://35.208.213.59:8080)
+  * **Base de Datos Unificada:** `db_intranet_iestp`
   * **Usuario:** `user_equipo[XX]` *(ej: user_equipo01 al user_equipo09)*
   * **Contraseña:** `Equipo[XX]_Pass2026!` *(ej: Equipo01_Pass2026!)*
-  * **Permisos:** Control total de escritura en `db_modulo[XX]` y lectura `SELECT` sobre los demás esquemas.
+  * **Permisos:** Control total sobre `db_intranet_iestp` para operar sus tablas `modXX_*` y consultar `core_*`.
 
 ---
 
@@ -125,12 +131,14 @@ Estoy desarrollando el MÓDULO [XX] (del Equipo [XX]) de la Intranet Institucion
 
 REGLAS DE ACERO ARQUITECTÓNICAS (Cero Conflictos):
 1. Mi carpeta soberana es ÚNICAMENTE: src/02_Modulos/Intranet.Modulo[XX]/
-2. Mi base de datos asignada es: db_modulo[XX] (Usuario: user_equipo[XX]).
-3. Mis controladores C# deben heredar de `ModuloBaseController` (en `Intranet.Core.Controllers`) y usar la ruta `[Route("Modulo[XX]/[controller]")]`.
-4. NO modifiques ni me pidas modificar archivos fuera de mi carpeta (está prohibido tocar src/01_Core/, src/03_Web/Program.cs o appsettings.json).
-5. Si necesito inyectar servicios, hazlo dentro de mi archivo `Modulo[XX]Startup.cs` implementando `IModuloStartup`.
-6. Para la base de datos en phpMyAdmin o en `Sql/schema.sql`, genera sentencias SQL con `CREATE TABLE IF NOT EXISTS`.
-7. Si necesito publicar o escuchar eventos de otros módulos, uso `IEventBus` y `IEventHandler<T>` de `Intranet.Core.Events`.
+2. La base de datos unificada es: db_intranet_iestp (Usuario: user_equipo[XX]).
+3. Todas las tablas de mi módulo DEBEN tener el prefijo: mod[XX]_ (ej: mod[XX]_registros).
+4. Mis controladores C# deben heredar de `ModuloBaseController` (en `Intranet.Core.Controllers`) y usar la ruta `[Route("Modulo[XX]/[controller]")]`.
+5. Puedo hacer FOREIGN KEY a tablas del núcleo como: core_personas(Id), core_estudiantes(Id), core_carreras(Id), core_periodos_academicos(Id).
+6. NO modifiques ni me pidas modificar archivos fuera de mi carpeta (está prohibido tocar src/01_Core/, src/03_Web/Program.cs o appsettings.json).
+7. Si necesito inyectar servicios, hazlo dentro de mi archivo `Modulo[XX]Startup.cs` implementando `IModuloStartup`.
+8. Para la base de datos en phpMyAdmin o en `Sql/schema.sql`, genera sentencias SQL con `CREATE TABLE IF NOT EXISTS mod[XX]_...`.
+9. Si necesito publicar o escuchar eventos de otros módulos, uso `IEventBus` y `IEventHandler<T>` de `Intranet.Core.Events`.
 
 Requerimiento de mi equipo para hoy:
 [Describe aquí lo que necesitas, ej: Crear tabla de items y vista con formulario y listado]

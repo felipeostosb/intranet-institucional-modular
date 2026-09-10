@@ -118,9 +118,24 @@ function Scaffold-Code {
         }
     }
     
+    $sqlDir = "$modPath/Sql"
     New-Item -ItemType Directory -Force -Path $ctrlDir | Out-Null
     New-Item -ItemType Directory -Force -Path $modelDir | Out-Null
+    New-Item -ItemType Directory -Force -Path $sqlDir | Out-Null
     New-Item -ItemType Directory -Force -Path $viewDir | Out-Null
+    
+    $entidadSql = $entidad.ToLower()
+    $sqlContent = @"
+CREATE TABLE IF NOT EXISTS ``mod${numFmt}_${entidadSql}`` (
+  ``Id`` INT AUTO_INCREMENT PRIMARY KEY,
+  ``Codigo`` VARCHAR(30) NOT NULL,
+  ``Nombre`` VARCHAR(150) NOT NULL,
+  ``Descripcion`` TEXT NULL,
+  ``FechaRegistro`` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+"@
+    Add-Content -Path "$sqlDir/schema.sql" -Value $sqlContent -Encoding utf8
     
     $modelCode = @"
 namespace Intranet.Modulo$numFmt.Models;

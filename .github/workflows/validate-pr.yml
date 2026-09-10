@@ -123,13 +123,13 @@ jobs:
 
       - name: 5. Smoke Test Funcional (MariaDB + Login real)
         env:
-          ConnectionStrings__DefaultConnection: "Server=127.0.0.1;Port=3306;Database=db_core;User=root;Password=ci_root_2026;"
+          ConnectionStrings__DefaultConnection: "Server=127.0.0.1;Port=3306;Database=db_intranet_iestp;User=root;Password=ci_root_2026;"
         run: |
-          echo "🧪 Provisionando BDs del smoke test..."
-          mariadb -h 127.0.0.1 -P 3306 -u root -pci_root_2026 < scripts/provision_dbs.sql > /dev/null 2>&1 || \
-          mysql  -h 127.0.0.1 -P 3306 -u root -pci_root_2026 < scripts/provision_dbs.sql > /dev/null 2>&1 || \
+          echo "🧪 Provisionando BD unificada del smoke test..."
+          mariadb -h 127.0.0.1 -P 3306 -u root -pci_root_2026 < scripts/provision_unified_db.sql > /dev/null 2>&1 || \
+          mysql  -h 127.0.0.1 -P 3306 -u root -pci_root_2026 < scripts/provision_unified_db.sql > /dev/null 2>&1 || \
           docker run --rm --network host -v "$PWD/scripts:/scripts:ro" mariadb:10.11 \
-            mariadb -h 127.0.0.1 -P 3306 -u root -pci_root_2026 -e "source /scripts/provision_dbs.sql" > /dev/null 2>&1 || \
+            mariadb -h 127.0.0.1 -P 3306 -u root -pci_root_2026 -e "source /scripts/provision_unified_db.sql" > /dev/null 2>&1 || \
           { echo "⛔ No se pudo provisionar MariaDB para el smoke test"; exit 1; }
           
           echo "🚀 Arrancando la Intranet en segundo plano..."
