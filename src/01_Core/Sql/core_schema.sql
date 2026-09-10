@@ -153,12 +153,11 @@ INSERT IGNORE INTO `core_roles` (`Id`, `Nombre`, `Descripcion`) VALUES
 (6, 'Docente', 'Plana Docente'),
 (7, 'Alumno', 'Estudiante de Carrera Profesional');
 
--- 2. Carreras Profesionales del IESTP Argentina
+-- 2. Carreras Profesionales del IESTP Argentina (3 Oficiales)
 INSERT IGNORE INTO `core_carreras` (`Id`, `Codigo`, `Nombre`, `TotalSemestres`, `Modalidad`) VALUES
 (1, 'DSI', 'Desarrollo de Sistemas de Información', 6, 'Presencial'),
 (2, 'CONT', 'Contabilidad', 6, 'Presencial'),
-(3, 'ADM', 'Administración de Empresas', 6, 'Presencial'),
-(4, 'MKT', 'Marketing y Negocios Internacionales', 6, 'Presencial');
+(3, 'ADM', 'Administración de Empresas', 6, 'Presencial');
 
 -- 3. Periodos Académicos
 INSERT IGNORE INTO `core_periodos_academicos` (`Id`, `Codigo`, `FechaInicio`, `FechaFin`, `EsActivo`, `PermiteMatricula`) VALUES
