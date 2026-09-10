@@ -47,9 +47,17 @@ show_menu() {
 }
 
 start_app() {
-    echo -e "\n${BLUE}🚀 Abriendo la Intranet en tu navegador (http://localhost:5000)...${NC}"
-    echo -e "${YELLOW}💡 Cada cambio que guardes se actualizará automáticamente.${NC}\n"
-    dotnet watch --project src/03_Web/Intranet.Web
+    echo -e "\n${BLUE}🚀 Iniciando la Intranet en tu navegador (http://localhost:5000)...${NC}\n"
+    
+    # Intentar con dotnet watch (Hot-Reload), y si falla por inotify en Linux, fallback a dotnet run
+    if ! dotnet watch --project src/03_Web/Intranet.Web --urls http://localhost:5000 2>/tmp/watch_err.log; then
+        if grep -q "inotify" /tmp/watch_err.log 2>/dev/null; then
+            echo -e "\n${YELLOW}⚠️  Límite de inotify de Linux alcanzado. Iniciando en modo estándar con 'dotnet run'...${NC}"
+            echo -e "${CYAN}💡 Tip para activar Hot-Reload permanente:${NC}"
+            echo -e "   Ejecuta: ${GREEN}sudo sysctl -w fs.inotify.max_user_instances=1024${NC}\n"
+        fi
+        dotnet run --project src/03_Web/Intranet.Web --urls http://localhost:5000
+    fi
 }
 
 create_branch() {
