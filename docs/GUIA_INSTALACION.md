@@ -88,7 +88,8 @@ En PowerShell ejecuta `.\dev.ps1` (en Linux/Mac `./dev.sh`):
 * 🌐 **Panel Web phpMyAdmin:** [http://35.208.213.59:8080](http://35.208.213.59:8080)
 * 👤 **Usuario:** `user_equipo[XX]` *(ej: user_equipo01 al user_equipo09)*
 * 🔑 **Contraseña:** `Equipo[XX]_Pass2026!`
-* 📊 **Base de datos propia:** `db_modulo[XX]` (Usa siempre `CREATE TABLE IF NOT EXISTS`).
+* 📊 **Base de datos unificada:** `db_intranet_iestp`
+* 🛡️ **Prefijo de tus tablas:** `mod[XX]_*` (ej: `CREATE TABLE IF NOT EXISTS mod04_horarios ...`).
 
 ---
 
