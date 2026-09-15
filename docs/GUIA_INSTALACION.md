@@ -124,7 +124,7 @@ La base de datos unificada se encuentra alojada en el servidor cloud `postgres` 
 * 🖥️ **Servidor:** `postgres` *(desde el navegador en Adminer)* o `35.206.81.32:5432` *(desde DBeaver/VS Code)*
 * 📊 **Base de datos:** `db_intranet_iestp`
 * 👤 **Usuario de tu equipo:** `user_equipo[XX]` *(ej: `user_equipo01` al `user_equipo09`)*
-* 🔑 **Contraseña:** `Equipo[XX]_Postgres2026!` *(ej: `Equipo04_Postgres2026!`)*
+* 🔑 **Contraseña:** *(Solicitar credencial criptográfica única y privada al Administrador / Líder de Arquitectura)*
 * 🛡️ **Esquema Soberano:** `mod[XX]`
 
 ### 💡 Ejemplo de Script SQL para tu Módulo:

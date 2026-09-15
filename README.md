@@ -124,7 +124,7 @@ Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` i
   * **Servidor:** `postgres` *(o `35.206.81.32` desde tu cliente local)*
   * **Base de Datos:** `db_intranet_iestp`
   * **Usuario:** `user_equipo[XX]` *(ej: `user_equipo01` al `user_equipo09`)*
-  * **Contraseña:** `Equipo[XX]_Postgres2026!` *(ej: `Equipo01_Postgres2026!`)*
+  * **Contraseña:** *(Consulta la Ficha de Acceso Privada entregada por el Administrador)*
   * **Esquema:** Selecciona `mod[XX]` en el menú superior para ver tus tablas.
 
 ---
