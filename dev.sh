@@ -384,14 +384,15 @@ show_db_info() {
     echo -e "${BLUE}🗄️  INFORMACIÓN DE BASE DE DATOS POSTGRESQL 16 & ADMINER${NC}"
     echo -e "${BLUE}======================================================================${NC}"
     echo -e "  🌐 ${CYAN}Panel Web Adminer:${NC} http://35.206.81.32:8080"
-    echo -e "  ⚙️  ${CYAN}Motor:${NC} PostgreSQL"
+    echo -e "  ⚙️  ${CYAN}Motor:${NC} PostgreSQL 16"
     echo -e "  🖥️  ${CYAN}Servidor:${NC} postgres (o 35.206.81.32 desde DBeaver/VS Code)"
     echo -e "  📊 ${CYAN}Base de Datos:${NC} db_intranet_iestp"
-    echo -e "  👤 ${CYAN}Usuario:${NC} user_equipo[XX] (ej: user_equipo01 al user_equipo09)"
-    echo -e "  🔑 ${CYAN}Contraseña:${NC} Equipo[XX]_Postgres2026!"
+    echo -e "  👤 ${CYAN}Usuario:${NC} user_equipo[XX] (Tu usuario asignado)"
+    echo -e "  🔑 ${CYAN}Contraseña:${NC} (Consulta tu Ficha Privada entregada por el Administrador)"
     echo -e "  🛡️  ${CYAN}Esquema Soberano:${NC} mod[XX] (Tu espacio aislado de tablas)"
     echo -e "${BLUE}----------------------------------------------------------------------${NC}"
     echo -e "  💡 ${YELLOW}Permisos RBAC:${NC} Control total en 'modXX' y lectura (SELECT) en 'core'."
+    echo -e "  💡 ${CYAN}Conexión Automática:${NC} La app ya lee tu cadena desde appsettings.json."
     echo -e "${BLUE}======================================================================${NC}\n"
 }
 

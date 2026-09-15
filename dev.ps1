@@ -361,14 +361,15 @@ function Show-DbInfo {
     Write-Host "🗄️  INFORMACIÓN DE BASE DE DATOS POSTGRESQL 16 & ADMINER" -ForegroundColor Blue
     Write-Host "======================================================================" -ForegroundColor Blue
     Write-Host "  🌐 Panel Web Adminer: http://35.206.81.32:8080" -ForegroundColor Cyan
-    Write-Host "  ⚙️  Motor: PostgreSQL" -ForegroundColor Cyan
+    Write-Host "  ⚙️  Motor: PostgreSQL 16" -ForegroundColor Cyan
     Write-Host "  🖥️  Servidor: postgres (o 35.206.81.32 desde DBeaver/VS Code)" -ForegroundColor Cyan
     Write-Host "  📊 Base de Datos: db_intranet_iestp" -ForegroundColor Cyan
-    Write-Host "  👤 Usuario: user_equipo[XX] (ej: user_equipo01 al user_equipo09)" -ForegroundColor Cyan
-    Write-Host "  🔑 Contraseña: Equipo[XX]_Postgres2026!" -ForegroundColor Cyan
+    Write-Host "  👤 Usuario: user_equipo[XX] (Tu usuario asignado)" -ForegroundColor Cyan
+    Write-Host "  🔑 Contraseña: (Consulta tu Ficha Privada entregada por el Administrador)" -ForegroundColor Cyan
     Write-Host "  🛡️  Esquema Soberano: mod[XX] (Tu espacio aislado de tablas)" -ForegroundColor Cyan
     Write-Host "----------------------------------------------------------------------" -ForegroundColor Blue
     Write-Host "  💡 Permisos RBAC: Control total en 'modXX' y lectura (SELECT) en 'core'." -ForegroundColor Yellow
+    Write-Host "  💡 Conexión Automática: La app ya lee tu cadena desde appsettings.json." -ForegroundColor Cyan
     Write-Host "======================================================================" -ForegroundColor Blue
     Write-Host ""
 }

@@ -17,41 +17,69 @@ CREATE SCHEMA IF NOT EXISTS mod07; -- Biblioteca Virtual
 CREATE SCHEMA IF NOT EXISTS mod08; -- Bolsa de Trabajo
 CREATE SCHEMA IF NOT EXISTS mod09; -- Tesorería / Pagos
 
--- 2. CREACIÓN DE ROLES Y USUARIOS CON CONTRASEÑAS SEGURAS
+-- 2. CREACIÓN DE ROLES Y USUARIOS CON CONTRASEÑAS SEGURAS (ALTA ENTROPÍA / ZERO-PATTERN)
 DO $$
 BEGIN
     -- Usuario Core Engine
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_app_core') THEN
-        CREATE USER user_app_core WITH ENCRYPTED PASSWORD 'CoreApp_Postgres2026!';
+        CREATE USER user_app_core WITH ENCRYPTED PASSWORD 'IQ7#pHBI5jmN5XZmlw#SjaF9';
+    ELSE
+        ALTER USER user_app_core WITH ENCRYPTED PASSWORD 'IQ7#pHBI5jmN5XZmlw#SjaF9';
     END IF;
 
     -- Usuarios Modulares (Equipos 01 al 09)
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo01') THEN
-        CREATE USER user_equipo01 WITH ENCRYPTED PASSWORD 'Equipo01_Postgres2026!';
+        CREATE USER user_equipo01 WITH ENCRYPTED PASSWORD 'MWsJkwHnstfp6Y92EF0p';
+    ELSE
+        ALTER USER user_equipo01 WITH ENCRYPTED PASSWORD 'MWsJkwHnstfp6Y92EF0p';
     END IF;
+
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo02') THEN
-        CREATE USER user_equipo02 WITH ENCRYPTED PASSWORD 'Equipo02_Postgres2026!';
+        CREATE USER user_equipo02 WITH ENCRYPTED PASSWORD 'SVMa8ClAvXSRWQX6VtRF';
+    ELSE
+        ALTER USER user_equipo02 WITH ENCRYPTED PASSWORD 'SVMa8ClAvXSRWQX6VtRF';
     END IF;
+
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo03') THEN
-        CREATE USER user_equipo03 WITH ENCRYPTED PASSWORD 'Equipo03_Postgres2026!';
+        CREATE USER user_equipo03 WITH ENCRYPTED PASSWORD 'Oiffu1yqL58#M!#_YFgI';
+    ELSE
+        ALTER USER user_equipo03 WITH ENCRYPTED PASSWORD 'Oiffu1yqL58#M!#_YFgI';
     END IF;
+
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo04') THEN
-        CREATE USER user_equipo04 WITH ENCRYPTED PASSWORD 'Equipo04_Postgres2026!';
+        CREATE USER user_equipo04 WITH ENCRYPTED PASSWORD 'wbNb!rQaj1rs6WC2MiUw';
+    ELSE
+        ALTER USER user_equipo04 WITH ENCRYPTED PASSWORD 'wbNb!rQaj1rs6WC2MiUw';
     END IF;
+
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo05') THEN
-        CREATE USER user_equipo05 WITH ENCRYPTED PASSWORD 'Equipo05_Postgres2026!';
+        CREATE USER user_equipo05 WITH ENCRYPTED PASSWORD 'G0wH7Yux@3j6gk8pj6Mf';
+    ELSE
+        ALTER USER user_equipo05 WITH ENCRYPTED PASSWORD 'G0wH7Yux@3j6gk8pj6Mf';
     END IF;
+
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo06') THEN
-        CREATE USER user_equipo06 WITH ENCRYPTED PASSWORD 'Equipo06_Postgres2026!';
+        CREATE USER user_equipo06 WITH ENCRYPTED PASSWORD 'Pj0y2rLN2kBrjHZFTO9x';
+    ELSE
+        ALTER USER user_equipo06 WITH ENCRYPTED PASSWORD 'Pj0y2rLN2kBrjHZFTO9x';
     END IF;
+
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo07') THEN
-        CREATE USER user_equipo07 WITH ENCRYPTED PASSWORD 'Equipo07_Postgres2026!';
+        CREATE USER user_equipo07 WITH ENCRYPTED PASSWORD '4rE2#yVPrEagn!fEzfVg';
+    ELSE
+        ALTER USER user_equipo07 WITH ENCRYPTED PASSWORD '4rE2#yVPrEagn!fEzfVg';
     END IF;
+
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo08') THEN
-        CREATE USER user_equipo08 WITH ENCRYPTED PASSWORD 'Equipo08_Postgres2026!';
+        CREATE USER user_equipo08 WITH ENCRYPTED PASSWORD 'm6dQA0PFOJv6iRfNMu7H';
+    ELSE
+        ALTER USER user_equipo08 WITH ENCRYPTED PASSWORD 'm6dQA0PFOJv6iRfNMu7H';
     END IF;
+
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo09') THEN
-        CREATE USER user_equipo09 WITH ENCRYPTED PASSWORD 'Equipo09_Postgres2026!';
+        CREATE USER user_equipo09 WITH ENCRYPTED PASSWORD 'vkcITPMZMt1oKGB6BR6C';
+    ELSE
+        ALTER USER user_equipo09 WITH ENCRYPTED PASSWORD 'vkcITPMZMt1oKGB6BR6C';
     END IF;
 END $$;
 
