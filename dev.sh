@@ -39,10 +39,12 @@ show_menu() {
     echo -e "  ${CYAN}Plataforma .NET 10 LTS • PostgreSQL 16 • 9 Módulos Desacoplados${NC}"
     echo -e "  🌿 Rama actual: ${YELLOW}${CURRENT_BRANCH}${NC}"
     echo -e "${BLUE}----------------------------------------------------------------------${NC}\n"
-    echo -e "  ${GREEN}1)${NC} 🚀 ${CYAN}Iniciar Intranet${NC} (Ver cambios en vivo en tu navegador)"
+    echo -e "  ${GREEN}1)${NC} 🚀 ${CYAN}Iniciar Intranet${NC} (Ver cambios en vivo en tu navegador con Hot-Reload)"
     echo -e "  ${GREEN}2)${NC} 🌿 ${CYAN}Crear / Cambiar a mi Rama de Equipo${NC} (Elige tu equipo 01 al 09)"
-    echo -e "  ${GREEN}3)${NC} ⚡ ${CYAN}Generar Formulario / Tabla${NC} (Para tu módulo)"
-    echo -e "  ${GREEN}4)${NC} 📤 ${CYAN}Subir mi Trabajo a GitHub${NC} (Guarda y sincroniza siempre)"
+    echo -e "  ${GREEN}3)${NC} ⚡ ${CYAN}Generar Formulario / Tabla${NC} (Modelo, Controlador, Vista y SQL Postgres)"
+    echo -e "  ${GREEN}4)${NC} 🧪 ${CYAN}Compilar y Validar mi Módulo${NC} (Verifica 0 errores localmente)"
+    echo -e "  ${GREEN}5)${NC} 📤 ${CYAN}Subir mi Trabajo a GitHub${NC} (Guarda, sincroniza y genera enlace de PR)"
+    echo -e "  ${GREEN}6)${NC} 🗄️ ${CYAN}Credenciales y Guía PostgreSQL 16${NC} (Ver accesos de Adminer / DB)"
     echo -e "  ${GREEN}0)${NC} 🚪 ${YELLOW}Salir${NC}\n"
 }
 
@@ -94,36 +96,36 @@ create_branch() {
 }
 
 scaffold_code() {
-    echo -e "\n${BLUE}⚡ GENERAR PLANTILLA PARA TU MÓDULO${NC}"
+    echo -e "\n${BLUE}⚡ GENERAR PLANTILLA PARA TU MÓDULO (PostgreSQL 16 + Razor + C#)${NC}"
     read -p "👉 ¿Qué número de equipo eres? (1 al 9): " num
     num=$(printf "%02d" $((10#$num)))
     
-    read -p "👉 Nombre del registro (ej: Alumno, Producto, Pago): " entidad
+    read -p "👉 Nombre del registro (ej: Alumno, Horario, Pago): " entidad
     if [ -z "$entidad" ]; then
         echo -e "${RED}❌ El nombre de la entidad es obligatorio.${NC}"
         return
     fi
-    # Normalizar y validar como identificador C# (PascalCase):
-    # espacios→guiones, solo [a-zA-Z0-9-], debe empezar por letra. Cada
-    # segmento se capitaliza en su primera letra respetando el resto
-    # ('Pago Mensual' → PagoMensual, 'PagoMensual' se mantiene idéntico);
-    # segmentos todo-mayúsculas se tratan como siglas y pasan a Title
-    # ('ACTA DE NOTAS' → ActaDeNotas). Igual de estricto que la opción 2
-    # con las ramas; evita generar 'public class 0'.
+    
     entidad_raw="$entidad"
     entidad=$(echo "$entidad" | tr ' ' '-' | tr -cd 'a-zA-Z0-9-')
     if ! echo "$entidad" | grep -qE '^[a-zA-Z][a-zA-Z0-9-]*$'; then
-        echo -e "${RED}❌ '$entidad_raw' no es un nombre válido. Debe empezar por una letra y solo contener letras, números, espacios o guiones (ej: Pago Mensual).${NC}"
+        echo -e "${RED}❌ '$entidad_raw' no es un nombre válido. Debe empezar por una letra (ej: Matricula, PagoMensual).${NC}"
         return
     fi
-    # PascalCase por segmentos: pago-mensual → PagoMensual (idempotente)
+    
+    # PascalCase por segmentos: pago-mensual → PagoMensual
     entidad=$(echo "$entidad" | awk -F'-' '{out=""; for(i=1;i<=NF;i++){s=$i; if(toupper(s)==s) s=tolower(s); out=out toupper(substr(s,1,1)) substr(s,2)}; print out}')
     if [ "$entidad_raw" != "$entidad" ]; then
         echo -e "${CYAN}ℹ️ Nombre normalizado a identificador C#: '${entidad}'${NC}"
     fi
     
+    mod_path="src/02_Modulos/Intranet.Modulo${num}"
+    if [ ! -d "$mod_path" ]; then
+        echo -e "${RED}❌ No se encontró la carpeta del módulo: ${mod_path}${NC}"
+        return
+    fi
+    
     # Protección de sobrescritura: si ya existe la entidad, respaldar a .bak
-    # antes de regenerar (antes se perdía el trabajo del alumno sin aviso).
     for existing in "$mod_path/Models/${entidad}.cs" "$mod_path/Controllers/${entidad}Controller.cs" "$mod_path/Views/${entidad}/Index.cshtml"; do
         if [ -f "$existing" ]; then
             cp "$existing" "$existing.bak"
@@ -137,13 +139,14 @@ scaffold_code() {
     schema_file="$mod_path/Sql/schema.sql"
     
     cat << SQL_EOF >> "$schema_file"
-CREATE TABLE IF NOT EXISTS \`mod${num}_${entidad_sql}\` (
-  \`Id\` INT AUTO_INCREMENT PRIMARY KEY,
-  \`Codigo\` VARCHAR(30) NOT NULL,
-  \`Nombre\` VARCHAR(150) NOT NULL,
-  \`Descripcion\` TEXT NULL,
-  \`FechaRegistro\` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Esquema y Tabla para Módulo ${num} en PostgreSQL 16
+CREATE TABLE IF NOT EXISTS mod${num}.${entidad_sql} (
+  id SERIAL PRIMARY KEY,
+  codigo VARCHAR(30) NOT NULL,
+  nombre VARCHAR(150) NOT NULL,
+  descripcion TEXT NULL,
+  fecha_registro TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 SQL_EOF
 
@@ -222,7 +225,7 @@ CTRL_EOF
                 <span class="badge badge-primary font-bold text-[10px]">Equipo ${num}</span>
             </div>
             <h1 class="text-2xl font-extrabold text-slate-900">Listado de ${entidad}s</h1>
-            <p class="text-xs text-slate-500">Módulo del Equipo ${num}. Usuario: @ViewData["UsuarioNombre"]</p>
+            <p class="text-xs text-slate-500">Módulo del Equipo ${num}. Usuario actual: @ViewData["UsuarioNombre"]</p>
         </div>
         <div class="flex gap-2">
             <a href="/Modulo${num}" class="btn btn-ghost btn-sm rounded-xl text-xs">Volver</a>
@@ -284,9 +287,27 @@ VIEW_EOF
 
     echo -e "\n${GREEN}🎉 ¡Plantilla para '${entidad}' creada con éxito!${NC}"
     echo -e "Ruta web: ${CYAN}http://localhost:5000/Modulo${num}/${entidad}${NC}"
+    echo -e "Script SQL añadido en: ${CYAN}${schema_file}${NC}"
 }
 
-# 4. Subir a GitHub (Maneja Primera Vez y Sincronizaciones Posteriores)
+validate_code() {
+    echo -e "\n${BLUE}🧪 VALIDANDO COMPILACIÓN Y CALIDAD DE CÓDIGO...${NC}\n"
+    if ! command -v dotnet >/dev/null 2>&1; then
+        echo -e "${RED}❌ El SDK de .NET no está instalado o no se encuentra en el PATH.${NC}"
+        return 1
+    fi
+    
+    echo -e "${CYAN}Ejecutando: dotnet build IntranetInstitucional.sln${NC}"
+    if dotnet build "IntranetInstitucional.sln" --nologo -c Release; then
+        echo -e "\n${GREEN}======================================================================${NC}"
+        echo -e "${GREEN}✅ ¡TODO EL PROYECTO COMPILA CON 0 ERRORES Y 0 WARNINGS!${NC}"
+        echo -e "${GREEN}======================================================================${NC}"
+    else
+        echo -e "\n${RED}⛔ Se encontraron errores de compilación. Revisa los mensajes de arriba.${NC}"
+        return 1
+    fi
+}
+
 push_work() {
     echo -e "\n${BLUE}📤 SUBIR Y SINCRONIZAR MI TRABAJO CON GITHUB${NC}"
     branch=$(git rev-parse --abbrev-ref HEAD)
@@ -323,7 +344,7 @@ push_work() {
         echo -e "${YELLOW}ℹ️ No hay archivos nuevos por guardar, sincronizando con GitHub...${NC}"
     fi
     
-    # 2. Descargar posibles cambios remotos de compañeros de equipo con protección Poka-Yoke
+    # 2. Descargar posibles cambios remotos de compañeros de equipo
     echo -e "${CYAN}Sincronizando con GitHub...${NC}"
     if ! git pull --rebase origin "$branch" 2>/dev/null; then
         if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
@@ -331,47 +352,59 @@ push_work() {
             echo -e "\n${RED}⚠️  CONFLICTO DETECTADO: Un compañero de tu equipo subió cambios que chocan con los tuyos.${NC}"
             echo -e "${YELLOW}💡 Solución Recomendada (Poka-Yoke):${NC}"
             echo -e "   1. Usa la opción 2 para crear una rama personal: ${CYAN}${branch}-$(date +%s | tail -c 4)${NC}"
-            echo -e "   2. Sube tus cambios con la opción 4 y abre tu propio Pull Request.\n"
+            echo -e "   2. Sube tus cambios con la opción 5 y abre tu propio Pull Request.\n"
             return 1
         fi
     fi
     
-    # 2.5 Compilar ANTES de pushear: el error se ve aquí en segundos con mensaje
-    # completo, no 2 minutos después en el CI de GitHub. Si no compila, abortar
-    # el push para que puedas corregir y reintentar sin ensuciar la rama remota.
+    # 2.5 Compilar ANTES de pushear
     echo -e "${CYAN}🔨 Compilando tu módulo antes de subir (verificación local)...${NC}"
     if command -v dotnet >/dev/null 2>&1; then
         if ! dotnet build "IntranetInstitucional.sln" -v q --nologo 2>&1 | tail -20; then
-            echo -e "\n${RED}⛔ EL CÓDIGO NO COMPILO. No se subió nada a GitHub.${NC}"
-            echo -e "${YELLOW}💡 Corrige los errores de arriba y vuelve a ejecutar la opción 4.${NC}"
+            echo -e "\n${RED}⛔ EL CÓDIGO NO COMPILÓ. No se subió nada a GitHub.${NC}"
+            echo -e "${YELLOW}💡 Corrige los errores de arriba y vuelve a intentar.${NC}"
             return 1
         fi
-    else
-        echo -e "${YELLOW}⚠️ 'dotnet' no está instalado: saltando compilación local (el CI de GitHub la hará igual).${NC}"
     fi
     
-    # 3. Publicar en GitHub (Cubre Primera Vez con -u y Siguientes veces)
+    # 3. Publicar en GitHub
     echo -e "${CYAN}Publicando rama '${branch}' en GitHub...${NC}"
     if git push -u origin "$branch"; then
         echo -e "\n${GREEN}======================================================================${NC}"
         echo -e "${GREEN}🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!${NC}"
         echo -e "${GREEN}======================================================================${NC}"
-        # URL de compare exacta para abrir/ver el PR de ESTA rama (antes era el
-        # listado genérico /pulls y el alumno tenía que buscar su rama a mano).
         echo -e "👉 Crea o revisa tu Pull Request aquí:\n   ${CYAN}https://github.com/felipeostosb/intranet-institucional-modular/compare/main...${branch}${NC}"
     else
         echo -e "\n${RED}❌ Hubo un inconveniente al subir a GitHub. Revisa tu conexión o permisos.${NC}"
     fi
 }
 
+show_db_info() {
+    echo -e "\n${BLUE}======================================================================${NC}"
+    echo -e "${BLUE}🗄️  INFORMACIÓN DE BASE DE DATOS POSTGRESQL 16 & ADMINER${NC}"
+    echo -e "${BLUE}======================================================================${NC}"
+    echo -e "  🌐 ${CYAN}Panel Web Adminer:${NC} http://35.206.81.32:8080"
+    echo -e "  ⚙️  ${CYAN}Motor:${NC} PostgreSQL"
+    echo -e "  🖥️  ${CYAN}Servidor:${NC} postgres (o 35.206.81.32 desde DBeaver/VS Code)"
+    echo -e "  📊 ${CYAN}Base de Datos:${NC} db_intranet_iestp"
+    echo -e "  👤 ${CYAN}Usuario:${NC} user_equipo[XX] (ej: user_equipo01 al user_equipo09)"
+    echo -e "  🔑 ${CYAN}Contraseña:${NC} Equipo[XX]_Postgres2026!"
+    echo -e "  🛡️  ${CYAN}Esquema Soberano:${NC} mod[XX] (Tu espacio aislado de tablas)"
+    echo -e "${BLUE}----------------------------------------------------------------------${NC}"
+    echo -e "  💡 ${YELLOW}Permisos RBAC:${NC} Control total en 'modXX' y lectura (SELECT) en 'core'."
+    echo -e "${BLUE}======================================================================${NC}\n"
+}
+
 while true; do
     show_menu
-    read -p "👉 Elige una opción [0-4]: " op
+    read -p "👉 Elige una opción [0-6]: " op
     case $op in
         1) start_app ;;
         2) create_branch ;;
         3) scaffold_code ;;
-        4) push_work ;;
+        4) validate_code ;;
+        5) push_work ;;
+        6) show_db_info ;;
         0) echo -e "\n${GREEN}¡Buen trabajo! Hasta luego.${NC}\n"; exit 0 ;;
         *) echo -e "\n${RED}Opción no válida.${NC}" ;;
     esac

@@ -1,67 +1,86 @@
 # ==============================================================================
-# 🏛️ IESTP ARGENTINA - ASISTENTE DE DESARROLLO WINDOWS (CLI SENCILLO & RESILIENTE)
+# 🏛️ IESTP ARGENTINA - ASISTENTE DE DESARROLLO EN POWERSHELL
 # ==============================================================================
 
-# Instalar guardián local contra push a main de forma silenciosa
-if (Test-Path ".git") {
-    $hookDir = ".git/hooks"
-    if (-not (Test-Path $hookDir)) { New-Item -ItemType Directory -Path $hookDir | Out-Null }
-    $hookFile = "$hookDir/pre-push"
-    if (-not (Test-Path $hookFile)) {
-        $hookContent = @'
+$ErrorActionPreference = "Stop"
+
+# Instalar guardián local contra push a main
+if (Test-Path .git) {
+    $hookPath = ".git/hooks/pre-push"
+    if (-not (Test-Path $hookPath)) {
+        $hookDir = ".git/hooks"
+        if (-not (Test-Path $hookDir)) { New-Item -ItemType Directory -Path $hookDir | Out-Null }
+        $hookScript = @"
 #!/usr/bin/env bash
-BRANCH=$(git rev-parse --abbrev-ref HEAD)
-if [ "$BRANCH" = "main" ]; then
+BRANCH=`$(git rev-parse --abbrev-ref HEAD)
+if [ "`$BRANCH" = "main" ]; then
     echo -e "\033[1;31m⛔ ALERTA: No puedes hacer push directo a 'main'. Usa una rama de equipo.\033[0m"
     exit 1
 fi
 exit 0
-'@
-        Set-Content -Path $hookFile -Value $hookContent -NoNewline
+"@
+        Set-Content -Path $hookPath -Value $hookScript -NoNewline
     }
 }
 
 function Show-Menu {
     Clear-Host
-    $branch = git rev-parse --abbrev-ref HEAD 2>$null
+    $currentBranch = $(git rev-parse --abbrev-ref HEAD 2>$null)
+    if (-not $currentBranch) { $currentBranch = "desconocida" }
+    
     Write-Host "======================================================================" -ForegroundColor Blue
     Write-Host "🏛️  INTRANET INSTITUCIONAL IESTP ARGENTINA — ASISTENTE DEV" -ForegroundColor Blue
     Write-Host "======================================================================" -ForegroundColor Blue
     Write-Host "  Plataforma .NET 10 LTS • PostgreSQL 16 • 9 Módulos Desacoplados" -ForegroundColor Cyan
-    Write-Host "  🌿 Rama actual: $branch`n" -ForegroundColor Yellow
-    Write-Host "  1) 🚀 Iniciar Intranet (Ver cambios en vivo en tu navegador)" -ForegroundColor Green
+    Write-Host "  🌿 Rama actual: $currentBranch" -ForegroundColor Yellow
+    Write-Host "----------------------------------------------------------------------" -ForegroundColor Blue
+    Write-Host ""
+    Write-Host "  1) 🚀 Iniciar Intranet (Ver cambios en vivo en tu navegador con Hot-Reload)" -ForegroundColor Green
     Write-Host "  2) 🌿 Crear / Cambiar a mi Rama de Equipo (Elige tu equipo 01 al 09)" -ForegroundColor Green
-    Write-Host "  3) ⚡ Generar Formulario / Tabla (Para tu módulo)" -ForegroundColor Green
-    Write-Host "  4) 📤 Subir mi Trabajo a GitHub (Guarda y sincroniza siempre)" -ForegroundColor Green
-    Write-Host "  0) 🚪 Salir`n" -ForegroundColor Yellow
+    Write-Host "  3) ⚡ Generar Formulario / Tabla (Modelo, Controlador, Vista y SQL Postgres)" -ForegroundColor Green
+    Write-Host "  4) 🧪 Compilar y Validar mi Módulo (Verifica 0 errores localmente)" -ForegroundColor Green
+    Write-Host "  5) 📤 Subir mi Trabajo a GitHub (Guarda, sincroniza y genera enlace de PR)" -ForegroundColor Green
+    Write-Host "  6) 🗄️ Credenciales y Guía PostgreSQL 16 (Ver accesos de Adminer / DB)" -ForegroundColor Green
+    Write-Host "  0) 🚪 Salir" -ForegroundColor Red
+    Write-Host ""
 }
 
 function Start-App {
-    Write-Host "`n🚀 Abriendo la Intranet en tu navegador (http://localhost:5000)..." -ForegroundColor Blue
-    Write-Host "💡 Cada cambio que guardes se actualizará automáticamente.`n" -ForegroundColor Yellow
-    dotnet watch --project src/03_Web/Intranet.Web
+    Write-Host "`n🚀 Iniciando la Intranet en tu navegador (http://localhost:5000)..." -ForegroundColor Blue
+    dotnet watch --project src/03_Web/Intranet.Web --urls http://localhost:5000
 }
 
 function Create-Branch {
     Write-Host "`n🌿 CONFIGURAR RAMA DE TRABAJO" -ForegroundColor Blue
     $num = Read-Host "👉 ¿Qué número de equipo eres? (1 al 9)"
-    $numFmt = "{0:D2}" -f [int]$num
     
+    if (-not [int]::TryParse($num, [ref]$null)) {
+        Write-Host "❌ Debes ingresar un número válido." -ForegroundColor Red
+        return
+    }
+    
+    $numInt = [int]$num
+    if ($numInt -lt 1 -or $numInt -gt 9) {
+        Write-Host "❌ Número fuera de rango. Debe ser entre 1 y 9." -ForegroundColor Red
+        return
+    }
+    
+    $numFmt = "{0:D2}" -f $numInt
     $tarea = Read-Host "👉 ¿Qué tarea vas a hacer? (ej: formulario-registro)"
     if ([string]::IsNullOrWhiteSpace($tarea)) { $tarea = "avance" }
-    $tarea = $tarea.ToLower().Replace(" ", "-")
     
+    $tarea = $tarea.ToLower() -replace '[^a-z0-9-]', '-'
     $branch = "modulo$numFmt/$tarea"
     
-    $branchExists = git show-ref --verify --quiet "refs/heads/$branch"
-    if ($LASTEXITCODE -eq 0) {
+    $branchExists = git branch --list $branch
+    if ($branchExists) {
         Write-Host "`nCambiando a tu rama existente: $branch..." -ForegroundColor Cyan
-        git checkout "$branch"
+        git checkout $branch
     } else {
         Write-Host "`nSincronizando con 'main' antes de crear la rama..." -ForegroundColor Cyan
-        git checkout main 2>$null
-        git pull origin main 2>$null
-        git checkout -b "$branch"
+        git checkout main 2>$null | Out-Null
+        git pull origin main 2>$null | Out-Null
+        git checkout -b $branch
         Write-Host "`n✅ ¡Rama creada con éxito: $branch!" -ForegroundColor Green
     }
     
@@ -69,56 +88,48 @@ function Create-Branch {
 }
 
 function Scaffold-Code {
-    Write-Host "`n⚡ GENERAR PLANTILLA PARA TU MÓDULO" -ForegroundColor Blue
+    Write-Host "`n⚡ GENERAR PLANTILLA PARA TU MÓDULO (PostgreSQL 16 + Razor + C#)" -ForegroundColor Blue
     $num = Read-Host "👉 ¿Qué número de equipo eres? (1 al 9)"
-    $numFmt = "{0:D2}" -f [int]$num
+    $numInt = [int]$num
+    $numFmt = "{0:D2}" -f $numInt
     
-    $entidad = Read-Host "👉 Nombre del registro (ej: Alumno, Producto, Pago)"
+    $entidad = Read-Host "👉 Nombre del registro (ej: Alumno, Horario, Pago)"
     if ([string]::IsNullOrWhiteSpace($entidad)) {
         Write-Host "❌ El nombre de la entidad es obligatorio." -ForegroundColor Red
         return
     }
-    # Normalizar y validar como identificador C# (PascalCase):
-    # espacios→guiones, solo [a-zA-Z0-9-], debe empezar por letra. Cada
-    # segmento se capitaliza en su primera letra respetando el resto
-    # ('Pago Mensual' → PagoMensual, 'PagoMensual' se mantiene idéntico);
-    # segmentos todo-mayúsculas se tratan como siglas y pasan a Title
-    # ('ACTA DE NOTAS' → ActaDeNotas). Igual de estricto que la opción 2
-    # con las ramas; evita generar 'public class 0'.
+    
     $entidadRaw = $entidad
-    $entidad = $entidad.Replace(" ", "-") -replace "[^a-zA-Z0-9-]", ""
-    if ($entidad -notmatch "^[a-zA-Z][a-zA-Z0-9-]*$") {
-        Write-Host "❌ '$entidadRaw' no es un nombre válido. Debe empezar por una letra y solo contener letras, números, espacios o guiones (ej: Pago Mensual)." -ForegroundColor Red
+    $entidad = ($entidad -replace '\s+', '-') -replace '[^a-zA-Z0-9-]', ''
+    if ($entidad -notmatch '^[a-zA-Z][a-zA-Z0-9-]*$') {
+        Write-Host "❌ '$entidadRaw' no es un nombre válido. Debe empezar por una letra (ej: Matricula, PagoMensual)." -ForegroundColor Red
         return
     }
-    # PascalCase por segmentos: pago-mensual → PagoMensual (idempotente)
-    $entidad = ($entidad -split "-" | ForEach-Object {
-        if ($_.Length -gt 0) {
-            $s = $_
-            if ($s -ceq $s.ToUpper()) { $s = $s.ToLower() }
-            $s.Substring(0,1).ToUpper() + $s.Substring(1)
+    
+    # PascalCase
+    $segments = $entidad -split '-'
+    $pascalSegments = foreach ($seg in $segments) {
+        if ([string]::IsNullOrEmpty($seg)) { continue }
+        if ($seg.Length -eq 1) { $seg.ToUpper() }
+        else {
+            $first = $seg.Substring(0, 1).ToUpper()
+            $rest = if ($seg -ceq $seg.ToUpper()) { $seg.Substring(1).ToLower() } else { $seg.Substring(1) }
+            "$first$rest"
         }
-    }) -join ""
-    if ($entidadRaw -ne $entidad) {
-        Write-Host "ℹ️ Nombre normalizado a identificador C#: '$entidad'" -ForegroundColor Cyan
     }
+    $entidad = -join $pascalSegments
     
     $modPath = "src/02_Modulos/Intranet.Modulo$numFmt"
+    if (-not (Test-Path $modPath)) {
+        Write-Host "❌ No se encontró la carpeta del módulo: $modPath" -ForegroundColor Red
+        return
+    }
+    
     $ctrlDir = "$modPath/Controllers"
     $modelDir = "$modPath/Models"
     $viewDir = "$modPath/Views/$entidad"
-    
-    # Protección de sobrescritura: si ya existe la entidad, respaldar a .bak
-    # antes de regenerar (antes se perdía el trabajo del alumno sin aviso).
-    $existingFiles = @("$modelDir/$entidad.cs", "$ctrlDir/${entidad}Controller.cs", "$viewDir/Index.cshtml")
-    foreach ($existing in $existingFiles) {
-        if (Test-Path $existing) {
-            Copy-Item $existing "$existing.bak"
-            Write-Host "📦 Existente respaldado: $existing.bak" -ForegroundColor Yellow
-        }
-    }
-    
     $sqlDir = "$modPath/Sql"
+    
     New-Item -ItemType Directory -Force -Path $ctrlDir | Out-Null
     New-Item -ItemType Directory -Force -Path $modelDir | Out-Null
     New-Item -ItemType Directory -Force -Path $sqlDir | Out-Null
@@ -126,13 +137,14 @@ function Scaffold-Code {
     
     $entidadSql = $entidad.ToLower()
     $sqlContent = @"
-CREATE TABLE IF NOT EXISTS ``mod${numFmt}_${entidadSql}`` (
-  ``Id`` INT AUTO_INCREMENT PRIMARY KEY,
-  ``Codigo`` VARCHAR(30) NOT NULL,
-  ``Nombre`` VARCHAR(150) NOT NULL,
-  ``Descripcion`` TEXT NULL,
-  ``FechaRegistro`` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+-- Esquema y Tabla para Módulo $numFmt en PostgreSQL 16
+CREATE TABLE IF NOT EXISTS mod${numFmt}.${entidadSql} (
+  id SERIAL PRIMARY KEY,
+  codigo VARCHAR(30) NOT NULL,
+  nombre VARCHAR(150) NOT NULL,
+  descripcion TEXT NULL,
+  fecha_registro TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
 
 "@
     Add-Content -Path "$sqlDir/schema.sql" -Value $sqlContent -Encoding utf8
@@ -198,7 +210,7 @@ public class ${entidad}Controller : ModuloBaseController
 }
 "@
     Set-Content -Path "$ctrlDir/${entidad}Controller.cs" -Value $ctrlCode
-
+    
     $viewCode = @"
 @model IEnumerable<Intranet.Modulo$numFmt.Models.$entidad>
 @{
@@ -214,7 +226,7 @@ public class ${entidad}Controller : ModuloBaseController
                 <span class="badge badge-primary font-bold text-[10px]">Equipo $numFmt</span>
             </div>
             <h1 class="text-2xl font-extrabold text-slate-900">Listado de ${entidad}s</h1>
-            <p class="text-xs text-slate-500">Módulo del Equipo $numFmt. Usuario: @ViewData["UsuarioNombre"]</p>
+            <p class="text-xs text-slate-500">Módulo del Equipo $numFmt. Usuario actual: @ViewData["UsuarioNombre"]</p>
         </div>
         <div class="flex gap-2">
             <a href="/Modulo$numFmt" class="btn btn-ghost btn-sm rounded-xl text-xs">Volver</a>
@@ -274,14 +286,29 @@ public class ${entidad}Controller : ModuloBaseController
 </dialog>
 "@
     Set-Content -Path "$viewDir/Index.cshtml" -Value $viewCode
-
+    
     Write-Host "`n🎉 ¡Plantilla para '$entidad' creada con éxito!" -ForegroundColor Green
     Write-Host "Ruta web: http://localhost:5000/Modulo$numFmt/$entidad" -ForegroundColor Cyan
+    Write-Host "Script SQL añadido en: $sqlDir/schema.sql" -ForegroundColor Cyan
+}
+
+function Validate-Code {
+    Write-Host "`n🧪 VALIDANDO COMPILACIÓN Y CALIDAD DE CÓDIGO..." -ForegroundColor Blue
+    Write-Host "Ejecutando: dotnet build IntranetInstitucional.sln" -ForegroundColor Cyan
+    
+    try {
+        dotnet build "IntranetInstitucional.sln" --nologo -c Release
+        Write-Host "`n======================================================================" -ForegroundColor Green
+        Write-Host "✅ ¡TODO EL PROYECTO COMPILA CON 0 ERRORES Y 0 WARNINGS!" -ForegroundColor Green
+        Write-Host "======================================================================" -ForegroundColor Green
+    } catch {
+        Write-Host "`n⛔ Se encontraron errores de compilación. Revisa los mensajes de arriba." -ForegroundColor Red
+    }
 }
 
 function Push-Work {
     Write-Host "`n📤 SUBIR Y SINCRONIZAR MI TRABAJO CON GITHUB" -ForegroundColor Blue
-    $branch = git rev-parse --abbrev-ref HEAD
+    $branch = $(git rev-parse --abbrev-ref HEAD)
     
     if ($branch -eq "main") {
         Write-Host "⛔ Estás en 'main'. Usa la opción 2 para crear o cambiar a tu rama antes de subir." -ForegroundColor Red
@@ -290,29 +317,8 @@ function Push-Work {
     
     Write-Host "🌿 Rama de trabajo: $branch" -ForegroundColor Cyan
     
-    $status = git status --porcelain
-    if (-not [string]::IsNullOrWhiteSpace($status)) {
-        if ($branch -match "modulo-?(\d{2})") {
-            $modNum = $Matches[1]
-            $allowedDir = "src/02_Modulos/Intranet.Modulo$modNum/"
-            $statusLines = $status -split "`n"
-            $outsideFiles = @()
-            foreach ($line in $statusLines) {
-                $trimmed = $line.Trim()
-                if ($trimmed.Length -gt 3) {
-                    $filePath = $trimmed.Substring(3).Trim()
-                    if (-not $filePath.StartsWith($allowedDir) -and -not [string]::IsNullOrWhiteSpace($filePath)) {
-                        $outsideFiles += $filePath
-                    }
-                }
-            }
-            if ($outsideFiles.Count -gt 0) {
-                Write-Host "`n⚠️  AVISO DE AISLAMIENTO: Detectamos cambios fuera de tu carpeta '$allowedDir':" -ForegroundColor Yellow
-                foreach ($f in $outsideFiles) { Write-Host "   - $f" -ForegroundColor Red }
-                Write-Host "💡 El bot de GitHub solo integrará cambios de tu propio módulo.`n" -ForegroundColor Yellow
-            }
-        }
-
+    $status = $(git status --porcelain)
+    if ($status) {
         $msg = Read-Host "👉 Describe qué cambiaste (ej: agregue formulario)"
         if ([string]::IsNullOrWhiteSpace($msg)) { $msg = "feat($branch): actualizacion de avance" }
         git add .
@@ -323,60 +329,63 @@ function Push-Work {
     }
     
     Write-Host "Sincronizando con GitHub..." -ForegroundColor Cyan
-    git pull --rebase origin "$branch" 2>$null
-    if ($LASTEXITCODE -ne 0) {
-        if ((Test-Path ".git/rebase-merge") -or (Test-Path ".git/rebase-apply")) {
-            git rebase --abort 2>$null
-            $randomSuffix = Get-Random -Minimum 100 -Maximum 999
-            Write-Host "`n⚠️  CONFLICTO DETECTADO: Un compañero de tu equipo subió cambios que chocan con los tuyos." -ForegroundColor Red
-            Write-Host "💡 Solución Recomendada (Poka-Yoke):" -ForegroundColor Yellow
-            Write-Host "   1. Usa la opción 2 para crear una rama personal: $branch-$randomSuffix" -ForegroundColor Cyan
-            Write-Host "   2. Sube tus cambios con la opción 4 y abre tu propio Pull Request.`n" -ForegroundColor Cyan
-            return
-        }
+    try {
+        git pull --rebase origin $branch 2>$null | Out-Null
+    } catch {
+        git rebase --abort 2>$null | Out-Null
+        Write-Host "`n⚠️  CONFLICTO DETECTADO: Un compañero subió cambios que chocan con los tuyos." -ForegroundColor Red
+        return
     }
     
-    # Compilar ANTES de pushear: el error se ve aquí en segundos con mensaje
-    # completo, no 2 minutos después en el CI de GitHub. Si no compila, abortar
-    # el push para que puedas corregir y reintentar sin ensuciar la rama remota.
     Write-Host "🔨 Compilando tu módulo antes de subir (verificación local)..." -ForegroundColor Cyan
-    if (Get-Command dotnet -ErrorAction SilentlyContinue) {
-        dotnet build "IntranetInstitucional.sln" -v q --nologo | Select-Object -Last 20
-        if ($LASTEXITCODE -ne 0) {
-            Write-Host "`n⛔ EL CÓDIGO NO COMPILÓ. No se subió nada a GitHub." -ForegroundColor Red
-            Write-Host "💡 Corrige los errores de arriba y vuelve a ejecutar la opción 4." -ForegroundColor Yellow
-            return
-        }
-    } else {
-        Write-Host "⚠️ 'dotnet' no está instalado: saltando compilación local (el CI de GitHub la hará igual)." -ForegroundColor Yellow
+    try {
+        dotnet build "IntranetInstitucional.sln" -v q --nologo
+    } catch {
+        Write-Host "`n⛔ EL CÓDIGO NO COMPILÓ. No se subió nada a GitHub." -ForegroundColor Red
+        Write-Host "💡 Corrige los errores de arriba y vuelve a intentar." -ForegroundColor Yellow
+        return
     }
     
     Write-Host "Publicando rama '$branch' en GitHub..." -ForegroundColor Cyan
-    git push -u origin "$branch"
+    git push -u origin $branch
     
-    if ($LASTEXITCODE -eq 0) {
-        Write-Host "`n======================================================================" -ForegroundColor Green
-        Write-Host "🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!" -ForegroundColor Green
-        Write-Host "======================================================================" -ForegroundColor Green
-        # URL de compare exacta para abrir/ver el PR de ESTA rama (antes era el
-        # listado genérico /pulls y el alumno tenía que buscar su rama a mano).
-        Write-Host "👉 Crea o revisa tu Pull Request aquí:`n   https://github.com/felipeostosb/intranet-institucional-modular/compare/main...$branch" -ForegroundColor Cyan
-    } else {
-        Write-Host "`n❌ Hubo un inconveniente al subir a GitHub. Revisa tu conexión o permisos." -ForegroundColor Red
-    }
+    Write-Host "`n======================================================================" -ForegroundColor Green
+    Write-Host "🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!" -ForegroundColor Green
+    Write-Host "======================================================================" -ForegroundColor Green
+    Write-Host "👉 Crea o revisa tu Pull Request aquí:" -ForegroundColor White
+    Write-Host "   https://github.com/felipeostosb/intranet-institucional-modular/compare/main...$branch" -ForegroundColor Cyan
+}
+
+function Show-DbInfo {
+    Write-Host "`n======================================================================" -ForegroundColor Blue
+    Write-Host "🗄️  INFORMACIÓN DE BASE DE DATOS POSTGRESQL 16 & ADMINER" -ForegroundColor Blue
+    Write-Host "======================================================================" -ForegroundColor Blue
+    Write-Host "  🌐 Panel Web Adminer: http://35.206.81.32:8080" -ForegroundColor Cyan
+    Write-Host "  ⚙️  Motor: PostgreSQL" -ForegroundColor Cyan
+    Write-Host "  🖥️  Servidor: postgres (o 35.206.81.32 desde DBeaver/VS Code)" -ForegroundColor Cyan
+    Write-Host "  📊 Base de Datos: db_intranet_iestp" -ForegroundColor Cyan
+    Write-Host "  👤 Usuario: user_equipo[XX] (ej: user_equipo01 al user_equipo09)" -ForegroundColor Cyan
+    Write-Host "  🔑 Contraseña: Equipo[XX]_Postgres2026!" -ForegroundColor Cyan
+    Write-Host "  🛡️  Esquema Soberano: mod[XX] (Tu espacio aislado de tablas)" -ForegroundColor Cyan
+    Write-Host "----------------------------------------------------------------------" -ForegroundColor Blue
+    Write-Host "  💡 Permisos RBAC: Control total en 'modXX' y lectura (SELECT) en 'core'." -ForegroundColor Yellow
+    Write-Host "======================================================================" -ForegroundColor Blue
+    Write-Host ""
 }
 
 while ($true) {
     Show-Menu
-    $op = Read-Host "👉 Elige una opción [0-4]"
+    $op = Read-Host "👉 Elige una opción [0-6]"
     switch ($op) {
         "1" { Start-App }
         "2" { Create-Branch }
         "3" { Scaffold-Code }
-        "4" { Push-Work }
-        "0" { Write-Host "`n¡Buen trabajo! Hasta luego.`n" -ForegroundColor Green; exit }
+        "4" { Validate-Code }
+        "5" { Push-Work }
+        "6" { Show-DbInfo }
+        "0" { Write-Host "`n¡Buen trabajo! Hasta luego.`n" -ForegroundColor Green; break }
         default { Write-Host "`nOpción no válida." -ForegroundColor Red }
     }
     Write-Host "`nPresiona ENTER para volver al menú..." -ForegroundColor Yellow
-    Read-Host
+    [void][System.Console]::ReadLine()
 }

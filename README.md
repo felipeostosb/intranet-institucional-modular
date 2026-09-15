@@ -37,12 +37,14 @@ cd intranet-institucional-modular
 
 ## 🖥️ ¿Qué hace el Asistente Interactivo (`./dev.sh` / `.\dev.ps1`) por ti?
 
-El asistente te ofrece **4 opciones claras y directas**:
+El asistente te ofrece **6 opciones claras y directas**:
 
-1. **🚀 Iniciar Intranet:** Lanza la aplicación local en `http://localhost:5000` con **Hot-Reload** (se actualiza sola en ~100ms al guardar cambios en cualquier archivo).
+1. **🚀 Iniciar Intranet:** Lanza la aplicación local en `http://localhost:5000` con **Hot-Reload** (se actualiza sola en ~100ms al guardar cambios en cualquier archivo C# o Razor).
 2. **🌿 Crear / Cambiar a mi Rama de Equipo:** Te pide tu número de equipo y crea automáticamente ramas estandarizadas como `modulo04/formulario-registro` sincronizadas con `main`.
-3. **⚡ Generar Formulario / Tabla:** En 1 segundo genera un Modelo C#, un Controlador con `ModuloBaseController` y una Vista Razor con diseño Apple / DaisyUI 100% responsiva y lista para usar.
-4. **📤 Subir mi Trabajo a GitHub:** Guarda automáticamente tus cambios, descarga actualizaciones remotas con `git pull --rebase` y publica tu rama en GitHub con el enlace directo para abrir tu Pull Request.
+3. **⚡ Generar Formulario / Tabla:** En 1 segundo genera un Modelo C#, un Controlador con `ModuloBaseController`, una Vista Razor con diseño moderno (DaisyUI / Tailwind) y el script SQL correspondiente para **PostgreSQL 16**.
+4. **🧪 Compilar y Validar mi Módulo:** Ejecuta `dotnet build` localmente para verificar que tu código no contenga errores antes de subirlo.
+5. **📤 Subir mi Trabajo a GitHub:** Guarda automáticamente tus cambios, descarga actualizaciones remotas con `git pull --rebase` y publica tu rama en GitHub con el enlace directo para abrir tu Pull Request.
+6. **🗄️ Credenciales y Guía PostgreSQL 16:** Muestra los datos de conexión y credenciales de acceso para tu equipo en Adminer y clientes de base de datos.
 
 > [!NOTE]
 > **🛡️ Guardián Git Poka-Yoke:** Al ejecutar el asistente, se instala automáticamente un *hook* local que bloquea de forma preventiva cualquier intento de hacer `git push` accidental directo a la rama `main`.
