@@ -113,6 +113,7 @@ Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` i
 3. **Prohibido Push a `main`:** Todo cambio se entrega mediante **Pull Request** desde tu rama `moduloXX/tu-tarea`.
 4. **Controladores con Seguridad:** Haz que tus controladores hereden de `ModuloBaseController` para tener acceso a `UsuarioActualRol`, `UsuarioActualRoles`, `UsuarioActualNombre`, `PersonaActualId` y métodos Toast (`MostrarAlertaExito`, `MostrarAlertaError`).
 5. **Validación Automática en CI/CD:** Si tu PR modifica solo tu módulo y compila con 0 errores, **GitHub Actions lo fusiona a producción en ~45 segundos**.
+6. **Cero JOINs entre Módulos:** Prohibido hacer `JOIN` SQL cruzado entre esquemas `mod01`..`mod09`. Para cruzar datos, haz `JOIN` con `core.*` o inyecta la interfaz `IModuloXxxService` (Consulta la [Guía de Comunicación Intermodular](docs/COMUNICACION_INTERMODULAR_Y_DATOS.md)).
 
 ---
 
