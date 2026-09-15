@@ -41,6 +41,7 @@ function Show-Menu {
     Write-Host "  4) 🧪 Compilar y Validar mi Módulo (Verifica 0 errores localmente)" -ForegroundColor Green
     Write-Host "  5) 📤 Subir mi Trabajo a GitHub (Guarda, sincroniza y genera enlace de PR)" -ForegroundColor Green
     Write-Host "  6) 🗄️ Credenciales y Guía PostgreSQL 16 (Ver accesos de Adminer / DB)" -ForegroundColor Green
+    Write-Host "  7) 🤖 Preguntar al Asistente IA de Arquitectura (RAG Gemini + Qdrant)" -ForegroundColor Green
     Write-Host "  0) 🚪 Salir" -ForegroundColor Red
     Write-Host ""
 }
@@ -374,9 +375,21 @@ function Show-DbInfo {
     Write-Host ""
 }
 
+function Ask-AiAssistant {
+    Write-Host "`n======================================================================" -ForegroundColor Blue
+    Write-Host "🤖  ASISTENTE IA DE ARQUITECTURA & REGLAMENTO (RAG GEMINI + QDRANT)" -ForegroundColor Blue
+    Write-Host "======================================================================" -ForegroundColor Blue
+    Write-Host "  Pregunta lo que necesites sobre C#, PostgreSQL 16, CI/CD o el Reglamento.`n" -ForegroundColor Cyan
+    $pregunta = Read-Host "💬 Escribe tu pregunta técnica"
+    if (![string]::IsNullOrWhiteSpace($pregunta)) {
+        Write-Host ""
+        python scripts/rag/ingest_and_query_rag.py --query "$pregunta"
+    }
+}
+
 while ($true) {
     Show-Menu
-    $op = Read-Host "👉 Elige una opción [0-6]"
+    $op = Read-Host "👉 Elige una opción [0-7]"
     switch ($op) {
         "1" { Start-App }
         "2" { Create-Branch }
@@ -384,6 +397,7 @@ while ($true) {
         "4" { Validate-Code }
         "5" { Push-Work }
         "6" { Show-DbInfo }
+        "7" { Ask-AiAssistant }
         "0" { Write-Host "`n¡Buen trabajo! Hasta luego.`n" -ForegroundColor Green; break }
         default { Write-Host "`nOpción no válida." -ForegroundColor Red }
     }

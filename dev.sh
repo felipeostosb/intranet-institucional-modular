@@ -45,6 +45,7 @@ show_menu() {
     echo -e "  ${GREEN}4)${NC} 🧪 ${CYAN}Compilar y Validar mi Módulo${NC} (Verifica 0 errores localmente)"
     echo -e "  ${GREEN}5)${NC} 📤 ${CYAN}Subir mi Trabajo a GitHub${NC} (Guarda, sincroniza y genera enlace de PR)"
     echo -e "  ${GREEN}6)${NC} 🗄️ ${CYAN}Credenciales y Guía PostgreSQL 16${NC} (Ver accesos de Adminer / DB)"
+    echo -e "  ${GREEN}7)${NC} 🤖 ${CYAN}Preguntar al Asistente IA de Arquitectura${NC} (RAG Gemini + Qdrant)"
     echo -e "  ${GREEN}0)${NC} 🚪 ${YELLOW}Salir${NC}\n"
 }
 
@@ -396,9 +397,21 @@ show_db_info() {
     echo -e "${BLUE}======================================================================${NC}\n"
 }
 
+ask_ai_assistant() {
+    echo -e "\n${BLUE}======================================================================${NC}"
+    echo -e "${BLUE}🤖  ASISTENTE IA DE ARQUITECTURA & REGLAMENTO (RAG GEMINI + QDRANT)${NC}"
+    echo -e "${BLUE}======================================================================${NC}"
+    echo -e "  ${CYAN}Pregunta lo que necesites sobre C#, PostgreSQL 16, CI/CD o el Reglamento.${NC}\n"
+    read -p "💬 Escribe tu pregunta técnica: " pregunta
+    if [ -n "$pregunta" ]; then
+        echo ""
+        python3 scripts/rag/ingest_and_query_rag.py --query "$pregunta"
+    fi
+}
+
 while true; do
     show_menu
-    read -p "👉 Elige una opción [0-6]: " op
+    read -p "👉 Elige una opción [0-7]: " op
     case $op in
         1) start_app ;;
         2) create_branch ;;
@@ -406,6 +419,7 @@ while true; do
         4) validate_code ;;
         5) push_work ;;
         6) show_db_info ;;
+        7) ask_ai_assistant ;;
         0) echo -e "\n${GREEN}¡Buen trabajo! Hasta luego.${NC}\n"; exit 0 ;;
         *) echo -e "\n${RED}Opción no válida.${NC}" ;;
     esac
