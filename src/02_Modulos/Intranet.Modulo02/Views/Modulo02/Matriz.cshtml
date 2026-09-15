@@ -1,0 +1,160 @@
+@model Intranet.Modulo02.Models.MatrizAsistenciaViewModel
+@{
+    ViewData["Title"] = $"Sábana Excel de Asistencia - {Model.UnidadDidacticaNombre}";
+}
+
+<div class="space-y-6">
+    <!-- Header de la Matriz Sábana -->
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="flex items-start gap-4">
+            <a href="/Modulo02/Clase/@Model.ClaseId" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 transition mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </a>
+            <div>
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                    <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200">Sábana Excel Oficial</span>
+                    <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg">@Model.UnidadDidacticaCodigo</span>
+                    <span class="text-xs font-bold bg-purple-50 text-purple-700 px-2 py-0.5 rounded-lg border border-purple-200">Ciclo @Model.Ciclo • @Model.Turno</span>
+                    <span class="text-xs text-slate-400">@Model.CarreraNombre</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                    @Model.UnidadDidacticaNombre — Registro Consolidado
+                </h1>
+                <p class="text-xs text-slate-500 mt-0.5">
+                    👨‍🏫 Docente: <strong>@Model.DocenteNombre</strong> • Matriz de 17 Semanas Regulares + Semana 18 de Recuperación
+                </p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end">
+            <button onclick="window.print()" class="btn bg-white hover:bg-slate-50 text-slate-700 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-3.5 shadow-sm flex items-center gap-1.5">
+                <span>🖨️ Imprimir Sábana</span>
+            </button>
+            <a href="/Modulo02/Clase/@Model.ClaseId" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 text-xs px-4 shadow-sm">
+                📋 Vista por Semanas
+            </a>
+        </div>
+    </div>
+
+    <!-- Leyenda de Convenciones Oficiales -->
+    <div class="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="flex flex-wrap items-center gap-3">
+            <span class="font-bold text-slate-700">Convenciones:</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-emerald-500 text-white font-bold flex items-center justify-center text-[10px]">P</span> Presente</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-amber-500 text-white font-bold flex items-center justify-center text-[10px]">T</span> Tardanza</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-rose-500 text-white font-bold flex items-center justify-center text-[10px]">F</span> Falta Injustificada</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-blue-500 text-white font-bold flex items-center justify-center text-[10px]">J</span> Falta Justificada</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-slate-200 text-slate-600 font-bold flex items-center justify-center text-[10px]">-</span> Sin Registrar</span>
+        </div>
+        <div class="text-rose-600 font-bold text-[11px]">
+            ⚠️ Límite Oficial DPI: &ge; 30% Inasistencias
+        </div>
+    </div>
+
+    <!-- Matriz Sábana Interactiva con Sticky Header y Scroll Horizontal Fluido -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-[700px]">
+            <table class="table table-pin-rows table-pin-cols table-xs w-full">
+                <thead>
+                    <tr class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px] tracking-wider">
+                        <!-- Sticky Column 1: Index -->
+                        <th class="w-8 text-center bg-slate-100">#</th>
+                        <!-- Sticky Column 2: Alumno -->
+                        <th class="min-w-[200px] bg-slate-100">Estudiante</th>
+                        
+                        <!-- Columnas Dinámicas: Semanas 1 a 18 -->
+                        @foreach (var col in Model.ColumnasSesiones)
+                        {
+                            <th class="text-center min-w-[45px] p-1 @(col.EsRecuperacion ? "bg-purple-100 text-purple-800" : "bg-slate-100")">
+                                <a href="/Modulo02/TomarAsistencia/@col.SesionId" class="hover:underline flex flex-col items-center" title="Semana @col.NumeroSemana (@col.FechaClase.ToString("dd/MM"))">
+                                    <span class="font-extrabold text-[10px]">S@(col.NumeroSemana)</span>
+                                    <span class="text-[8px] font-mono text-slate-400 font-normal">@col.FechaClase.ToString("dd/MM")</span>
+                                </a>
+                            </th>
+                        }
+
+                        <!-- Columnas de Totales y DPI -->
+                        <th class="text-center bg-emerald-50 text-emerald-800 font-extrabold">P</th>
+                        <th class="text-center bg-amber-50 text-amber-800 font-extrabold">T</th>
+                        <th class="text-center bg-rose-50 text-rose-800 font-extrabold">F</th>
+                        <th class="text-center bg-blue-50 text-blue-800 font-extrabold">J</th>
+                        <th class="text-center bg-slate-100 text-slate-700 font-extrabold">% DPI</th>
+                        <th class="text-center bg-slate-100 text-slate-700 font-extrabold">Condición</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @{ int rowNum = 1; }
+                    @foreach (var fila in Model.FilasAlumnos)
+                    {
+                        <tr class="hover:bg-slate-50 transition">
+                            <!-- Sticky Index -->
+                            <th class="text-center font-bold text-slate-400 bg-white">@(rowNum++)</th>
+                            
+                            <!-- Sticky Nombre Alumno -->
+                            <th class="bg-white">
+                                <p class="font-bold text-slate-900 text-xs truncate max-w-[220px]">@fila.NombreCompleto</p>
+                                <span class="text-[10px] font-mono text-slate-400 font-normal">@fila.CodigoEstudiante</span>
+                            </th>
+
+                            <!-- Celdas de Asistencia por Sesión -->
+                            @foreach (var col in Model.ColumnasSesiones)
+                            {
+                                var st = fila.EstadosPorSesion.TryGetValue(col.SesionId, out var val) ? val : "SIN_REGISTRO";
+                                var badgeChar = st switch
+                                {
+                                    "PRESENTE" => "P",
+                                    "TARDANZA" => "T",
+                                    "FALTA_INJUSTIFICADA" => "F",
+                                    "FALTA_JUSTIFICADA" => "J",
+                                    _ => "-"
+                                };
+
+                                var badgeColor = st switch
+                                {
+                                    "PRESENTE" => "bg-emerald-500 text-white",
+                                    "TARDANZA" => "bg-amber-500 text-white",
+                                    "FALTA_INJUSTIFICADA" => "bg-rose-500 text-white font-black",
+                                    "FALTA_JUSTIFICADA" => "bg-blue-500 text-white",
+                                    _ => "bg-slate-100 text-slate-400"
+                                };
+
+                                <td class="text-center p-1">
+                                    <span class="inline-flex w-6 h-6 rounded-md @badgeColor font-bold text-[10px] items-center justify-center shadow-xs">
+                                        @badgeChar
+                                    </span>
+                                </td>
+                            }
+
+                            <!-- Totales -->
+                            <td class="text-center font-bold text-emerald-700 bg-emerald-50/50">@fila.TotalPresentes</td>
+                            <td class="text-center font-bold text-amber-700 bg-amber-50/50">@fila.TotalTardanzas</td>
+                            <td class="text-center font-bold text-rose-700 bg-rose-50/50">@fila.TotalFaltasInjustificadas</td>
+                            <td class="text-center font-bold text-blue-700 bg-blue-50/50">@fila.TotalFaltasJustificadas</td>
+                            
+                            <!-- Porcentaje DPI y Semáforo -->
+                            <td class="text-center font-mono font-extrabold text-xs @(fila.PorcentajeInasistencia >= 30 ? "text-rose-600 bg-rose-50" : "text-slate-800")">
+                                @fila.PorcentajeInasistencia%
+                            </td>
+                            <td class="text-center">
+                                @if (fila.SemaforoEstado == "DPI")
+                                {
+                                    <span class="badge badge-error badge-xs font-bold text-white py-2 px-2">🚨 DPI</span>
+                                }
+                                else if (fila.SemaforoEstado == "RIESGO_ALTO")
+                                {
+                                    <span class="badge badge-warning badge-xs font-bold text-white py-2 px-2">⚠️ Riesgo</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-success badge-xs font-semibold py-2 px-2 bg-emerald-50 text-emerald-700 border-emerald-200">✅ Regular</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

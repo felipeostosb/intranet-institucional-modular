@@ -1,0 +1,291 @@
+@model IEnumerable<Intranet.Modulo02.Models.AlumnoAsistenciaItemDto>
+@{
+    var sesion = (Intranet.Modulo02.Models.SesionClaseDto)ViewBag.Sesion;
+    ViewData["Title"] = $"Toma de Lista - {sesion.UnidadDidacticaNombre}";
+}
+
+<div class="space-y-6">
+    <!-- Header de la Sesión Focalizada -->
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="flex items-start gap-4">
+            <a href="@(sesion.ClaseDocenteId.HasValue ? $"/Modulo02/Clase/{sesion.ClaseDocenteId.Value}" : "/Modulo02")" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 transition mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </a>
+            <div>
+                <div class="flex flex-wrap items-center gap-2 mb-1">
+                    <span class="text-xs font-bold @(sesion.EsSemanaRecuperacion ? "bg-purple-100 text-purple-800 border-purple-200" : "bg-indigo-100 text-indigo-800 border-indigo-200") px-2.5 py-0.5 rounded-full border">
+                        @(sesion.EsSemanaRecuperacion ? "Semana 18 (Recuperación)" : $"Semana {sesion.NumeroSemana} • Sesión {sesion.NumeroSesion}")
+                    </span>
+                    <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg">@sesion.UnidadDidacticaCodigo</span>
+                    <span class="text-xs text-slate-500 font-semibold">📅 @sesion.FechaClase.ToString("dd/MM/yyyy")</span>
+                    @if (sesion.Estado == "CERRADA")
+                    {
+                        <span class="badge badge-success badge-sm font-bold text-white">Sesión Oficializada (Cerrada)</span>
+                    }
+                    else
+                    {
+                        <span class="badge badge-warning badge-sm font-bold text-white animate-pulse">Borrador Abierto</span>
+                    }
+                </div>
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                    @sesion.UnidadDidacticaNombre
+                </h1>
+                <p class="text-xs text-slate-500 mt-0.5">
+                    👨‍🏫 Docente: <strong>@sesion.DocenteNombreCompleto</strong> • 🏫 @(sesion.AulaCodigo ?? "Laboratorio") • ⏰ @sesion.HoraInicio.ToString(@"hh\:mm") a @sesion.HoraFin.ToString(@"hh\:mm") (@sesion.HorasPedagogicas hrs pedagógicas)
+                </p>
+            </div>
+        </div>
+
+        <!-- Power Actions Masivas -->
+        <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end">
+            <button type="button" onclick="marcarTodos('PRESENTE')" class="btn bg-emerald-50 hover:bg-emerald-100 text-emerald-800 btn-sm rounded-xl font-bold border border-emerald-200 text-xs px-3.5 shadow-sm">
+                🟢 Todos Presentes
+            </button>
+            <button type="button" onclick="marcarTodos('TARDANZA')" class="btn bg-amber-50 hover:bg-amber-100 text-amber-800 btn-sm rounded-xl font-bold border border-amber-200 text-xs px-3">
+                🟡 Todos Tardanza
+            </button>
+            @if (sesion.ClaseDocenteId.HasValue)
+            {
+                <a href="/Modulo02/Matriz/@sesion.ClaseDocenteId.Value" class="btn bg-white hover:bg-slate-50 text-slate-700 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-3" title="Ver Sábana Excel">
+                    📊 Sábana Excel
+                </a>
+            }
+        </div>
+    </div>
+
+    <!-- Campos de Cabecera de la Clase (Tema Desarrollado en Sílabo y Observaciones) -->
+    <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">📝 Tema Desarrollado en la Sesión (Sílabo)</label>
+            <input type="text" id="temaDesarrollado" value="@sesion.TemaDesarrollado" placeholder="Ej: Implementación de Patrones de Diseño y Repository en .NET 10..." class="input input-sm input-bordered w-full rounded-xl text-xs bg-slate-50 focus:bg-white" />
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-700 mb-1">💬 Observaciones del Docente</label>
+            <input type="text" id="observacionesDocente" value="@sesion.ObservacionesDocente" placeholder="Ej: Clase práctica completada con 100% de laboratorios entregados." class="input input-sm input-bordered w-full rounded-xl text-xs bg-slate-50 focus:bg-white" />
+        </div>
+    </div>
+
+    <!-- Barra Resumen en Vivo -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 text-xs">
+        <div class="flex items-center gap-4">
+            <span class="font-bold text-slate-700">Total Estudiantes: <strong id="contadorTotal" class="text-indigo-700 font-extrabold text-sm">@Model.Count()</strong></span>
+            <span class="text-emerald-700 font-medium">Presentes: <strong id="contadorPresentes" class="font-bold">0</strong></span>
+            <span class="text-amber-700 font-medium">Tardanzas: <strong id="contadorTardanzas" class="font-bold">0</strong></span>
+            <span class="text-rose-700 font-medium">Faltas: <strong id="contadorFaltas" class="font-bold">0</strong></span>
+        </div>
+        <div class="text-slate-400 text-[11px]">
+            ⚡ Switch interactivo: Haz clic en [P], [T], [F] o [J] para cambiar el estado individual.
+        </div>
+    </div>
+
+    <!-- Lista de Estudiantes con Ergonomía de Aula -->
+    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table w-full text-xs" id="tablaAsistencia">
+                <thead>
+                    <tr class="bg-slate-100/80 text-slate-600 font-bold uppercase text-[10px] tracking-wider">
+                        <th class="w-12 text-center">#</th>
+                        <th>Estudiante</th>
+                        <th class="text-center">Estado Previo & DPI</th>
+                        <th class="text-center min-w-[200px]">Estado de Asistencia</th>
+                        <th>Observación / Minutos</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @{ int index = 1; }
+                    @foreach (var alumno in Model)
+                    {
+                        <tr class="hover:bg-slate-50/80 transition fila-alumno" data-estudiante-id="@alumno.EstudianteId" data-horas-previas="@alumno.HorasFaltaAcumuladasPrevias" data-horas-sesion="@sesion.HorasPedagogicas" data-horas-totales="@alumno.TotalHorasSemestrales">
+                            <td class="text-center font-bold text-slate-400">@(index++)</td>
+                            
+                            <!-- Columna Datos del Alumno -->
+                            <td>
+                                <div class="flex items-center gap-3">
+                                    <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
+                                        @(alumno.Nombres.Length > 0 ? alumno.Nombres[0].ToString() : "E")@(alumno.Apellidos.Length > 0 ? alumno.Apellidos[0].ToString() : "A")
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-900 text-xs leading-tight">@alumno.NombreCompleto</p>
+                                        <div class="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400">
+                                            <span>DNI: @alumno.Dni</span>
+                                            <span>•</span>
+                                            <span class="font-mono text-indigo-600 font-semibold">@alumno.CodigoEstudiante</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Columna Indicador Previo DPI -->
+                            <td class="text-center">
+                                @if (alumno.EsDpi)
+                                {
+                                    <span class="badge badge-error badge-xs font-bold text-white py-2 px-2.5">
+                                        🚨 DPI (@alumno.PorcentajeInasistenciaPrevio%)
+                                    </span>
+                                }
+                                else if (alumno.EnRiesgoDpi)
+                                {
+                                    <span class="badge badge-warning badge-xs font-bold text-white py-2 px-2.5">
+                                        ⚠️ Riesgo (@alumno.PorcentajeInasistenciaPrevio%)
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-success badge-xs font-semibold py-2 px-2.5 bg-emerald-50 text-emerald-700 border-emerald-200">
+                                        ✅ Regular (@alumno.PorcentajeInasistenciaPrevio%)
+                                    </span>
+                                }
+                                <div class="text-[9px] text-slate-400 mt-0.5">
+                                    Faltan @alumno.HorasFaltaDisponibles hrs a DPI
+                                </div>
+                            </td>
+
+                            <!-- Columna Selector 4 Estados [P] [T] [F] [J] -->
+                            <td class="text-center">
+                                <div class="inline-flex rounded-xl shadow-sm p-0.5 bg-slate-100 border border-slate-200 selector-asistencia">
+                                    <button type="button" onclick="setEstado(this, 'PRESENTE')" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "PRESENTE" ? "bg-emerald-500 text-white shadow" : "text-slate-600 hover:text-emerald-700")" data-val="PRESENTE" title="Presente">
+                                        P
+                                    </button>
+                                    <button type="button" onclick="setEstado(this, 'TARDANZA')" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "TARDANZA" ? "bg-amber-500 text-white shadow" : "text-slate-600 hover:text-amber-700")" data-val="TARDANZA" title="Tardanza">
+                                        T
+                                    </button>
+                                    <button type="button" onclick="setEstado(this, 'FALTA_INJUSTIFICADA')" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "FALTA_INJUSTIFICADA" ? "bg-rose-500 text-white shadow" : "text-slate-600 hover:text-rose-700")" data-val="FALTA_INJUSTIFICADA" title="Falta Injustificada">
+                                        F
+                                    </button>
+                                    <button type="button" onclick="setEstado(this, 'FALTA_JUSTIFICADA')" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "FALTA_JUSTIFICADA" ? "bg-blue-500 text-white shadow" : "text-slate-600 hover:text-blue-700")" data-val="FALTA_JUSTIFICADA" title="Falta Justificada">
+                                        J
+                                    </button>
+                                </div>
+                            </td>
+
+                            <!-- Columna Observación y Minutos -->
+                            <td>
+                                <input type="text" class="input input-xs input-bordered rounded-lg w-full text-[11px] obs-input" value="@alumno.Observacion" placeholder="Observación..." />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Barra Inferior Flotante de Guardado -->
+    <div class="sticky bottom-4 z-20 bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-slate-200 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-3">
+        <div class="text-xs text-slate-500 flex items-center gap-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+            <span>Por defecto los alumnos se registran como <strong>Presentes</strong> para máxima agilidad en el aula.</span>
+        </div>
+        <div class="flex gap-2 w-full sm:w-auto">
+            <button type="button" onclick="enviarAsistencia(false)" id="btnGuardarBorrador" class="btn bg-slate-100 hover:bg-slate-200 text-slate-700 btn-sm rounded-xl font-bold border-0 text-xs px-4 flex-1 sm:flex-none">
+                💾 Guardar Borrador
+            </button>
+            <button type="button" onclick="enviarAsistencia(true)" id="btnCerrarSesion" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 shadow-sm text-xs px-5 flex-1 sm:flex-none">
+                🔒 Oficializar y Cerrar Sesión
+            </button>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+    const sesionId = @sesion.Id;
+
+    function setEstado(button, estado) {
+        const parent = button.closest('.selector-asistencia');
+        parent.querySelectorAll('.btn-estado').forEach(btn => {
+            btn.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
+        });
+
+        if (estado === 'PRESENTE') {
+            button.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-500 text-white shadow';
+        } else if (estado === 'TARDANZA') {
+            button.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-amber-500 text-white shadow';
+        } else if (estado === 'FALTA_INJUSTIFICADA') {
+            button.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-rose-500 text-white shadow';
+        } else if (estado === 'FALTA_JUSTIFICADA') {
+            button.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-blue-500 text-white shadow';
+        }
+
+        actualizarContadores();
+    }
+
+    function marcarTodos(estado) {
+        document.querySelectorAll('.fila-alumno').forEach(fila => {
+            const btn = fila.querySelector(`.btn-estado[data-val="${estado}"]`);
+            if (btn) setEstado(btn, estado);
+        });
+    }
+
+    function actualizarContadores() {
+        let presentes = 0, tardanzas = 0, faltas = 0;
+        document.querySelectorAll('.fila-alumno').forEach(fila => {
+            const activo = fila.querySelector('.btn-estado.text-white');
+            if (activo) {
+                const val = activo.getAttribute('data-val');
+                if (val === 'PRESENTE') presentes++;
+                else if (val === 'TARDANZA') tardanzas++;
+                else if (val === 'FALTA_INJUSTIFICADA' || val === 'FALTA_JUSTIFICADA') faltas++;
+            }
+        });
+
+        document.getElementById('contadorPresentes').innerText = presentes;
+        document.getElementById('contadorTardanzas').innerText = tardanzas;
+        document.getElementById('contadorFaltas').innerText = faltas;
+    }
+
+    async function enviarAsistencia(cerrarSesion) {
+        const btnBorrador = document.getElementById('btnGuardarBorrador');
+        const btnCerrar = document.getElementById('btnCerrarSesion');
+        btnBorrador.disabled = true;
+        btnCerrar.disabled = true;
+
+        const alumnosPayload = [];
+        document.querySelectorAll('.fila-alumno').forEach(fila => {
+            const estudianteId = parseInt(fila.getAttribute('data-estudiante-id'));
+            const activo = fila.querySelector('.btn-estado.text-white');
+            const estado = activo ? activo.getAttribute('data-val') : 'PRESENTE';
+            const obs = fila.querySelector('.obs-input').value;
+
+            alumnosPayload.push({
+                estudianteId: estudianteId,
+                estado: estado,
+                minutosTardanza: estado === 'TARDANZA' ? 10 : 0,
+                observacion: obs
+            });
+        });
+
+        const payload = {
+            sesionClaseId: sesionId,
+            temaDesarrollado: document.getElementById('temaDesarrollado').value,
+            observacionesDocente: document.getElementById('observacionesDocente').value,
+            cerrarSesion: cerrarSesion,
+            alumnos: alumnosPayload
+        };
+
+        try {
+            const resp = await fetch('/Modulo02/GuardarAsistencia', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const data = await resp.json();
+            if (resp.ok && data.success) {
+                alert(data.message);
+                window.location.href = '/Modulo02';
+            } else {
+                alert('Error: ' + (data.message || 'No se pudo guardar la asistencia'));
+            }
+        } catch (err) {
+            alert('Error al conectar con el servidor: ' + err.message);
+        } finally {
+            btnBorrador.disabled = false;
+            btnCerrar.disabled = false;
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', actualizarContadores);
+</script>
+}

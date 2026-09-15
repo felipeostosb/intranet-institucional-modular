@@ -1,0 +1,169 @@
+@model IEnumerable<Intranet.Modulo02.Models.AsistenciaHistorialItemDto>
+@{
+    ViewData["Title"] = "Historial Detallado de Sesiones";
+}
+
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex items-center gap-4">
+            <a href="/Modulo02/MiAsistencia" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+            </a>
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200">Historial por Sesión</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                    Detalle de Asistencias
+                </h1>
+                <p class="text-xs text-slate-500">
+                    Registro clase por clase. Si registras una falta, puedes ingresar tu justificación dentro de las 72 horas hábiles.
+                </p>
+            </div>
+        </div>
+        <div>
+            <a href="/Modulo02/MiAsistencia" class="btn bg-slate-100 hover:bg-slate-200 text-slate-700 btn-sm rounded-xl font-bold border-0 text-xs px-4">
+                Volver al Semáforo
+            </a>
+        </div>
+    </div>
+
+    <!-- Tabla Detallada -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table w-full text-xs">
+                <thead>
+                    <tr class="bg-slate-100/80 text-slate-600 font-bold uppercase text-[10px]">
+                        <th class="w-12 text-center">Sem</th>
+                        <th>Fecha</th>
+                        <th>Tema Desarrollado</th>
+                        <th>Docente</th>
+                        <th class="text-center">Estado</th>
+                        <th class="text-right">Justificación</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @if (Model.Any())
+                    {
+                        @foreach (var item in Model)
+                        {
+                            <tr class="hover:bg-slate-50 transition">
+                                <td class="text-center font-bold text-indigo-600 bg-indigo-50/50">@item.NumeroSemana</td>
+                                <td class="font-medium text-slate-900 font-mono">@item.FechaClase.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <p class="font-semibold text-slate-800">@(item.TemaDesarrollado ?? "Clase Regular")</p>
+                                    @if (!string.IsNullOrEmpty(item.Observacion))
+                                    {
+                                        <p class="text-[11px] text-slate-400 italic mt-0.5">Nota: @item.Observacion</p>
+                                    }
+                                </td>
+                                <td class="text-slate-600">@item.DocenteNombre</td>
+                                <td class="text-center">
+                                    @if (item.Estado == "PRESENTE")
+                                    {
+                                        <span class="badge badge-success badge-sm font-bold text-white">Presente</span>
+                                    }
+                                    else if (item.Estado == "TARDANZA")
+                                    {
+                                        <span class="badge badge-warning badge-sm font-bold text-white">Tardanza (@item.MinutosTardanza min)</span>
+                                    }
+                                    else if (item.Estado == "FALTA_JUSTIFICADA")
+                                    {
+                                        <span class="badge badge-info badge-sm font-bold text-white">Justificada</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-error badge-sm font-bold text-white">Falta Injustificada</span>
+                                    }
+                                </td>
+                                <td class="text-right">
+                                    @if (item.Estado == "FALTA_INJUSTIFICADA")
+                                    {
+                                        if (item.TieneJustificacion)
+                                        {
+                                            <span class="badge badge-outline badge-sm text-[10px] font-semibold text-indigo-600">@item.EstadoJustificacion</span>
+                                        }
+                                        else
+                                        {
+                                            <button type="button" onclick="abrirModalJustificar(@item.AsistenciaId, '@item.FechaClase.ToString("dd/MM/yyyy")')" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-xs rounded-lg font-bold border-0 px-3">
+                                                Justificar Falta
+                                            </button>
+                                        }
+                                    }
+                                    else if (item.Estado == "FALTA_JUSTIFICADA")
+                                    {
+                                        <span class="text-emerald-600 font-bold text-[11px]">✅ Aprobada</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-slate-300 text-[11px]">—</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="6" class="p-8 text-center text-xs text-slate-400">
+                                No se registran asistencias para esta unidad didáctica aún.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Solicitar Justificación -->
+<dialog id="modal_justificar" class="modal">
+    <div class="modal-box max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200">
+        <h3 class="text-base font-bold text-slate-900 mb-1">
+            Solicitud de Justificación de Inasistencia
+        </h3>
+        <p class="text-xs text-slate-400 mb-4" id="modalFechaTexto">Fecha seleccionada...</p>
+        
+        <form action="/Modulo02/SolicitarJustificacion" method="post" class="space-y-3 text-xs">
+            <input type="hidden" id="inputAsistenciaId" name="AsistenciaId" />
+            
+            <div>
+                <label class="font-bold text-slate-700 block mb-1">Motivo Oficial</label>
+                <select name="Motivo" class="select select-sm select-bordered w-full rounded-xl text-xs">
+                    <option value="Salud_Medica">Salud / Descanso Médico (EsSalud / MINSA)</option>
+                    <option value="Laboral">Laboral / Declaración de Empresa</option>
+                    <option value="Tramite_Oficial">Trámite Oficial / Judicial / Institucional</option>
+                    <option value="Fuerza_Mayor">Fuerza Mayor o Emergencia Familiar</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="font-bold text-slate-700 block mb-1">Explicación y Sustento</label>
+                <textarea name="Descripcion" required rows="3" class="textarea textarea-bordered w-full rounded-xl text-xs" placeholder="Describe los motivos detallados de tu inasistencia..."></textarea>
+            </div>
+
+            <div>
+                <label class="font-bold text-slate-700 block mb-1">Enlace a Documento / Certificado (Opcional)</label>
+                <input type="text" name="DocumentoSustentoUrl" placeholder="https://drive.google.com/... o certificado escaneado" class="input input-sm input-bordered w-full rounded-xl text-xs" />
+            </div>
+
+            <div class="modal-action mt-6 flex gap-2">
+                <button type="button" onclick="modal_justificar.close()" class="btn btn-ghost btn-sm rounded-xl">Cancelar</button>
+                <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 px-4">Enviar Justificación</button>
+            </div>
+        </form>
+    </div>
+</dialog>
+
+@section Scripts {
+<script>
+    function abrirModalJustificar(asistenciaId, fechaTexto) {
+        document.getElementById('inputAsistenciaId').value = asistenciaId;
+        document.getElementById('modalFechaTexto').innerText = 'Sesión del: ' + fechaTexto;
+        modal_justificar.showModal();
+    }
+</script>
+}

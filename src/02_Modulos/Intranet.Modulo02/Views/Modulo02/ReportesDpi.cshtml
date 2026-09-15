@@ -1,0 +1,127 @@
+@model IEnumerable<Intranet.Modulo02.Models.AlertaDpiDto>
+@{
+    ViewData["Title"] = "Reporte de Riesgo DPI y Deserción Estudiantil";
+}
+
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-700 border border-rose-200 flex items-center justify-center shrink-0 shadow-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+            </div>
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full border border-rose-200">Supervisión Académica</span>
+                    <span class="text-xs text-slate-400 font-medium">Límite 30% Inasistencias (Art. 8.8.1 MPA)</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                    Auditoría de Inasistencias y Riesgo DPI
+                </h1>
+                <p class="text-xs text-slate-500">
+                    Detección temprana de deserción para derivación a tutoría académica y secretaría general.
+                </p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="window.print()" class="btn bg-white hover:bg-slate-50 text-slate-700 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-3.5 shadow-sm">
+                🖨️ Imprimir Reporte
+            </button>
+            <a href="/Modulo02" class="btn bg-slate-100 hover:bg-slate-200 text-slate-700 btn-sm rounded-xl font-bold border-0 text-xs px-3.5">
+                Volver
+            </a>
+        </div>
+    </div>
+
+    <!-- Indicadores Resumen -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total en Riesgo / DPI</span>
+            <div class="text-2xl font-extrabold text-rose-600 mt-1">@Model.Count()</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Estudiantes detectados</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Condición DPI Oficial (30%+)</span>
+            <div class="text-2xl font-extrabold text-rose-700 mt-1">@Model.Count(x => x.SemaforoEstado == "DPI")</div>
+            <p class="text-[10px] text-rose-500 font-bold mt-0.5">Inhabilitados para nota (00)</p>
+        </div>
+        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">En Zona de Alerta (10% - 29%)</span>
+            <div class="text-2xl font-extrabold text-amber-600 mt-1">@Model.Count(x => x.SemaforoEstado != "DPI")</div>
+            <p class="text-[10px] text-amber-600 font-bold mt-0.5">Aptos para tutoría preventiva</p>
+        </div>
+    </div>
+
+    <!-- Tabla de Casos -->
+    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table w-full text-xs">
+                <thead>
+                    <tr class="bg-slate-100/80 text-slate-600 font-bold uppercase text-[10px]">
+                        <th>Estudiante</th>
+                        <th>Carrera / Ciclo / Turno</th>
+                        <th>Unidad Didáctica</th>
+                        <th>Docente Asignado</th>
+                        <th class="text-center">Horas Falta / Total</th>
+                        <th class="text-center">% Inasistencia</th>
+                        <th class="text-center">Estado Oficial</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                    @if (Model.Any())
+                    {
+                        @foreach (var c in Model)
+                        {
+                            <tr class="hover:bg-slate-50 transition">
+                                <td>
+                                    <p class="font-bold text-slate-900">@c.EstudianteNombre</p>
+                                    <span class="text-[10px] font-mono text-slate-400">@c.EstudianteCodigo</span>
+                                </td>
+                                <td>
+                                    <p class="font-semibold text-slate-800">@c.CarreraNombre</p>
+                                    <span class="text-[10px] text-slate-500">Ciclo @c.Ciclo • @c.Turno</span>
+                                </td>
+                                <td>
+                                    <p class="font-semibold text-slate-800">@c.UnidadDidacticaNombre</p>
+                                </td>
+                                <td class="text-slate-600">@c.DocenteNombre</td>
+                                <td class="text-center font-mono font-bold">
+                                    <span class="text-rose-600">@c.HorasFalta hrs</span> / <span class="text-slate-400">@c.TotalHoras hrs</span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="font-extrabold text-xs @(c.PorcentajeInasistencia >= 30 ? "text-rose-600" : "text-amber-600")">
+                                        @c.PorcentajeInasistencia%
+                                    </div>
+                                </td>
+                                <td class="text-center">
+                                    @if (c.SemaforoEstado == "DPI")
+                                    {
+                                        <span class="badge badge-error badge-sm font-bold text-white">🚨 DPI (Desaprobado)</span>
+                                    }
+                                    else if (c.SemaforoEstado == "RIESGO_ALTO")
+                                    {
+                                        <span class="badge badge-warning badge-sm font-bold text-white">⚠️ Riesgo Alto</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge badge-ghost badge-sm font-semibold text-amber-700 bg-amber-50 border-amber-200">Alerta Preventiva</span>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="p-8 text-center text-xs text-slate-400">
+                                ✅ No se registran estudiantes en riesgo crítico de inasistencia en este momento.
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
