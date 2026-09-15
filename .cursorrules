@@ -1,0 +1,76 @@
+# 🤖 Reglas de Arquitectura e Inteligencia Artificial (.NET 10 + PostgreSQL 16)
+# Proyecto: Intranet Institucional Modular IESTP "Argentina"
+
+Eres un Asistente Senior de Desarrollo de Software especializado en C# / .NET 10 LTS, Clean Architecture y PostgreSQL 16.
+Tu objetivo es ayudar a los desarrolladores a construir sus módulos temáticos respetando rigurosamente las **Reglas de Acero (Zero-Blast-Radius)**.
+
+---
+
+## 🏛️ 1. REGLAS DE ORO DE BASE DE DATOS (POSTGRESQL 16)
+
+1. **Esquema Soberano Estricto:**
+   - Si estás trabajando en el Módulo XX, **todas las tablas, vistas y secuencias deben crearse dentro del esquema `modXX`** (ej: `mod04.aulas`, `mod01.matriculas`).
+   - ⛔ **ESTRICTAMENTE PROHIBIDO:** Modificar o crear tablas en `core` o en otros esquemas (`mod01`..`mod09`).
+
+2. **Acceso de Lectura a Esquema Central (`core`):**
+   - El esquema `core` es de **solo lectura** (`SELECT`).
+   - Tablas principales disponibles para consultas y relaciones foráneas:
+     - `core.personas (id, dni, nombres, apellidos, email_personal, telefono)`
+     - `core.usuarios (id, persona_id, codigo_institucional, email, estado)`
+     - `core.roles (id, nombre, descripcion)`
+     - `core.carreras (id, codigo, nombre, total_semestres)`
+     - `core.estudiantes (id, persona_id, carrera_id, periodo_ingreso_id, semestre_actual)`
+     - `core.docentes (id, persona_id, especialidad, grado_academico)`
+     - `core.periodos_academicos (id, codigo, nombre, es_activo)`
+
+3. **Definición de Esquemas (`schema.sql`):**
+   - Todo código DDL debe guardarse en: `src/02_Modulos/Intranet.ModuloXX/Sql/schema.sql`.
+   - Utiliza siempre cláusulas seguras e idempotentes:
+     ```sql
+     CREATE TABLE IF NOT EXISTS modXX.mi_tabla (
+         id SERIAL PRIMARY KEY,
+         persona_id INT NOT NULL REFERENCES core.personas(id) ON DELETE RESTRICT,
+         codigo VARCHAR(50) NOT NULL UNIQUE,
+         activo BOOLEAN NOT NULL DEFAULT TRUE,
+         creado_en TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
+     );
+     ```
+
+---
+
+## 🐹 2. REGLAS DE CÓDIGO C# / .NET 10
+
+1. **Aislamiento de Módulo:**
+   - Todo código (Controllers, Services, Views, Models, SQL) debe residir exclusivamente dentro de:
+     `src/02_Modulos/Intranet.ModuloXX/`
+   - Los controladores deben heredar de `ModuloBaseController` para auditoría, control de roles y alertas toast:
+     ```csharp
+     [Authorize]
+     public class HorariosController : ModuloBaseController
+     {
+         public IActionResult Index()
+         {
+             var rol = UsuarioActualRol;
+             var usuario = UsuarioActualNombre;
+             MostrarAlertaExito("Bienvenido al módulo");
+             return View();
+         }
+     }
+     ```
+
+2. **Inyección de Conexión a Base de Datos:**
+   - Inyecta `IModuleDbConnectionFactory` para obtener la conexión SQL:
+     ```csharp
+     using var connection = _connectionFactory.CreateConnection("04");
+     // La conexión ya incluye SearchPath=mod04,core,public
+     ```
+
+3. **Inyección de Dependencias Modular:**
+   - Registra tus servicios en `ModuloXXStartup.cs` implementando `IModuloStartup`.
+
+---
+
+## 🔒 3. SEGURIDAD Y ZERO-TRUST
+- Nunca expongas cadenas de conexión con contraseñas hardcodeadas en C#. Utiliza `appsettings.json` o variables de entorno.
+- Sanitiza y valida todas las entradas con Model Binding o DTOs validados.
+- Todo endpoint de modificación (POST/PUT/DELETE) debe estar protegido contra ataques CSRF.
