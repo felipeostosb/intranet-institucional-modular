@@ -36,7 +36,7 @@ show_menu() {
     echo -e "${BLUE}======================================================================${NC}"
     echo -e "${BLUE}🏛️  INTRANET INSTITUCIONAL IESTP ARGENTINA — ASISTENTE DEV${NC}"
     echo -e "${BLUE}======================================================================${NC}"
-    echo -e "  ${CYAN}Plataforma .NET 10 LTS • MariaDB • 9 Módulos Desacoplados${NC}"
+    echo -e "  ${CYAN}Plataforma .NET 10 LTS • PostgreSQL 16 • 9 Módulos Desacoplados${NC}"
     echo -e "  🌿 Rama actual: ${YELLOW}${CURRENT_BRANCH}${NC}"
     echo -e "${BLUE}----------------------------------------------------------------------${NC}\n"
     echo -e "  ${GREEN}1)${NC} 🚀 ${CYAN}Iniciar Intranet${NC} (Ver cambios en vivo en tu navegador)"

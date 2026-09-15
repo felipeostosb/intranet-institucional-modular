@@ -30,13 +30,13 @@ foreach (var assembly in moduleAssemblies)
     mvcBuilder.AddApplicationPart(assembly);
 }
 
-// 2. Base de Datos Central (Core)
+// 2. Base de Datos Central (Core PostgreSQL 16)
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (!string.IsNullOrEmpty(connectionString))
 {
-    var serverVersion = new MariaDbServerVersion(new Version(10, 11, 8));
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
-        options.UseMySql(connectionString, serverVersion));
+        options.UseNpgsql(connectionString, npgsqlOptions =>
+            npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "core")));
 }
 
 // 3. Inyección de Dependencias Core, Fábrica de Conexiones y EventBus Desacoplado

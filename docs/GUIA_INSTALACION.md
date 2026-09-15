@@ -83,13 +83,15 @@ En PowerShell ejecuta `.\dev.ps1` (en Linux/Mac `./dev.sh`):
 
 ---
 
-# 🗄️ Base de Datos en la Nube (MariaDB 10.11 + phpMyAdmin)
+# 🗄️ Base de Datos en la Nube (PostgreSQL 16 LTS + Adminer)
 
-* 🌐 **Panel Web phpMyAdmin:** [http://35.208.213.59:8080](http://35.208.213.59:8080)
-* 👤 **Usuario:** `user_equipo[XX]` *(ej: user_equipo01 al user_equipo09)*
-* 🔑 **Contraseña:** `Equipo[XX]_Pass2026!`
-* 📊 **Base de datos unificada:** `db_intranet_iestp`
-* 🛡️ **Prefijo de tus tablas:** `mod[XX]_*` (ej: `CREATE TABLE IF NOT EXISTS mod04_horarios ...`).
+* 🌐 **Panel Web Adminer:** [http://35.206.81.32:8080](http://35.206.81.32:8080)
+* ⚙️ **Sistema:** `PostgreSQL`
+* 🖥️ **Servidor:** `postgres` *(o `35.206.81.32` desde tu cliente local como DBeaver)*
+* 📊 **Base de datos:** `db_intranet_iestp`
+* 👤 **Usuario:** `user_equipo[XX]` *(ej: `user_equipo01` al `user_equipo09`)*
+* 🔑 **Contraseña:** `Equipo[XX]_Postgres2026!`
+* 🛡️ **Esquema de tu equipo:** `mod[XX]` (ej: `CREATE TABLE IF NOT EXISTS mod04.horarios ...`).
 
 ---
 

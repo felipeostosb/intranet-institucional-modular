@@ -27,7 +27,7 @@ function Show-Menu {
     Write-Host "======================================================================" -ForegroundColor Blue
     Write-Host "🏛️  INTRANET INSTITUCIONAL IESTP ARGENTINA — ASISTENTE DEV" -ForegroundColor Blue
     Write-Host "======================================================================" -ForegroundColor Blue
-    Write-Host "  Plataforma .NET 10 LTS • MariaDB • 9 Módulos Desacoplados" -ForegroundColor Cyan
+    Write-Host "  Plataforma .NET 10 LTS • PostgreSQL 16 • 9 Módulos Desacoplados" -ForegroundColor Cyan
     Write-Host "  🌿 Rama actual: $branch`n" -ForegroundColor Yellow
     Write-Host "  1) 🚀 Iniciar Intranet (Ver cambios en vivo en tu navegador)" -ForegroundColor Green
     Write-Host "  2) 🌿 Crear / Cambiar a mi Rama de Equipo (Elige tu equipo 01 al 09)" -ForegroundColor Green

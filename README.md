@@ -1,6 +1,6 @@
-# 🏛️ Intranet Institucional Modular (.NET 10 LTS + MariaDB)
+# 🏛️ Intranet Institucional Modular (.NET 10 LTS + PostgreSQL 16)
 
-Bienvenido al proyecto integrador de la Intranet Institucional del **IESTP "Argentina"**. Este sistema está construido sobre **.NET 10 LTS (Soporte Oficial a Largo Plazo hasta Noviembre 2028)** y una **Arquitectura de Monolito Modular Desacoplado** diseñada para que **36 desarrolladores (9 equipos de 4 personas)** trabajen en paralelo con total autonomía y cero colisiones (*Zero-Blast-Radius*).
+Bienvenido al proyecto integrador de la Intranet Institucional del **IESTP "Argentina"**. Este sistema está construido sobre **.NET 10 LTS (Soporte Oficial a Largo Plazo hasta Noviembre 2028)**, **PostgreSQL 16 LTS** y una **Arquitectura de Monolito Modular Desacoplado** diseñada para que **36 desarrolladores (9 equipos de 4 personas)** trabajen en paralelo con total autonomía y cero colisiones (*Zero-Blast-Radius*).
 
 ---
 
@@ -49,24 +49,27 @@ El asistente te ofrece **4 opciones claras y directas**:
 
 ---
 
-## 👥 Distribución Soberana de los 9 Módulos y Prefijos de Base de Datos
+## 👥 Distribución Soberana de los 9 Módulos y Esquemas PostgreSQL
 
-El sistema opera sobre una **Base de Datos Unificada (`db_intranet_iestp`)** con aislamiento por **Bounded Contexts (Prefijos SQL)** y gestión unificada de personas (**Patrón Party-Role**):
+El sistema opera sobre una **Base de Datos Unificada (`db_intranet_iestp`)** en **PostgreSQL 16 LTS** con aislamiento nativo por **`SCHEMAS` (Espacios de Nombres)** y gestión unificada de personas (**Patrón Party-Role**):
 
-* **🌐 Tablas Maestras del Core (`core_*`):** `core_personas`, `core_usuarios`, `core_roles`, `core_usuario_roles`, `core_carreras`, `core_periodos_academicos`, `core_aulas`, `core_unidades_didacticas`, `core_estudiantes`, `core_docentes`, `core_administrativos`, `core_auditoria_logs`.
-* **📦 Tablas Soberanas por Módulo (`modXX_*`):**
+* **🌐 Esquema Central (`core`):** `core.personas`, `core.usuarios`, `core.roles`, `core.usuario_roles`, `core.carreras`, `core.periodos_academicos`, `core.aulas`, `core.unidades_didacticas`, `core.estudiantes`, `core.docentes`, `core.administrativos`, `core.auditoria_logs`.
+* **📦 Esquemas Soberanos por Módulo (`modXX`):**
 
-| Equipo | Módulo | Carpeta Soberana | Prefijo de Tablas | Usuario MariaDB | Color Distintivo |
+| Equipo | Módulo | Carpeta Soberana | Esquema PostgreSQL | Usuario DB | Color Distintivo |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| **01** | **Módulo 01 (Matrícula)** | `src/02_Modulos/Intranet.Modulo01/` | `mod01_*` | `user_equipo01` | 🩵 Sky Pastel |
-| **02** | **Módulo 02 (Asistencia)** | `src/02_Modulos/Intranet.Modulo02/` | `mod02_*` | `user_equipo02` | 💙 Indigo Pastel |
-| **03** | **Módulo 03 (Calificaciones)** | `src/02_Modulos/Intranet.Modulo03/` | `mod03_*` | `user_equipo03` | 💚 Emerald Pastel |
-| **04** | **Módulo 04 (Horarios & Aulas)** | `src/02_Modulos/Intranet.Modulo04/` | `mod04_*` | `user_equipo04` | 💛 Amber Pastel |
-| **05** | **Módulo 05 (Prácticas EFSRT)** | `src/02_Modulos/Intranet.Modulo05/` | `mod05_*` | `user_equipo05` | 💜 Purple Pastel |
-| **06** | **Módulo 06 (Mesa Partes / TUPA)** | `src/02_Modulos/Intranet.Modulo06/` | `mod06_*` | `user_equipo06` | 🩷 Rose Pastel |
-| **07** | **Módulo 07 (Biblioteca Virtual)** | `src/02_Modulos/Intranet.Modulo07/` | `mod07_*` | `user_equipo07` | 🩵 Teal Pastel |
-| **08** | **Módulo 08 (Bolsa de Trabajo)** | `src/02_Modulos/Intranet.Modulo08/` | `mod08_*` | `user_equipo08` | 🧡 Orange Pastel |
-| **09** | **Módulo 09 (Tesorería / Pagos)** | `src/02_Modulos/Intranet.Modulo09/` | `mod09_*` | `user_equipo09` | 🌐 Cyan Pastel |
+| **01** | **Módulo 01 (Matrícula)** | `src/02_Modulos/Intranet.Modulo01/` | `mod01` | `user_equipo01` | 🩵 Sky Pastel |
+| **02** | **Módulo 02 (Asistencia)** | `src/02_Modulos/Intranet.Modulo02/` | `mod02` | `user_equipo02` | 💙 Indigo Pastel |
+| **03** | **Módulo 03 (Calificaciones)** | `src/02_Modulos/Intranet.Modulo03/` | `mod03` | `user_equipo03` | 💚 Emerald Pastel |
+| **04** | **Módulo 04 (Horarios & Aulas)** | `src/02_Modulos/Intranet.Modulo04/` | `mod04` | `user_equipo04` | 💛 Amber Pastel |
+| **05** | **Módulo 05 (Prácticas EFSRT)** | `src/02_Modulos/Intranet.Modulo05/` | `mod05` | `user_equipo05` | 💜 Purple Pastel |
+| **06** | **Módulo 06 (Mesa Partes / TUPA)** | `src/02_Modulos/Intranet.Modulo06/` | `mod06` | `user_equipo06` | 🩷 Rose Pastel |
+| **07** | **Módulo 07 (Biblioteca Virtual)** | `src/02_Modulos/Intranet.Modulo07/` | `mod07` | `user_equipo07` | 🩵 Teal Pastel |
+| **08** | **Módulo 08 (Bolsa de Trabajo)** | `src/02_Modulos/Intranet.Modulo08/` | `mod08` | `user_equipo08` | 🧡 Orange Pastel |
+| **09** | **Módulo 09 (Tesorería / Pagos)** | `src/02_Modulos/Intranet.Modulo09/` | `mod09` | `user_equipo09` | 🌐 Cyan Pastel |
+
+> [!TIP]
+> **🛡️ Blindaje RBAC en PostgreSQL:** Cada usuario `user_equipoXX` tiene permisos de control total (`CREATE`, `INSERT`, `UPDATE`, `DELETE`, `DROP`) **únicamente en su esquema `modXX`**, y permisos de **SOLO LECTURA (`SELECT`)** sobre `core` y los demás esquemas. Si un equipo intenta modificar datos de otro, el motor PostgreSQL rechaza la operación automáticamente.
 
 ---
 
@@ -91,9 +94,10 @@ Para comunicar módulos sin acoplar código ni dependencias circulares:
   ```
 
 ### 2. 🗄️ Acceso a Datos & Migraciones Automáticas
-* **Conexión:** Inyecta `IModuleDbConnectionFactory` para obtener la conexión SQL hacia MariaDB (`factory.CreateConnection("04")`).
-* **Migraciones SQL Automáticas:** Todo archivo `.sql` colocado dentro de `src/02_Modulos/Intranet.ModuloXX/Sql/schema.sql` se ejecuta automáticamente al iniciar la aplicación (usa siempre `CREATE TABLE IF NOT EXISTS modXX_...`).
-* **Relaciones Foráneas Seguras:** Puedes hacer `FOREIGN KEY` directa a `core_personas(id)`, `core_estudiantes(id)`, `core_carreras(id)` o `core_periodos_academicos(id)`.
+* **Conexión:** Inyecta `IModuleDbConnectionFactory` para obtener la conexión SQL hacia PostgreSQL (`factory.CreateConnection("04")`).
+* **Search Path Automático:** Tu conexión viene preconfigurada con `search_path=modXX,core,public`, lo que te permite consultar tus tablas directamente como `SELECT * FROM horarios` o `SELECT * FROM core.personas`.
+* **Migraciones SQL Automáticas:** Todo archivo colocado en `src/02_Modulos/Intranet.ModuloXX/Sql/schema.sql` se ejecuta automáticamente al iniciar la aplicación (usa siempre `CREATE TABLE IF NOT EXISTS modXX.tabla (...)`).
+* **Relaciones Foráneas Seguras:** Puedes hacer `FOREIGN KEY` directa a `core.personas(id)`, `core.estudiantes(id)`, `core.carreras(id)` o `core.periodos_academicos(id)`.
 
 ### 3. ⚙️ Inyección de Dependencias Modular (`IModuloStartup`)
 Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` implementando `IModuloStartup`. El sistema los descubre y registra automáticamente al arrancar.
@@ -103,7 +107,7 @@ Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` i
 ## 🛡️ Reglas de Oro del Proyecto (Poka-Yoke)
 
 1. **Aislamiento Estricto:** Programa **únicamente** dentro de tu carpeta `src/02_Modulos/Intranet.ModuloXX/`.
-2. **Nombres de Tablas con Prefijo:** Toda tabla que crees debe empezar con `modXX_` (ej: `mod04_horarios`).
+2. **Esquemas PostgreSQL:** Toda tabla que crees debe pertenecer a tu esquema `modXX` (ej: `CREATE TABLE IF NOT EXISTS mod04.horarios (...)`).
 3. **Prohibido Push a `main`:** Todo cambio se entrega mediante **Pull Request** desde tu rama `moduloXX/tu-tarea`.
 4. **Controladores con Seguridad:** Haz que tus controladores hereden de `ModuloBaseController` para tener acceso a `UsuarioActualRol`, `UsuarioActualRoles`, `UsuarioActualNombre`, `PersonaActualId` y métodos Toast (`MostrarAlertaExito`, `MostrarAlertaError`).
 5. **Validación Automática en CI/CD:** Si tu PR modifica solo tu módulo y compila con 0 errores, **GitHub Actions lo fusiona a producción en ~45 segundos**.
@@ -113,11 +117,13 @@ Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` i
 ## 🌐 Enlaces de Producción & Base de Datos
 
 * 🚀 **Intranet en Vivo (.NET 10 en Docker):** [http://35.209.228.150](http://35.209.228.150)
-* 🗄️ **phpMyAdmin BD MariaDB:** [http://35.208.213.59:8080](http://35.208.213.59:8080)
-  * **Base de Datos Unificada:** `db_intranet_iestp`
-  * **Usuario:** `user_equipo[XX]` *(ej: user_equipo01 al user_equipo09)*
-  * **Contraseña:** `Equipo[XX]_Pass2026!` *(ej: Equipo01_Pass2026!)*
-  * **Permisos:** Control total sobre `db_intranet_iestp` para operar sus tablas `modXX_*` y consultar `core_*`.
+* 🗄️ **Adminer BD PostgreSQL 16 (GUI Web Ligera):** [http://35.206.81.32:8080](http://35.206.81.32:8080)
+  * **Sistema:** `PostgreSQL`
+  * **Servidor:** `postgres` *(o `35.206.81.32` desde tu cliente local)*
+  * **Base de Datos:** `db_intranet_iestp`
+  * **Usuario:** `user_equipo[XX]` *(ej: `user_equipo01` al `user_equipo09`)*
+  * **Contraseña:** `Equipo[XX]_Postgres2026!` *(ej: `Equipo01_Postgres2026!`)*
+  * **Esquema:** Selecciona `mod[XX]` en el menú superior para ver tus tablas.
 
 ---
 
@@ -126,19 +132,20 @@ Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` i
 Si tú o tu equipo usan Inteligencia Artificial para programar o modelar su base de datos, **copia y pega esta plantilla exacta** al iniciar tu chat con la IA para que te genere código 100% compatible y sin errores:
 
 ```text
-Actúa como Desarrollador Senior .NET 10 y MariaDB.
+Actúa como Desarrollador Senior .NET 10 y PostgreSQL 16.
 Estoy desarrollando el MÓDULO [XX] (del Equipo [XX]) de la Intranet Institucional del IESTP Argentina.
 
-REGLAS DE ACERO ARQUITECTÓNICAS (Cero Conflictos):
+REGLAS DE ACERO ARQUITECTÓNICAS (Zero-Blast-Radius):
 1. Mi carpeta soberana es ÚNICAMENTE: src/02_Modulos/Intranet.Modulo[XX]/
-2. La base de datos unificada es: db_intranet_iestp (Usuario: user_equipo[XX]).
-3. Todas las tablas de mi módulo DEBEN tener el prefijo: mod[XX]_ (ej: mod[XX]_registros).
-4. Mis controladores C# deben heredar de `ModuloBaseController` (en `Intranet.Core.Controllers`) y usar la ruta `[Route("Modulo[XX]/[controller]")]`.
-5. Puedo hacer FOREIGN KEY a tablas del núcleo como: core_personas(Id), core_estudiantes(Id), core_carreras(Id), core_periodos_academicos(Id).
-6. NO modifiques ni me pidas modificar archivos fuera de mi carpeta (está prohibido tocar src/01_Core/, src/03_Web/Program.cs o appsettings.json).
-7. Si necesito inyectar servicios, hazlo dentro de mi archivo `Modulo[XX]Startup.cs` implementando `IModuloStartup`.
-8. Para la base de datos en phpMyAdmin o en `Sql/schema.sql`, genera sentencias SQL con `CREATE TABLE IF NOT EXISTS mod[XX]_...`.
-9. Si necesito publicar o escuchar eventos de otros módulos, uso `IEventBus` y `IEventHandler<T>` de `Intranet.Core.Events`.
+2. La base de datos es PostgreSQL 16: db_intranet_iestp (Usuario: user_equipo[XX]).
+3. Mi esquema exclusivo de base de datos es: mod[XX]
+4. Todas las tablas de mi módulo DEBEN crearse dentro de mi esquema: `mod[XX].mi_tabla` (ej: CREATE TABLE IF NOT EXISTS mod[XX].matriculas (id SERIAL PRIMARY KEY, ...)).
+5. Mis controladores C# deben heredar de `ModuloBaseController` (en `Intranet.Core.Controllers`) y usar la ruta `[Route("Modulo[XX]/[controller]")]`.
+6. Puedo hacer FOREIGN KEY y SELECT a tablas del esquema core como: core.personas(id), core.estudiantes(id), core.carreras(id), core.periodos_academicos(id).
+7. Tengo prohibido modificar o pedir modificar archivos fuera de mi carpeta (no tocar src/01_Core/, src/03_Web/Program.cs o appsettings.json).
+8. Si necesito inyectar servicios, hazlo dentro de mi archivo `Modulo[XX]Startup.cs` implementando `IModuloStartup`.
+9. Para acceso a datos rápido usa Dapper o Npgsql con `IModuleDbConnectionFactory`.
+10. Si necesito publicar o escuchar eventos de otros módulos, uso `IEventBus` y `IEventHandler<T>` de `Intranet.Core.Events`.
 
 Requerimiento de mi equipo para hoy:
 [Describe aquí lo que necesitas, ej: Crear tabla de items y vista con formulario y listado]

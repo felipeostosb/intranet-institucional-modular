@@ -1,6 +1,6 @@
 using System.Data;
 using Microsoft.Extensions.Configuration;
-using MySqlConnector;
+using Npgsql;
 using Intranet.Core.Contracts;
 
 namespace Intranet.Data.Services;
@@ -24,6 +24,13 @@ public class ModuleDbConnectionFactory : IModuleDbConnectionFactory
             connStr = _configuration.GetConnectionString("DefaultConnection") ?? "";
         }
 
-        return new MySqlConnection(connStr);
+        // Si la cadena de conexión no tiene SearchPath explícito, se lo inyectamos de forma segura
+        var builder = new NpgsqlConnectionStringBuilder(connStr);
+        if (string.IsNullOrWhiteSpace(builder.SearchPath))
+        {
+            builder.SearchPath = $"mod{num},core,public";
+        }
+
+        return new NpgsqlConnection(builder.ConnectionString);
     }
 }

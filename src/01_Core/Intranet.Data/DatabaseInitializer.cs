@@ -1,7 +1,7 @@
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
-using MySqlConnector;
+using Npgsql;
 using Intranet.Core.Entities;
 
 namespace Intranet.Data;
@@ -55,11 +55,11 @@ public static class DatabaseInitializer
                     var sql = await File.ReadAllTextAsync(path);
                     if (!string.IsNullOrWhiteSpace(sql))
                     {
-                        using var conn = new MySqlConnection(defaultConn);
+                        await using var conn = new NpgsqlConnection(defaultConn);
                         await conn.OpenAsync();
-                        using var cmd = new MySqlCommand(sql, conn);
+                        await using var cmd = new NpgsqlCommand(sql, conn);
                         await cmd.ExecuteNonQueryAsync();
-                        Console.WriteLine("[DatabaseInitializer] ✓ Esquema Maestro Core y datos semilla ejecutados correctamente.");
+                        Console.WriteLine("[DatabaseInitializer] ✓ Esquema Maestro Core PostgreSQL y datos semilla ejecutados correctamente.");
                     }
                 }
                 catch (Exception ex)
@@ -105,9 +105,15 @@ public static class DatabaseInitializer
                             var moduleConn = configuration.GetConnectionString($"Modulo{num}Connection");
                             var connStr = !string.IsNullOrWhiteSpace(moduleConn) ? moduleConn : defaultConn;
 
-                            using var conn = new MySqlConnection(connStr);
+                            var builder = new NpgsqlConnectionStringBuilder(connStr);
+                            if (string.IsNullOrWhiteSpace(builder.SearchPath))
+                            {
+                                builder.SearchPath = $"mod{num},core,public";
+                            }
+
+                            await using var conn = new NpgsqlConnection(builder.ConnectionString);
                             await conn.OpenAsync();
-                            using var cmd = new MySqlCommand(sql, conn);
+                            await using var cmd = new NpgsqlCommand(sql, conn);
                             await cmd.ExecuteNonQueryAsync();
                             Console.WriteLine($"[DatabaseInitializer] ✓ Script SQL modular ejecutado para Módulo {num}");
                         }

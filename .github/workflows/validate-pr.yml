@@ -14,20 +14,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Validar Límites, Compilar y Auto-Merge
 
-    # MariaDB real para el smoke test funcional (login + arranque)
-    # NOTA: no usar 'healthcheck.sh --connect --innodb_status' — el flag
-    # --innodb_status requiere conexiones anonimas y MariaDB 10.11 las trae
-    # deshabilitadas, con lo que el healthcheck falla aunque el servidor
-    # este listo y el job muere en 'Failed to initialize container'.
+    # PostgreSQL 16 real para el smoke test funcional (login + arranque)
     services:
-      mariadb:
-        image: mariadb:10.11
+      postgres:
+        image: postgres:16-alpine
         env:
-          MARIADB_ROOT_PASSWORD: ci_root_2026
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ci_root_2026
+          POSTGRES_DB: db_intranet_iestp
         ports:
-          - '3306:3306'
+          - '5432:5432'
         options: >-
-          --health-cmd "mariadb-admin ping -uroot -pci_root_2026 --silent"
+          --health-cmd "pg_isready -U postgres -d db_intranet_iestp"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 10
@@ -121,16 +119,14 @@ jobs:
           dotnet build "IntranetInstitucional.sln" -c Release --no-restore
           echo "✅ COMPILACIÓN EXITOSA (0 Errores)."
 
-      - name: 5. Smoke Test Funcional (MariaDB + Login real)
+      - name: 5. Smoke Test Funcional (PostgreSQL 16 + Login real)
         env:
-          ConnectionStrings__DefaultConnection: "Server=127.0.0.1;Port=3306;Database=db_intranet_iestp;User=root;Password=ci_root_2026;"
+          ConnectionStrings__DefaultConnection: "Host=127.0.0.1;Port=5432;Database=db_intranet_iestp;Username=postgres;Password=ci_root_2026;SearchPath=core,public;"
         run: |
-          echo "🧪 Provisionando BD unificada del smoke test..."
-          mariadb -h 127.0.0.1 -P 3306 -u root -pci_root_2026 < scripts/provision_unified_db.sql > /dev/null 2>&1 || \
-          mysql  -h 127.0.0.1 -P 3306 -u root -pci_root_2026 < scripts/provision_unified_db.sql > /dev/null 2>&1 || \
-          docker run --rm --network host -v "$PWD/scripts:/scripts:ro" mariadb:10.11 \
-            mariadb -h 127.0.0.1 -P 3306 -u root -pci_root_2026 -e "source /scripts/provision_unified_db.sql" > /dev/null 2>&1 || \
-          { echo "⛔ No se pudo provisionar MariaDB para el smoke test"; exit 1; }
+          echo "🧪 Provisionando BD PostgreSQL del smoke test..."
+          docker run --rm --network host -v "$PWD/scripts:/scripts:ro" -e PGPASSWORD=ci_root_2026 postgres:16-alpine \
+            psql -h 127.0.0.1 -p 5432 -U postgres -d db_intranet_iestp -f /scripts/provision_postgresql_master.sql > /dev/null 2>&1 || \
+          { echo "⛔ No se pudo provisionar PostgreSQL para el smoke test"; exit 1; }
           
           echo "🚀 Arrancando la Intranet en segundo plano..."
           cd src/03_Web/Intranet.Web

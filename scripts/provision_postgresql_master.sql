@@ -1,13 +1,129 @@
 -- ==============================================================================
--- 🏛️ ESQUEMA MAESTRO CORE - INTRANET INSTITUCIONAL IESTP "ARGENTINA"
--- Patrón: Party-Role (Martin Fowler / GibbonEdu) + Bounded Contexts
--- Base de Datos: db_intranet_iestp (PostgreSQL 16 LTS)
--- Esquema: core
+-- 🏛️ SCRIPT MAESTRO DE PROVISIÓN POSTGRESQL 16 - INTRANET IESTP ARGENTINA
+-- Arquitectura: Monolito Modular con Aislamiento Estricto por Esquemas (Zero-Blast-Radius)
+-- Motor: PostgreSQL 16 LTS | Servidor: ssh postgres (35.206.81.32)
+-- Base de Datos: db_intranet_iestp
 -- ==============================================================================
 
+-- 1. CREACIÓN DE ESQUEMAS SOBERANOS
 CREATE SCHEMA IF NOT EXISTS core;
+CREATE SCHEMA IF NOT EXISTS mod01; -- Matrícula
+CREATE SCHEMA IF NOT EXISTS mod02; -- Asistencia
+CREATE SCHEMA IF NOT EXISTS mod03; -- Calificaciones
+CREATE SCHEMA IF NOT EXISTS mod04; -- Horarios & Aulas
+CREATE SCHEMA IF NOT EXISTS mod05; -- Prácticas EFSRT
+CREATE SCHEMA IF NOT EXISTS mod06; -- Mesa de Partes / TUPA
+CREATE SCHEMA IF NOT EXISTS mod07; -- Biblioteca Virtual
+CREATE SCHEMA IF NOT EXISTS mod08; -- Bolsa de Trabajo
+CREATE SCHEMA IF NOT EXISTS mod09; -- Tesorería / Pagos
 
--- 1. IDENTIDAD FÍSICA UNIFICADA
+-- 2. CREACIÓN DE ROLES Y USUARIOS CON CONTRASEÑAS SEGURAS
+DO $$
+BEGIN
+    -- Usuario Core Engine
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_app_core') THEN
+        CREATE USER user_app_core WITH ENCRYPTED PASSWORD 'CoreApp_Postgres2026!';
+    END IF;
+
+    -- Usuarios Modulares (Equipos 01 al 09)
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo01') THEN
+        CREATE USER user_equipo01 WITH ENCRYPTED PASSWORD 'Equipo01_Postgres2026!';
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo02') THEN
+        CREATE USER user_equipo02 WITH ENCRYPTED PASSWORD 'Equipo02_Postgres2026!';
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo03') THEN
+        CREATE USER user_equipo03 WITH ENCRYPTED PASSWORD 'Equipo03_Postgres2026!';
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo04') THEN
+        CREATE USER user_equipo04 WITH ENCRYPTED PASSWORD 'Equipo04_Postgres2026!';
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo05') THEN
+        CREATE USER user_equipo05 WITH ENCRYPTED PASSWORD 'Equipo05_Postgres2026!';
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo06') THEN
+        CREATE USER user_equipo06 WITH ENCRYPTED PASSWORD 'Equipo06_Postgres2026!';
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo07') THEN
+        CREATE USER user_equipo07 WITH ENCRYPTED PASSWORD 'Equipo07_Postgres2026!';
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo08') THEN
+        CREATE USER user_equipo08 WITH ENCRYPTED PASSWORD 'Equipo08_Postgres2026!';
+    END IF;
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo09') THEN
+        CREATE USER user_equipo09 WITH ENCRYPTED PASSWORD 'Equipo09_Postgres2026!';
+    END IF;
+END $$;
+
+-- 3. ASIGNACIÓN DE PRIVILEGIOS DE BASE DE DATOS
+GRANT CONNECT ON DATABASE db_intranet_iestp TO user_app_core, user_equipo01, user_equipo02, user_equipo03, user_equipo04, user_equipo05, user_equipo06, user_equipo07, user_equipo08, user_equipo09;
+
+-- A. Privilegios para user_app_core (Acceso Total a todos los esquemas)
+GRANT ALL ON SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public TO user_app_core;
+GRANT ALL ON ALL TABLES IN SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public TO user_app_core;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public TO user_app_core;
+
+ALTER DEFAULT PRIVILEGES IN SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public GRANT ALL ON TABLES TO user_app_core;
+ALTER DEFAULT PRIVILEGES IN SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public GRANT ALL ON SEQUENCES TO user_app_core;
+
+ALTER USER user_app_core SET search_path TO core, public, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09;
+
+-- B. Función auxiliar para blindaje y privilegios de cada equipo
+-- Cada user_equipoXX:
+-- 1. Control total (CREATE, INSERT, UPDATE, DELETE, ALTER, DROP) sobre su esquema modXX.
+-- 2. Lectura total (USAGE, SELECT) sobre el esquema core y sobre los esquemas de los demás equipos modYY.
+-- 3. Cero permisos de escritura/creación en esquemas ajenos.
+
+DO $$
+DECLARE
+    schemas TEXT[] := ARRAY['mod01', 'mod02', 'mod03', 'mod04', 'mod05', 'mod06', 'mod07', 'mod08', 'mod09'];
+    users TEXT[] := ARRAY['user_equipo01', 'user_equipo02', 'user_equipo03', 'user_equipo04', 'user_equipo05', 'user_equipo06', 'user_equipo07', 'user_equipo08', 'user_equipo09'];
+    i INT;
+    j INT;
+    curr_user TEXT;
+    curr_schema TEXT;
+    other_schema TEXT;
+BEGIN
+    FOR i IN 1..9 LOOP
+        curr_user := users[i];
+        curr_schema := schemas[i];
+
+        -- 1. Control total en su propio esquema
+        EXECUTE format('GRANT USAGE, CREATE ON SCHEMA %I TO %I', curr_schema, curr_user);
+        EXECUTE format('GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA %I TO %I', curr_schema, curr_user);
+        EXECUTE format('GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA %I TO %I', curr_schema, curr_user);
+        EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %I GRANT ALL ON TABLES TO %I', curr_schema, curr_user);
+        EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %I GRANT ALL ON SEQUENCES TO %I', curr_schema, curr_user);
+
+        -- 2. Acceso de solo lectura al esquema core
+        EXECUTE format('GRANT USAGE ON SCHEMA core TO %I', curr_user);
+        EXECUTE format('GRANT SELECT ON ALL TABLES IN SCHEMA core TO %I', curr_user);
+        EXECUTE format('GRANT SELECT ON ALL SEQUENCES IN SCHEMA core TO %I', curr_user);
+        EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA core GRANT SELECT ON TABLES TO %I', curr_user);
+        EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA core GRANT SELECT ON SEQUENCES TO %I', curr_user);
+
+        -- 3. Acceso de solo lectura a los demás esquemas modulares (Visibilidad del panorama completo)
+        FOR j IN 1..9 LOOP
+            IF i <> j THEN
+                other_schema := schemas[j];
+                EXECUTE format('GRANT USAGE ON SCHEMA %I TO %I', other_schema, curr_user);
+                EXECUTE format('GRANT SELECT ON ALL TABLES IN SCHEMA %I TO %I', other_schema, curr_user);
+                EXECUTE format('GRANT SELECT ON ALL SEQUENCES IN SCHEMA %I TO %I', other_schema, curr_user);
+                EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %I GRANT SELECT ON TABLES TO %I', other_schema, curr_user);
+                EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA %I GRANT SELECT ON SEQUENCES TO %I', other_schema, curr_user);
+            END IF;
+        END LOOP;
+
+        -- 4. Establecer Search Path por defecto: su módulo primero, luego core y public
+        EXECUTE format('ALTER USER %I SET search_path TO %I, core, public', curr_user, curr_schema);
+    END LOOP;
+END $$;
+
+-- ==============================================================================
+-- 4. TABLAS MAESTRAS DEL ESQUEMA CORE (Patrón Party-Role)
+-- ==============================================================================
+
+-- A. IDENTIDAD FÍSICA UNIFICADA
 CREATE TABLE IF NOT EXISTS core.personas (
     id SERIAL PRIMARY KEY,
     dni VARCHAR(15) NOT NULL UNIQUE,
@@ -22,7 +138,7 @@ CREATE TABLE IF NOT EXISTS core.personas (
     creado_en TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 2. CUENTAS DE ACCESO (SSO INSTITUCIONAL)
+-- B. CUENTAS DE ACCESO (SSO INSTITUCIONAL)
 CREATE TABLE IF NOT EXISTS core.usuarios (
     id SERIAL PRIMARY KEY,
     persona_id INT NOT NULL UNIQUE REFERENCES core.personas(id) ON DELETE CASCADE,
@@ -34,14 +150,14 @@ CREATE TABLE IF NOT EXISTS core.usuarios (
     creado_en TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
--- 3. ROLES INSTITUCIONALES
+-- C. ROLES INSTITUCIONALES
 CREATE TABLE IF NOT EXISTS core.roles (
     id SERIAL PRIMARY KEY,
     nombre VARCHAR(50) NOT NULL UNIQUE,
     descripcion VARCHAR(200) NOT NULL
 );
 
--- 4. USUARIO - ROLES
+-- D. USUARIO - ROLES (Muchos a Muchos)
 CREATE TABLE IF NOT EXISTS core.usuario_roles (
     id SERIAL PRIMARY KEY,
     usuario_id INT NOT NULL REFERENCES core.usuarios(id) ON DELETE CASCADE,
@@ -51,7 +167,7 @@ CREATE TABLE IF NOT EXISTS core.usuario_roles (
     CONSTRAINT uk_usuario_rol UNIQUE (usuario_id, rol_id)
 );
 
--- 5. ESTRUCTURA ACADÉMICA
+-- E. ESTRUCTURA ACADÉMICA
 CREATE TABLE IF NOT EXISTS core.carreras (
     id SERIAL PRIMARY KEY,
     codigo VARCHAR(15) NOT NULL UNIQUE,
@@ -89,7 +205,7 @@ CREATE TABLE IF NOT EXISTS core.unidades_didacticas (
     tipo VARCHAR(30) NOT NULL DEFAULT 'Formativa' CHECK (tipo IN ('Formativa', 'Transversal', 'Empleabilidad'))
 );
 
--- 6. PERFILES DE ROL EXTENDIDOS
+-- F. PERFILES DE ROL EXTENDIDOS
 CREATE TABLE IF NOT EXISTS core.estudiantes (
     id SERIAL PRIMARY KEY,
     persona_id INT NOT NULL REFERENCES core.personas(id) ON DELETE CASCADE,
@@ -119,7 +235,7 @@ CREATE TABLE IF NOT EXISTS core.administrativos (
     area VARCHAR(100) NOT NULL
 );
 
--- 7. AUDITORÍA GLOBAL
+-- G. AUDITORÍA GLOBAL
 CREATE TABLE IF NOT EXISTS core.auditoria_logs (
     id SERIAL PRIMARY KEY,
     usuario_id INT NULL REFERENCES core.usuarios(id) ON DELETE SET NULL,
@@ -132,10 +248,108 @@ CREATE TABLE IF NOT EXISTS core.auditoria_logs (
 );
 
 -- ==============================================================================
--- 🚀 DATOS SEMILLA OFICIALES - IESTP "ARGENTINA"
+-- 5. TABLAS INICIALES DE EJEMPLO EN CADA ESQUEMA MODULAR
 -- ==============================================================================
 
--- 1. Roles
+CREATE TABLE IF NOT EXISTS mod01.matriculas (
+    id SERIAL PRIMARY KEY,
+    estudiante_id INT NOT NULL REFERENCES core.estudiantes(id),
+    periodo_id INT NOT NULL REFERENCES core.periodos_academicos(id),
+    codigo VARCHAR(50) NOT NULL UNIQUE,
+    fecha_matricula TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    estado VARCHAR(20) NOT NULL DEFAULT 'Registrada',
+    observaciones TEXT NULL
+);
+
+CREATE TABLE IF NOT EXISTS mod02.asistencias (
+    id SERIAL PRIMARY KEY,
+    estudiante_id INT NOT NULL REFERENCES core.estudiantes(id),
+    unidad_didactica_id INT NOT NULL REFERENCES core.unidades_didacticas(id),
+    fecha DATE NOT NULL DEFAULT CURRENT_DATE,
+    estado VARCHAR(15) NOT NULL DEFAULT 'Presente' CHECK (estado IN ('Presente', 'Falta', 'Tardanza', 'Justificado')),
+    registrado_en TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS mod03.calificaciones (
+    id SERIAL PRIMARY KEY,
+    estudiante_id INT NOT NULL REFERENCES core.estudiantes(id),
+    unidad_didactica_id INT NOT NULL REFERENCES core.unidades_didacticas(id),
+    periodo_id INT NOT NULL REFERENCES core.periodos_academicos(id),
+    evaluacion_1 NUMERIC(4,2) NULL,
+    evaluacion_2 NUMERIC(4,2) NULL,
+    evaluacion_3 NUMERIC(4,2) NULL,
+    promedio_final NUMERIC(4,2) NULL,
+    estado VARCHAR(15) NOT NULL DEFAULT 'En Curso'
+);
+
+CREATE TABLE IF NOT EXISTS mod04.horarios (
+    id SERIAL PRIMARY KEY,
+    unidad_didactica_id INT NOT NULL REFERENCES core.unidades_didacticas(id),
+    docente_id INT NOT NULL REFERENCES core.docentes(id),
+    aula_id INT NOT NULL REFERENCES core.aulas(id),
+    dia_semana VARCHAR(15) NOT NULL CHECK (dia_semana IN ('Lunes', 'Martes', 'Miercoles', 'Jueves', 'Viernes', 'Sabado')),
+    hora_inicio TIME NOT NULL,
+    hora_fin TIME NOT NULL,
+    seccion VARCHAR(10) NOT NULL DEFAULT 'A'
+);
+
+CREATE TABLE IF NOT EXISTS mod05.practicas (
+    id SERIAL PRIMARY KEY,
+    estudiante_id INT NOT NULL REFERENCES core.estudiantes(id),
+    empresa_razon_social VARCHAR(150) NOT NULL,
+    empresa_ruc VARCHAR(15) NOT NULL,
+    modulo_formativo VARCHAR(5) NOT NULL CHECK (modulo_formativo IN ('MF1', 'MF2', 'MF3')),
+    total_horas INT NOT NULL DEFAULT 280,
+    estado VARCHAR(20) NOT NULL DEFAULT 'En_Revision'
+);
+
+CREATE TABLE IF NOT EXISTS mod06.tramites_tupa (
+    id SERIAL PRIMARY KEY,
+    persona_id INT NOT NULL REFERENCES core.personas(id),
+    numero_expediente VARCHAR(30) NOT NULL UNIQUE,
+    tipo_tramite VARCHAR(100) NOT NULL,
+    asunto VARCHAR(200) NOT NULL,
+    estado VARCHAR(20) NOT NULL DEFAULT 'Pendiente',
+    fecha_ingreso TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS mod07.libros (
+    id SERIAL PRIMARY KEY,
+    isbn VARCHAR(30) NULL,
+    titulo VARCHAR(200) NOT NULL,
+    autor VARCHAR(150) NOT NULL,
+    carrera_id INT NULL REFERENCES core.carreras(id),
+    ejemplares_disponibles INT NOT NULL DEFAULT 1,
+    url_digital VARCHAR(255) NULL
+);
+
+CREATE TABLE IF NOT EXISTS mod08.ofertas_laborales (
+    id SERIAL PRIMARY KEY,
+    empresa_nombre VARCHAR(150) NOT NULL,
+    titulo_puesto VARCHAR(150) NOT NULL,
+    carrera_id INT NOT NULL REFERENCES core.carreras(id),
+    descripcion TEXT NOT NULL,
+    vacantes INT NOT NULL DEFAULT 1,
+    fecha_limite DATE NOT NULL,
+    contacto_email VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS mod09.pagos (
+    id SERIAL PRIMARY KEY,
+    persona_id INT NOT NULL REFERENCES core.personas(id),
+    codigo_recibo VARCHAR(30) NOT NULL UNIQUE,
+    concepto VARCHAR(150) NOT NULL,
+    monto NUMERIC(8,2) NOT NULL,
+    metodo_pago VARCHAR(30) NOT NULL DEFAULT 'Efectivo',
+    fecha_pago TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    estado VARCHAR(20) NOT NULL DEFAULT 'Pagado'
+);
+
+-- ==============================================================================
+-- 6. DATOS SEMILLA OFICIALES IESTP ARGENTINA
+-- ==============================================================================
+
+-- Roles
 INSERT INTO core.roles (id, nombre, descripcion) VALUES
 (1, 'Admin', 'Administrador General del Sistema y TI'),
 (2, 'Director', 'Dirección General Institucional'),
@@ -148,7 +362,7 @@ ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre, descripcion = EXCLUDED.
 
 SELECT setval('core.roles_id_seq', (SELECT MAX(id) FROM core.roles));
 
--- 2. Carreras (3 Oficiales)
+-- Carreras (3 Oficiales)
 INSERT INTO core.carreras (id, codigo, nombre, total_semestres, modalidad) VALUES
 (1, 'DSI', 'Desarrollo de Sistemas de Información', 6, 'Presencial'),
 (2, 'CONT', 'Contabilidad', 6, 'Presencial'),
@@ -157,7 +371,7 @@ ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo, nombre = EXCLUDED.nombr
 
 SELECT setval('core.carreras_id_seq', (SELECT MAX(id) FROM core.carreras));
 
--- 3. Periodos Académicos
+-- Periodos Académicos
 INSERT INTO core.periodos_academicos (id, codigo, fecha_inicio, fecha_fin, es_activo, permite_matricula) VALUES
 (1, '2026-I', '2026-03-15', '2026-07-25', TRUE, TRUE),
 (2, '2026-II', '2026-08-15', '2026-12-20', FALSE, FALSE)
@@ -165,7 +379,7 @@ ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
 
 SELECT setval('core.periodos_academicos_id_seq', (SELECT MAX(id) FROM core.periodos_academicos));
 
--- 4. Aulas y Laboratorios
+-- Aulas
 INSERT INTO core.aulas (id, codigo, pabellon, aforo, tipo) VALUES
 (1, 'LAB-COMP-01', 'Pabellon A', 35, 'Laboratorio_Computo'),
 (2, 'LAB-COMP-02', 'Pabellon A', 35, 'Laboratorio_Computo'),
@@ -175,7 +389,7 @@ ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
 
 SELECT setval('core.aulas_id_seq', (SELECT MAX(id) FROM core.aulas));
 
--- 5. Unidades Didácticas
+-- Unidades Didácticas
 INSERT INTO core.unidades_didacticas (id, carrera_id, ciclo, codigo, nombre, creditos, horas_semanales, tipo) VALUES
 (1, 1, 'I', 'DSI-101', 'Introducción a la Algoritmia y Programación', 4, 6, 'Formativa'),
 (2, 1, 'I', 'DSI-102', 'Arquitectura de Computadoras y Redes', 3, 4, 'Formativa'),
@@ -189,7 +403,7 @@ ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
 
 SELECT setval('core.unidades_didacticas_id_seq', (SELECT MAX(id) FROM core.unidades_didacticas));
 
--- 6. Personas Físicas Semilla
+-- Personas Físicas
 INSERT INTO core.personas (id, dni, nombres, apellidos, email_personal, telefono, sexo) VALUES
 (1, '00000001', 'Administrador', 'General de TI', 'admin.ti@ieargentina.edu.pe', '999000001', 'M'),
 (2, '10000001', 'Manuel', 'Alvarado Carranza', 'manuel.alvarado@gmail.com', '999100001', 'M'),
@@ -204,7 +418,7 @@ ON CONFLICT (id) DO UPDATE SET dni = EXCLUDED.dni, nombres = EXCLUDED.nombres, a
 
 SELECT setval('core.personas_id_seq', (SELECT MAX(id) FROM core.personas));
 
--- 7. Cuentas de Acceso (core.usuarios)
+-- Usuarios
 INSERT INTO core.usuarios (id, persona_id, codigo_institucional, email, password_hash, estado) VALUES
 (1, 1, 'ADMIN-2026', 'admin.ti@ieargentina.edu.pe', '123456', TRUE),
 (2, 2, 'DIR-2026', 'direccion@ieargentina.edu.pe', '123456', TRUE),
@@ -219,7 +433,7 @@ ON CONFLICT (id) DO UPDATE SET codigo_institucional = EXCLUDED.codigo_institucio
 
 SELECT setval('core.usuarios_id_seq', (SELECT MAX(id) FROM core.usuarios));
 
--- 8. Asignación de Roles
+-- Asignación de Roles
 INSERT INTO core.usuario_roles (id, usuario_id, rol_id) VALUES
 (1, 1, 1),
 (2, 2, 2),
@@ -236,7 +450,7 @@ ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('core.usuario_roles_id_seq', (SELECT MAX(id) FROM core.usuario_roles));
 
--- 9. Perfiles de Alumno
+-- Estudiantes
 INSERT INTO core.estudiantes (id, persona_id, codigo_estudiante, carrera_id, periodo_ingreso_id, ciclo_actual, turno, condicion) VALUES
 (1, 7, 'EST-DSI-2026-001', 1, 1, 'III', 'Noche', 'Regular'),
 (2, 8, 'EST-DSI-2026-002', 1, 1, 'III', 'Manana', 'Regular'),
@@ -245,7 +459,7 @@ ON CONFLICT (id) DO UPDATE SET codigo_estudiante = EXCLUDED.codigo_estudiante;
 
 SELECT setval('core.estudiantes_id_seq', (SELECT MAX(id) FROM core.estudiantes));
 
--- 10. Perfiles de Docente
+-- Docentes
 INSERT INTO core.docentes (id, persona_id, codigo_docente, carrera_principal_id, profesion, condicion) VALUES
 (1, 6, 'DOC-DSI-001', 1, 'Ingeniero de Sistemas e Informática', 'Nombrado'),
 (2, 7, 'DOC-DSI-002', 1, 'Senior Backend & Systems Engineer', 'Contratado')
@@ -253,7 +467,7 @@ ON CONFLICT (id) DO UPDATE SET codigo_docente = EXCLUDED.codigo_docente;
 
 SELECT setval('core.docentes_id_seq', (SELECT MAX(id) FROM core.docentes));
 
--- 11. Perfiles Administrativos
+-- Administrativos
 INSERT INTO core.administrativos (id, persona_id, codigo_staff, cargo, area) VALUES
 (1, 4, 'ADM-SEC-01', 'Secretaria Académica', 'Secretaría General'),
 (2, 5, 'ADM-TES-01', 'Jefa de Caja y Tesorería', 'Tesorería')

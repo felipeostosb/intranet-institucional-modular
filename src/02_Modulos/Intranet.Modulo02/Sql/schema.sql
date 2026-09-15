@@ -1,15 +1,15 @@
 -- ==============================================================================
--- 🗄️ ESQUEMA DE BASE DE DATOS: db_modulo02 (Equipo 02)
+-- 🗄️ ESQUEMA DE BASE DE DATOS: mod02 (Equipo 02) - PostgreSQL 16
 -- ==============================================================================
 -- Este archivo se ejecuta automáticamente al arrancar la aplicación.
 -- Agrega aquí tus sentencias CREATE TABLE con IF NOT EXISTS para tu módulo.
 -- ==============================================================================
 
-CREATE TABLE IF NOT EXISTS t_modulo02_registros (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+CREATE TABLE IF NOT EXISTS mod02.t_modulo02_registros (
+    id SERIAL PRIMARY KEY,
     codigo VARCHAR(50) NOT NULL UNIQUE,
     nombre VARCHAR(150) NOT NULL,
     descripcion TEXT NULL,
-    fecha_creacion DATETIME DEFAULT CURRENT_TIMESTAMP,
+    fecha_creacion TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
     activo BOOLEAN DEFAULT TRUE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+);
