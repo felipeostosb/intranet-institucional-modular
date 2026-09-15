@@ -28,10 +28,13 @@ COPY . .
 WORKDIR "/src/src/03_Web/Intranet.Web"
 RUN dotnet publish -c Release -o /app/publish --no-restore
 
-# 3. Imagen de Runtime Ultra-Liviana (.NET 10 ASP.NET Alpine)
+# 3. Imagen de Runtime Ultra-Liviana (.NET 10 ASP.NET Alpine) Non-Root
 FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 WORKDIR /app
 COPY --from=build /app/publish .
+
+# 🛡️ Hardening: Ejecución con usuario sin privilegios 'app' (UID 1654)
+USER $APP_UID
 
 EXPOSE 5000
 ENTRYPOINT ["dotnet", "Intranet.Web.dll"]

@@ -1,6 +1,7 @@
 using System.Reflection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Intranet.Core.Contracts;
 using Intranet.Core.Events;
@@ -9,8 +10,11 @@ using Intranet.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Registro de Módulos (9 Equipos en Paralelo)
-var mvcBuilder = builder.Services.AddControllersWithViews();
+// 1. Registro de Módulos (9 Equipos en Paralelo) con Protección CSRF Global
+var mvcBuilder = builder.Services.AddControllersWithViews(options =>
+{
+    options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+});
 
 var moduleAssemblies = new List<Assembly>
 {
