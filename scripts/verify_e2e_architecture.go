@@ -100,21 +100,31 @@ func testPostgresTeams() {
 	fmt.Println("3️⃣ VALIDANDO LOS 9 EQUIPOS EN POSTGRESQL 16 (Aislamiento & Permisos)")
 	fmt.Println("----------------------------------------------------------------------")
 
+	dbHost := os.Getenv("DB_HOST")
+	if dbHost == "" {
+		dbHost = "35.206.81.32"
+	}
+
 	teams := []TeamCred{
-		{"01", "user_equipo01", "MWsJkwHnstfp6Y92EF0p", "mod01", "Matrícula"},
-		{"02", "user_equipo02", "SVMa8ClAvXSRWQX6VtRF", "mod02", "Asistencia"},
-		{"03", "user_equipo03", "Oiffu1yqL58#M!#_YFgI", "mod03", "Calificaciones"},
-		{"04", "user_equipo04", "wbNb!rQaj1rs6WC2MiUw", "mod04", "Horarios & Aulas"},
-		{"05", "user_equipo05", "G0wH7Yux@3j6gk8pj6Mf", "mod05", "Prácticas EFSRT"},
-		{"06", "user_equipo06", "Pj0y2rLN2kBrjHZFTO9x", "mod06", "Mesa de Partes"},
-		{"07", "user_equipo07", "4rE2#yVPrEagn!fEzfVg", "mod07", "Biblioteca Virtual"},
-		{"08", "user_equipo08", "m6dQA0PFOJv6iRfNMu7H", "mod08", "Bolsa de Trabajo"},
-		{"09", "user_equipo09", "vkcITPMZMt1oKGB6BR6C", "mod09", "Tesorería & Pagos"},
+		{"01", "user_equipo01", os.Getenv("DB_PASS_EQUIPO01"), "mod01", "Matrícula"},
+		{"02", "user_equipo02", os.Getenv("DB_PASS_EQUIPO02"), "mod02", "Asistencia"},
+		{"03", "user_equipo03", os.Getenv("DB_PASS_EQUIPO03"), "mod03", "Calificaciones"},
+		{"04", "user_equipo04", os.Getenv("DB_PASS_EQUIPO04"), "mod04", "Horarios & Aulas"},
+		{"05", "user_equipo05", os.Getenv("DB_PASS_EQUIPO05"), "mod05", "Prácticas EFSRT"},
+		{"06", "user_equipo06", os.Getenv("DB_PASS_EQUIPO06"), "mod06", "Mesa de Partes"},
+		{"07", "user_equipo07", os.Getenv("DB_PASS_EQUIPO07"), "mod07", "Biblioteca Virtual"},
+		{"08", "user_equipo08", os.Getenv("DB_PASS_EQUIPO08"), "mod08", "Bolsa de Trabajo"},
+		{"09", "user_equipo09", os.Getenv("DB_PASS_EQUIPO09"), "mod09", "Tesorería & Pagos"},
 	}
 
 	for _, t := range teams {
-		dsn := fmt.Sprintf("host=35.206.81.32 port=5432 user=%s password=%s dbname=db_intranet_iestp sslmode=disable search_path=%s,core,public",
-			t.User, t.Pass, t.Schema)
+		if t.Pass == "" {
+			fmt.Printf("⚠️ Equipo %s (%s) -> Omitido (Variable DB_PASS_EQUIPO%s no definida)\n", t.Num, t.ModName, t.Num)
+			continue
+		}
+
+		dsn := fmt.Sprintf("host=%s port=5432 user=%s password=%s dbname=db_intranet_iestp sslmode=disable search_path=%s,core,public",
+			dbHost, t.User, t.Pass, t.Schema)
 
 		db, err := sql.Open("postgres", dsn)
 		if err != nil {
