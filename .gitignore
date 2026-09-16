@@ -13,3 +13,6 @@ obj/
 *.log
 .DS_Store
 Thumbs.db
+distribucion_equipos/
+fichas_*/
+*.zip
