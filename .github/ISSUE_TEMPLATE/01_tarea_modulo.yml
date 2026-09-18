@@ -1,0 +1,54 @@
+name: 📋 Nueva Tarea de Módulo
+description: Plantilla estándar para que un Product Owner cree una tarea para su equipo.
+title: "[MOD-XX] Título conciso de la funcionalidad o tarea"
+labels: ["taller-web"]
+body:
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: 🏢 Módulo Perteneciente
+      description: Selecciona el módulo al que corresponde esta tarea.
+      options:
+        - "Módulo 01"
+        - "Módulo 02 (Asistencia)"
+        - "Módulo 03"
+        - "Módulo 04"
+        - "Módulo 05"
+        - "Módulo 06"
+        - "Módulo 07"
+        - "Módulo 08"
+        - "Módulo 09"
+    validations:
+      required: true
+
+  - type: textarea
+    id: descripcion
+    attributes:
+      label: 📝 Descripción del Requerimiento / User Story
+      description: Explica claramente qué debe hacer la funcionalidad (Como [rol], quiero [acción] para [beneficio]).
+      placeholder: "Ejemplo: Como docente, quiero registrar la asistencia diaria para calcular el 30% de faltas automáticamente..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: criterios_aceptacion
+    attributes:
+      label: ✅ Criterios de Aceptación (Definition of Done)
+      description: ¿Qué condiciones debe cumplir el código para que el PO apruebe la tarea?
+      value: |
+        - [ ] 1. Base de Datos: Solo interactúa con su esquema propio (`modXX.*`) y lectura a `core.*`.
+        - [ ] 2. Backend: Compila en .NET 10 sin errores ni warnings críticos (`dotnet build`).
+        - [ ] 3. Frontend: Vistas Razor ergonómicas con Tailwind CSS / DaisyUI (siguiendo Módulo 02).
+        - [ ] 4. Rama Git: Desarrollado en rama `moduloXX/nombre-tarea`.
+        - [ ] 5. Smoke Test: Verificado con HTTP 200 en navegador local.
+    validations:
+      required: true
+
+  - type: input
+    id: desarrollador
+    attributes:
+      label: 👤 Desarrollador(es) Asignado(s)
+      description: Usuario de GitHub o nombre del compañero que programará esta tarea.
+      placeholder: "@usuario_github"
+    validations:
+      required: true

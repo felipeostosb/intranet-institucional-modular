@@ -1,0 +1,36 @@
+name: 🏷️ Etiquetado Automático de Pull Requests y Módulos
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  auto-label:
+    runs-on: ubuntu-latest
+    name: Auto-etiquetar por Módulo
+    steps:
+      - name: Asignar etiqueta según nombre de rama
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const branch = context.payload.pull_request.head.ref.toLowerCase();
+            const prNumber = context.payload.pull_request.number;
+            
+            const match = branch.match(/modulo-?0?([1-9])/);
+            if (match) {
+              const modNum = match[1].padStart(2, '0');
+              const labelName = `modulo-${modNum}`;
+              
+              console.log(`Asignando etiqueta ${labelName} al PR #${prNumber} desde la rama ${branch}`);
+              
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                labels: [labelName]
+              });
+            }

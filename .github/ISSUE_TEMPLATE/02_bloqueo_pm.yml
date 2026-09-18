@@ -1,0 +1,51 @@
+name: 🚨 Reporte de Bloqueo Crítico (Escalado a PM)
+description: Usar únicamente si un equipo tiene un impedimento técnico o de base de datos que no puede resolver tras 15 minutos.
+title: "[BLOQUEO] Descripción breve del impedimento"
+labels: ["bloqueo-pm"]
+body:
+  - type: dropdown
+    id: modulo
+    attributes:
+      label: 🏢 Módulo Afectado
+      options:
+        - "Módulo 01"
+        - "Módulo 02"
+        - "Módulo 03"
+        - "Módulo 04"
+        - "Módulo 05"
+        - "Módulo 06"
+        - "Módulo 07"
+        - "Módulo 08"
+        - "Módulo 09"
+    validations:
+      required: true
+
+  - type: textarea
+    id: sintoma
+    attributes:
+      label: ⚠️ ¿Cuál es el error o bloqueo exacto?
+      description: Pega el mensaje de error o describe la dependencia bloqueante.
+      placeholder: "Ejemplo: Error al compilar por falta del DTO X o error de permiso SQL en esquema modXX..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: intentos
+    attributes:
+      label: 🔍 ¿Qué intentó el equipo para solucionarlo? (Regla de los 15 minutos)
+      description: Explica qué documentación o pruebas realizaron antes de escalar.
+      placeholder: "Revisamos la guía DOC-016 y probamos reiniciar la conexión Npgsql..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: pasos_reproducir
+    attributes:
+      label: 🧪 Pasos para que Felipe (PM) lo reproduzca
+      description: Comando exacto o URL donde ocurre el fallo.
+      value: |
+        1. Ejecutar: `dotnet run` o `psql ...`
+        2. Navegar a: `http://localhost:5000/ModuloXX/...`
+        3. Observar el error: `...`
+    validations:
+      required: true
