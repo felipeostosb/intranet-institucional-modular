@@ -1,0 +1,139 @@
+name: 🤖 Automatización Integral de GitHub Projects
+
+on:
+  issues:
+    types: [opened, reopened]
+  pull_request_target:
+    types: [opened, reopened, ready_for_review, closed]
+
+permissions:
+  repository-projects: write
+  issues: write
+  pull-requests: write
+  contents: write
+
+jobs:
+  sync-project:
+    runs-on: ubuntu-latest
+    name: Sincronizar Tablero Kanban y Módulos
+    steps:
+      - name: Actualizar Tarjeta en GitHub Project #1
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const PROJECT_ID = "PVT_kwHOC4AJEc4Bj3eu";
+            const STATUS_FIELD_ID = "PVTSSF_lAHOC4AJEc4Bj3euzhiqPso";
+            const MODULO_FIELD_ID = "PVTSSF_lAHOC4AJEc4Bj3euzhiqPz4";
+
+            // IDs de las 5 columnas
+            const STATUS_BACKLOG = "c68b1c88";
+            const STATUS_REVIEW = "ee5cd726";
+            const STATUS_DONE = "87c174dc";
+
+            // Mapa de opciones para el campo Módulo
+            const MODULO_OPTIONS = {
+              "01": "b7cdb22c",
+              "02": "35b51811",
+              "03": "0a635eb0",
+              "04": "a820bcf8",
+              "05": "2d06b29c",
+              "06": "0accba21",
+              "07": "998c731a",
+              "08": "8c83eb18",
+              "09": "d05636bd"
+            };
+
+            const isPR = !!context.payload.pull_request;
+            const itemContentId = isPR ? context.payload.pull_request.node_id : context.payload.issue.node_id;
+            const action = context.payload.action;
+
+            console.log(`Procesando evento: ${isPR ? 'Pull Request' : 'Issue'} (Acción: ${action})`);
+
+            try {
+              // 1. Añadir el Issue o PR al Proyecto #1 si aún no está
+              const addMutation = `
+                mutation($projectId: ID!, $contentId: ID!) {
+                  addProjectV2ItemById(input: { projectId: $projectId, contentId: $contentId }) {
+                    item { id }
+                  }
+                }
+              `;
+              const addResult = await github.graphql(addMutation, {
+                projectId: PROJECT_ID,
+                contentId: itemContentId
+              });
+
+              const itemId = addResult.addProjectV2ItemById.item.id;
+              console.log(`Tarjeta en proyecto ID: ${itemId}`);
+
+              // 2. Determinar el estado Kanban a aplicar
+              let targetStatusId = null;
+              if (!isPR && (action === 'opened' || action === 'reopened')) {
+                targetStatusId = STATUS_BACKLOG; // Tareas nuevas van a Backlog
+              } else if (isPR && (action === 'opened' || action === 'reopened' || action === 'ready_for_review')) {
+                targetStatusId = STATUS_REVIEW; // PR nuevo va a Review & QA
+              } else if (isPR && action === 'closed' && context.payload.pull_request.merged) {
+                targetStatusId = STATUS_DONE; // PR mergeado va a Done / Deployed
+              }
+
+              if (targetStatusId) {
+                const updateStatusMutation = `
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId,
+                      itemId: $itemId,
+                      fieldId: $fieldId,
+                      value: { singleSelectOptionId: $optionId }
+                    }) { projectV2Item { id } }
+                  }
+                `;
+                await github.graphql(updateStatusMutation, {
+                  projectId: PROJECT_ID,
+                  itemId: itemId,
+                  fieldId: STATUS_FIELD_ID,
+                  optionId: targetStatusId
+                });
+                console.log(`Estado actualizado correctamente a ID: ${targetStatusId}`);
+              }
+
+              // 3. Detectar módulo según rama (en PRs) o labels (en Issues)
+              let detectedModNum = null;
+              if (isPR) {
+                const branch = context.payload.pull_request.head.ref.toLowerCase();
+                const match = branch.match(/modulo-?0?([1-9])/);
+                if (match) detectedModNum = match[1].padStart(2, '0');
+              } else {
+                const labels = context.payload.issue.labels || [];
+                for (const l of labels) {
+                  const match = l.name.toLowerCase().match(/modulo-?0?([1-9])/);
+                  if (match) {
+                    detectedModNum = match[1].padStart(2, '0');
+                    break;
+                  }
+                }
+              }
+
+              if (detectedModNum && MODULO_OPTIONS[detectedModNum]) {
+                const moduloOptionId = MODULO_OPTIONS[detectedModNum];
+                const updateModuloMutation = `
+                  mutation($projectId: ID!, $itemId: ID!, $fieldId: ID!, $optionId: String!) {
+                    updateProjectV2ItemFieldValue(input: {
+                      projectId: $projectId,
+                      itemId: $itemId,
+                      fieldId: $fieldId,
+                      value: { singleSelectOptionId: $optionId }
+                    }) { projectV2Item { id } }
+                  }
+                `;
+                await github.graphql(updateModuloMutation, {
+                  projectId: PROJECT_ID,
+                  itemId: itemId,
+                  fieldId: MODULO_FIELD_ID,
+                  optionId: moduloOptionId
+                });
+                console.log(`Campo Módulo asignado: Módulo ${detectedModNum}`);
+              }
+            } catch (err) {
+              console.log(`Nota sobre automatización: ${err.message}`);
+            }
