@@ -42,7 +42,7 @@ if [ -n "`$MOD_NUM" ]; then
     STAGED_FILES=`$(git diff --cached --name-only)
     VIOLATIONS=0
     for file in `$STAGED_FILES; do
-        if [[ "`$file" != "`$ALLOWED_DIR"* ]] && [[ "`$file" != "docs/"* ]] && [[ "`$file" != *.md ]] && [[ "`$file" != "dev.sh" ]] && [[ "`$file" != "dev.ps1" ]]; then
+        if [[ "`$file" != "`$ALLOWED_DIR"* ]] && [[ "`$file" != "docs/"* ]] && [[ "`$file" != *.md ]] && [[ "`$file" != "dev.sh" ]] && [[ "`$file" != "dev.ps1" ]] && [[ "`$file" != ".dockerignore" ]] && [[ "`$file" != "Dockerfile" ]]; then
             echo -e "\033[1;31m❌ VIOLACIÓN DE LÍMITES MODULARES (Zero-Blast-Radius):\033[0m"
             echo -e "   El archivo '`$file' está fuera de tu módulo '`$ALLOWED_DIR'."
             VIOLATIONS=`$((VIOLATIONS + 1))
@@ -73,9 +73,10 @@ function Show-Menu {
     Write-Host ""
     Write-Host "  1) 🚀 Iniciar Intranet (Ver cambios en vivo con Hot-Reload en http://localhost:5000)" -ForegroundColor Green
     Write-Host "  2) 🌿 Mi Rama de Equipo (Crear o cambiar a tu rama modulo00..modulo09)" -ForegroundColor Green
-    Write-Host "  3) 🧪 Compilar y Validar (Verifica 0 errores en toda la solución .NET 10)" -ForegroundColor Green
-    Write-Host "  4) 📤 Subir a GitHub (Guarda cambios, sincroniza y genera enlace de PR)" -ForegroundColor Green
-    Write-Host "  5) 🗄️  Base de Datos PostgreSQL (Credenciales Adminer y Configuración Local)" -ForegroundColor Green
+    Write-Host "  3) 🔄 Sincronizar con 'main' (Descarga cambios de producción sin perder tu trabajo)" -ForegroundColor Green
+    Write-Host "  4) 🧪 Compilar y Validar (Verifica 0 errores en toda la solución .NET 10)" -ForegroundColor Green
+    Write-Host "  5) 📤 Subir a GitHub (Guarda cambios, sincroniza y genera enlace de PR)" -ForegroundColor Green
+    Write-Host "  6) 🗄️  Base de Datos PostgreSQL (Credenciales Adminer y Configuración Local)" -ForegroundColor Green
     Write-Host "  0) 🚪 Salir" -ForegroundColor Red
     Write-Host ""
 }
@@ -122,6 +123,72 @@ function Create-Branch {
     Write-Host "🔒 Guardián Activado: Solo puedes modificar archivos en: src/02_Modulos/Intranet.Modulo$numFmt/" -ForegroundColor Yellow
 }
 
+function Sync-Main {
+    Write-Host "`n🔄 SINCRONIZAR Y ACTUALIZAR CON 'main' (PRODUCCIÓN)" -ForegroundColor Blue
+    $branch = $(git rev-parse --abbrev-ref HEAD 2>$null)
+    
+    if ($branch -eq "main") {
+        Write-Host "ℹ️ Estás en 'main'. Descargando últimos cambios directamente de GitHub..." -ForegroundColor Yellow
+        git pull origin main
+        Write-Host "`n✅ ¡Rama 'main' actualizada con éxito!" -ForegroundColor Green
+        return
+    }
+    
+    Write-Host "🌿 Tu rama actual: $branch" -ForegroundColor Cyan
+    Write-Host "Iniciando sincronización segura (Zero-Data-Loss)...`n" -ForegroundColor Cyan
+    
+    $stashed = $false
+    $status = $(git status --porcelain)
+    if ($status) {
+        Write-Host "📦 Guardando temporalmente tus cambios locales no guardados (stash)..." -ForegroundColor Yellow
+        git stash push -m "WIP-dev-sync" | Out-Null
+        $stashed = $true
+        Write-Host "✓ Trabajo local respaldado con seguridad." -ForegroundColor Green
+    }
+    
+    Write-Host "📥 Descargando actualizaciones de 'main' desde GitHub (git fetch)..." -ForegroundColor Cyan
+    git fetch origin main
+    
+    Write-Host "🔀 Integrando los cambios de producción en tu rama ($branch)..." -ForegroundColor Cyan
+    git rebase origin/main
+    if ($LASTEXITCODE -ne 0) {
+        Write-Host "`n⚠️  HUBO UN CONFLICTO al integrar los cambios de main." -ForegroundColor Red
+        Write-Host "Cancelando rebase para proteger tu código..." -ForegroundColor Yellow
+        git rebase --abort 2>$null | Out-Null
+        if ($stashed) {
+            git stash pop | Out-Null
+        }
+        Write-Host "`n💡 Pide apoyo a tu Scrum Master o revisa con 'git status'." -ForegroundColor Cyan
+        return
+    }
+    
+    if ($stashed) {
+        Write-Host "📦 Restaurando tus cambios locales de vuelta a tus archivos..." -ForegroundColor Cyan
+        git stash pop | Out-Null
+        Write-Host "✓ Tus cambios locales están de vuelta intactos." -ForegroundColor Green
+    }
+    
+    Write-Host "`n🧪 Verificando compilación de la solución..." -ForegroundColor Cyan
+    dotnet build "IntranetInstitucional.sln" -v q --nologo
+    
+    Write-Host "`n======================================================================" -ForegroundColor Green
+    Write-Host "🎉 ¡RAMA '$branch' 100% ACTUALIZADA CON PRODUCCIÓN ('main')!" -ForegroundColor Green
+    Write-Host "======================================================================" -ForegroundColor Green
+    Write-Host "💡 Todos los cambios nuevos de otros equipos ya están en tu computadora." -ForegroundColor White
+    Write-Host "💡 Todo tu avance local fue preservado sin ninguna pérdida.`n" -ForegroundColor White
+    
+    $pushNow = Read-Host "👉 ¿Deseas subir también tu rama actualizada a GitHub ahora? [S/n]"
+    if ($pushNow -notmatch "^[nN]$") {
+        Write-Host "Subiendo '$branch' a GitHub..." -ForegroundColor Cyan
+        git push --force-with-lease origin $branch 2>$null
+        if ($LASTEXITCODE -ne 0) {
+            git push -u origin $branch
+        }
+        Write-Host "✅ ¡Rama remota en GitHub actualizada!" -ForegroundColor Green
+        Write-Host "👉 Revisa tu Pull Request: https://github.com/felipeostosb/intranet-institucional-modular/compare/main...$branch" -ForegroundColor Cyan
+    }
+}
+
 function Validate-Code {
     Write-Host "`n🧪 VALIDANDO COMPILACIÓN Y CALIDAD DE CÓDIGO (.NET 10)...`n" -ForegroundColor Blue
     dotnet build "IntranetInstitucional.sln" --nologo -c Release
@@ -143,13 +210,17 @@ function Push-Work {
     
     git add .
     git commit -m "$msg"
-    git pull --rebase origin $branch 2>$null
+    git fetch origin main 2>$null | Out-Null
+    git rebase origin/main 2>$null | Out-Null
     
     Write-Host "`n🔨 Verificando compilación..." -ForegroundColor Cyan
     dotnet build "IntranetInstitucional.sln" -v q --nologo
     
     Write-Host "Publicando en GitHub..." -ForegroundColor Cyan
-    git push -u origin $branch
+    git push --force-with-lease origin $branch 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        git push -u origin $branch
+    }
     
     Write-Host "`n🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!" -ForegroundColor Green
     Write-Host "👉 Abre tu Pull Request en: https://github.com/felipeostosb/intranet-institucional-modular/compare/main...$branch" -ForegroundColor Cyan
@@ -207,15 +278,16 @@ function Manage-Db {
 
 while ($true) {
     Show-Menu
-    $op = Read-Host "👉 Elige una opción [0-5]"
+    $op = Read-Host "👉 Elige una opción [0-6]"
     switch ($op) {
         "1" { Start-App }
         "2" { Create-Branch }
-        "3" { Validate-Code }
-        "4" { Push-Work }
-        "5" { Manage-Db }
+        "3" { Sync-Main }
+        "4" { Validate-Code }
+        "5" { Push-Work }
+        "6" { Manage-Db }
         "0" { Write-Host "`n¡Buen trabajo! Hasta la próxima sesión.`n" -ForegroundColor Green; exit }
-        Default { Write-Host "`nOpción no válida. Ingresa un número del 0 al 5." -ForegroundColor Red }
+        Default { Write-Host "`nOpción no válida. Ingresa un número del 0 al 6." -ForegroundColor Red }
     }
     Write-Host "`nPresiona ENTER para volver al menú..." -ForegroundColor Yellow
     [void][System.Console]::ReadLine()

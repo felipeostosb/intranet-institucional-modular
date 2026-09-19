@@ -38,13 +38,14 @@ cd intranet-institucional-modular
 
 ## 🖥️ ¿Qué hace el Asistente Interactivo (`./dev.sh` / `.\dev.ps1`) por ti?
 
-El asistente te ofrece **5 opciones indispensables de alta frecuencia**:
+El asistente te ofrece **6 opciones indispensables de alta frecuencia**:
 
 1. **🚀 Iniciar Intranet:** Lanza la aplicación local en `http://localhost:5000` con **Hot-Reload** (se actualiza sola en ~100ms al guardar cambios en cualquier archivo C# o Razor).
 2. **🌿 Mi Rama de Equipo:** Te pide tu número de equipo (00 al 09) y crea automáticamente ramas estandarizadas como `modulo02/asistencia-semanas` sincronizadas con `main`.
-3. **🧪 Compilar y Validar:** Ejecuta `dotnet build` localmente para verificar que tu código compile con 0 errores antes de subirlo.
-4. **📤 Subir a GitHub:** Guarda automáticamente tus cambios, descarga actualizaciones con `git pull --rebase`, valida la compilación y publica tu rama en GitHub con el enlace directo para abrir tu Pull Request.
-5. **🗄️ Base de Datos PostgreSQL:** Muestra los datos de conexión de Adminer / Cloud DB y te permite configurar tu contraseña privada local en `appsettings.Local.json` a 1 clic.
+3. **🔄 Sincronizar con 'main':** Descarga los últimos cambios que otros equipos hayan fusionado a producción (`main`), integrándolos en tu rama de forma segura y **sin borrar ni perder tu trabajo local**.
+4. **🧪 Compilar y Validar:** Ejecuta `dotnet build` localmente para verificar que tu código compile con 0 errores antes de subirlo.
+5. **📤 Subir a GitHub:** Guarda automáticamente tus cambios, descarga actualizaciones con `git pull --rebase`, valida la compilación y publica tu rama en GitHub con el enlace directo para abrir tu Pull Request.
+6. **🗄️ Base de Datos PostgreSQL:** Muestra los datos de conexión de Adminer / Cloud DB y te permite configurar tu contraseña privada local en `appsettings.Local.json` a 1 clic.
 
 > [!NOTE]
 > **🛡️ Guardianes Git Poka-Yoke:** Al ejecutar el asistente, se instalan automáticamente *hooks* locales que bloquean cualquier intento de hacer `git push` o `git commit` accidental directo a `main`, y te protegen para que solo puedas modificar la carpeta de tu propio módulo (*Zero-Blast-Radius*).

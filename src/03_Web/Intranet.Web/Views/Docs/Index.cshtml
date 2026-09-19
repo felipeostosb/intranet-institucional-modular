@@ -85,15 +85,15 @@
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- Paso 1: Requisitos & Clonación -->
             <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Paso 1 • Clonar Repositorio</span>
+                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">1. Clonar Repositorio</span>
                     <span class="badge badge-xs badge-neutral text-[10px]">Git</span>
                 </div>
                 <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
-                    Asegúrate de tener instalado <strong>.NET 10 SDK</strong> y <strong>Git</strong>. Ejecuta en tu terminal:
+                    Asegúrate de tener instalado <strong>.NET 10 SDK</strong> y <strong>Git</strong>. Ejecuta:
                 </p>
                 <div class="font-mono bg-slate-900 text-cyan-300 p-2.5 rounded-xl text-[11px] select-all space-y-0.5">
                     <div>git clone https://github.com/felipeostosb/intranet-institucional-modular.git</div>
@@ -104,32 +104,47 @@
             <!-- Paso 2: CLI Automatizado -->
             <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Paso 2 • Crear Rama con dev.sh</span>
+                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">2. Crear Rama (Opción 2)</span>
                     <span class="badge badge-xs badge-primary text-[10px]">Asistente</span>
                 </div>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
                     Usa la <strong>Opción 2</strong> del asistente para crear tu rama protegida automáticamente:
                 </p>
                 <div class="font-mono bg-slate-900 text-cyan-300 p-2.5 rounded-xl text-[11px] select-all space-y-0.5">
-                    <div>./dev.sh <span class="text-slate-500"># Linux / macOS</span></div>
-                    <div>.\dev.ps1 <span class="text-slate-500"># Windows PowerShell</span></div>
+                    <div>./dev.sh <span class="text-slate-500"># Linux / Mac</span></div>
+                    <div>.\dev.ps1 <span class="text-slate-500"># Windows</span></div>
                 </div>
-                <p class="text-[11px] text-slate-400">El CLI te preguntará el módulo (00-09) y el nombre de la tarea.</p>
+                <p class="text-[11px] text-slate-400">Pregunta tu módulo (00-09) y el nombre de la tarea.</p>
             </div>
 
-            <!-- Paso 3: Ejecución & Base de Datos -->
+            <!-- Paso 3: Sincronizar con Producción -->
             <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
                 <div class="flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Paso 3 • Correr la Intranet</span>
+                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">3. Actualizar (Opción 3)</span>
+                    <span class="badge badge-xs bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 font-bold text-[10px]">Zero-Loss</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Si otro equipo actualizó <code class="font-mono text-cyan-500">main</code>, usa la <strong>Opción 3</strong>:
+                </p>
+                <div class="font-mono bg-slate-900 text-indigo-300 p-2.5 rounded-xl text-[11px] select-all">
+                    ./dev.sh <span class="text-slate-500">-> Elegir Opción 3</span>
+                </div>
+                <p class="text-[11px] text-slate-400">Descarga cambios de producción <strong>sin borrar ni perder</strong> tu avance local.</p>
+            </div>
+
+            <!-- Paso 4: Ejecución & Base de Datos -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">4. Correr Intranet (Opción 1)</span>
                     <span class="badge badge-xs badge-success text-[10px]">Port 5000</span>
                 </div>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Selecciona la <strong>Opción 1</strong> en el CLI o ejecuta el comando nativo:
+                    Selecciona la <strong>Opción 1</strong> para arrancar la web con Hot-Reload:
                 </p>
                 <div class="font-mono bg-slate-900 text-emerald-400 p-2.5 rounded-xl text-[11px] select-all">
-                    dotnet run --project src/03_Web/Intranet.Web/Intranet.Web.csproj
+                    http://localhost:5000
                 </div>
-                <p class="text-[11px] text-slate-400">Abre tu navegador en: <code class="font-mono text-cyan-500">http://localhost:5000</code></p>
+                <p class="text-[11px] text-slate-400">Vistas Razor minimalistas con soporte nativo Dark Mode.</p>
             </div>
         </div>
     </section>

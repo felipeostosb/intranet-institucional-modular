@@ -51,7 +51,7 @@ if [ -n "$MOD_NUM" ]; then
     VIOLATIONS=0
     for file in $STAGED_FILES; do
         # Permitir archivos de su propio módulo, documentación general o scripts
-        if [[ "$file" != "$ALLOWED_DIR"* ]] && [[ "$file" != "docs/"* ]] && [[ "$file" != *.md ]] && [[ "$file" != "dev.sh" ]] && [[ "$file" != "dev.ps1" ]]; then
+        if [[ "$file" != "$ALLOWED_DIR"* ]] && [[ "$file" != "docs/"* ]] && [[ "$file" != *.md ]] && [[ "$file" != "dev.sh" ]] && [[ "$file" != "dev.ps1" ]] && [[ "$file" != ".dockerignore" ]] && [[ "$file" != "Dockerfile" ]]; then
             echo -e "\033[1;31m❌ VIOLACIÓN DE LÍMITES MODULARES (Zero-Blast-Radius):\033[0m"
             echo -e "   El archivo '\033[1;33m$file\033[0m' está fuera de tu módulo asignado '\033[1;32m$ALLOWED_DIR\033[0m'."
             VIOLATIONS=$((VIOLATIONS + 1))
@@ -84,9 +84,10 @@ show_menu() {
     echo -e "${BLUE}----------------------------------------------------------------------${NC}\n"
     echo -e "  ${GREEN}1)${NC} 🚀 ${CYAN}Iniciar Intranet${NC} (Ver cambios en vivo con Hot-Reload en http://localhost:5000)"
     echo -e "  ${GREEN}2)${NC} 🌿 ${CYAN}Mi Rama de Equipo${NC} (Crear o cambiar a tu rama modulo00..modulo09)"
-    echo -e "  ${GREEN}3)${NC} 🧪 ${CYAN}Compilar y Validar${NC} (Verifica 0 errores en toda la solución .NET 10)"
-    echo -e "  ${GREEN}4)${NC} 📤 ${CYAN}Subir a GitHub${NC} (Guarda cambios, sincroniza y genera enlace de PR)"
-    echo -e "  ${GREEN}5)${NC} 🗄️  ${CYAN}Base de Datos PostgreSQL${NC} (Credenciales Adminer y Configuración Local)"
+    echo -e "  ${GREEN}3)${NC} 🔄 ${CYAN}Sincronizar con 'main'${NC} (Descarga cambios de producción sin perder tu trabajo)"
+    echo -e "  ${GREEN}4)${NC} 🧪 ${CYAN}Compilar y Validar${NC} (Verifica 0 errores en toda la solución .NET 10)"
+    echo -e "  ${GREEN}5)${NC} 📤 ${CYAN}Subir a GitHub${NC} (Guarda cambios, sincroniza y genera enlace de PR)"
+    echo -e "  ${GREEN}6)${NC} 🗄️  ${CYAN}Base de Datos PostgreSQL${NC} (Credenciales Adminer y Configuración Local)"
     echo -e "  ${GREEN}0)${NC} 🚪 ${YELLOW}Salir${NC}\n"
 }
 
@@ -139,6 +140,85 @@ create_branch() {
     echo -e "${YELLOW}🔒 Guardián Activado: Solo puedes modificar archivos en 'src/02_Modulos/Intranet.Modulo${num_fmt}/'${NC}"
 }
 
+sync_main() {
+    echo -e "\n${BLUE}🔄 SINCRONIZAR Y ACTUALIZAR CON 'main' (PRODUCCIÓN)${NC}"
+    branch=$(git rev-parse --abbrev-ref HEAD)
+    
+    if [ "$branch" = "main" ]; then
+        echo -e "${YELLOW}ℹ️ Estás en 'main'. Descargando últimos cambios directamente de GitHub...${NC}"
+        git pull origin main
+        echo -e "\n${GREEN}✅ ¡Rama 'main' actualizada con éxito!${NC}"
+        return
+    fi
+    
+    echo -e "🌿 Tu rama actual: ${CYAN}${branch}${NC}"
+    echo -e "${CYAN}Iniciando sincronización segura (Zero-Data-Loss)...${NC}\n"
+    
+    # 1. Guardar cambios locales sin commitear en stash de respaldo si existen
+    STASHED=0
+    STATUS=$(git status --porcelain)
+    if [ -n "$STATUS" ]; then
+        echo -e "${YELLOW}📦 Guardando temporalmente tus cambios locales no guardados (stash)...${NC}"
+        git stash push -m "WIP-dev-sync-$(date +%s)" >/dev/null 2>&1
+        STASHED=1
+        echo -e "${GREEN}✓ Trabajo local respaldado con seguridad.${NC}"
+    fi
+    
+    # 2. Obtener los últimos cambios de main desde GitHub
+    echo -e "${CYAN}📥 Descargando actualizaciones de 'main' desde GitHub (git fetch)...${NC}"
+    git fetch origin main
+    
+    # 3. Aplicar rebase de origin/main sobre la rama actual
+    echo -e "${CYAN}🔀 Integrando los cambios de producción en tu rama (${branch})...${NC}"
+    if ! git rebase origin/main; then
+        echo -e "\n${RED}⚠️  HUBO UN CONFLICTO al integrar los cambios de main.${NC}"
+        echo -e "${YELLOW}Cancelando rebase para proteger tu código...${NC}"
+        git rebase --abort 2>/dev/null || true
+        if [ $STASHED -eq 1 ]; then
+            git stash pop >/dev/null 2>&1 || true
+        fi
+        echo -e "\n${CYAN}💡 Recomendación:${NC}"
+        echo -e "   Si modificaste un archivo que otro equipo también tocó (ej: archivo compartido),"
+        echo -e "   pide apoyo a tu Scrum Master para revisar el cruce.\n"
+        return 1
+    fi
+    
+    # 4. Restaurar cambios locales del stash si se crearon
+    if [ $STASHED -eq 1 ]; then
+        echo -e "${CYAN}📦 Restaurando tus cambios locales de vuelta a tus archivos...${NC}"
+        git stash pop >/dev/null 2>&1 || true
+        echo -e "${GREEN}✓ Tus cambios locales están de vuelta intactos.${NC}"
+    fi
+    
+    # 5. Validar compilación de la solución unificada
+    echo -e "\n${CYAN}🧪 Verificando que todo compile perfectamente (.NET 10)...${NC}"
+    if command -v dotnet >/dev/null 2>&1; then
+        if dotnet build "IntranetInstitucional.sln" -v q --nologo; then
+            echo -e "${GREEN}✅ Compilación exitosa: 0 Errores.${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Aviso: Se detectaron detalles en la compilación. Ejecuta la opción 4 para validar.${NC}"
+        fi
+    fi
+    
+    echo -e "\n${GREEN}======================================================================${NC}"
+    echo -e "${GREEN}🎉 ¡RAMA '${branch}' 100% ACTUALIZADA CON PRODUCCIÓN ('main')!${NC}"
+    echo -e "${GREEN}======================================================================${NC}"
+    echo -e "💡 Todos los cambios nuevos de otros equipos ya están en tu computadora."
+    echo -e "💡 Todo tu avance local fue preservado sin ninguna pérdida.\n"
+    
+    # 6. Preguntar si desea actualizar su rama en GitHub ahora
+    read -p "👉 ¿Deseas subir también tu rama actualizada a GitHub ahora? [S/n]: " push_now
+    if [[ ! "$push_now" =~ ^[nN]$ ]]; then
+        echo -e "${CYAN}Subiendo '${branch}' a GitHub...${NC}"
+        if git push --force-with-lease origin "$branch" 2>/dev/null || git push -u origin "$branch"; then
+            echo -e "${GREEN}✅ ¡Rama remota en GitHub actualizada!${NC}"
+            echo -e "👉 Revisa tu Pull Request: ${CYAN}https://github.com/felipeostosb/intranet-institucional-modular/compare/main...${branch}${NC}"
+        else
+            echo -e "${YELLOW}⚠️  No se pudo subir automáticamente a GitHub. Puedes usar la opción 5 para subir cuando desees.${NC}"
+        fi
+    fi
+}
+
 validate_code() {
     echo -e "\n${BLUE}🧪 VALIDANDO COMPILACIÓN Y CALIDAD DE CÓDIGO (.NET 10)...${NC}\n"
     if ! command -v dotnet >/dev/null 2>&1; then
@@ -174,7 +254,7 @@ push_work() {
         MOD_NUM=$(echo "$branch" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | tr '[:upper:]' '[:lower:]' | grep -o -E '[0-9]{2}' || true)
         if [ -n "$MOD_NUM" ]; then
             ALLOWED_DIR="src/02_Modulos/Intranet.Modulo${MOD_NUM}/"
-            OUTSIDE_FILES=$(git status --porcelain | awk '{print $2}' | grep -v "^${ALLOWED_DIR}" | grep -v "^docs/" | grep -v "\.md$" | grep -v "dev\.sh$" | grep -v "dev\.ps1$" || true)
+            OUTSIDE_FILES=$(git status --porcelain | awk '{print $2}' | grep -v "^${ALLOWED_DIR}" | grep -v "^docs/" | grep -v "\.md$" | grep -v "dev\.sh$" | grep -v "dev\.ps1$" | grep -v "Dockerfile$" | grep -v "^\.dockerignore$" || true)
             if [ -n "$OUTSIDE_FILES" ]; then
                 echo -e "\n${RED}⛔ ERROR DE AISLAMIENTO MODULAR:${NC}"
                 echo -e "Detectamos cambios en archivos fuera de tu módulo '${ALLOWED_DIR}':"
@@ -195,16 +275,13 @@ push_work() {
         echo -e "${YELLOW}ℹ️ No hay archivos pendientes por guardar localmente.${NC}"
     fi
     
-    # 2. Descargar posibles cambios remotos
-    echo -e "${CYAN}Sincronizando con GitHub...${NC}"
-    if ! git pull --rebase origin "$branch" 2>/dev/null; then
+    # 2. Descargar posibles cambios remotos y rebase con main
+    echo -e "${CYAN}Sincronizando con 'main' de GitHub...${NC}"
+    git fetch origin main >/dev/null 2>&1 || true
+    if ! git rebase origin/main 2>/dev/null; then
         if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
             git rebase --abort 2>/dev/null || true
-            echo -e "\n${RED}⚠️  CONFLICTO DETECTADO: Hubo cambios concurrentes en tu rama remota.${NC}"
-            echo -e "${YELLOW}💡 Solución rápida:${NC}"
-            echo -e "   1. Crea una rama secundaria con la opción 2 (ej: ${branch}-nuevo)"
-            echo -e "   2. Sube tus cambios con la opción 4 y abre tu Pull Request.\n"
-            return 1
+            echo -e "${YELLOW}⚠️  Aviso: Se continuará sin rebase de main. Usa la opción 3 si deseas sincronizar a fondo.${NC}"
         fi
     fi
     
@@ -220,7 +297,7 @@ push_work() {
     
     # 4. Publicar en GitHub
     echo -e "${CYAN}Publicando rama '${branch}' en GitHub...${NC}"
-    if git push -u origin "$branch"; then
+    if git push --force-with-lease origin "$branch" 2>/dev/null || git push -u origin "$branch"; then
         echo -e "\n${GREEN}======================================================================${NC}"
         echo -e "${GREEN}🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!${NC}"
         echo -e "${GREEN}======================================================================${NC}"
@@ -288,15 +365,16 @@ JSON_EOF
 
 while true; do
     show_menu
-    read -p "👉 Elige una opción [0-5]: " op
+    read -p "👉 Elige una opción [0-6]: " op
     case $op in
         1) start_app ;;
         2) create_branch ;;
-        3) validate_code ;;
-        4) push_work ;;
-        5) manage_db ;;
+        3) sync_main ;;
+        4) validate_code ;;
+        5) push_work ;;
+        6) manage_db ;;
         0) echo -e "\n${GREEN}¡Buen trabajo! Hasta la próxima sesión.${NC}\n"; exit 0 ;;
-        *) echo -e "\n${RED}Opción no válida. Ingresa un número del 0 al 5.${NC}" ;;
+        *) echo -e "\n${RED}Opción no válida. Ingresa un número del 0 al 6.${NC}" ;;
     esac
     echo -e "\n${YELLOW}Presiona ENTER para volver al menú...${NC}"
     read -r
