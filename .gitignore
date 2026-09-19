@@ -16,3 +16,11 @@ Thumbs.db
 distribucion_equipos/
 fichas_*/
 *.zip
+
+# Local Developer Configuration and Secrets
+appsettings.Local.json
+src/03_Web/Intranet.Web/appsettings.Local.json
+*.local.json
+.env
+.env.local
+.env.*.local

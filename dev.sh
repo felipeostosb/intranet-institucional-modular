@@ -15,19 +15,61 @@ NC='\033[0m'
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "$ROOT_DIR"
 
-# Instalar guardián local contra push a main de forma silenciosa
-if [ -d .git ] && [ ! -f .git/hooks/pre-push ]; then
+# 1. Instalar guardián local contra push directo a 'main'
+if [ -d .git ]; then
     mkdir -p .git/hooks
     cat << 'HOOK_EOF' > .git/hooks/pre-push
 #!/usr/bin/env bash
 BRANCH=$(git rev-parse --abbrev-ref HEAD)
 if [ "$BRANCH" = "main" ]; then
-    echo -e "\033[1;31m⛔ ALERTA: No puedes hacer push directo a 'main'. Usa una rama de equipo.\033[0m"
+    echo -e "\033[1;31m⛔ ALERTA: No puedes hacer push directo a 'main'. Usa una rama de equipo (moduloXX/tarea).\033[0m"
     exit 1
 fi
 exit 0
 HOOK_EOF
     chmod +x .git/hooks/pre-push
+
+    # 2. Instalar guardián local de aislamiento modular (Pre-Commit Hook)
+    cat << 'COMMIT_HOOK_EOF' > .git/hooks/pre-commit
+#!/usr/bin/env bash
+BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+
+# Si está en main, bloquear commit directo
+if [ "$BRANCH" = "main" ]; then
+    echo -e "\033[1;31m⛔ ALERTA: No puedes hacer commit directo en 'main'. Usa la opción 2 de dev.sh para crear tu rama.\033[0m"
+    exit 1
+fi
+
+# Detectar si la rama corresponde a un módulo (ej: modulo02/avance o modulo-02-asistencia)
+MOD_NUM=$(echo "$BRANCH" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | tr '[:upper:]' '[:lower:]' | grep -o -E '[0-9]{2}' || true)
+
+if [ -n "$MOD_NUM" ]; then
+    ALLOWED_DIR="src/02_Modulos/Intranet.Modulo${MOD_NUM}/"
+    STAGED_FILES=$(git diff --cached --name-only)
+    
+    VIOLATIONS=0
+    for file in $STAGED_FILES; do
+        # Permitir archivos de su propio módulo, documentación general o scripts locales
+        if [[ "$file" != "$ALLOWED_DIR"* ]] && [[ "$file" != "docs/"* ]] && [[ "$file" != *.md ]]; then
+            echo -e "\033[1;31m❌ VIOLACIÓN DE LÍMITES MODULARES (Zero-Blast-Radius):\033[0m"
+            echo -e "   El archivo '\033[1;33m$file\033[0m' está fuera de tu módulo asignado '\033[1;32m$ALLOWED_DIR\033[0m'."
+            VIOLATIONS=$((VIOLATIONS + 1))
+        fi
+    done
+    
+    if [ $VIOLATIONS -gt 0 ]; then
+        echo -e "\033[1;31m======================================================================\033[0m"
+        echo -e "\033[1;31m⛔ COMMIT BLOQUEADO: Solo puedes modificar archivos en $ALLOWED_DIR\033[0m"
+        echo -e "\033[1;36m💡 Para desmarcar los cambios ajenos ejecuta:\033[0m"
+        echo -e "   git reset HEAD <archivo-ajeno>"
+        echo -e "   git checkout -- <archivo-ajeno>"
+        echo -e "\033[1;31m======================================================================\033[0m"
+        exit 1
+    fi
+fi
+exit 0
+COMMIT_HOOK_EOF
+    chmod +x .git/hooks/pre-commit
 fi
 
 show_menu() {
@@ -44,8 +86,9 @@ show_menu() {
     echo -e "  ${GREEN}3)${NC} ⚡ ${CYAN}Generar Formulario / Tabla${NC} (Modelo, Controlador, Vista y SQL Postgres)"
     echo -e "  ${GREEN}4)${NC} 🧪 ${CYAN}Compilar y Validar mi Módulo${NC} (Verifica 0 errores localmente)"
     echo -e "  ${GREEN}5)${NC} 📤 ${CYAN}Subir mi Trabajo a GitHub${NC} (Guarda, sincroniza y genera enlace de PR)"
-    echo -e "  ${GREEN}6)${NC} 🗄️ ${CYAN}Credenciales y Guía PostgreSQL 16${NC} (Ver accesos de Adminer / DB)"
-    echo -e "  ${GREEN}7)${NC} 🤖 ${CYAN}Preguntar al Asistente IA de Arquitectura${NC} (RAG Gemini + Qdrant)"
+    echo -e "  ${GREEN}6)${NC} ⚙️  ${CYAN}Configurar Base de Datos de mi Equipo${NC} (Permisos de Escritura PostgreSQL)"
+    echo -e "  ${GREEN}7)${NC} 🗄️  ${CYAN}Credenciales y Guía PostgreSQL 16${NC} (Ver accesos de Adminer / DB)"
+    echo -e "  ${GREEN}8)${NC} 🤖 ${CYAN}Preguntar al Asistente IA de Arquitectura${NC} (RAG Gemini + Qdrant)"
     echo -e "  ${GREEN}0)${NC} 🚪 ${YELLOW}Salir${NC}\n"
 }
 
@@ -93,7 +136,7 @@ create_branch() {
         echo -e "\n${GREEN}✅ ¡Rama creada con éxito: ${CYAN}${branch}${NC}!"
     fi
     
-    echo -e "${YELLOW}Recuerda programar en: src/02_Modulos/Intranet.Modulo${num}/${NC}"
+    echo -e "${YELLOW}🔒 Guardián Activado: Solo puedes modificar archivos en 'src/02_Modulos/Intranet.Modulo${num}/'${NC}"
 }
 
 scaffold_code() {
@@ -114,7 +157,6 @@ scaffold_code() {
         return
     fi
     
-    # PascalCase por segmentos: pago-mensual → PagoMensual
     entidad=$(echo "$entidad" | awk -F'-' '{out=""; for(i=1;i<=NF;i++){s=$i; if(toupper(s)==s) s=tolower(s); out=out toupper(substr(s,1,1)) substr(s,2)}; print out}')
     if [ "$entidad_raw" != "$entidad" ]; then
         echo -e "${CYAN}ℹ️ Nombre normalizado a identificador C#: '${entidad}'${NC}"
@@ -126,7 +168,6 @@ scaffold_code() {
         return
     fi
     
-    # Protección de sobrescritura: si ya existe la entidad, respaldar a .bak
     for existing in "$mod_path/Models/${entidad}.cs" "$mod_path/Controllers/${entidad}Controller.cs" "$mod_path/Views/${entidad}/Index.cshtml"; do
         if [ -f "$existing" ]; then
             cp "$existing" "$existing.bak"
@@ -326,11 +367,13 @@ push_work() {
         MOD_NUM=$(echo "$branch" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | tr '[:upper:]' '[:lower:]' | grep -o -E '[0-9]{2}' || true)
         if [ -n "$MOD_NUM" ]; then
             ALLOWED_DIR="src/02_Modulos/Intranet.Modulo${MOD_NUM}/"
-            OUTSIDE_FILES=$(git status --porcelain | awk '{print $2}' | grep -v "^${ALLOWED_DIR}" || true)
+            OUTSIDE_FILES=$(git status --porcelain | awk '{print $2}' | grep -v "^${ALLOWED_DIR}" | grep -v "^docs/" | grep -v "\.md$" || true)
             if [ -n "$OUTSIDE_FILES" ]; then
-                echo -e "\n${YELLOW}⚠️  AVISO DE AISLAMIENTO: Detectamos cambios fuera de tu carpeta '${ALLOWED_DIR}':${NC}"
-                echo -e "${RED}${OUTSIDE_FILES}${NC}"
-                echo -e "${YELLOW}💡 El bot de GitHub solo integrará cambios de tu propio módulo.${NC}\n"
+                echo -e "\n${RED}⛔ ERROR DE AISLAMIENTO MODULAR:${NC}"
+                echo -e "Detectamos cambios en archivos fuera de tu módulo '${ALLOWED_DIR}':"
+                echo -e "${YELLOW}${OUTSIDE_FILES}${NC}\n"
+                echo -e "${CYAN}💡 Para no bloquear tu Pull Request, revierte los cambios ajenos antes de subir.${NC}\n"
+                return 1
             fi
         fi
 
@@ -380,6 +423,56 @@ push_work() {
     fi
 }
 
+configure_db() {
+    echo -e "\n${BLUE}======================================================================${NC}"
+    echo -e "${BLUE}⚙️  CONFIGURACIÓN DE BASE DE DATOS DE TU EQUIPO (PostgreSQL 16)${NC}"
+    echo -e "${BLUE}======================================================================${NC}"
+    echo -e "  Al configurar tu equipo, la aplicación tendrá permisos de escritura"
+    echo -e "  exclusivos en tu esquema soberano ${CYAN}mod[XX]${NC}.\n"
+    
+    read -p "👉 ¿Qué número de equipo eres? (1 al 9): " num
+    num=$(printf "%02d" $((10#$num)))
+    
+    if [ "$num" -lt 1 ] || [ "$num" -gt 9 ]; then
+        echo -e "${RED}❌ Número no válido. Debe ser entre 1 y 9.${NC}"
+        return
+    fi
+    
+    echo -e "👤 Usuario PostgreSQL asignado: ${CYAN}user_equipo${num}${NC}"
+    read -sp "🔑 Ingresa la contraseña de tu equipo (entregada en tu Ficha Privada): " pass
+    echo ""
+    
+    if [ -z "$pass" ]; then
+        echo -e "${RED}❌ La contraseña no puede estar vacía.${NC}"
+        return
+    fi
+    
+    read -p "🌐 Host de BD [ENTER para usar '35.206.81.32' en la nube o escribe '127.0.0.1']: " dbhost
+    if [ -z "$dbhost" ]; then
+        dbhost="35.206.81.32"
+    fi
+    
+    LOCAL_CONFIG="src/03_Web/Intranet.Web/appsettings.Local.json"
+    
+    cat << JSON_EOF > "$LOCAL_CONFIG"
+{
+  "// LOCAL OVERRIDE": "Configuracion de conexion para Equipo ${num}. Este archivo esta en .gitignore.",
+  "ConnectionStrings": {
+    "Modulo${num}Connection": "Host=${dbhost};Port=5432;Database=db_intranet_iestp;Username=user_equipo${num};Password=${pass};SearchPath=mod${num},core,public;Pooling=true;MinPoolSize=2;MaxPoolSize=15;"
+  }
+}
+JSON_EOF
+
+    echo -e "\n${GREEN}======================================================================${NC}"
+    echo -e "${GREEN}✅ ¡CONFIGURACIÓN LOCAL COMPLETADA CON ÉXITO!${NC}"
+    echo -e "${GREEN}======================================================================${NC}"
+    echo -e "📄 Archivo creado: ${CYAN}${LOCAL_CONFIG}${NC} (Protegido en .gitignore)"
+    echo -e "🛡️  ${YELLOW}Seguridad de BD Activa:${NC}"
+    echo -e "   - Tu equipo tiene control ${GREEN}TOTAL (INSERT/UPDATE/DELETE)${NC} en su esquema ${CYAN}mod${num}${NC}."
+    echo -e "   - La base de datos protege a ${CYAN}core${NC} y los demás esquemas en ${YELLOW}SOLO LECTURA (SELECT)${NC}."
+    echo -e "${GREEN}======================================================================${NC}\n"
+}
+
 show_db_info() {
     echo -e "\n${BLUE}======================================================================${NC}"
     echo -e "${BLUE}🗄️  INFORMACIÓN DE BASE DE DATOS POSTGRESQL 16 & ADMINER${NC}"
@@ -393,7 +486,7 @@ show_db_info() {
     echo -e "  🛡️  ${CYAN}Esquema Soberano:${NC} mod[XX] (Tu espacio aislado de tablas)"
     echo -e "${BLUE}----------------------------------------------------------------------${NC}"
     echo -e "  💡 ${YELLOW}Permisos RBAC:${NC} Control total en 'modXX' y lectura (SELECT) en 'core'."
-    echo -e "  💡 ${CYAN}Conexión Automática:${NC} La app ya lee tu cadena desde appsettings.json."
+    echo -e "  💡 ${CYAN}Configuración Local:${NC} Usa la opción 6 de dev.sh para configurar tu clave."
     echo -e "${BLUE}======================================================================${NC}\n"
 }
 
@@ -411,15 +504,16 @@ ask_ai_assistant() {
 
 while true; do
     show_menu
-    read -p "👉 Elige una opción [0-7]: " op
+    read -p "👉 Elige una opción [0-8]: " op
     case $op in
         1) start_app ;;
         2) create_branch ;;
         3) scaffold_code ;;
         4) validate_code ;;
         5) push_work ;;
-        6) show_db_info ;;
-        7) ask_ai_assistant ;;
+        6) configure_db ;;
+        7) show_db_info ;;
+        8) ask_ai_assistant ;;
         0) echo -e "\n${GREEN}¡Buen trabajo! Hasta luego.${NC}\n"; exit 0 ;;
         *) echo -e "\n${RED}Opción no válida.${NC}" ;;
     esac

@@ -6,6 +6,7 @@
   <ItemGroup>
     <ProjectReference Include="../../01_Core/Intranet.Core/Intranet.Core.csproj" />
     <ProjectReference Include="../../01_Core/Intranet.Data/Intranet.Data.csproj" />
+    <ProjectReference Include="../../02_Modulos/Intranet.Modulo00/Intranet.Modulo00.csproj" />
     <ProjectReference Include="../../02_Modulos/Intranet.Modulo01/Intranet.Modulo01.csproj" />
     <ProjectReference Include="../../02_Modulos/Intranet.Modulo02/Intranet.Modulo02.csproj" />
     <ProjectReference Include="../../02_Modulos/Intranet.Modulo03/Intranet.Modulo03.csproj" />
