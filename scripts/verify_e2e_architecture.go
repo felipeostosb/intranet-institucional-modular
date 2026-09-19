@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -97,7 +98,7 @@ func testAdminer() {
 
 func testPostgresTeams() {
 	fmt.Println("----------------------------------------------------------------------")
-	fmt.Println("3️⃣ VALIDANDO LOS 9 EQUIPOS EN POSTGRESQL 16 (Aislamiento & Permisos)")
+	fmt.Println("3️⃣ VALIDANDO LOS 10 EQUIPOS EN POSTGRESQL 16 (Aislamiento & Permisos)")
 	fmt.Println("----------------------------------------------------------------------")
 
 	dbHost := os.Getenv("DB_HOST")
@@ -105,16 +106,25 @@ func testPostgresTeams() {
 		dbHost = "35.206.81.32"
 	}
 
+	getPass := func(envKey, fallback string) string {
+		v := os.Getenv(envKey)
+		if v != "" {
+			return v
+		}
+		return fallback
+	}
+
 	teams := []TeamCred{
-		{"01", "user_equipo01", os.Getenv("DB_PASS_EQUIPO01"), "mod01", "Matrícula"},
-		{"02", "user_equipo02", os.Getenv("DB_PASS_EQUIPO02"), "mod02", "Asistencia"},
-		{"03", "user_equipo03", os.Getenv("DB_PASS_EQUIPO03"), "mod03", "Calificaciones"},
-		{"04", "user_equipo04", os.Getenv("DB_PASS_EQUIPO04"), "mod04", "Horarios & Aulas"},
-		{"05", "user_equipo05", os.Getenv("DB_PASS_EQUIPO05"), "mod05", "Prácticas EFSRT"},
-		{"06", "user_equipo06", os.Getenv("DB_PASS_EQUIPO06"), "mod06", "Mesa de Partes"},
-		{"07", "user_equipo07", os.Getenv("DB_PASS_EQUIPO07"), "mod07", "Biblioteca Virtual"},
-		{"08", "user_equipo08", os.Getenv("DB_PASS_EQUIPO08"), "mod08", "Bolsa de Trabajo"},
-		{"09", "user_equipo09", os.Getenv("DB_PASS_EQUIPO09"), "mod09", "Tesorería & Pagos"},
+		{"00", "user_equipo00", getPass("DB_PASS_EQUIPO00", "k3R8vNm9QwL2xZp5Jt6YhB1c"), "mod00", "Seguridad & Login"},
+		{"01", "user_equipo01", getPass("DB_PASS_EQUIPO01", "9PTCD1PoK6de7N26OUCXqHs3"), "mod01", "Matrícula"},
+		{"02", "user_equipo02", getPass("DB_PASS_EQUIPO02", "6oX3j7V2fjiVdEsyh4dt224k"), "mod02", "Asistencia"},
+		{"03", "user_equipo03", getPass("DB_PASS_EQUIPO03", "7xnegk5ioJBxyK5N3m8TR5Ax"), "mod03", "Calificaciones"},
+		{"04", "user_equipo04", getPass("DB_PASS_EQUIPO04", "961FUPZDmVFvmhZwu6VOoOW0"), "mod04", "Horarios & Aulas"},
+		{"05", "user_equipo05", getPass("DB_PASS_EQUIPO05", "wZLI46RbP2qyGF37pV1HInHO"), "mod05", "Docentes & Asignación"},
+		{"06", "user_equipo06", getPass("DB_PASS_EQUIPO06", "nvsr3HFVDykuxEa2Uc04IHYM"), "mod06", "Mesa de Partes"},
+		{"07", "user_equipo07", getPass("DB_PASS_EQUIPO07", "YiwtK5m6oZTCmpv7Zmcf4xuE"), "mod07", "Biblioteca & Bolsa"},
+		{"08", "user_equipo08", getPass("DB_PASS_EQUIPO08", "eLtTQ1Ezi72YkWhNuWVjDSdl"), "mod08", "Encuestas & Tutoría"},
+		{"09", "user_equipo09", getPass("DB_PASS_EQUIPO09", "lnhpKs92rAPXpvJwo0pU2kL7"), "mod09", "Tesorería & Pagos"},
 	}
 
 	for _, t := range teams {
