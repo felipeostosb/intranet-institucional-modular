@@ -35,7 +35,7 @@
                     Manual de Operaciones & Guía de Ingeniería
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                    Recetario maestro para el desarrollo modular de los 10 equipos del IESTP Argentina. Conoce el ciclo completo desde la clonación de Git hasta la entrega, con manuales especializados para <strong>Product Owner</strong>, <strong>Scrum Master</strong>, <strong>Especialista de Base de Datos (DBA)</strong> y <strong>QA Tester</strong>.
+                    Recetario maestro para el desarrollo modular de los 10 equipos del IESTP Argentina. Conoce el ciclo completo desde la clonación de Git hasta la entrega, con manuales especializados, <strong>Prompts Maestros para IA</strong> y sinergia de roles.
                 </p>
             </div>
 
@@ -55,6 +55,9 @@
                 </a>
                 <a href="#qa-tester" class="px-3 py-1 rounded-xl text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 transition border border-amber-500/30">
                     🧪 QA Tester
+                </a>
+                <a href="#prompts-ia" class="px-3 py-1 rounded-xl text-xs font-semibold bg-blue-500/20 hover:bg-blue-500/30 text-blue-200 transition border border-blue-500/30 font-bold">
+                    🤖 Prompts para IA
                 </a>
                 <a href="#sinergia" class="px-3 py-1 rounded-xl text-xs font-semibold bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 transition border border-purple-500/30">
                     🤝 Ciclo de 4 Pasos
@@ -275,7 +278,6 @@
             <span class="badge badge-sm bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 font-bold">PostgreSQL 16 Cloud</span>
         </div>
 
-        <!-- 4 Bloques Completos para el DBA -->
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- 1. Conexión & Adminer -->
             <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
@@ -403,14 +405,178 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 🤝 SECCIÓN 6: CICLO DE 4 PASOS (SINERGIA DE EQUIPO)                       -->
+    <!-- 🤖 SECCIÓN 6: PROMPTS MAESTROS PARA ASISTENTES DE IA (PO / DBA / DEV / QA)-->
+    <!-- ========================================================================= -->
+    <section id="prompts-ia" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🤖</span>
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">6. Prompts Maestros para Inteligencia Artificial</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Plantillas blindadas listas para copiar y pegar en ChatGPT, Claude, DeepSeek o Cursor para asegurar que respeten la arquitectura.</p>
+                </div>
+            </div>
+            <span class="badge badge-sm bg-blue-500/20 text-blue-700 dark:text-blue-300 border-blue-500/30 font-bold">Protección de Contexto</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- Prompt 1: Product Owner -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3 flex flex-col justify-between">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">👑</span>
+                            <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Prompt 1 • Para el Product Owner</h3>
+                        </div>
+                        <span class="badge badge-xs badge-ghost text-[10px]">Historias & Gherkin</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Genera historias de usuario con formato DoR y criterios de aceptación sin tecnicismos confusos.
+                    </p>
+                    <div class="bg-slate-900 text-slate-300 p-3 rounded-xl text-[11px] font-mono max-h-36 overflow-y-auto leading-relaxed border border-slate-800 select-all" id="prompt_po">Actúa como Product Owner Senior especializado en ERPs Educativos del Perú.
+Mi módulo asignado es: [Módulo XX: Nombre del Módulo].
+Redacta 3 Historias de Usuario de alto valor para este módulo siguiendo estrictamente este formato:
+1. Historia: "Como [Rol: Docente/Estudiante/Director/Cajero], Quiero [Acción concreta en la vista], Para [Beneficio medible]".
+2. Criterios de Aceptación (Gherkin):
+   - Dado que: [Precondición del sistema]
+   - Cuando: [Acción del usuario]
+   - Entonces: [Resultado esperado en pantalla y en la BD]
+3. Requerimientos de Datos: Lista de 4 campos clave que el Especialista de BD debe crear en la tabla de este módulo.
+Restricción: No uses código SQL ni tecnicismos de programación. Sé directo y claro.</div>
+                </div>
+                <button onclick="copiarAlPortapapeles('prompt_po', this)" class="btn btn-sm btn-ghost bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-semibold w-full gap-1.5 mt-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <span>Copiar Prompt PO</span>
+                </button>
+            </div>
+
+            <!-- Prompt 2: DBA PostgreSQL -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3 flex flex-col justify-between">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">🗄️</span>
+                            <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Prompt 2 • Para el Especialista BD (DBA)</h3>
+                        </div>
+                        <span class="badge badge-xs badge-ghost text-[10px]">PostgreSQL 16</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Genera scripts DDL y DML aislados en tu esquema soberano con Foreign Keys hacia `core`.
+                    </p>
+                    <div class="bg-slate-900 text-slate-300 p-3 rounded-xl text-[11px] font-mono max-h-36 overflow-y-auto leading-relaxed border border-slate-800 select-all" id="prompt_dba">Actúa como Lead Database Administrator (DBA) especializado en PostgreSQL 16.
+Estamos desarrollando un ERP modular institucional.
+Mi esquema soberano asignado es: [modXX] (ej: mod02).
+Mi usuario de PostgreSQL es: [user_equipoXX].
+El requerimiento funcional de mi módulo es: [Pegar historias del PO o describir funcionalidad].
+
+Genera los scripts SQL optimizados siguiendo estrictamente estas reglas arquitectónicas:
+1. SOBERANÍA: Todas las tablas deben crearse dentro de mi esquema 'modXX' (ej: CREATE TABLE modXX.nombre_tabla (...)).
+2. INTEGRIDAD REFERENCIAL: Las entidades globales NO se duplican; debes referenciar con Foreign Keys hacia el esquema 'core':
+   - core.estudiantes(id)
+   - core.docentes(id)
+   - core.carreras(id)
+   - core.semestres(id)
+3. BUENAS PRÁCTICAS:
+   - Primary Keys: id SERIAL PRIMARY KEY.
+   - Timestamps: created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP.
+   - Restricciones CHECK para estados o tipos acotados.
+   - Índices B-Tree en columnas de búsqueda (dni, fechas, estado).
+4. ESTRUCTURA:
+   - Archivo 1: scripts/modXX/01_crear_tablas.sql
+   - Archivo 2: scripts/modXX/02_crear_indices.sql
+   - Archivo 3: scripts/modXX/03_datos_prueba.sql (5 inserts con FKs válidas a core).
+Restricción crítica: PROHIBIDO hacer DROP/ALTER a esquemas ajenos o al esquema 'core'.</div>
+                </div>
+                <button onclick="copiarAlPortapapeles('prompt_dba', this)" class="btn btn-sm btn-ghost bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-semibold w-full gap-1.5 mt-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <span>Copiar Prompt DBA</span>
+                </button>
+            </div>
+
+            <!-- Prompt 3: Desarrollador .NET 10 -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3 flex flex-col justify-between">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">💻</span>
+                            <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Prompt 3 • Para el Desarrollador (.NET 10)</h3>
+                        </div>
+                        <span class="badge badge-xs badge-ghost text-[10px]">C# 13 & Razor Zen</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Genera Controllers, Servicios y Vistas Razor minimalistas con soporte nativo de Modo Oscuro.
+                    </p>
+                    <div class="bg-slate-900 text-slate-300 p-3 rounded-xl text-[11px] font-mono max-h-36 overflow-y-auto leading-relaxed border border-slate-800 select-all" id="prompt_dev">Actúa como Senior .NET Engineer especializado en .NET 10 LTS, C# 13, ASP.NET Core MVC y Tailwind CSS / DaisyUI.
+Estamos trabajando en el proyecto modular: src/02_Modulos/Intranet.ModuloXX (ej: Intranet.Modulo02).
+El esquema de PostgreSQL es: modXX.
+Las tablas en BD son: [Pegar el DDL SQL o describir las entidades].
+
+Genera el código compilable siguiendo esta arquitectura:
+1. ENTIDADES & DTOs: Clases en Intranet.ModuloXX/Models.
+2. REPOSITORIO / SERVICIO: Métodos asíncronos con Npgsql / Dapper hacia el esquema modXX.
+3. CONTROLLER: ModuloXXController con [Authorize] y manejo de alertas TempData.
+4. VISTA RAZOR ZEN (Views/ModuloXX/Index.cshtml):
+   - Diseño Zen Minimalista (Apple/Linear).
+   - Soporte nativo de Modo Oscuro (dark:bg-[#111827], dark:border-slate-800, dark:text-slate-100).
+   - Cabecera con título claro y botón de acción principal.
+   - 4 Tarjetas KPI minimalistas con indicadores numéricos.
+   - Tabla responsive con badges de estado limpios.
+   - Alertas amigables de DaisyUI (alert-success, alert-error).
+Restricción: No toques código fuera de src/02_Modulos/Intranet.ModuloXX. Cero estilos CSS en línea o dependencias no autorizadas.</div>
+                </div>
+                <button onclick="copiarAlPortapapeles('prompt_dev', this)" class="btn btn-sm btn-ghost bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-semibold w-full gap-1.5 mt-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <span>Copiar Prompt Developer</span>
+                </button>
+            </div>
+
+            <!-- Prompt 4: QA Tester -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3 flex flex-col justify-between">
+                <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-2">
+                            <span class="text-base">🧪</span>
+                            <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Prompt 4 • Para el Especialista QA (Tester)</h3>
+                        </div>
+                        <span class="badge badge-xs badge-ghost text-[10px]">Test Matrix</span>
+                    </div>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">
+                        Genera un checklist de validación exhaustivo de casos borde, formularios y persistencia en BD.
+                    </p>
+                    <div class="bg-slate-900 text-slate-300 p-3 rounded-xl text-[11px] font-mono max-h-36 overflow-y-auto leading-relaxed border border-slate-800 select-all" id="prompt_qa">Actúa como Lead QA Engineer especializado en pruebas de software web y bases de datos.
+El módulo a probar es: [Módulo XX: Nombre del Módulo].
+Las funcionalidades del módulo son: [Pegar historias de usuario o pantallas].
+
+Diseña la Matriz de Pruebas de Calidad (Checklist Técnico de QA) antes de entregar al Product Owner:
+1. PRUEBAS DE ENTRADA & VALIDACIÓN:
+   - Casos con campos obligatorios vacíos (validar mensajes de error amigables, evitar error 500).
+   - Casos con caracteres especiales, inyección básica, números negativos o textos extremadamente largos.
+   - Prevención de doble submit (doble clic rápido).
+2. PRUEBAS DE BASE DE DATOS (PostgreSQL / Adminer):
+   - Verificación de inserción exacta en modXX.tabla sin campos nulos imprevistos.
+   - Verificación de Foreign Keys correctas con core.estudiantes y core.docentes.
+3. PRUEBAS DE EXPERIENCIA VISUAL ZEN:
+   - Comprobación de contraste y legibilidad en Modo Claro y Modo Oscuro.
+   - Comprobación de adaptación responsive en pantallas móviles y tablets.
+Genera el checklist en formato Markdown con casillas de verificación (- [ ]) listo para auditar.</div>
+                </div>
+                <button onclick="copiarAlPortapapeles('prompt_qa', this)" class="btn btn-sm btn-ghost bg-slate-100 dark:bg-slate-800/80 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-800 dark:text-slate-200 rounded-xl text-xs font-semibold w-full gap-1.5 mt-2">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                    <span>Copiar Prompt QA</span>
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 🤝 SECCIÓN 7: CICLO DE 4 PASOS (SINERGIA DE EQUIPO)                       -->
     <!-- ========================================================================= -->
     <section id="sinergia" class="scroll-mt-24 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
             <div class="flex items-center gap-2">
                 <span class="text-xl">🤝</span>
                 <div>
-                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">6. Sinergia de Equipo: El Ciclo de 4 Pasos</h2>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">7. Sinergia de Equipo: El Ciclo de 4 Pasos</h2>
                     <p class="text-xs text-slate-500 dark:text-slate-400">Cómo trabajan juntos PO, DBA, Scrum Master, Desarrolladores y QA para entregar una funcionalidad completa.</p>
                 </div>
             </div>
@@ -469,14 +635,14 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 🏢 SECCIÓN 7: DIRECTORIO OFICIAL DE LOS 10 MÓDULOS                        -->
+    <!-- 🏢 SECCIÓN 8: DIRECTORIO OFICIAL DE LOS 10 MÓDULOS                        -->
     <!-- ========================================================================= -->
     <section id="modulos" class="scroll-mt-24 space-y-4">
         <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
             <div class="flex items-center gap-2">
                 <span class="text-xl">🏢</span>
                 <div>
-                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">7. Directorio Oficial de los 10 Módulos</h2>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">8. Directorio Oficial de los 10 Módulos</h2>
                     <p class="text-xs text-slate-500 dark:text-slate-400">Mapeo institucional de los 10 equipos, esquemas PostgreSQL y responsabilidades.</p>
                 </div>
             </div>
@@ -571,14 +737,14 @@
     </section>
 
     <!-- ========================================================================= -->
-    <!-- 📹 SECCIÓN 8: ACADEMIA MULTIMEDIA & VIDEOS                                -->
+    <!-- 📹 SECCIÓN 9: ACADEMIA MULTIMEDIA & VIDEOS                                -->
     <!-- ========================================================================= -->
     <section id="videos" class="scroll-mt-24 space-y-4">
         <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
             <div class="flex items-center gap-2">
                 <span class="text-xl">📹</span>
                 <div>
-                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">8. Academia de Videotutoriales & Demos</h2>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">9. Academia de Videotutoriales & Demos</h2>
                     <p class="text-xs text-slate-500 dark:text-slate-400">Aprende con videos demostrativos y sube las capacitaciones de tu equipo.</p>
                 </div>
             </div>
@@ -783,6 +949,13 @@
     </div>
 </dialog>
 
+<!-- Toast de Copiado Exitoso -->
+<div id="toast_copiado" class="toast toast-end toast-bottom hidden z-50">
+    <div class="alert alert-success bg-emerald-600 text-white font-bold text-xs py-2 px-4 rounded-2xl shadow-2xl flex items-center gap-2">
+        <span>✓ ¡Prompt copiado al portapapeles! Pégalo en tu IA.</span>
+    </div>
+</div>
+
 @section Scripts {
     <script>
         function reproducirVideo(videoId, titulo, autor) {
@@ -802,6 +975,26 @@
             const iframe = document.getElementById('video_iframe');
             iframe.src = '';
             modal.close();
+        }
+
+        function copiarAlPortapapeles(idElemento, boton) {
+            const elemento = document.getElementById(idElemento);
+            const texto = elemento.innerText || elemento.textContent;
+
+            navigator.clipboard.writeText(texto).then(() => {
+                const toast = document.getElementById('toast_copiado');
+                toast.classList.remove('hidden');
+                
+                const originalText = boton.innerHTML;
+                boton.innerHTML = '<span class="text-emerald-500 font-bold">✓ Copiado</span>';
+                
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                    boton.innerHTML = originalText;
+                }, 2500);
+            }).catch(err => {
+                console.error('Error al copiar:', err);
+            });
         }
 
         // ScrollSpy Inteligente para la Barra Lateral
