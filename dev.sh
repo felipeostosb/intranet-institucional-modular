@@ -88,6 +88,10 @@ show_menu() {
     echo -e "  ${GREEN}4)${NC} 🧪 ${CYAN}Compilar y Validar${NC} (Verifica 0 errores en toda la solución .NET 10)"
     echo -e "  ${GREEN}5)${NC} 📤 ${CYAN}Subir a GitHub${NC} (Guarda cambios, sincroniza y genera enlace de PR)"
     echo -e "  ${GREEN}6)${NC} 🗄️  ${CYAN}Base de Datos PostgreSQL${NC} (Credenciales Adminer y Configuración Local)"
+    echo -e "  ${GREEN}7)${NC} 💾 ${CYAN}Backup / Restore de BD${NC} (Respaldar o restaurar tu esquema modXX)"
+    echo -e "  ${GREEN}8)${NC} 📊 ${CYAN}Estado del Proyecto${NC} (Dashboard: rama, cambios, servidor, configuración)"
+    echo -e "  ${GREEN}9)${NC} 📋 ${CYAN}Ver Mis Cambios${NC} (Lista legible de archivos modificados con diffstat)"
+    echo -e "  ${GREEN}10)${NC} 🔧 ${CYAN}Extras${NC} (Submenú: historial, esquema, PR, datos de prueba y más)"
     echo -e "  ${GREEN}0)${NC} 🚪 ${YELLOW}Salir${NC}\n"
 }
 
@@ -307,8 +311,469 @@ push_work() {
     fi
 }
 
-manage_db() {
+
+backup_db() {
+    set +e
     echo -e "\n${BLUE}======================================================================${NC}"
+    echo -e "${BLUE}🗄️  BACKUP DE BASE DE DATOS (PostgreSQL 16)${NC}"
+    echo -e "${BLUE}======================================================================${NC}"
+
+    LOCAL_CFG="src/03_Web/Intranet.Web/appsettings.Local.json"
+    if [ ! -f "$LOCAL_CFG" ]; then
+        echo -e "${RED}❌ No se encontró appsettings.Local.json${NC}"
+        echo -e "${CYAN}💡 Primero ejecuta la opción 6 (Base de Datos) para configurar tus credenciales.${NC}"
+        return 1
+    fi
+
+    # Extraer número de equipo del archivo de configuración local
+    NUM_FMT=$(grep -o 'Modulo[0-9]\+Connection' "$LOCAL_CFG" | head -1 | grep -o '[0-9]\+' | head -1)
+    if [ -z "$NUM_FMT" ]; then
+        echo -e "${RED}❌ No se pudo detectar el número de equipo en appsettings.Local.json${NC}"
+        return 1
+    fi
+
+    # Extraer datos de conexión del JSON (sin jq)
+    HOST=$(grep -o '"Host=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Host=//')
+    DBNAME=$(grep -o '"Database=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Database=//')
+    USER=$(grep -o '"Username=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Username=//')
+    PASS=$(grep -o '"Password=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Password=//')
+
+    echo -e "  👤 ${CYAN}Equipo:${NC}         $NUM_FMT"
+    echo -e "  🌐 ${CYAN}Host:${NC}           $HOST"
+    echo -e "  📊 ${CYAN}Base de datos:${NC}  $DBNAME"
+    echo -e "  🔑 ${CYAN}Usuario:${NC}        $USER"
+    echo -e "  🛡️  ${CYAN}Esquema:${NC}        mod${NUM_FMT}"
+    echo ""
+
+    BACKUP_DIR="backups"
+    TIMESTAMP=$(date +%Y%m%d_%H%M%S)
+    BACKUP_FILE="${BACKUP_DIR}/mod${NUM_FMT}_${TIMESTAMP}.sql"
+
+    read -p "👉 ¿Qué deseas hacer? [B]ackup / [R]estore / [V]olver: " action
+    case "$action" in
+        [bB])
+            echo -e "\n${CYAN}📦 Iniciando backup del esquema mod${NUM_FMT}...${NC}"
+            if [ ! -d "$BACKUP_DIR" ]; then
+                mkdir -p "$BACKUP_DIR"
+                echo -e "${GREEN}✓ Carpeta 'backups/' creada.${NC}"
+            fi
+
+            if PGPASSWORD="$PASS" pg_dump -h "$HOST" -p 5432 -U "$USER" -d "$DBNAME"                 --schema="mod${NUM_FMT}" --no-owner --no-privileges                 --file="$BACKUP_FILE" 2>/dev/null; then
+                BYTES=$(wc -c < "$BACKUP_FILE" | tr -d ' ')
+                echo -e "\n${GREEN}======================================================================${NC}"
+                echo -e "${GREEN}✅ BACKUP COMPLETADO CON ÉXITO${NC}"
+                echo -e "${GREEN}======================================================================${NC}"
+                echo -e "📄 Archivo: ${CYAN}${BACKUP_FILE}${NC}"
+                echo -e "📏 Tamaño:  ${CYAN}${BYTES} bytes${NC}"
+                echo -e "🕐 Hora:    ${CYAN}${TIMESTAMP}${NC}"
+            else
+                echo -e "\n${RED}⛔ Error al crear el backup. Verifica tus credenciales y conexión.${NC}"
+                rm -f "$BACKUP_FILE"
+                return 1
+            fi
+            ;;
+        [rR])
+            echo -e "\n${CYAN}📋 Backups disponibles:${NC}"
+            if [ ! -d "$BACKUP_DIR" ] || [ -z "$(ls -A "$BACKUP_DIR"/*.sql 2>/dev/null)" ]; then
+                echo -e "${YELLOW}  No hay backups previos en la carpeta 'backups/'.${NC}"
+                return
+            fi
+            ls -lt "$BACKUP_DIR"/*.sql 2>/dev/null | while read -r line; do
+                echo -e "  ${CYAN}→ $(basename "$(echo "$line" | awk '{print $NF}')")${NC} ($(echo "$line" | awk '{print $5, $6, $7, $8}'))"
+            done
+            echo ""
+            read -p "👉 Nombre del archivo a restaurar: " restore_file
+            if [ ! -f "$BACKUP_DIR/$restore_file" ]; then
+                echo -e "${RED}❌ Archivo no encontrado: $BACKUP_DIR/$restore_file${NC}"
+                return 1
+            fi
+            echo -e "\n${YELLOW}⚠️  RESTAURAR SOBRESCRIBIRÁ el esquema mod${NUM_FMT} completo.${NC}"
+            read -p "👉 ¿Estás seguro? (escribe 'SI' para confirmar): " confirm
+            if [ "$confirm" != "SI" ]; then
+                echo -e "${YELLOW}Restauración cancelada.${NC}"
+                return
+            fi
+            if PGPASSWORD="$PASS" psql -h "$HOST" -p 5432 -U "$USER" -d "$DBNAME"                 -f "$BACKUP_DIR/$restore_file" 2>/dev/null; then
+                echo -e "\n${GREEN}✅ Restauración completada con éxito.${NC}"
+            else
+                echo -e "\n${RED}⛔ Error durante la restauración.${NC}"
+                return 1
+            fi
+            ;;
+        *)
+        echo -e "${YELLOW}Volviendo al menú...${NC}"
+        ;;
+        esac
+        set -e
+        }
+
+        show_status() {
+    set +e
+    echo -e "\n${BLUE}======================================================================${NC}"
+    echo -e "${BLUE}📊 ESTADO DEL PROYECTO — AQUILA A-ERP${NC}"
+    echo -e "${BLUE}======================================================================${NC}\n"
+
+    # --- Rama actual ---
+    BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "desconocida")
+    UPSTREAM=$(git rev-parse --abbrev-ref --symbolic-full-name @{u} 2>/dev/null)
+    AHEAD=0; BEHIND=0
+    if [ -n "$UPSTREAM" ]; then
+        AHEAD=$(git rev-list --count @{u}..HEAD 2>/dev/null || echo "0")
+        BEHIND=$(git rev-list --count HEAD..@{u} 2>/dev/null || echo "0")
+    fi
+    echo -e "  🌿 ${CYAN}Rama:${NC}        ${YELLOW}${BRANCH}${NC}"
+    if [ "$BRANCH" = "main" ]; then
+        echo -e "  📍 ${CYAN}Ubicación:${NC}   Estás en main"
+    elif [ -n "$UPSTREAM" ]; then
+        echo -e "  📍 ${CYAN}Tracking:${NC}    $UPSTREAM"
+        [ "$AHEAD" -gt 0 ] && echo -e "  ⬆️  ${GREEN}${AHEAD} commit(s) por subir${NC}"
+        [ "$BEHIND" -gt 0 ] && echo -e "  ⬇️  ${RED}${BEHIND} commit(s) sin sincronizar (ejecuta opción 3)${NC}"
+    else
+        echo -e "  📍 ${CYAN}Tracking:${NC}    ${RED}Sin rama remota (usa opción 5 para publicar)${NC}"
+    fi
+
+    # --- Archivos pendientes ---
+    STAGED=$(git diff --cached --numstat 2>/dev/null | wc -l)
+    UNSTAGED=$(git diff --numstat 2>/dev/null | wc -l)
+    UNTRACKED=$(git ls-files --others --exclude-standard 2>/dev/null | wc -l)
+    TOTAL_PEND=$((STAGED + UNSTAGED + UNTRACKED))
+    echo ""
+    if [ "$TOTAL_PEND" -eq 0 ]; then
+        echo -e "  📝 ${GREEN}Working tree limpio — nada pendiente${NC}"
+    else
+        echo -e "  📝 ${CYAN}Cambios pendientes:${NC}  ${YELLOW}${TOTAL_PEND} archivo(s)${NC}"
+        [ "$STAGED" -gt 0 ] && echo -e "     🟢 ${STAGED} staged (listo para commit)"
+        [ "$UNSTAGED" -gt 0 ] && echo -e "     🔴 ${UNSTAGED} sin staging"
+        [ "$UNTRACKED" -gt 0 ] && echo -e "     ⚪ ${UNTRACKED} sin seguimiento (nuevos)"
+    fi
+
+    # --- Conflictos pendientes ---
+    if [ -d .git/rebase-merge ] || [ -d .git/rebase-apply ]; then
+        echo -e "\n  ⚠️  ${RED}REBASE EN CURSO — hay conflictos pendientes${NC}"
+    elif [ -f .git/MERGE_HEAD ]; then
+        echo -e "\n  ⚠️  ${RED}MERGE EN CURSO — hay conflictos pendientes${NC}"
+    fi
+
+    # --- Servidor de desarrollo ---
+    echo ""
+    if curl -s -o /dev/null -w "%{http_code}" http://localhost:5000/ 2>/dev/null | grep -q "200"; then
+        echo -e "  🚀 ${GREEN}Servidor ACTIVO en http://localhost:5000 ✓${NC}"
+    else
+        echo -e "  🚀 ${YELLOW}Servidor inactivo (ejecuta opción 1 para iniciarlo)${NC}"
+    fi
+
+    # --- Configuración local ---
+    echo ""
+    LOCAL_CFG="src/03_Web/Intranet.Web/appsettings.Local.json"
+    if [ -f "$LOCAL_CFG" ]; then
+        TEAM=$(grep -o 'Modulo[0-9]\+Connection' "$LOCAL_CFG" | head -1 | grep -o '[0-9]\+' | head -1)
+        echo -e "  🗄️  ${GREEN}appsettings.Local.json existe — Equipo: ${TEAM}${NC}"
+    else
+        echo -e "  🗄️  ${YELLOW}appsettings.Local.json no existe (ejecuta opción 6 para configurar)${NC}"
+    fi
+
+    # --- Resumen de salud ---
+    echo ""
+    HEALTH_OK=true
+    [ "$TOTAL_PEND" -gt 10 ] && { echo -e "  ⚠️  ${YELLOW}Muchos archivos sin commitear (${TOTAL_PEND}). Considera subir tu progreso.${NC}"; HEALTH_OK=false; }
+    [ "$BEHIND" -gt 5 ] && { echo -e "  ⚠️  ${YELLOW}Tu rama está ${BEHIND} commits detrás de main. Ejecuta opción 3.${NC}"; HEALTH_OK=false; }
+    if [ "$HEALTH_OK" = true ]; then
+        echo -e "  ✅ ${GREEN}Estado saludable — no hay alertas.${NC}"
+    fi
+    set -e
+}
+
+show_changes() {
+    set +e
+    echo -e "\n${BLUE}======================================================================${NC}"
+    echo -e "${BLUE}📋 MIS CAMBIOS — ARCHIVOS MODIFICADOS${NC}"
+    echo -e "${BLUE}======================================================================${NC}\n"
+
+    BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "desconocida")
+    echo -e "  🌿 Rama: ${CYAN}${BRANCH}${NC}\n"
+
+    # Recolectar archivos modificados: staged, unstaged y untracked
+    ALL_CHANGES=$(git diff --cached --name-only 2>/dev/null)
+    ALL_CHANGES="$ALL_CHANGES\n$(git diff --name-only 2>/dev/null)"
+    ALL_CHANGES="$ALL_CHANGES\n$(git ls-files --others --exclude-standard 2>/dev/null)"
+    ALL_CHANGES=$(echo -e "$ALL_CHANGES" | sort -u | sed '/^$/d')
+
+    if [ -z "$ALL_CHANGES" ]; then
+        echo -e "  ${GREEN}✅ No hay cambios — working tree limpio.${NC}"
+        return
+    fi
+
+    # Contar por categoría
+    C_VIEWS=0; C_CONTROLLERS=0; C_SQL=0; C_MODELS=0; C_CONFIG=0; C_CORE=0; C_OTHER=0
+    while IFS= read -r file; do
+        case "$file" in
+            *Views*|*Views*)    C_VIEWS=$((C_VIEWS + 1)) ;;
+            *Controller*)       C_CONTROLLERS=$((C_CONTROLLERS + 1)) ;;
+            *Schema*|*schema*|*Sql*|*.sql) C_SQL=$((C_SQL + 1)) ;;
+            *Model*|*Dto*|*Entity*) C_MODELS=$((C_MODELS + 1)) ;;
+            *.json|*.yml|*.yaml|*.props) C_CONFIG=$((C_CONFIG + 1)) ;;
+            src/01_Core/*)      C_CORE=$((C_CORE + 1)) ;;
+            *)                  C_OTHER=$((C_OTHER + 1)) ;;
+        esac
+    done <<< "$ALL_CHANGES"
+
+    TOTAL=$(echo "$ALL_CHANGES" | wc -l | tr -d ' ')
+    echo -e "  ${CYAN}📊 Total: ${TOTAL} archivo(s)${NC}"
+    [ "$C_VIEWS" -gt 0 ] && echo -e "     👁️  ${C_VIEWS} vista(s)"
+    [ "$C_CONTROLLERS" -gt 0 ] && echo -e "     🎮 ${C_CONTROLLERS} controlador(es)"
+    [ "$C_SQL" -gt 0 ] && echo -e "     🗄️  ${C_SQL} SQL/schema"
+    [ "$C_MODELS" -gt 0 ] && echo -e "     📦 ${C_MODELS} modelo(s)/entidad(es)"
+    [ "$C_CONFIG" -gt 0 ] && echo -e "     ⚙️  ${C_CONFIG} configuración(es)"
+    [ "$C_CORE" -gt 0 ] && echo -e "     🔧 ${C_CORE} core/compartido"
+    [ "$C_OTHER" -gt 0 ] && echo -e "     📄 ${C_OTHER} otro(s)"
+    echo ""
+
+    # Agrupar por directorio padre (máx 4 niveles)
+    echo -e "  ${CYAN}📂 Detalle por carpeta:${NC}\n"
+    echo "$ALL_CHANGES" | awk -F'/' '{
+        if (NF >= 4) dir = $1"/"$2"/"$3"/"$4;
+        else if (NF >= 3) dir = $1"/"$2"/"$3;
+        else dir = $1;
+        if (dir != prev) { if (prev != "") print ""; printf "  📁 %s/
+", dir; prev = dir }
+    } { printf "     %s
+", $NF }'
+
+    # Diffstat resumido
+    echo -e "\n  ${CYAN}📏 Líneas modificadas:${NC}"
+    TOTAL_ADD=0; TOTAL_DEL=0
+    while IFS= read -r file; do
+        ADD=$(git diff --cached --numstat -- "$file" 2>/dev/null | awk '{print $1}')
+        DEL=$(git diff --cached --numstat -- "$file" 2>/dev/null | awk '{print $2}')
+        [ -z "$ADD" ] && ADD=$(git diff --numstat -- "$file" 2>/dev/null | awk '{print $1}')
+        [ -z "$DEL" ] && DEL=$(git diff --numstat -- "$file" 2>/dev/null | awk '{print $2}')
+        ADD=${ADD:-0}; DEL=${DEL:-0}
+        if [ "$ADD" -gt 0 ] || [ "$DEL" -gt 0 ]; then
+            TOTAL_ADD=$((TOTAL_ADD + ADD))
+            TOTAL_DEL=$((TOTAL_DEL + DEL))
+            printf "     ${GREEN}+%-5s${NC} ${RED}-%-5s${NC} %s\n" "$ADD" "$DEL" "$(basename "$file")"
+        fi
+    done <<< "$ALL_CHANGES"
+    if [ "$TOTAL_ADD" -gt 0 ] || [ "$TOTAL_DEL" -gt 0 ]; then
+        echo -e "     ───────────────────────────────────────"
+        printf "     ${GREEN}+%-5s${NC} ${RED}-%-5s${NC} TOTAL\n" "$TOTAL_ADD" "$TOTAL_DEL"
+    fi
+    set -e
+}
+
+
+extras_menu() {
+    set +e
+    while true; do
+        echo ""
+        echo -e "${BLUE}======================================================================${NC}"
+        echo -e "${BLUE}🔧 EXTRAS — HERRAMIENTAS AVANZADAS${NC}"
+        echo -e "${BLUE}======================================================================${NC}"
+        echo -e "  ${GREEN}1)${NC} 📜 ${CYAN}Historial de Mi Módulo${NC} (Últimos commits que tocaron tu módulo)"
+        echo -e "  ${GREEN}2)${NC} 🔗 ${CYAN}Generar Descripción de PR${NC} (Genera texto listo para copiar al PR)"
+        echo -e "  ${GREEN}3)${NC} 🗄️  ${CYAN}Verificar Mi Esquema SQL${NC} (Revisa tu schema.sql por errores comunes)"
+        echo -e "  ${GREEN}4)${NC} 🔌 ${CYAN}Diagnosticar Conexión BD${NC} (Prueba si tu conexión a PostgreSQL funciona)"
+        echo -e "  ${GREEN}5)${NC} 📊 ${CYAN}Ver Datos de Prueba${NC} (Muestra usuarios/DNI para hacer login)"
+        echo -e "  ${GREEN}0)${NC} 🔙 ${YELLOW}Volver al Menú Principal${NC}"
+        echo ""
+        read -p "👉 Elige una opción [0-5]: " extra_op
+        case "$extra_op" in
+            1) extras_module_history ;;
+            2) extras_pr_description ;;
+            3) extras_verify_schema ;;
+            4) extras_diag_connection ;;
+            5) extras_test_data ;;
+            0) break ;;
+            *) echo -e "${RED}Opción no válida.${NC}" ;;
+        esac
+        echo -e "\n${YELLOW}Presiona ENTER para volver al submenú...${NC}"
+        read -r
+    done
+    set -e
+}
+
+extras_module_history() {
+    echo -e "\n${BLUE}📜 HISTORIAL DE MI MÓDULO${NC}"
+    BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    MOD_NUM=$(echo "$BRANCH" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | grep -o -E '[0-9]{2}' || true)
+    if [ -z "$MOD_NUM" ]; then
+        echo -e "${YELLOW}No estás en una rama de módulo (moduloXX).\n${CYAN}Ingresa tu número de módulo:${NC}"
+        read -p "👉 Módulo (0 al 9): " MOD_NUM
+        MOD_NUM=$(printf "%02d" "$((MOD_NUM))")
+    fi
+    echo -e "\n${CYAN}Últimos 15 commits que tocaron Intranet.Modulo${MOD_NUM}:${NC}\n"
+    git log --oneline -15 -- "src/02_Modulos/Intranet.Modulo${MOD_NUM}/" 2>/dev/null | while read -r line; do
+        echo -e "  ${GREEN}${line}${NC}"
+    done
+    COUNT=$(git log --oneline -- "src/02_Modulos/Intranet.Modulo${MOD_NUM}/" 2>/dev/null | wc -l | tr -d ' ')
+    echo -e "\n  📊 Total de commits que tocaron este módulo: ${CYAN}${COUNT}${NC}"
+}
+
+extras_pr_description() {
+    echo -e "\n${BLUE}🔗 GENERAR DESCRIPCIÓN DE PR${NC}\n"
+    BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    if [ "$BRANCH" = "main" ]; then
+        echo -e "${RED}⛔ Estás en main. Cambia a tu rama de trabajo.${NC}"
+        return
+    fi
+    MOD_NUM=$(echo "$BRANCH" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | grep -o -E '[0-9]{2}' || true)
+    FILES=$(git diff main...HEAD --name-only 2>/dev/null)
+    ADDITIONS=$(git diff main...HEAD --numstat 2>/dev/null | awk '{s+=$1} END {print s+0}')
+    DELETIONS=$(git diff main...HEAD --numstat 2>/dev/null | awk '{s+=$2} END {print s+0}')
+    COUNT=$(echo "$FILES" | grep -c '.' || echo "0")
+    VIEWS=$(echo "$FILES" | grep -c "Views\|\.cshtml" || echo "0")
+    CTRL=$(echo "$FILES" | grep -c "Controller" || echo "0")
+    SQL=$(echo "$FILES" | grep -c "schema\|\.sql" || echo "0")
+    MODELS=$(echo "$FILES" | grep -c "Model\|Dto\|Entity" || echo "0")
+    echo -e "📝 Descripción generada para ${CYAN}${BRANCH}${NC}:\n"
+    echo "---BEGIN PR---"
+    echo "## 📌 Qué se hizo"
+    echo ""
+    if [ -n "$MOD_NUM" ]; then
+        echo "Avance en el **Módulo ${MOD_NUM}** (\`Intranet.Modulo${MOD_NUM}\`)."
+    else
+        echo "Cambios en la rama \`${BRANCH}\`."
+    fi
+    echo ""
+    echo "## 📊 Resumen"
+    echo ""
+    echo "- **${COUNT}** archivo(s) modificado(s)"
+    echo "- **+${ADDITIONS}** / **-${DELETIONS}** líneas"
+    [ "$VIEWS" -gt 0 ] && echo "- 👁️ ${VIEWS} vista(s) Razor"
+    [ "$CTRL" -gt 0 ] && echo "- 🎮 ${CTRL} controlador(es)"
+    [ "$SQL" -gt 0 ] && echo "- 🗄️ ${SQL} archivo(s) SQL/schema"
+    [ "$MODELS" -gt 0 ] && echo "- 📦 ${MODELS} modelo(s)/entidad(es)"
+    echo ""
+    echo "## 📁 Archivos modificados"
+    echo ""
+    echo "$FILES" | while read -r f; do echo "- \`$f\`"; done
+    echo ""
+    echo "---END PR---"
+    echo -e "\n${CYAN}Copia el texto entre ---BEGIN PR--- y ---END PR--- en tu Pull Request.${NC}"
+}
+
+extras_verify_schema() {
+    echo -e "\n${BLUE}🗄️  VERIFICAR MI ESQUEMA SQL${NC}"
+    BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null)
+    MOD_NUM=$(echo "$BRANCH" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | grep -o -E '[0-9]{2}' || true)
+    if [ -z "$MOD_NUM" ]; then
+        echo -e "${YELLOW}No estás en rama de módulo. Ingresa tu número:${NC}"
+        read -p "👉 Módulo (0 al 9): " MOD_NUM
+        MOD_NUM=$(printf "%02d" "$((MOD_NUM))")
+    fi
+    SCHEMA="src/02_Modulos/Intranet.Modulo${MOD_NUM}/Sql/schema.sql"
+    if [ ! -f "$SCHEMA" ]; then
+        echo -e "${RED}❌ No se encontró: ${SCHEMA}${NC}"
+        return
+    fi
+    echo -e "${CYAN}Analizando: ${SCHEMA}${NC}\n"
+    ERRORS=0
+    if grep -q "CREATE SCHEMA IF NOT EXISTS" "$SCHEMA"; then
+        echo -e "  ${GREEN}✓${NC} CREATE SCHEMA IF NOT EXISTS mod${MOD_NUM} encontrado"
+    else
+        echo -e "  ${RED}✗${NC} Falta CREATE SCHEMA IF NOT EXISTS mod${MOD_NUM}"
+        ERRORS=$((ERRORS + 1))
+    fi
+    WRONG_SCHEMA=$(grep -i "CREATE TABLE" "$SCHEMA" | grep -v "IF NOT EXISTS" || true)
+    if [ -n "$WRONG_SCHEMA" ]; then
+        echo -e "  ${RED}✗${NC} CREATE TABLE sin IF NOT EXISTS"
+        ERRORS=$((ERRORS + 1))
+    else
+        echo -e "  ${GREEN}✓${NC} Todas las tablas usan CREATE TABLE IF NOT EXISTS"
+    fi
+    NO_PREFIX=$(grep -i "CREATE TABLE IF NOT EXISTS" "$SCHEMA" | grep -v "mod${MOD_NUM}\." || true)
+    if [ -n "$NO_PREFIX" ]; then
+        echo -e "  ${RED}✗${NC} Tablas sin prefijo mod${MOD_NUM}:"
+        echo "$NO_PREFIX" | sed 's/^/     /'
+        ERRORS=$((ERRORS + 1))
+    else
+        echo -e "  ${GREEN}✓${NC} Todas las tablas tienen prefijo mod${MOD_NUM}."
+    fi
+    BAD_FK=$(grep -i "REFERENCES" "$SCHEMA" | grep -v "core\." | grep -v "mod${MOD_NUM}\." || true)
+    if [ -n "$BAD_FK" ]; then
+        echo -e "  ${RED}✗${NC} Foreign Keys fuera de core/mod${MOD_NUM}:"
+        echo "$BAD_FK" | sed 's/^/     /'
+        ERRORS=$((ERRORS + 1))
+    else
+        echo -e "  ${GREEN}✓${NC} Foreign Keys correctas"
+    fi
+    TABLES=$(grep -ci "CREATE TABLE" "$SCHEMA" || echo "0")
+    echo -e "\n  📊 Tablas: ${CYAN}${TABLES}${NC}"
+    echo ""
+    if [ "$ERRORS" -eq 0 ]; then
+        echo -e "  ${GREEN}✅ ESQUEMA VÁLIDO${NC}"
+    else
+        echo -e "  ${RED}⛔ ${ERRORS} error(es) detectado(s)${NC}"
+    fi
+}
+
+extras_diag_connection() {
+    echo -e "\n${BLUE}🔌 DIAGNOSTICAR CONEXIÓN A POSTGRESQL${NC}\n"
+    LOCAL_CFG="src/03_Web/Intranet.Web/appsettings.Local.json"
+    if [ ! -f "$LOCAL_CFG" ]; then
+        echo -e "${RED}❌ appsettings.Local.json no existe.${NC}"
+        echo -e "${CYAN}💡 Ejecuta la opción 6 del menú principal.${NC}"
+        return
+    fi
+    NUM_FMT=$(grep -o 'Modulo[0-9]\\+Connection' "$LOCAL_CFG" | head -1 | grep -o '[0-9]\\+' | head -1)
+    HOST=$(grep -o '"Host=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Host=//')
+    DBNAME=$(grep -o '"Database=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Database=//')
+    USER=$(grep -o '"Username=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Username=//')
+    PASS=$(grep -o '"Password=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Password=//')
+    echo -e "  👤 ${CYAN}Equipo:${NC}     $NUM_FMT"
+    echo -e "  🌐 ${CYAN}Host:${NC}       $HOST"
+    echo -e "  📊 ${CYAN}BD:${NC}         $DBNAME"
+    echo -e "  🔑 ${CYAN}Usuario:${NC}    $USER\n"
+    echo -e "${CYAN}1. Probando conexión...${NC}"
+    if PGPASSWORD="$PASS" psql -h "$HOST" -p 5432 -U "$USER" -d "$DBNAME" -c "SELECT 1" >/dev/null 2>&1; then
+        echo -e "  ${GREEN}✓ Conexión exitosa${NC}"
+    else
+        echo -e "  ${RED}✗ No se pudo conectar${NC}"
+        return
+    fi
+    echo -e "\n${CYAN}2. Esquema mod${NUM_FMT}...${NC}"
+    EXISTS=$(PGPASSWORD="$PASS" psql -h "$HOST" -p 5432 -U "$USER" -d "$DBNAME" -t -A -c "SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name='mod${NUM_FMT}'" 2>/dev/null)
+    if [ "$EXISTS" = "1" ]; then
+        echo -e "  ${GREEN}✓ Existe${NC}"
+    else
+        echo -e "  ${RED}✗ NO existe${NC}"
+    fi
+    echo -e "\n${CYAN}3. Tablas en mod${NUM_FMT}...${NC}"
+    TABLES=$(PGPASSWORD="$PASS" psql -h "$HOST" -p 5432 -U "$USER" -d "$DBNAME" -t -A -c "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='mod${NUM_FMT}'" 2>/dev/null)
+    echo -e "  📊 Encontradas: ${CYAN}${TABLES}${NC}"
+    if [ "$TABLES" -gt 0 ]; then
+        PGPASSWORD="$PASS" psql -h "$HOST" -p 5432 -U "$USER" -d "$DBNAME" -t -A -c "SELECT table_name FROM information_schema.tables WHERE table_schema='mod${NUM_FMT}' ORDER BY table_name" 2>/dev/null | while read -r tbl; do
+            echo -e "     → ${CYAN}${tbl}${NC}"
+        done
+    fi
+}
+
+extras_test_data() {
+    echo -e "\n${BLUE}📊 DATOS DE PRUEBA (Usuarios para Login)${NC}\n"
+    LOCAL_CFG="src/03_Web/Intranet.Web/appsettings.Local.json"
+    if [ ! -f "$LOCAL_CFG" ]; then
+        echo -e "${RED}❌ Configura tu conexión primero (opción 6).${NC}"
+        return
+    fi
+    HOST=$(grep -o '"Host=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Host=//')
+    DBNAME=$(grep -o '"Database=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Database=//')
+    USER=$(grep -o '"Username=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Username=//')
+    PASS=$(grep -o '"Password=[^;]*' "$LOCAL_CFG" | head -1 | sed 's/"Password=//')
+    echo -e "${CYAN}Usuarios (contraseña: 123456 para todos):${NC}\n"
+    PGPASSWORD="$PASS" psql -h "$HOST" -p 5432 -U "$USER" -d "$DBNAME" -c "
+        SELECT u.codigo_institucional AS \"Código\", p.dni AS \"DNI\",
+               p.nombres || ' ' || p.apellidos AS \"Nombre Completo\",
+               r.nombre AS \"Rol\"
+        FROM core.usuarios u
+        JOIN core.personas p ON u.persona_id = p.id
+        JOIN core.usuario_roles ur ON ur.usuario_id = u.id
+        JOIN core.roles r ON ur.rol_id = r.id
+        WHERE u.estado = TRUE AND ur.es_activo = TRUE
+        ORDER BY r.nombre, u.codigo_institucional;
+    " 2>/dev/null || echo -e "${RED}  ⚠️  No se pudo conectar.${NC}"
+}
+manage_db() {
+    echo -e "\\n${BLUE}======================================================================${NC}"
     echo -e "${BLUE}🗄️  INFORMACIÓN Y CONFIGURACIÓN DE BASE DE DATOS (PostgreSQL 16)${NC}"
     echo -e "${BLUE}======================================================================${NC}"
     echo -e "  🌐 ${CYAN}Panel Web Adminer:${NC}  http://35.206.81.32:8080"
@@ -365,7 +830,7 @@ JSON_EOF
 
 while true; do
     show_menu
-    read -p "👉 Elige una opción [0-6]: " op
+    read -p "👉 Elige una opción [0-10]: " op
     case $op in
         1) start_app ;;
         2) create_branch ;;
@@ -373,8 +838,12 @@ while true; do
         4) validate_code ;;
         5) push_work ;;
         6) manage_db ;;
+        7) backup_db ;;
+        8) show_status ;;
+        9) show_changes ;;
+        10) extras_menu ;;
         0) echo -e "\n${GREEN}¡Buen trabajo! Hasta la próxima sesión.${NC}\n"; exit 0 ;;
-        *) echo -e "\n${RED}Opción no válida. Ingresa un número del 0 al 6.${NC}" ;;
+        *) echo -e "\n${RED}Opción no válida. Ingresa un número del 0 al 10.${NC}" ;;
     esac
     echo -e "\n${YELLOW}Presiona ENTER para volver al menú...${NC}"
     read -r
