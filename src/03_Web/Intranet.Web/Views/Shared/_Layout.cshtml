@@ -65,12 +65,18 @@
                 </div>
                 <div class="flex-1 items-center gap-3">
                     <a href="/" class="flex items-center gap-3 group">
-                        <!-- Logotipo Águila Minimalista: Pico, Cabeza y Ojo de Precisión -->
+                        <!-- Logotipo Águila Minimalista: Alas Delta / Caza Supersónico Afilado -->
                         <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-md shadow-cyan-500/20 group-hover:scale-105 group-hover:border-cyan-300 transition shrink-0">
                             <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(56,189,248,0.7)]" fill="none">
-                                <path d="M12 56C14 30 32 14 58 14C72 14 83 20 90 33C92.5 38 87 43 80 43C73 43 68 39 60 39C52 39 45 45 40 53C35 61 28 75 16 82C13 74 11 65 12 56Z" fill="#38bdf8" />
-                                <path d="M58 43C65 43 72 46 76 50C78 52 76 55 72 55C65 55 58 50 50 50C44 50 38 54 34 60L28 68C32 58 42 50 50 47L58 43Z" fill="#93c5fd" opacity="0.95" />
-                                <polygon points="52,27 38,27 46,35" fill="#ffffff" />
+                                <defs>
+                                    <linearGradient id="navWingL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#1d4ed8" /></linearGradient>
+                                    <linearGradient id="navWingR" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#2563eb" /></linearGradient>
+                                    <linearGradient id="navCore" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" /><stop offset="100%" stop-color="#93c5fd" /></linearGradient>
+                                </defs>
+                                <polygon points="48,10 4,68 32,60 46,38" fill="url(#navWingL)" />
+                                <polygon points="52,10 96,68 68,60 54,38" fill="url(#navWingR)" />
+                                <polygon points="50,6 43,44 50,88 57,44" fill="url(#navCore)" />
+                                <polygon points="50,22 46,44 50,70 54,44" fill="#0284c7" />
                             </svg>
                         </div>
                         <div>
@@ -171,9 +177,15 @@
                 <div class="p-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
                     <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 border border-cyan-500/30 p-1.5 flex items-center justify-center shadow-md shadow-blue-500/10 shrink-0">
                         <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_6px_rgba(56,189,248,0.6)]" fill="none">
-                            <path d="M12 56C14 30 32 14 58 14C72 14 83 20 90 33C92.5 38 87 43 80 43C73 43 68 39 60 39C52 39 45 45 40 53C35 61 28 75 16 82C13 74 11 65 12 56Z" fill="#38bdf8" />
-                            <path d="M58 43C65 43 72 46 76 50C78 52 76 55 72 55C65 55 58 50 50 50C44 50 38 54 34 60L28 68C32 58 42 50 50 47L58 43Z" fill="#93c5fd" opacity="0.95" />
-                            <polygon points="52,27 38,27 46,35" fill="#ffffff" />
+                            <defs>
+                                <linearGradient id="sideWingL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#1d4ed8" /></linearGradient>
+                                <linearGradient id="sideWingR" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#2563eb" /></linearGradient>
+                                <linearGradient id="sideCore" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" /><stop offset="100%" stop-color="#93c5fd" /></linearGradient>
+                            </defs>
+                            <polygon points="48,10 4,68 32,60 46,38" fill="url(#sideWingL)" />
+                            <polygon points="52,10 96,68 68,60 54,38" fill="url(#sideWingR)" />
+                            <polygon points="50,6 43,44 50,88 57,44" fill="url(#sideCore)" />
+                            <polygon points="50,22 46,44 50,70 54,44" fill="#0284c7" />
                         </svg>
                     </div>
                     <div>

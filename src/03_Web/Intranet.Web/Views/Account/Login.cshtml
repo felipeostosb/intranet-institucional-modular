@@ -12,9 +12,15 @@
             <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 border border-cyan-400/40 p-3.5 mx-auto shadow-xl shadow-cyan-500/20 flex items-center justify-center relative overflow-hidden group">
                 <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500/20 via-blue-500/10 to-indigo-500/20 opacity-60 blur-md pointer-events-none"></div>
                 <svg viewBox="0 0 100 100" class="w-full h-full relative z-10 drop-shadow-[0_0_12px_rgba(56,189,248,0.8)] group-hover:scale-105 transition duration-300" fill="none">
-                    <path d="M12 56C14 30 32 14 58 14C72 14 83 20 90 33C92.5 38 87 43 80 43C73 43 68 39 60 39C52 39 45 45 40 53C35 61 28 75 16 82C13 74 11 65 12 56Z" fill="#38bdf8" />
-                    <path d="M58 43C65 43 72 46 76 50C78 52 76 55 72 55C65 55 58 50 50 50C44 50 38 54 34 60L28 68C32 58 42 50 50 47L58 43Z" fill="#93c5fd" opacity="0.95" />
-                    <polygon points="52,27 38,27 46,35" fill="#ffffff" />
+                    <defs>
+                        <linearGradient id="loginWingL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#1d4ed8" /></linearGradient>
+                        <linearGradient id="loginWingR" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#2563eb" /></linearGradient>
+                        <linearGradient id="loginCore" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" /><stop offset="100%" stop-color="#93c5fd" /></linearGradient>
+                    </defs>
+                    <polygon points="48,10 4,68 32,60 46,38" fill="url(#loginWingL)" />
+                    <polygon points="52,10 96,68 68,60 54,38" fill="url(#loginWingR)" />
+                    <polygon points="50,6 43,44 50,88 57,44" fill="url(#loginCore)" />
+                    <polygon points="50,22 46,44 50,70 54,44" fill="#0284c7" />
                 </svg>
             </div>
             <div>
