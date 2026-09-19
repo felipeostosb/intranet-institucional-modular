@@ -1,103 +1,87 @@
 @{
-    ViewData["Title"] = "Módulo 06";
+    ViewData["Title"] = "06. Mesa de Partes & Trámites";
 }
 
 <div class="space-y-6">
-    <!-- Header del Módulo con Tono Pastel e Icono Llamativo -->
-    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-rose-100 text-rose-700 border border-rose-200 flex items-center justify-center shrink-0 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+            <div class="w-12 h-12 rounded-2xl bg-rose-50 dark:bg-rose-950/50 text-rose-600 dark:text-rose-400 flex items-center justify-center text-xl shrink-0">
+                📋
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="text-xs font-bold bg-rose-100 text-rose-800 px-2.5 py-0.5 rounded-full border border-rose-200">Módulo 06</span>
-                    <span class="text-xs text-slate-400 font-medium">db_modulo06 • Equipo 06</span>
+                    <span class="text-[10px] font-mono font-bold bg-rose-100 dark:bg-rose-950 text-rose-800 dark:text-rose-300 px-2 py-0.5 rounded">06</span>
+                    <span class="text-xs text-slate-400">Equipo 06 • Trámites & Documentación</span>
                 </div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                    Módulo 06 — Espacio de Trabajo
+                <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                    Mesa de Partes & Trámites Digitales
                 </h1>
-                <p class="text-xs text-slate-500">
-                    Panel administrado por el <strong>Equipo 06</strong>. Conectado a la base de datos <code class="text-rose-700 font-mono font-bold">db_modulo06</code>.
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Recepción de expedientes, certificados de estudio y solicitudes institucionales.
                 </p>
             </div>
         </div>
         <div class="flex gap-2">
-            <button class="btn bg-rose-600 hover:bg-rose-700 text-white btn-sm rounded-xl font-bold border-0 shadow-sm text-xs px-4" onclick="modal_nuevo_06.showModal()">
-                + Nuevo Registro
+            <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo_06.showModal()">
+                + Nuevo Trámite
             </button>
         </div>
     </div>
 
-    <!-- Indicadores del Módulo -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Registros Activos</span>
-            <div class="text-2xl font-extrabold text-rose-600 mt-1">24</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">En db_modulo06</p>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Expedientes</span>
+            <div class="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1">42</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">En trámite</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Equipo Responsable</span>
-            <div class="text-lg font-bold text-slate-800 mt-1">Equipo 06</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">4 Desarrolladores</p>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Atendidos</span>
+            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">115</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Completados</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estado de Conexión</span>
-            <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>En Línea</span>
-            </div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Aislamiento Zero-Blast</p>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema BD</span>
+            <div class="text-xl font-bold text-slate-900 dark:text-slate-100 font-mono mt-1">mod06</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">PostgreSQL Cloud</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Sesión Activa</span>
-            <div class="text-sm font-bold text-slate-800 mt-1 truncate">@ViewData["UsuarioNombre"]</div>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Usuario</span>
+            <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 truncate">@ViewData["UsuarioNombre"]</div>
             <p class="text-[10px] text-slate-400 mt-0.5">Rol: @ViewData["UsuarioRol"]</p>
         </div>
     </div>
 
-    <!-- Tabla de Registros del Módulo -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50/50">
-            <div>
-                <h2 class="text-sm font-bold text-slate-800">Listado de Datos — Módulo 06</h2>
-                <p class="text-xs text-slate-400">Plantilla lista para vincular a consultas SQL o modelos C#.</p>
-            </div>
-            <div class="flex gap-2">
-                <input type="text" placeholder="Buscar registro..." class="input input-sm input-bordered rounded-xl bg-white text-xs w-48" />
-            </div>
+    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                Expedientes en Trámite
+            </h2>
         </div>
-
         <div class="overflow-x-auto">
             <table class="table table-zebra w-full text-xs">
                 <thead>
-                    <tr class="bg-slate-100/70 text-slate-600 font-bold uppercase text-[10px]">
+                    <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
                         <th>#</th>
-                        <th>Código</th>
-                        <th>Descripción del Registro</th>
-                        <th>Fecha</th>
+                        <th>Expediente</th>
+                        <th>Solicitante</th>
+                        <th>Tipo de Trámite</th>
                         <th>Estado</th>
-                        <th class="text-right">Acción</th>
                     </tr>
                 </thead>
-                <tbody class="text-slate-700">
-                    <tr class="hover">
-                        <td class="font-bold text-slate-400">1</td>
-                        <td><span class="font-mono font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-200">REG-06-001</span></td>
-                        <td class="font-medium text-slate-900">Registro de prueba inicial para el Módulo 06</td>
-                        <td class="text-slate-400 font-mono">@DateTime.Now.ToString("dd/MM/yyyy")</td>
-                        <td><span class="badge badge-success badge-sm font-semibold">Completado</span></td>
-                        <td class="text-right"><button class="btn btn-ghost btn-xs text-rose-700 font-bold">Ver</button></td>
+                <tbody class="text-slate-700 dark:text-slate-300">
+                    <tr>
+                        <td class="text-slate-400 font-mono">1</td>
+                        <td><span class="font-mono font-bold text-rose-600 dark:text-rose-400">EXP-2026-089</span></td>
+                        <td class="font-medium text-slate-900 dark:text-slate-100">Carlos Mendoza</td>
+                        <td>Certificado de Estudios Oficial</td>
+                        <td><span class="badge badge-info badge-xs font-semibold text-white">En Evaluación</span></td>
                     </tr>
-                    <tr class="hover">
-                        <td class="font-bold text-slate-400">2</td>
-                        <td><span class="font-mono font-bold text-rose-700 bg-rose-50 px-2 py-0.5 rounded-lg border border-rose-200">REG-06-002</span></td>
-                        <td class="font-medium text-slate-900">Segundo registro de demostración</td>
-                        <td class="text-slate-400 font-mono">@DateTime.Now.ToString("dd/MM/yyyy")</td>
-                        <td><span class="badge badge-info badge-sm font-semibold">En Proceso</span></td>
-                        <td class="text-right"><button class="btn btn-ghost btn-xs text-rose-700 font-bold">Ver</button></td>
+                    <tr>
+                        <td class="text-slate-400 font-mono">2</td>
+                        <td><span class="font-mono font-bold text-rose-600 dark:text-rose-400">EXP-2026-090</span></td>
+                        <td class="font-medium text-slate-900 dark:text-slate-100">Kevin Ramos</td>
+                        <td>Justificación de Inasistencia</td>
+                        <td><span class="badge badge-warning badge-xs font-semibold text-white">Pendiente</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -105,33 +89,23 @@
     </div>
 </div>
 
-<!-- Modal Formulario -->
 <dialog id="modal_nuevo_06" class="modal">
-    <div class="modal-box max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200">
-        <h3 class="text-base font-bold text-slate-900 mb-1">
-            Nuevo Registro — Módulo 06
-        </h3>
-        <p class="text-xs text-slate-400 mb-4">Formulario listo para vincular a tu controlador en C#.</p>
-        
+    <div class="modal-box max-w-md bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-200 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xl">
+        <h3 class="text-sm font-bold mb-3">Nuevo Trámite Digital</h3>
         <div class="space-y-3 text-xs">
             <div>
-                <label class="font-bold text-slate-600 block mb-1">Código / Identificador</label>
-                <input type="text" placeholder="Ej: REG-06-003" class="input input-sm input-bordered w-full rounded-xl" />
+                <label class="font-bold block mb-1 text-[11px]">DNI del Solicitante</label>
+                <input type="text" placeholder="87654321" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
             <div>
-                <label class="font-bold text-slate-600 block mb-1">Título / Nombre</label>
-                <input type="text" placeholder="Nombre del registro" class="input input-sm input-bordered w-full rounded-xl" />
-            </div>
-            <div>
-                <label class="font-bold text-slate-600 block mb-1">Descripción</label>
-                <textarea class="textarea textarea-bordered w-full rounded-xl text-xs" rows="3" placeholder="Detalle adicional..."></textarea>
+                <label class="font-bold block mb-1 text-[11px]">Asunto / Tipo de Trámite</label>
+                <input type="text" placeholder="Constancia de Matrícula" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
         </div>
-
-        <div class="modal-action mt-6 flex gap-2">
+        <div class="modal-action pt-2">
             <form method="dialog">
-                <button class="btn btn-ghost btn-sm rounded-xl">Cancelar</button>
-                <button class="btn bg-rose-600 hover:bg-rose-700 text-white btn-sm rounded-xl font-bold border-0">Guardar</button>
+                <button class="btn btn-ghost btn-xs rounded-xl">Cancelar</button>
+                <button class="btn btn-primary btn-xs rounded-xl font-bold">Enviar</button>
             </form>
         </div>
     </div>

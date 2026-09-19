@@ -1,103 +1,93 @@
 @{
-    ViewData["Title"] = "Módulo 01";
+    ViewData["Title"] = "01. Matrícula Académica";
 }
 
 <div class="space-y-6">
-    <!-- Header del Módulo con Tono Pastel e Icono Llamativo -->
-    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <!-- Header Zen del Módulo -->
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-sky-100 text-sky-700 border border-sky-200 flex items-center justify-center shrink-0 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-                </svg>
+            <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl shrink-0">
+                📝
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="text-xs font-bold bg-sky-100 text-sky-800 px-2.5 py-0.5 rounded-full border border-sky-200">Módulo 01</span>
-                    <span class="text-xs text-slate-400 font-medium">db_modulo01 • Equipo 01</span>
+                    <span class="text-[10px] font-mono font-bold bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 px-2 py-0.5 rounded">01</span>
+                    <span class="text-xs text-slate-400">Equipo 01 • Admisión & Matrícula</span>
                 </div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                    Módulo 01 — Espacio de Trabajo
+                <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                    Matrícula Académica & Admisión
                 </h1>
-                <p class="text-xs text-slate-500">
-                    Panel administrado por el <strong>Equipo 01</strong>. Conectado a la base de datos <code class="text-sky-700 font-mono font-bold">db_modulo01</code>.
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Procesamiento de matrículas regulares, extemporáneas y convalidaciones.
                 </p>
             </div>
         </div>
         <div class="flex gap-2">
-            <button class="btn bg-sky-600 hover:bg-sky-700 text-white btn-sm rounded-xl font-bold border-0 shadow-sm text-xs px-4" onclick="modal_nuevo_01.showModal()">
-                + Nuevo Registro
+            <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo_01.showModal()">
+                + Nueva Matrícula
             </button>
         </div>
     </div>
 
-    <!-- Indicadores del Módulo -->
+    <!-- Indicadores -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Registros Activos</span>
-            <div class="text-2xl font-extrabold text-sky-600 mt-1">24</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">En db_modulo01</p>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Matriculados</span>
+            <div class="text-xl font-bold text-sky-600 dark:text-sky-400 mt-1">128</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Periodo 2026-II</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Equipo Responsable</span>
-            <div class="text-lg font-bold text-slate-800 mt-1">Equipo 01</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">4 Desarrolladores</p>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema BD</span>
+            <div class="text-xl font-bold text-slate-900 dark:text-slate-100 font-mono mt-1">mod01</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">PostgreSQL Cloud</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estado de Conexión</span>
-            <div class="text-lg font-bold text-emerald-600 mt-1 flex items-center gap-1.5">
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estado</span>
+            <div class="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1.5">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span>En Línea</span>
             </div>
             <p class="text-[10px] text-slate-400 mt-0.5">Aislamiento Zero-Blast</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Sesión Activa</span>
-            <div class="text-sm font-bold text-slate-800 mt-1 truncate">@ViewData["UsuarioNombre"]</div>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Usuario</span>
+            <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 truncate">@ViewData["UsuarioNombre"]</div>
             <p class="text-[10px] text-slate-400 mt-0.5">Rol: @ViewData["UsuarioRol"]</p>
         </div>
     </div>
 
-    <!-- Tabla de Registros del Módulo -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-slate-100 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-slate-50/50">
-            <div>
-                <h2 class="text-sm font-bold text-slate-800">Listado de Datos — Módulo 01</h2>
-                <p class="text-xs text-slate-400">Plantilla lista para vincular a consultas SQL o modelos C#.</p>
-            </div>
-            <div class="flex gap-2">
-                <input type="text" placeholder="Buscar registro..." class="input input-sm input-bordered rounded-xl bg-white text-xs w-48" />
-            </div>
+    <!-- Listado Zen -->
+    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
+                Registros de Matrícula
+            </h2>
         </div>
-
         <div class="overflow-x-auto">
             <table class="table table-zebra w-full text-xs">
                 <thead>
-                    <tr class="bg-slate-100/70 text-slate-600 font-bold uppercase text-[10px]">
+                    <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
                         <th>#</th>
                         <th>Código</th>
-                        <th>Descripción del Registro</th>
+                        <th>Estudiante</th>
                         <th>Fecha</th>
                         <th>Estado</th>
-                        <th class="text-right">Acción</th>
                     </tr>
                 </thead>
-                <tbody class="text-slate-700">
-                    <tr class="hover">
-                        <td class="font-bold text-slate-400">1</td>
-                        <td><span class="font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-lg border border-sky-200">REG-01-001</span></td>
-                        <td class="font-medium text-slate-900">Registro de prueba inicial para el Módulo 01</td>
+                <tbody class="text-slate-700 dark:text-slate-300">
+                    <tr>
+                        <td class="text-slate-400 font-mono">1</td>
+                        <td><span class="font-mono font-bold text-sky-600 dark:text-sky-400">MAT-2026-001</span></td>
+                        <td class="font-medium text-slate-900 dark:text-slate-100">Carlos Mendoza</td>
                         <td class="text-slate-400 font-mono">@DateTime.Now.ToString("dd/MM/yyyy")</td>
-                        <td><span class="badge badge-success badge-sm font-semibold">Completado</span></td>
-                        <td class="text-right"><button class="btn btn-ghost btn-xs text-sky-700 font-bold">Ver</button></td>
+                        <td><span class="badge badge-success badge-xs font-semibold text-white">Regular</span></td>
                     </tr>
-                    <tr class="hover">
-                        <td class="font-bold text-slate-400">2</td>
-                        <td><span class="font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded-lg border border-sky-200">REG-01-002</span></td>
-                        <td class="font-medium text-slate-900">Segundo registro de demostración</td>
+                    <tr>
+                        <td class="text-slate-400 font-mono">2</td>
+                        <td><span class="font-mono font-bold text-sky-600 dark:text-sky-400">MAT-2026-002</span></td>
+                        <td class="font-medium text-slate-900 dark:text-slate-100">Ana García</td>
                         <td class="text-slate-400 font-mono">@DateTime.Now.ToString("dd/MM/yyyy")</td>
-                        <td><span class="badge badge-info badge-sm font-semibold">En Proceso</span></td>
-                        <td class="text-right"><button class="btn btn-ghost btn-xs text-sky-700 font-bold">Ver</button></td>
+                        <td><span class="badge badge-success badge-xs font-semibold text-white">Regular</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -107,31 +97,22 @@
 
 <!-- Modal Formulario -->
 <dialog id="modal_nuevo_01" class="modal">
-    <div class="modal-box max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200">
-        <h3 class="text-base font-bold text-slate-900 mb-1">
-            Nuevo Registro — Módulo 01
-        </h3>
-        <p class="text-xs text-slate-400 mb-4">Formulario listo para vincular a tu controlador en C#.</p>
-        
+    <div class="modal-box max-w-md bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-200 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xl">
+        <h3 class="text-sm font-bold mb-3">Nueva Matrícula</h3>
         <div class="space-y-3 text-xs">
             <div>
-                <label class="font-bold text-slate-600 block mb-1">Código / Identificador</label>
-                <input type="text" placeholder="Ej: REG-01-003" class="input input-sm input-bordered w-full rounded-xl" />
+                <label class="font-bold block mb-1 text-[11px]">DNI del Estudiante</label>
+                <input type="text" placeholder="87654321" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
             <div>
-                <label class="font-bold text-slate-600 block mb-1">Título / Nombre</label>
-                <input type="text" placeholder="Nombre del registro" class="input input-sm input-bordered w-full rounded-xl" />
-            </div>
-            <div>
-                <label class="font-bold text-slate-600 block mb-1">Descripción</label>
-                <textarea class="textarea textarea-bordered w-full rounded-xl text-xs" rows="3" placeholder="Detalle adicional..."></textarea>
+                <label class="font-bold block mb-1 text-[11px]">Carrera & Ciclo</label>
+                <input type="text" placeholder="Desarrollo de Sistemas de Información - VI" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
         </div>
-
-        <div class="modal-action mt-6 flex gap-2">
+        <div class="modal-action pt-2">
             <form method="dialog">
-                <button class="btn btn-ghost btn-sm rounded-xl">Cancelar</button>
-                <button class="btn bg-sky-600 hover:bg-sky-700 text-white btn-sm rounded-xl font-bold border-0">Guardar</button>
+                <button class="btn btn-ghost btn-xs rounded-xl">Cancelar</button>
+                <button class="btn btn-primary btn-xs rounded-xl font-bold">Guardar</button>
             </form>
         </div>
     </div>

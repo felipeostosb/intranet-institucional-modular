@@ -1,136 +1,112 @@
 @model Intranet.Modulo02.Models.DashboardAsistenciaViewModel
 @{
-    ViewData["Title"] = "Módulo 02 - Control de Asistencia Institucional";
+    ViewData["Title"] = "02. Asistencia & DPI";
 }
 
 <div class="space-y-6">
-    <!-- Header Principal Adaptativo -->
-    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <!-- Header Zen del Módulo -->
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center justify-center shrink-0 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-                </svg>
+            <div class="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-600 dark:text-indigo-400 flex items-center justify-center text-xl shrink-0">
+                📅
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200">Módulo 02</span>
-                    <span class="text-xs text-slate-400 font-medium">17 Semanas Regulares + 18va Recuperación • Regla DPI 30%</span>
+                    <span class="text-[10px] font-mono font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 px-2 py-0.5 rounded">02</span>
+                    <span class="text-xs text-slate-400">18 Semanas Académicas • Regla 30% DPI</span>
                 </div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                    Control y Registro de Asistencia
+                <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                    Control de Asistencia & Deserción
                 </h1>
-                <p class="text-xs text-slate-500">
-                    Organización por <strong>Carrera, Ciclo, Turno y 18 Semanas</strong>. Registro de sesiones y detección de riesgo DPI según <strong>RVM N° 177-2021-MINEDU</strong>.
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Registro de sesiones, sábana de 18 semanas y prevención de deserción estudiantil.
                 </p>
             </div>
         </div>
         <div class="flex flex-wrap gap-2">
-            <a href="/Modulo02/MiAsistencia" class="btn bg-white hover:bg-slate-50 text-slate-700 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-3.5 shadow-sm">
-                👨‍🎓 Mi Asistencia (Alumno)
+            <a href="/Modulo02/MiAsistencia" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">
+                Mi Asistencia
             </a>
-            <a href="/Modulo02/Justificaciones" class="btn bg-indigo-50 hover:bg-indigo-100 text-indigo-700 btn-sm rounded-xl font-bold border border-indigo-200 text-xs px-3.5">
-                📋 Justificaciones
+            <a href="/Modulo02/Justificaciones" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">
+                Justificaciones
                 @if (Model.TotalJustificacionesPendientes > 0)
                 {
                     <span class="badge badge-error badge-xs text-white font-bold">@Model.TotalJustificacionesPendientes</span>
                 }
             </a>
-            <a href="/Modulo02/ReportesDpi" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 shadow-sm text-xs px-4">
-                📊 Reportes DPI
+            <a href="/Modulo02/ReportesDpi" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">
+                Reportes DPI
             </a>
         </div>
     </div>
 
-    <!-- KPIs Institucionales -->
+    <!-- Indicadores -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Clases Asignadas</span>
-            <div class="text-2xl font-extrabold text-indigo-600 mt-1">@Model.TotalClasesAsignadas</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">En Periodo 2026-I</p>
+            <div class="text-xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">@Model.TotalClasesAsignadas</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Periodo 2026-II</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Sesiones Hoy</span>
-            <div class="text-2xl font-extrabold text-emerald-600 mt-1">@Model.TotalSesionesHoy</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Programadas en horario</p>
+            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">@Model.TotalSesionesHoy</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Programadas</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Alumnos en Alerta / DPI</span>
-            <div class="text-2xl font-extrabold text-rose-600 mt-1 flex items-center gap-1.5">
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Alumnos en DPI</span>
+            <div class="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1 flex items-center gap-1.5">
                 <span>@Model.TotalAlumnosDpi</span>
-                <span class="text-[10px] font-semibold bg-rose-50 text-rose-700 px-2 py-0.5 rounded-full border border-rose-200">&ge; 30% Faltas</span>
+                <span class="text-[10px] font-semibold bg-rose-50 dark:bg-rose-950/50 text-rose-700 dark:text-rose-300 px-1.5 py-0.5 rounded">&ge;30% Faltas</span>
             </div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Desaprobado por inasistencia</p>
+            <p class="text-[10px] text-slate-400 mt-0.5">Inhabilitados</p>
         </div>
-        <div class="bg-white rounded-2xl p-4 border border-slate-200/80 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Sesión Activa</span>
-            <div class="text-sm font-bold text-slate-800 mt-1 truncate">@Model.NombreUsuario</div>
-            <p class="text-[10px] text-indigo-600 font-semibold mt-0.5">Rol: @Model.RolUsuario</p>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Usuario</span>
+            <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 truncate">@Model.NombreUsuario</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Rol: @Model.RolUsuario</p>
         </div>
     </div>
 
-    <!-- SECCIÓN 1: VISTA PARA EL DOCENTE (Mis Clases y Gestión por 18 Semanas) -->
+    <!-- SECCIÓN 1: Mis Asignaturas -->
     @if (Model.EsDocente || Model.MisClasesDocente.Any())
     {
-        <div class="space-y-4">
-            <div class="flex justify-between items-center">
-                <div>
-                    <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
-                        <span>👨‍🏫 Mis Asignaturas y Cursos Asignados</span>
-                        <span class="badge badge-sm bg-indigo-100 text-indigo-800 font-bold border-0">Periodo 2026-I</span>
-                    </h2>
-                    <p class="text-xs text-slate-500">
-                        Selecciona una clase para entrar al <strong>Selector de Semanas (1 a 18)</strong> o ver la <strong>Matriz / Sábana Excel</strong>.
-                    </p>
-                </div>
-            </div>
+        <div class="space-y-3">
+            <h2 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Mis Asignaturas Asignadas
+            </h2>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach (var clase in Model.MisClasesDocente)
                 {
-                    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm hover:shadow-md transition flex flex-col justify-between group relative overflow-hidden">
-                        <div class="space-y-3">
-                            <!-- Header de Tarjeta -->
-                            <div class="flex justify-between items-start">
-                                <div>
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-[10px] font-mono font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-lg border border-indigo-200">@clase.UnidadDidacticaCodigo</span>
-                                        <span class="text-[10px] font-bold bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg">Ciclo @clase.Ciclo</span>
-                                        <span class="text-[10px] font-bold @(clase.Turno == "Noche" ? "bg-purple-50 text-purple-700 border border-purple-200" : "bg-amber-50 text-amber-700 border border-amber-200") px-2 py-0.5 rounded-lg">
-                                            Turno @clase.Turno
-                                        </span>
-                                    </div>
-                                    <h3 class="font-extrabold text-base text-slate-900 mt-2 leading-tight group-hover:text-indigo-600 transition">
-                                        @clase.UnidadDidacticaNombre
-                                    </h3>
-                                    <p class="text-xs text-slate-400 font-medium">@clase.CarreraNombre • Sección @clase.Seccion</p>
-                                </div>
+                    <div class="bg-white dark:bg-[#111827] rounded-2xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col justify-between space-y-3">
+                        <div class="space-y-2">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-mono font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded">@clase.UnidadDidacticaCodigo</span>
+                                <span class="text-[10px] text-slate-400">Ciclo @clase.Ciclo • @clase.Turno</span>
                             </div>
+                            <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 leading-snug">
+                                @clase.UnidadDidacticaNombre
+                            </h3>
+                            <p class="text-[11px] text-slate-400">@clase.CarreraNombre • Secc @clase.Seccion</p>
 
-                            <!-- Barra de Avance Semanal (Semanas 1 a 17) -->
-                            <div class="bg-slate-50 p-3.5 rounded-2xl border border-slate-100 space-y-2">
-                                <div class="flex justify-between items-center text-xs font-semibold text-slate-600">
-                                    <span>Avance del Semestre</span>
-                                    <span class="font-bold text-indigo-700 font-mono">@clase.SemanasRegistradas / @clase.TotalSemanasRegulares sem</span>
+                            <!-- Avance -->
+                            <div class="space-y-1 pt-1">
+                                <div class="flex justify-between text-[11px] text-slate-500 dark:text-slate-400">
+                                    <span>Avance</span>
+                                    <span class="font-mono font-bold">@clase.SemanasRegistradas / @clase.TotalSemanasRegulares sem</span>
                                 </div>
-                                <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-                                    <div class="bg-indigo-600 h-full rounded-full transition-all duration-500" style="width: @Math.Min(100, (clase.SemanasRegistradas * 100 / clase.TotalSemanasRegulares))%"></div>
-                                </div>
-                                <div class="flex justify-between text-[11px] text-slate-400 pt-1">
-                                    <span>🏫 @(clase.AulaCodigo ?? "Laboratorio")</span>
-                                    <span>👥 @clase.TotalAlumnosMatriculados Alumnos</span>
-                                    <span>⏰ @clase.HorasSemanales hrs/sem</span>
+                                <div class="w-full bg-slate-100 dark:bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                                    <div class="bg-indigo-600 h-full rounded-full" style="width: @Math.Min(100, (clase.SemanasRegistradas * 100 / clase.TotalSemanasRegulares))%"></div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Botones de Acción -->
-                        <div class="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between gap-2">
-                            <a href="/Modulo02/Matriz/@clase.ClaseId" class="btn bg-slate-100 hover:bg-slate-200 text-slate-700 btn-xs rounded-xl font-bold border-0 px-3 flex items-center gap-1.5" title="Ver Sábana Excel con las 18 semanas">
-                                <span>📊 Sábana Excel</span>
+                        <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                            <a href="/Modulo02/Matriz/@clase.ClaseId" class="text-[11px] text-slate-600 dark:text-slate-400 font-semibold hover:underline">
+                                📊 Matriz 18 Sem
                             </a>
-                            <a href="/Modulo02/Clase/@clase.ClaseId" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-xs rounded-xl font-bold border-0 px-4 shadow-sm flex items-center gap-1.5">
-                                <span>Semanas (1 a 18) →</span>
+                            <a href="/Modulo02/Clase/@clase.ClaseId" class="text-[11px] text-indigo-600 dark:text-indigo-400 font-bold hover:underline">
+                                Semanas →
                             </a>
                         </div>
                     </div>
@@ -139,123 +115,81 @@
         </div>
     }
 
-    <!-- SECCIÓN 2: SESIONES ACTIVAS DE HOY & ALERTAS -->
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- 2 Cols: Sesiones de Clase para Registro Rápido -->
-        <div class="lg:col-span-2 space-y-4">
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
-                <div class="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <div>
-                        <h2 class="text-sm font-bold text-slate-800 flex items-center gap-2">
-                            <span>📅 Sesiones Dictadas & En Curso</span>
-                            <span class="badge badge-sm badge-ghost text-[10px]">Registro Inmediato</span>
-                        </h2>
-                        <p class="text-xs text-slate-400">Accede directamente a la toma de lista de cualquier sesión.</p>
-                    </div>
-                </div>
+    <!-- SECCIÓN 2: Sesiones & Alertas -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="lg:col-span-2 space-y-3">
+            <h2 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Sesiones Dictadas & En Curso
+            </h2>
 
-                <div class="divide-y divide-slate-100">
-                    @if (Model.SesionesHoy.Any())
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden divide-y divide-slate-100 dark:divide-slate-800">
+                @if (Model.SesionesHoy.Any())
+                {
+                    @foreach (var s in Model.SesionesHoy)
                     {
-                        @foreach (var s in Model.SesionesHoy)
-                        {
-                            <div class="p-4 hover:bg-indigo-50/30 transition flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                                <div class="flex items-start gap-3.5">
-                                    <div class="w-10 h-10 rounded-xl @(s.EsSemanaRecuperacion ? "bg-purple-100 text-purple-700" : "bg-indigo-100/80 text-indigo-700") flex flex-col items-center justify-center shrink-0 text-center font-bold">
-                                        <span class="text-[9px] uppercase leading-none">Sem</span>
-                                        <span class="text-sm leading-tight">@s.NumeroSemana</span>
-                                    </div>
-                                    <div>
-                                        <div class="flex items-center gap-2">
-                                            <span class="font-bold text-xs text-slate-900">@s.UnidadDidacticaNombre</span>
-                                            <span class="text-[10px] bg-slate-100 text-slate-600 font-mono px-1.5 py-0.5 rounded">@s.UnidadDidacticaCodigo</span>
-                                            @if (s.Estado == "CERRADA")
-                                            {
-                                                <span class="badge badge-success badge-xs font-bold text-white">Cerrada</span>
-                                            }
-                                            else
-                                            {
-                                                <span class="badge badge-warning badge-xs font-bold text-white animate-pulse">Abierta</span>
-                                            }
-                                        </div>
-                                        <p class="text-[11px] text-slate-500 mt-0.5">
-                                            👨‍🏫 Docente: <strong>@s.DocenteNombreCompleto</strong> • 🏫 @(s.AulaCodigo ?? "Laboratorio") • ⏰ @s.HoraInicio.ToString(@"hh\:mm") a @s.HoraFin.ToString(@"hh\:mm") (@s.HorasPedagogicas hrs)
-                                        </p>
-                                        @if (!string.IsNullOrEmpty(s.TemaDesarrollado))
+                        <div class="p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                            <div class="flex items-start gap-3">
+                                <div class="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 flex flex-col items-center justify-center shrink-0 font-bold">
+                                    <span class="text-[8px] uppercase">S</span>
+                                    <span class="text-xs leading-none">@s.NumeroSemana</span>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2">
+                                        <span class="font-bold text-xs text-slate-900 dark:text-slate-100">@s.UnidadDidacticaNombre</span>
+                                        @if (s.Estado == "CERRADA")
                                         {
-                                            <p class="text-[11px] text-indigo-600/80 font-medium italic mt-0.5">
-                                                📝 Tema: @s.TemaDesarrollado
-                                            </p>
+                                            <span class="badge badge-success badge-xs font-semibold text-white">Cerrada</span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge badge-warning badge-xs font-semibold text-white">Abierta</span>
                                         }
                                     </div>
-                                </div>
-                                <div class="flex items-center gap-2 self-end sm:self-center">
-                                    <a href="/Modulo02/TomarAsistencia/@s.Id" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-xs rounded-lg font-bold border-0 px-3 shadow-sm">
-                                        @(s.Estado == "CERRADA" ? "Ver Lista" : "Tomar Lista")
-                                    </a>
+                                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-0.5">
+                                        Docente: @s.DocenteNombreCompleto • @(s.AulaCodigo ?? "Lab") • @s.HoraInicio.ToString(@"hh\:mm") a @s.HoraFin.ToString(@"hh\:mm")
+                                    </p>
                                 </div>
                             </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="p-8 text-center text-xs text-slate-400">
-                            No hay sesiones registradas actualmente.
+                            <a href="/Modulo02/TomarAsistencia/@s.Id" class="btn btn-primary btn-xs rounded-xl text-xs font-bold">
+                                @(s.Estado == "CERRADA" ? "Ver Lista" : "Tomar Lista")
+                            </a>
                         </div>
                     }
-                </div>
+                }
+                else
+                {
+                    <div class="p-6 text-center text-xs text-slate-400">
+                        No hay sesiones registradas hoy.
+                    </div>
+                }
             </div>
         </div>
 
-        <!-- 1 Col: Widget Alertas DPI y Normativa -->
-        <div class="space-y-4">
-            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4">
-                <div class="flex justify-between items-center mb-3">
-                    <h3 class="text-xs font-bold text-rose-800 flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-rose-500 animate-ping"></span>
-                        🚨 Alerta Temprana DPI (30%)
-                    </h3>
-                    <a href="/Modulo02/ReportesDpi" class="text-[11px] text-indigo-600 hover:underline font-semibold">Ver todos</a>
-                </div>
-                <p class="text-[11px] text-slate-500 mb-3">
-                    Estudiantes en riesgo de inhabilitación con nota automática <strong>00</strong>.
-                </p>
+        <div class="space-y-3">
+            <h2 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Alertas DPI (30%)
+            </h2>
 
-                <div class="space-y-2">
-                    @if (Model.CasosCriticosDpi.Any())
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-4 space-y-3">
+                @if (Model.CasosCriticosDpi.Any())
+                {
+                    @foreach (var c in Model.CasosCriticosDpi)
                     {
-                        @foreach (var c in Model.CasosCriticosDpi)
-                        {
-                            <div class="p-2.5 rounded-xl bg-rose-50/50 border border-rose-100 flex items-center justify-between text-xs">
-                                <div>
-                                    <p class="font-bold text-slate-800 leading-tight">@c.EstudianteNombre</p>
-                                    <p class="text-[10px] text-slate-500">@c.UnidadDidacticaNombre</p>
-                                </div>
-                                <div class="text-right">
-                                    <span class="badge badge-error badge-xs font-bold text-white">@c.PorcentajeInasistencia%</span>
-                                    <p class="text-[9px] text-rose-600 font-bold mt-0.5">@c.SemaforoEstado</p>
-                                </div>
+                        <div class="p-2.5 rounded-xl bg-rose-50/50 dark:bg-rose-950/20 border border-rose-100 dark:border-rose-900/40 flex items-center justify-between text-xs">
+                            <div>
+                                <p class="font-bold text-slate-800 dark:text-slate-200">@c.EstudianteNombre</p>
+                                <p class="text-[10px] text-slate-400">@c.UnidadDidacticaNombre</p>
                             </div>
-                        }
-                    }
-                    else
-                    {
-                        <div class="p-4 text-center text-xs text-slate-400 bg-slate-50 rounded-xl">
-                            ✅ Ningún estudiante en zona crítica de DPI.
+                            <span class="badge badge-error badge-xs font-bold text-white">@c.PorcentajeInasistencia%</span>
                         </div>
                     }
-                </div>
-            </div>
-
-            <!-- Card Normativa Oficial -->
-            <div class="bg-gradient-to-br from-indigo-900 to-blue-900 text-white rounded-2xl p-4 shadow-sm">
-                <div class="flex items-center gap-2 mb-2">
-                    <span class="text-lg">⚖️</span>
-                    <span class="text-xs font-bold uppercase tracking-wider text-indigo-200">Reglamento IESTP</span>
-                </div>
-                <p class="text-[11px] text-indigo-100/90 leading-relaxed">
-                    <strong>Art. 8.8.1 MPA:</strong> 17 Semanas de clases regulares + Semana 18 de recuperación. La inasistencia $\ge 30\%$ inhabilita al estudiante sin derecho a recuperación.
-                </p>
+                }
+                else
+                {
+                    <p class="text-xs text-slate-400 text-center py-2">
+                        ✅ Ningún alumno en riesgo DPI.
+                    </p>
+                }
             </div>
         </div>
     </div>
