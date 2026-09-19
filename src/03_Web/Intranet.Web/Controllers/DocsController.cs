@@ -20,8 +20,10 @@ public class TutorialItem
     public int Vistas { get; set; } = 0;
 }
 
-[Authorize]
-[Route("[controller]")]
+[AllowAnonymous]
+[Route("Docs")]
+[Route("Tutoriales")]
+[Route("Documentacion")]
 public class DocsController : ModuloBaseController
 {
     private static readonly List<TutorialItem> _tutoriales = new()
