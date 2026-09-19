@@ -1,156 +1,131 @@
 @model IEnumerable<Intranet.Web.Controllers.TutorialItem>
 @{
-    ViewData["Title"] = "Centro de Documentación & Academia AQUILA";
+    ViewData["Title"] = "Guías & Videotutoriales";
     var moduloActual = (string)(ViewData["ModuloSeleccionado"] ?? "Todos");
     var buscar = (string)(ViewData["Buscar"] ?? "");
 }
 
-<div class="space-y-10 animate-fade-in">
-    <!-- Hero Header / Banner de Documentación -->
-    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white p-6 sm:p-10 border border-white/10 shadow-xl dark:border-slate-800">
-        <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        <div class="absolute -left-10 -top-10 w-72 h-72 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
-        
-        <div class="relative z-10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-            <div class="max-w-2xl">
-                <div class="inline-flex items-center gap-2 bg-cyan-400/20 text-cyan-200 border border-cyan-400/30 px-3 py-1 rounded-full text-xs font-bold mb-3">
-                    <span>🎥 ACADEMIA MULTIMEDIA & GUÍAS DEV</span>
-                    <span class="w-1.5 h-1.5 rounded-full bg-cyan-300 animate-ping"></span>
+<div class="space-y-8">
+    <!-- Header Zen de Documentación -->
+    <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 border border-white/10 shadow-lg relative overflow-hidden">
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div class="space-y-1">
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] bg-cyan-400/20 text-cyan-200 border border-cyan-400/30 px-2.5 py-0.5 rounded-full font-bold">Academia Multimedia</span>
+                    <span class="text-xs text-slate-400">• IESTP Argentina</span>
                 </div>
-                <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white mb-2">
-                    Centro de Documentación & Videotutoriales
+                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
+                    Guías & Videotutoriales
                 </h1>
-                <p class="text-slate-300 text-xs sm:text-sm leading-relaxed">
-                    Aprende cómo usar la plataforma, configurar tu entorno en .NET 10 y PostgreSQL 16, y publica tutoriales de tu módulo para los demás equipos del <strong class="text-cyan-300 font-bold">IESTP "Argentina"</strong>.
+                <p class="text-xs sm:text-sm text-slate-300 max-w-xl">
+                    Demostraciones paso a paso y guías de desarrollo para cada módulo.
                 </p>
             </div>
             
-            <div class="flex flex-wrap gap-3 shrink-0">
-                <button onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-sm sm:btn-md rounded-2xl text-xs font-bold gap-2 shadow-lg shadow-blue-600/30">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Publicar Video Tutorial
+            <div class="flex items-center gap-2 shrink-0">
+                <button onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-sm rounded-xl text-xs font-bold gap-1.5 shadow-sm">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    <span>Publicar Video</span>
                 </button>
-                <a href="https://github.com/felipeostosb/intranet-institucional-modular" target="_blank" class="btn bg-white/10 hover:bg-white/20 text-white border-white/20 btn-sm sm:btn-md rounded-2xl text-xs font-semibold gap-2">
-                    <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-                    GitHub Repo
-                </a>
             </div>
         </div>
+        <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
     </div>
 
-    <!-- SECCIÓN 1: VIDEOTUTORIALES (Filtros + Grid) -->
-    <div id="videos" class="space-y-6">
-        <!-- Filtros de Módulos & Barra de Búsqueda -->
-        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 transition-colors">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-                <div>
-                    <h3 class="font-black text-slate-800 dark:text-slate-100 text-base">Videotutoriales por Módulo</h3>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Selecciona el módulo para filtrar demostraciones y manuales:</p>
-                </div>
-                
-                <!-- Barra de Búsqueda -->
-                <form method="get" asp-action="Index" class="flex gap-2 w-full md:w-80">
-                    <input type="hidden" name="modulo" value="@moduloActual" />
-                    <input type="text" name="buscar" value="@buscar" placeholder="Buscar video, tema, autor..." class="input input-sm input-bordered w-full rounded-xl bg-slate-50 dark:bg-slate-800 dark:border-slate-700 text-xs" />
-                    <button type="submit" class="btn btn-sm btn-neutral rounded-xl text-xs">Buscar</button>
-                    @if (!string.IsNullOrWhiteSpace(buscar) || moduloActual != "Todos")
-                    {
-                        <a href="/Docs" class="btn btn-sm btn-ghost rounded-xl text-xs">Limpiar</a>
-                    }
-                </form>
-            </div>
-
-            <!-- Pestañas de Filtros -->
-            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+    <!-- SECCIÓN DE VIDEOS: Filtro + Grid -->
+    <div id="videos" class="space-y-4">
+        <!-- Barra de Búsqueda y Filtro de Pestañas -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <!-- Filtros de Módulos (Scroll horizontal limpio) -->
+            <div class="flex gap-1.5 overflow-x-auto pb-1 max-w-full">
                 @{
                     var modulosFiltro = new[]
                     {
-                        ("Todos", "🌐 Todos"),
-                        ("General", "🚀 General / Onboarding"),
-                        ("Modulo00", "🛡️ Mód 00 (Seguridad)"),
-                        ("Modulo01", "📝 Mód 01 (Matrícula)"),
-                        ("Modulo02", "📅 Mód 02 (Asistencia)"),
-                        ("Modulo03", "📊 Mód 03 (Notas)"),
-                        ("Modulo04", "⏰ Mód 04 (Horarios)"),
-                        ("Modulo05", "👨‍🏫 Mód 05 (Docentes)"),
-                        ("Modulo06", "📋 Mód 06 (Trámites)"),
-                        ("Modulo07", "💼 Mód 07 (Bolsa)"),
-                        ("Modulo08", "📋 Mód 08 (Encuestas)"),
-                        ("Modulo09", "💳 Mód 09 (Tesorería)")
+                        ("Todos", "Todos"),
+                        ("General", "General"),
+                        ("Modulo00", "00. Seguridad"),
+                        ("Modulo01", "01. Matrícula"),
+                        ("Modulo02", "02. Asistencia"),
+                        ("Modulo03", "03. Notas"),
+                        ("Modulo04", "04. Horarios"),
+                        ("Modulo05", "05. Docentes"),
+                        ("Modulo06", "06. Trámites"),
+                        ("Modulo07", "07. Bolsa"),
+                        ("Modulo08", "08. Encuestas"),
+                        ("Modulo09", "09. Tesorería")
                     };
                 }
                 @foreach (var (cod, nom) in modulosFiltro)
                 {
                     var activo = moduloActual.Equals(cod, StringComparison.OrdinalIgnoreCase);
                     <a href="/Docs?modulo=@cod@(string.IsNullOrWhiteSpace(buscar) ? "" : "&buscar=" + buscar)#videos" 
-                       class="badge text-xs px-3.5 py-3 rounded-xl font-bold transition whitespace-nowrap @(activo ? "badge-primary text-white shadow-sm" : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border-none")">
+                       class="px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition @(activo ? "bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-sm" : "bg-white dark:bg-[#111827] text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 border border-slate-200/80 dark:border-slate-800")">
                         @nom
                     </a>
                 }
             </div>
+
+            <!-- Búsqueda rápida -->
+            <form method="get" asp-action="Index" class="flex gap-1.5 w-full sm:w-64 shrink-0">
+                <input type="hidden" name="modulo" value="@moduloActual" />
+                <input type="text" name="buscar" value="@buscar" placeholder="Buscar video..." class="input input-xs input-bordered w-full rounded-xl bg-white dark:bg-[#111827] border-slate-200 dark:border-slate-800 text-xs h-8" />
+                <button type="submit" class="btn btn-xs btn-neutral rounded-xl text-xs h-8">Buscar</button>
+            </form>
         </div>
 
         <!-- Grid de Videos -->
         @if (!Model.Any())
         {
-            <div class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
-                <div class="w-16 h-16 rounded-2xl bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-400 flex items-center justify-center mx-auto text-2xl font-bold">
-                    📹
-                </div>
-                <h3 class="text-lg font-bold text-slate-800 dark:text-slate-200">No hay tutoriales registrados en este filtro</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
-                    Sé el primero en subir un videotutorial para este módulo haciendo clic en el botón de abajo.
+            <div class="bg-white dark:bg-[#111827] rounded-3xl p-10 text-center border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-3">
+                <div class="text-3xl">📹</div>
+                <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">No hay videos en este filtro</h3>
+                <p class="text-xs text-slate-400 max-w-sm mx-auto">
+                    Sé el primero en subir un videotutorial para este módulo.
                 </p>
-                <button onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-sm rounded-xl text-xs font-bold">
-                    + Publicar Primer Tutorial
+                <button onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-xs rounded-xl text-xs font-bold">
+                    + Publicar Video
                 </button>
             </div>
         }
         else
         {
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 @foreach (var item in Model)
                 {
-                    <div class="bg-white dark:bg-slate-900 rounded-3xl border border-slate-200 dark:border-slate-800 shadow-sm hover:shadow-xl transition-all duration-300 overflow-hidden flex flex-col group">
+                    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col group">
                         <!-- Thumbnail de YouTube con Botón Play Overlay -->
-                        <div class="relative aspect-video bg-slate-950 overflow-hidden cursor-pointer" onclick="reproducirVideo('@item.YoutubeVideoId', '@Html.Raw(Html.Encode(item.Titulo))', '@Html.Raw(Html.Encode(item.Autor))')">
-                            <img src="https://img.youtube.com/vi/@item.YoutubeVideoId/hqdefault.jpg" alt="@item.Titulo" class="w-full h-full object-cover group-hover:scale-105 transition duration-500 opacity-90 group-hover:opacity-100" />
+                        <div class="relative aspect-video bg-slate-900 cursor-pointer overflow-hidden" onclick="reproducirVideo('@item.YoutubeVideoId', '@Html.Raw(Html.Encode(item.Titulo))', '@Html.Raw(Html.Encode(item.Autor))')">
+                            <img src="https://img.youtube.com/vi/@item.YoutubeVideoId/hqdefault.jpg" alt="@item.Titulo" class="w-full h-full object-cover group-hover:scale-105 transition duration-300 opacity-90 group-hover:opacity-100" />
                             
-                            <!-- Overlay Play Button -->
-                            <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex items-center justify-center">
-                                <div class="w-14 h-14 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-red-500 transition duration-300">
-                                    <svg class="w-6 h-6 fill-current ml-1" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+                            <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+                                <div class="w-11 h-11 rounded-full bg-red-600/90 text-white flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-red-500 transition duration-200">
+                                    <svg class="w-5 h-5 fill-current ml-0.5" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                                 </div>
                             </div>
 
-                            <!-- Badges Superiores -->
-                            <div class="absolute top-3 left-3 flex gap-2">
-                                <span class="badge badge-primary text-[10px] font-bold px-2.5 py-1">@item.ModuloNombre</span>
-                            </div>
-                            
-                            <div class="absolute bottom-3 right-3 bg-black/70 text-white text-[10px] font-mono px-2 py-0.5 rounded-md backdrop-blur-sm">
-                                YouTube HD
+                            <div class="absolute top-2 left-2">
+                                <span class="badge badge-neutral text-[10px] font-bold px-2 py-0.5 rounded-lg bg-black/60 text-white backdrop-blur-sm border-0">@item.ModuloNombre</span>
                             </div>
                         </div>
 
-                        <!-- Detalle del Tutorial -->
-                        <div class="p-5 flex-1 flex flex-col justify-between space-y-3">
+                        <!-- Detalle del Video -->
+                        <div class="p-4 flex-1 flex flex-col justify-between space-y-2">
                             <div>
-                                <div class="flex items-center justify-between text-[11px] text-slate-400 mb-1">
-                                    <span class="font-medium text-blue-600 dark:text-cyan-400">👤 @item.Autor</span>
-                                    <span>📅 @item.FechaPublicacion.ToString("dd/MM/yyyy")</span>
+                                <div class="flex items-center justify-between text-[10px] text-slate-400 mb-1">
+                                    <span class="font-medium text-blue-600 dark:text-cyan-400">@item.Autor</span>
+                                    <span>@item.FechaPublicacion.ToString("dd/MM/yyyy")</span>
                                 </div>
-                                <h3 class="font-extrabold text-slate-900 dark:text-slate-100 text-sm sm:text-base leading-snug group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition cursor-pointer" onclick="reproducirVideo('@item.YoutubeVideoId', '@Html.Raw(Html.Encode(item.Titulo))', '@Html.Raw(Html.Encode(item.Autor))')">
+                                <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 leading-snug group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition cursor-pointer" onclick="reproducirVideo('@item.YoutubeVideoId', '@Html.Raw(Html.Encode(item.Titulo))', '@Html.Raw(Html.Encode(item.Autor))')">
                                     @item.Titulo
                                 </h3>
-                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-2 line-clamp-3 leading-relaxed">
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
                                     @item.Descripcion
                                 </p>
                             </div>
 
-                            <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                                <span class="badge badge-ghost text-[10px] font-medium">Nivel: @item.Nivel</span>
-                                <button onclick="reproducirVideo('@item.YoutubeVideoId', '@Html.Raw(Html.Encode(item.Titulo))', '@Html.Raw(Html.Encode(item.Autor))')" class="btn btn-ghost btn-xs text-blue-600 dark:text-cyan-400 font-bold hover:bg-blue-50 dark:hover:bg-slate-800">
+                            <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                                <span class="text-slate-400">Nivel: @item.Nivel</span>
+                                <button onclick="reproducirVideo('@item.YoutubeVideoId', '@Html.Raw(Html.Encode(item.Titulo))', '@Html.Raw(Html.Encode(item.Autor))')" class="text-blue-600 dark:text-cyan-400 font-semibold hover:underline">
                                     Ver Tutorial →
                                 </button>
                             </div>
@@ -161,160 +136,73 @@
         }
     </div>
 
-    <!-- SECCIÓN 2: ONBOARDING & CLI -->
-    <div id="onboarding" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-cyan-400 flex items-center justify-center font-black text-base">
-                🚀
+    <!-- GUÍAS RÁPIDAS DE DESARROLLO (3 Bloques Limpios) -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
+        <!-- 1. CLI -->
+        <div id="onboarding" class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 space-y-3">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">🚀</span>
+                <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                    1. Inicio Rápido & CLI
+                </h3>
             </div>
-            <div>
-                <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">1. Onboarding & Asistente CLI de Desarrollo</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Cómo configurar tu entorno en 3 minutos sin fricción técnica:</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Ejecuta el asistente interactivo para crear tu rama y correr la intranet:
+            </p>
+            <div class="font-mono bg-slate-900 text-cyan-300 p-2.5 rounded-xl text-[11px] select-all space-y-1">
+                <div>./dev.sh <span class="text-slate-500"># Linux / Mac</span></div>
+                <div>.\dev.ps1 <span class="text-slate-500"># Windows</span></div>
             </div>
         </div>
 
-        <div id="git-cli" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Columna 1: Comandos Rápidos -->
-            <div class="space-y-3">
-                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">Pasos de Instalación</h4>
-                
-                <div class="space-y-2 text-xs">
-                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700/60">
-                        <p class="font-bold text-slate-800 dark:text-slate-200 mb-1">1. Clonar el repositorio oficial</p>
-                        <code class="block font-mono bg-slate-900 text-cyan-300 p-2 rounded-xl text-[11px] select-all">git clone https://github.com/felipeostosb/intranet-institucional-modular.git</code>
-                    </div>
-
-                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700/60">
-                        <p class="font-bold text-slate-800 dark:text-slate-200 mb-1">2. Ejecutar el asistente interactivo</p>
-                        <div class="font-mono bg-slate-900 text-emerald-300 p-2 rounded-xl text-[11px] select-all space-y-0.5">
-                            <div>./dev.sh <span class="text-slate-500"># En Linux / macOS</span></div>
-                            <div>.\dev.ps1 <span class="text-slate-500"># En Windows PowerShell</span></div>
-                        </div>
-                    </div>
+        <!-- 2. Base de Datos -->
+        <div id="database" class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 space-y-3">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <span class="text-lg">🗄️</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                        2. PostgreSQL Cloud
+                    </h3>
                 </div>
+                <a href="http://35.206.81.32:8080" target="_blank" class="text-[11px] text-blue-600 dark:text-cyan-400 font-semibold hover:underline">
+                    Adminer ↗
+                </a>
             </div>
-
-            <!-- Columna 2: Menú de 5 Opciones -->
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-3 text-xs">
-                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">Las 5 Opciones del Menú dev.sh</h4>
-                <ul class="space-y-2 text-slate-600 dark:text-slate-300 text-[11px]">
-                    <li class="flex items-center gap-2">
-                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">1)</span> <strong>🚀 Iniciar Intranet:</strong> Lanza localhost:5000 con Hot-Reload.
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">2)</span> <strong>🌿 Mi Rama de Equipo:</strong> Elige tu equipo (00 al 09) y crea tu rama.
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">3)</span> <strong>🧪 Compilar y Validar:</strong> Verifica 0 errores en .NET 10.
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">4)</span> <strong>📤 Subir a GitHub:</strong> Guarda, rebasea y genera enlace de Pull Request.
-                    </li>
-                    <li class="flex items-center gap-2">
-                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">5)</span> <strong>🗄️ Base de Datos:</strong> Muestra accesos y guarda appsettings.Local.json.
-                    </li>
-                </ul>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECCIÓN 3: BASE DE DATOS & CLOUD -->
-    <div id="database" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-base">
-                    🗄️
-                </div>
-                <div>
-                    <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">2. Base de Datos PostgreSQL 16 & Adminer</h2>
-                    <p class="text-xs text-slate-500 dark:text-slate-400">Aislamiento por esquemas soberanos y acceso web:</p>
-                </div>
-            </div>
-            
-            <a href="http://35.206.81.32:8080" target="_blank" class="btn btn-sm btn-outline btn-success rounded-xl text-xs gap-1.5 hidden sm:flex">
-                <span>Abrir Adminer Web</span>
-                <span>→</span>
-            </a>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-success text-[10px] font-bold">Panel Web</span>
-                <h4 class="font-bold text-slate-800 dark:text-slate-200">Adminer GUI</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
-                    URL: <code class="font-mono text-blue-600 dark:text-cyan-400">http://35.206.81.32:8080</code><br/>
-                    Motor: <strong>PostgreSQL</strong><br/>
-                    Servidor: <strong>postgres</strong> (o 35.206.81.32)
-                </p>
-            </div>
-
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-primary text-[10px] font-bold">Esquemas Soberanos</span>
-                <h4 class="font-bold text-slate-800 dark:text-slate-200">mod00 .. mod09</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
-                    Tienes control total (INSERT/UPDATE/DELETE/CREATE) en tu esquema <code>modXX</code>. Las demás tablas están protegidas.
-                </p>
-            </div>
-
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-accent text-[10px] font-bold">Eje Temporal</span>
-                <h4 class="font-bold text-slate-800 dark:text-slate-200">core.periodos_academicos</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
-                    Incluye siempre <code>periodo_id</code> en tablas transaccionales (asistencia, notas, matrículas) para soportar el cambio de año.
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECCIÓN 4: NORMATIVA ACADÉMICA MINEDU -->
-    <div id="minedu" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
-        <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-base">
-                ⚖️
-            </div>
-            <div>
-                <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">3. Normativa Académica Oficial (MINEDU / IESTP)</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Reglas de negocio indispensables que deben respetar las actas y cálculos:</p>
+            <p class="text-[11px] text-slate-500 dark:text-slate-400">
+                Cada equipo tiene su esquema propio (<code>mod00..09</code>) y lectura compartida de <code>core</code>.
+            </p>
+            <div class="text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
+                <div>• Host: <code class="font-mono text-slate-800 dark:text-slate-200">35.206.81.32:5432</code></div>
+                <div>• BD: <code class="font-mono text-slate-800 dark:text-slate-200">db_intranet_iestp</code></div>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-warning text-[10px] font-bold">Sábana de 18 Semanas</span>
-                <h4 class="font-bold text-slate-800 dark:text-slate-200">Semestre Académico</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
-                    Cada unidad didáctica desarrolla 18 semanas de clases lectivas con sesiones teóricas y prácticas.
-                </p>
+        <!-- 3. Normativa MINEDU -->
+        <div id="minedu" class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 space-y-3">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">⚖️</span>
+                <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                    3. Normativa Oficial
+                </h3>
             </div>
-
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-error text-[10px] font-bold">Inasistencias &gt; 30%</span>
-                <h4 class="font-bold text-slate-800 dark:text-slate-200">Condición DPI</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
-                    Si un estudiante supera el 30% de inasistencias injustificadas, se marca automáticamente como <strong>DPI (Desaprobado por Inasistencia)</strong> con nota 00.
-                </p>
-            </div>
-
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-info text-[10px] font-bold">Escala 0 a 20</span>
-                <h4 class="font-bold text-slate-800 dark:text-slate-200">Calificación Vigesimal</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
-                    Nota mínima aprobatoria: <strong>13</strong>. Estudiantes con promedio entre 10 y 12 tienen derecho a evaluación de recuperación.
-                </p>
-            </div>
+            <ul class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
+                <li>• <strong>18 Semanas:</strong> Duración del semestre académico.</li>
+                <li>• <strong>30% Inasistencias:</strong> Condición DPI automática (nota 00).</li>
+                <li>• <strong>Escala 0 a 20:</strong> Nota mínima aprobatoria 13.</li>
+            </ul>
         </div>
     </div>
 </div>
 
 <!-- Modal Reproductor de Video -->
 <dialog id="modal_reproductor" class="modal">
-    <div class="modal-box max-w-4xl p-0 rounded-3xl bg-slate-950 border border-slate-800 text-white overflow-hidden shadow-2xl">
-        <div class="p-4 bg-slate-900 flex justify-between items-center border-b border-slate-800">
+    <div class="modal-box max-w-3xl p-0 rounded-3xl bg-slate-950 border border-slate-800 text-white overflow-hidden shadow-2xl">
+        <div class="p-3 bg-slate-900 flex justify-between items-center border-b border-slate-800">
             <div>
-                <h3 id="video_titulo" class="font-extrabold text-sm sm:text-base text-slate-100">Reproduciendo Tutorial</h3>
-                <p id="video_autor" class="text-xs text-cyan-400"></p>
+                <h3 id="video_titulo" class="font-bold text-xs text-slate-100">Tutorial</h3>
+                <p id="video_autor" class="text-[10px] text-cyan-400"></p>
             </div>
-            <button onclick="cerrarVideo()" class="btn btn-sm btn-circle btn-ghost text-slate-400 hover:text-white">✕</button>
+            <button onclick="cerrarVideo()" class="btn btn-xs btn-circle btn-ghost text-slate-400 hover:text-white">✕</button>
         </div>
         <div class="aspect-video w-full bg-black">
             <iframe id="video_iframe" class="w-full h-full" src="" title="Tutorial YouTube" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
@@ -327,44 +215,41 @@
 
 <!-- Modal Publicar Nuevo Tutorial -->
 <dialog id="modal_nuevo_tutorial" class="modal">
-    <div class="modal-box rounded-3xl max-w-lg bg-white dark:bg-slate-900 text-slate-800 dark:text-slate-200 border border-slate-200 dark:border-slate-800 shadow-2xl">
+    <div class="modal-box rounded-3xl max-w-md bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-800 shadow-2xl">
         <div class="flex items-center justify-between mb-4">
-            <div class="flex items-center gap-2">
-                <span class="text-xl">📹</span>
-                <h3 class="font-black text-lg">Publicar Video Tutorial</h3>
-            </div>
-            <button type="button" onclick="modal_nuevo_tutorial.close()" class="btn btn-sm btn-circle btn-ghost">✕</button>
+            <h3 class="font-bold text-sm">Publicar Video Tutorial</h3>
+            <button type="button" onclick="modal_nuevo_tutorial.close()" class="btn btn-xs btn-circle btn-ghost">✕</button>
         </div>
 
-        <form asp-action="Agregar" method="post" class="space-y-4 text-xs">
+        <form asp-action="Agregar" method="post" class="space-y-3 text-xs">
             @Html.AntiForgeryToken()
             
             <div>
-                <label class="font-bold block mb-1">Título del Tutorial <span class="text-red-500">*</span></label>
-                <input type="text" name="titulo" required placeholder="Ej: Cómo conectar el Módulo 03 con PostgreSQL" class="input input-sm input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700" />
+                <label class="font-bold block mb-1 text-[11px]">Título del Video <span class="text-red-500">*</span></label>
+                <input type="text" name="titulo" required placeholder="Ej: Conexión del Módulo 03 con PostgreSQL" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
 
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div class="grid grid-cols-2 gap-2">
                 <div>
-                    <label class="font-bold block mb-1">Módulo <span class="text-red-500">*</span></label>
-                    <select name="moduloCodigo" class="select select-sm select-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700">
-                        <option value="General">🚀 General / Onboarding</option>
-                        <option value="Modulo00">🛡️ Módulo 00 (Seguridad & Roles)</option>
-                        <option value="Modulo01">📝 Módulo 01 (Admisión & Matrícula)</option>
-                        <option value="Modulo02">📅 Módulo 02 (Asistencia 18 Semanas)</option>
-                        <option value="Modulo03">📊 Módulo 03 (Calificaciones)</option>
-                        <option value="Modulo04">⏰ Módulo 04 (Horarios & Aulas)</option>
-                        <option value="Modulo05">👨‍🏫 Módulo 05 (Docentes & Carga)</option>
-                        <option value="Modulo06">📋 Módulo 06 (Trámites & Mesa Partes)</option>
-                        <option value="Modulo07">💼 Módulo 07 (Bolsa de Trabajo)</option>
-                        <option value="Modulo08">📋 Módulo 08 (Encuestas & Tutoría)</option>
-                        <option value="Modulo09">💳 Módulo 09 (Tesorería & Pagos)</option>
+                    <label class="font-bold block mb-1 text-[11px]">Módulo <span class="text-red-500">*</span></label>
+                    <select name="moduloCodigo" class="select select-xs select-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9">
+                        <option value="General">General / Onboarding</option>
+                        <option value="Modulo00">00. Seguridad</option>
+                        <option value="Modulo01">01. Matrícula</option>
+                        <option value="Modulo02" selected>02. Asistencia</option>
+                        <option value="Modulo03">03. Calificaciones</option>
+                        <option value="Modulo04">04. Horarios</option>
+                        <option value="Modulo05">05. Carga Docente</option>
+                        <option value="Modulo06">06. Mesa de Partes</option>
+                        <option value="Modulo07">07. Bolsa Trabajo</option>
+                        <option value="Modulo08">08. Encuestas</option>
+                        <option value="Modulo09">09. Tesorería</option>
                     </select>
                 </div>
 
                 <div>
-                    <label class="font-bold block mb-1">Nivel</label>
-                    <select name="nivel" class="select select-sm select-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700">
+                    <label class="font-bold block mb-1 text-[11px]">Nivel</label>
+                    <select name="nivel" class="select select-xs select-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9">
                         <option value="Básico">Básico</option>
                         <option value="Intermedio" selected>Intermedio</option>
                         <option value="Avanzado">Avanzado</option>
@@ -373,24 +258,23 @@
             </div>
 
             <div>
-                <label class="font-bold block mb-1">Enlace de YouTube <span class="text-red-500">*</span></label>
-                <input type="url" name="youtubeUrl" required placeholder="https://www.youtube.com/watch?v=... o https://youtu.be/..." class="input input-sm input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700" />
-                <span class="text-[10px] text-slate-400">Puedes pegar enlaces estándar, cortos (youtu.be) o IDs de video.</span>
+                <label class="font-bold block mb-1 text-[11px]">Enlace de YouTube <span class="text-red-500">*</span></label>
+                <input type="url" name="youtubeUrl" required placeholder="https://www.youtube.com/watch?v=..." class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
 
             <div>
-                <label class="font-bold block mb-1">Autor / Expositor</label>
-                <input type="text" name="autor" placeholder="Ej: Sheyla, Toro, Mendoza..." class="input input-sm input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700" />
+                <label class="font-bold block mb-1 text-[11px]">Autor / Expositor</label>
+                <input type="text" name="autor" placeholder="Ej: Sheyla, Toro, Mendoza..." class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
 
             <div>
-                <label class="font-bold block mb-1">Descripción del Contenido</label>
-                <textarea name="descripcion" rows="3" placeholder="Explica qué aprenderán en este tutorial..." class="textarea textarea-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700"></textarea>
+                <label class="font-bold block mb-1 text-[11px]">Descripción Breve</label>
+                <textarea name="descripcion" rows="2" placeholder="Resumen del tutorial..." class="textarea textarea-xs textarea-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700"></textarea>
             </div>
 
             <div class="modal-action pt-2">
-                <button type="button" onclick="modal_nuevo_tutorial.close()" class="btn btn-ghost btn-sm rounded-xl">Cancelar</button>
-                <button type="submit" class="btn btn-primary btn-sm rounded-xl font-bold">Publicar Video</button>
+                <button type="button" onclick="modal_nuevo_tutorial.close()" class="btn btn-ghost btn-xs rounded-xl">Cancelar</button>
+                <button type="submit" class="btn btn-primary btn-xs rounded-xl font-bold">Publicar</button>
             </div>
         </form>
     </div>
@@ -404,7 +288,7 @@
         const aut = document.getElementById('video_autor');
 
         tit.innerText = titulo;
-        aut.innerText = 'Expositor: ' + autor;
+        aut.innerText = autor ? 'Expositor: ' + autor : '';
         iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
         modal.showModal();
     }

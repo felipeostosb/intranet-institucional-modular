@@ -14,7 +14,7 @@
     <link href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css" rel="stylesheet" type="text/css" />
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <!-- Configuración Personalizada de Tailwind con Paleta de Cuidado Ocular Anti-Fatiga -->
+    <!-- Configuración Personalizada de Tailwind con Paleta Cuidado Ocular Anti-Fatiga -->
     <script>
         tailwind.config = {
             darkMode: ['class', '[data-theme="dark"]'],
@@ -55,7 +55,7 @@
     </script>
 
     <link rel="manifest" href="/manifest.json" />
-    <meta name="theme-color" content="#1d4ed8" />
+    <meta name="theme-color" content="#0b132b" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <link rel="icon" type="image/svg+xml" href="/icons/icon.svg" />
@@ -63,7 +63,7 @@
     <style>
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            transition: background-color 0.25s ease, color 0.25s ease;
+            transition: background-color 0.2s ease, color 0.2s ease;
         }
         [data-theme="dark"] {
             color-scheme: dark;
@@ -77,11 +77,12 @@
     </style>
     @await RenderSectionAsync("Styles", required: false)
 </head>
-<body class="bg-slate-50 dark:bg-[#0b0f19] min-h-screen flex flex-col text-slate-800 dark:text-slate-200 selection:bg-blue-500 selection:text-white transition-colors duration-200">
+<body class="bg-slate-50 dark:bg-[#0b0f19] min-h-screen flex flex-col text-slate-800 dark:text-slate-200 selection:bg-blue-600 selection:text-white transition-colors duration-200">
 @{
     var path = Context.Request.Path.Value?.ToLowerInvariant() ?? "";
     var isDocsSection = path.StartsWith("/docs") || path.StartsWith("/tutoriales") || path.StartsWith("/documentacion");
     var isAuth = User.Identity?.IsAuthenticated == true;
+    var userRol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno";
 }
 
 @if (isDocsSection)
@@ -93,18 +94,18 @@
         <input id="main-drawer" type="checkbox" class="drawer-toggle" />
         
         <div class="drawer-content flex flex-col">
-            <!-- Barra Superior Especializada de Documentación -->
-            <div class="navbar bg-gradient-to-r from-[#0b132b] via-[#111c3a] to-[#0d1b2a] text-white shadow-md sticky top-0 z-30 px-4 lg:px-8 h-16 min-h-0 border-b border-white/10 dark:border-slate-800 transition-colors">
+            <!-- Barra Superior Minimalista de Documentación -->
+            <header class="navbar bg-slate-900/95 dark:bg-[#0f172a]/95 backdrop-blur-md text-white shadow-sm sticky top-0 z-30 px-4 lg:px-8 h-16 min-h-0 border-b border-slate-800 transition-colors">
                 <div class="flex-none lg:hidden">
-                    <label for="main-drawer" aria-label="open sidebar" class="btn btn-square btn-ghost btn-sm text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <label for="main-drawer" aria-label="Abrir menú" class="btn btn-square btn-ghost btn-sm text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </label>
                 </div>
                 <div class="flex-1 items-center gap-3">
-                    <a href="/Docs" class="flex items-center gap-3 group">
+                    <a href="/Docs" class="flex items-center gap-2.5 group">
                         <!-- Logotipo Águila Minimalista -->
-                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
-                            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(56,189,248,0.7)]" fill="none">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-900 to-blue-950 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-sm shrink-0">
+                            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_6px_rgba(56,189,248,0.7)]" fill="none">
                                 <defs>
                                     <linearGradient id="docNavWingL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#1d4ed8" /></linearGradient>
                                     <linearGradient id="docNavWingR" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#2563eb" /></linearGradient>
@@ -116,34 +117,26 @@
                                 <polygon points="50,22 46,44 50,70 54,44" fill="#0284c7" />
                             </svg>
                         </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-1.5">
-                                    AQUILA
-                                </span>
-                                <span class="text-[10px] bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-md font-black border border-cyan-400/30">
-                                    DOCS & ACADEMIA
-                                </span>
-                            </div>
-                            <p class="text-[11px] text-blue-100/80 font-medium hidden sm:block">Centro de Documentación & Videotutoriales • IESTP Argentina</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-base font-black tracking-tight text-white">AQUILA</span>
+                            <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-bold border border-cyan-500/30">DOCS</span>
                         </div>
                     </a>
                 </div>
                 
-                <div class="flex-none items-center gap-2.5">
-                    <!-- Botón Nativo de Modo Oscuro -->
-                    <button type="button" onclick="toggleAquilaTheme()" class="btn btn-ghost btn-sm btn-circle text-amber-300 hover:text-amber-200 hover:bg-white/10 transition" title="Alternar Modo Oscuro">
-                        <svg class="theme-icon-sun w-5 h-5 hidden text-amber-300 drop-shadow-[0_0_8px_rgba(252,211,77,0.7)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                        <svg class="theme-icon-moon w-5 h-5 text-cyan-200 drop-shadow-[0_0_6px_rgba(56,189,248,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                <div class="flex-none items-center gap-2">
+                    <!-- Botón Modo Oscuro -->
+                    <button type="button" onclick="toggleAquilaTheme()" class="btn btn-ghost btn-sm btn-circle text-amber-300 hover:bg-white/10 transition" title="Alternar Modo Oscuro">
+                        <svg class="theme-icon-sun w-5 h-5 hidden text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg class="theme-icon-moon w-5 h-5 text-cyan-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     </button>
 
-                    <!-- Enlace directo a Volver al ERP / Dashboard -->
-                    <a href="/" class="btn btn-primary btn-sm rounded-xl text-xs font-bold gap-1.5 shadow-md">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
-                        <span>Volver a la Intranet</span>
+                    <!-- Botón Volver a la Intranet -->
+                    <a href="/" class="btn btn-sm btn-primary rounded-xl text-xs font-semibold gap-1.5 shadow-sm">
+                        <span>← Volver a la Intranet</span>
                     </a>
                 </div>
-            </div>
+            </header>
 
             <!-- Contenido Principal de Docs -->
             <main class="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto">
@@ -166,155 +159,77 @@
                 @RenderBody()
             </main>
 
-            <!-- Footer -->
-            <footer class="p-6 bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
-                <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <p class="font-medium">🦅 <strong>AQUILA A-ERP</strong> — Centro de Documentación & Academia Multimedia</p>
-                    <p class="text-slate-400 dark:text-slate-500">IESTP "Argentina" 2026 • .NET 10 LTS • PostgreSQL 16</p>
+            <!-- Footer Minimalista -->
+            <footer class="p-5 bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+                <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <p class="font-medium">AQUILA A-ERP • Centro de Documentación</p>
+                    <p class="text-slate-400 dark:text-slate-500">IESTP "Argentina" 2026</p>
                 </div>
             </footer>
         </div>
 
-        <!-- Barra Lateral Especializada: ÍNDICE DE DOCUMENTACIÓN & TUTORIALES -->
+        <!-- Barra Lateral de Documentación -->
         <div class="drawer-side z-40">
-            <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-            <aside class="bg-white dark:bg-[#0f172a] w-72 min-h-full border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm transition-colors duration-200">
+            <label for="main-drawer" aria-label="Cerrar menú" class="drawer-overlay"></label>
+            <aside class="bg-white dark:bg-[#0f172a] w-64 min-h-full border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm">
                 
-                <!-- Encabezado Sidebar de Docs -->
-                <div class="p-5 border-b border-slate-100 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 flex items-center justify-between">
-                    <div class="flex items-center gap-2.5">
-                        <div class="w-8 h-8 rounded-xl bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 flex items-center justify-center font-bold text-sm">
-                            📚
-                        </div>
-                        <div>
-                            <h2 class="font-black text-slate-900 dark:text-slate-100 text-xs tracking-tight uppercase">Guía & Tutoriales</h2>
-                            <span class="text-[10px] text-slate-500 dark:text-slate-400">Índice de Contenido</span>
-                        </div>
-                    </div>
-                    <a href="/" class="btn btn-ghost btn-xs rounded-lg text-[10px] text-blue-600 dark:text-cyan-400">← Salir</a>
+                <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Índice Guías</span>
+                    <a href="/" class="text-xs text-blue-600 dark:text-cyan-400 font-semibold hover:underline">← Salir</a>
                 </div>
 
-                <!-- Menú de Documentación Estructurado por Capítulos -->
-                <nav class="flex-1 p-3 space-y-4 overflow-y-auto text-xs">
-                    
-                    <!-- 1. Primeros Pasos & Onboarding -->
+                <nav class="flex-1 p-3 space-y-3 overflow-y-auto text-xs">
                     <div>
-                        <div class="px-3 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                            <span>🚀 1. Onboarding & CLI</span>
-                        </div>
+                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">1. Primeros Pasos</span>
                         <div class="space-y-0.5 mt-1">
-                            <a href="#onboarding" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span class="text-blue-500 font-bold">•</span> Inicio Rápido (.NET 10)
+                            <a href="#onboarding" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                                • Inicio Rápido (.NET 10)
                             </a>
-                            <a href="#git-cli" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span class="text-blue-500 font-bold">•</span> Uso del CLI (<code>./dev.sh</code>)
-                            </a>
-                            <a href="#git-cli" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span class="text-blue-500 font-bold">•</span> Flujo de Ramas & PRs
+                            <a href="#git-cli" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                                • Uso del CLI (<code>./dev.sh</code>)
                             </a>
                         </div>
                     </div>
 
-                    <!-- 2. Base de Datos Cloud & Adminer -->
                     <div>
-                        <div class="px-3 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                            <span>🗄️ 2. PostgreSQL 16</span>
-                        </div>
+                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">2. Base de Datos</span>
                         <div class="space-y-0.5 mt-1">
-                            <a href="#database" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span class="text-emerald-500 font-bold">•</span> Esquemas (<code>mod00..09</code>)
+                            <a href="#database" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                                • Esquemas (<code>mod00..09</code>)
                             </a>
-                            <a href="http://35.206.81.32:8080" target="_blank" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span class="flex items-center gap-2.5"><span class="text-emerald-500 font-bold">•</span> Panel Adminer Web</span>
-                                <span class="text-[9px] badge badge-xs badge-ghost font-mono">:8080</span>
-                            </a>
-                            <a href="#database" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span class="text-emerald-500 font-bold">•</span> Eje Temporal (Periodos)
+                            <a href="http://35.206.81.32:8080" target="_blank" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                                • Panel Adminer Web ↗
                             </a>
                         </div>
                     </div>
 
-                    <!-- 3. Videotutoriales por Módulo -->
                     <div>
-                        <div class="px-3 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center justify-between">
-                            <span>🎬 3. Videos por Módulo</span>
-                        </div>
+                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">3. Videotutoriales</span>
                         <div class="space-y-0.5 mt-1">
-                            <a href="/Docs?modulo=General" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-cyan-50 dark:hover:bg-slate-800 hover:text-cyan-700 dark:hover:text-cyan-300 font-medium transition">
-                                <span>🌐 General / Inducción</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">Base</span>
+                            <a href="/Docs?modulo=Todos" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                                • Todos los Videos
                             </a>
-                            <a href="/Docs?modulo=Modulo00" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span>🛡️ Mód 00: Seguridad (Toro)</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">00</span>
-                            </a>
-                            <a href="/Docs?modulo=Modulo01" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-sky-50 dark:hover:bg-slate-800 font-medium transition">
-                                <span>📝 Mód 01: Matrícula (Mendoza)</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">01</span>
-                            </a>
-                            <a href="/Docs?modulo=Modulo02" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-slate-800 font-medium transition">
-                                <span>📅 Mód 02: Asistencia (Sheyla)</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">02</span>
-                            </a>
-                            <a href="/Docs?modulo=Modulo03" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-slate-800 font-medium transition">
-                                <span>📊 Mód 03: Calificaciones</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">03</span>
-                            </a>
-                            <a href="/Docs?modulo=Modulo04" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-slate-800 font-medium transition">
-                                <span>⏰ Mód 04: Horarios & Aulas</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">04</span>
-                            </a>
-                            <a href="/Docs?modulo=Modulo05" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-slate-800 font-medium transition">
-                                <span>👨‍🏫 Mód 05: Docentes & Carga</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">05</span>
-                            </a>
-                            <a href="/Docs?modulo=Modulo06" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-slate-800 font-medium transition">
-                                <span>📋 Mód 06: Mesa de Partes</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">06</span>
-                            </a>
-                            <a href="/Docs?modulo=Modulo07" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-slate-800 font-medium transition">
-                                <span>💼 Mód 07: Bolsa de Trabajo</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">07</span>
-                            </a>
-                            <a href="/Docs?modulo=Modulo08" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-orange-50 dark:hover:bg-slate-800 font-medium transition">
-                                <span>📋 Mód 08: Encuestas (Brayan)</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">08</span>
-                            </a>
-                            <a href="/Docs?modulo=Modulo09" class="flex items-center justify-between px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-cyan-50 dark:hover:bg-slate-800 font-medium transition">
-                                <span>💳 Mód 09: Tesorería & Pagos</span>
-                                <span class="badge badge-ghost badge-xs text-[9px]">09</span>
+                            <a href="/Docs?modulo=Modulo02" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                                • Módulo 02 (Asistencia)
                             </a>
                         </div>
                     </div>
 
-                    <!-- 4. Normativa Académica MINEDU -->
                     <div>
-                        <div class="px-3 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
-                            <span>⚖️ 4. Normativa MINEDU</span>
-                        </div>
+                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">4. Normativa MINEDU</span>
                         <div class="space-y-0.5 mt-1">
-                            <a href="#minedu" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span class="text-amber-500 font-bold">•</span> Semestre 18 Semanas
-                            </a>
-                            <a href="#minedu" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span class="text-amber-500 font-bold">•</span> Condición DPI (&gt;30% Faltas)
-                            </a>
-                            <a href="#minedu" class="flex items-center gap-2.5 px-3 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                <span class="text-amber-500 font-bold">•</span> Escala Vigesimal (0 a 20)
+                            <a href="#minedu" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                                • 18 Semanas & 30% DPI
                             </a>
                         </div>
                     </div>
                 </nav>
 
-                <!-- Pie del Sidebar de Docs -->
-                <div class="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50 space-y-2">
-                    <button type="button" onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-sm w-full rounded-xl text-xs font-bold gap-2 shadow-sm">
+                <div class="p-3 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-sm w-full rounded-xl text-xs font-bold gap-1.5 shadow-sm">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                        + Publicar Tutorial
+                        + Publicar Video
                     </button>
-                    <a href="https://github.com/felipeostosb/intranet-institucional-modular" target="_blank" class="btn btn-ghost btn-xs w-full text-slate-500 dark:text-slate-400 font-medium">
-                        Ver Código en GitHub →
-                    </a>
                 </div>
             </aside>
         </div>
@@ -323,23 +238,23 @@
 else if (isAuth)
 {
     <!-- ========================================================================= -->
-    <!-- 🏢 LAYOUT OPERATIVO ERP: NAVEGACIÓN COMPLETA DE LOS 10 MÓDULOS            -->
+    <!-- 🏢 LAYOUT OPERATIVO ERP: ZEN & MINIMALISTA                                -->
     <!-- ========================================================================= -->
     <div class="drawer lg:drawer-open flex-1">
         <input id="main-drawer" type="checkbox" class="drawer-toggle" />
         
         <div class="drawer-content flex flex-col">
-            <!-- Barra Superior Azul Institucional -->
-            <div class="navbar bg-gradient-to-r from-[#0b132b] via-[#111c3a] to-[#0d1b2a] text-white shadow-md sticky top-0 z-30 px-4 lg:px-8 h-16 min-h-0 border-b border-white/10 dark:border-slate-800 transition-colors">
+            <!-- Barra Superior Zen: Limpia y sin saturación -->
+            <header class="navbar bg-slate-900/95 dark:bg-[#0f172a]/95 backdrop-blur-md text-white shadow-sm sticky top-0 z-30 px-4 lg:px-8 h-16 min-h-0 border-b border-slate-800 transition-colors">
                 <div class="flex-none lg:hidden">
-                    <label for="main-drawer" aria-label="open sidebar" class="btn btn-square btn-ghost btn-sm text-white">
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                    <label for="main-drawer" aria-label="Abrir menú" class="btn btn-square btn-ghost btn-sm text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="w-5 h-5 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
                     </label>
                 </div>
                 <div class="flex-1 items-center gap-3">
-                    <a href="/" class="flex items-center gap-3 group">
-                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-md shadow-cyan-500/20 group-hover:scale-105 group-hover:border-cyan-300 transition shrink-0">
-                            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(56,189,248,0.7)]" fill="none">
+                    <a href="/" class="flex items-center gap-2.5 group">
+                        <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-900 to-blue-950 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-sm shrink-0">
+                            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_6px_rgba(56,189,248,0.7)]" fill="none">
                                 <defs>
                                     <linearGradient id="navWingL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#1d4ed8" /></linearGradient>
                                     <linearGradient id="navWingR" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#2563eb" /></linearGradient>
@@ -351,91 +266,52 @@ else if (isAuth)
                                 <polygon points="50,22 46,44 50,70 54,44" fill="#0284c7" />
                             </svg>
                         </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-1.5">
-                                    AQUILA
-                                </span>
-                                <span class="text-[10px] bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-md font-black border border-cyan-400/30">
-                                    A-ERP
-                                </span>
-                                <span class="text-[10px] bg-white/20 text-blue-100 px-2 py-0.5 rounded-full font-bold border border-white/20 hidden sm:inline">
-                                    INTRANET INSTITUCIONAL
-                                </span>
-                            </div>
-                            <p class="text-[11px] text-blue-100/80 font-medium hidden sm:block">IESTP "Argentina" — Plataforma Modular 2026</p>
+                        <div class="flex items-center gap-2">
+                            <span class="text-base font-black tracking-tight text-white">AQUILA</span>
+                            <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-bold border border-cyan-500/30">A-ERP</span>
                         </div>
                     </a>
                 </div>
                 
-                <div class="flex-none items-center gap-2.5">
-                    <!-- Botón Nativo de Modo Oscuro -->
-                    <button type="button" onclick="toggleAquilaTheme()" class="btn btn-ghost btn-sm btn-circle text-amber-300 hover:text-amber-200 hover:bg-white/10 transition" title="Alternar Modo Oscuro">
-                        <svg class="theme-icon-sun w-5 h-5 hidden text-amber-300 drop-shadow-[0_0_8px_rgba(252,211,77,0.7)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                        <svg class="theme-icon-moon w-5 h-5 text-cyan-200 drop-shadow-[0_0_6px_rgba(56,189,248,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                <div class="flex-none items-center gap-2">
+                    <!-- Enlace directo a Documentación & Tutoriales -->
+                    <a href="/Docs" class="btn btn-ghost btn-sm text-slate-300 hover:text-white rounded-xl text-xs font-medium gap-1.5">
+                        <svg class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                        <span class="hidden sm:inline">Guías & Videos</span>
+                    </a>
+
+                    <!-- Botón Modo Oscuro -->
+                    <button type="button" onclick="toggleAquilaTheme()" class="btn btn-ghost btn-sm btn-circle text-amber-300 hover:bg-white/10 transition" title="Alternar Modo Oscuro">
+                        <svg class="theme-icon-sun w-5 h-5 hidden text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                        <svg class="theme-icon-moon w-5 h-5 text-cyan-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                     </button>
-
-                    <!-- Botón Centro de Documentación & Tutoriales -->
-                    <a href="/Docs" class="badge bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-200 border-cyan-400/30 text-xs font-bold px-3 py-2 hidden sm:flex items-center gap-1.5 transition shadow-sm" title="Centro de Documentación y Videotutoriales">
-                        <svg class="w-3.5 h-3.5 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                        <span>Tutoriales & Docs</span>
-                    </a>
-
-                    <a href="http://35.206.81.32:8080" target="_blank" class="badge bg-white/15 hover:bg-white/25 text-white border-white/20 text-xs font-semibold px-3 py-2 hidden md:flex items-center gap-1.5 transition">
-                        <span>🗄️ Adminer BD</span>
-                    </a>
                     
-                    <div class="badge bg-white/15 text-white border-white/20 text-xs font-semibold px-3 py-2 hidden sm:flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                        <span>.NET 10 LTS</span>
-                    </div>
-                    
+                    <!-- Menú de Usuario Compacto -->
                     <div class="dropdown dropdown-end">
-                        <div tabindex="0" role="button" class="btn btn-ghost btn-sm flex items-center gap-2.5 normal-case rounded-xl px-2.5 py-1.5 h-auto hover:bg-white/10 text-white">
-                            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-inner border border-white/20">
+                        <div tabindex="0" role="button" class="btn btn-ghost btn-sm flex items-center gap-2 normal-case rounded-xl px-2 py-1.5 h-auto hover:bg-white/10 text-white">
+                            <div class="w-7 h-7 rounded-lg bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-inner">
                                 @(User.Identity?.Name?[..Math.Min(2, User.Identity.Name.Length)].ToUpper() ?? "US")
                             </div>
-                            <div class="text-left hidden md:block leading-tight">
-                                <p class="text-xs font-bold text-white">@User.Identity?.Name</p>
-                                <p class="text-[10px] text-cyan-200">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno")</p>
-                            </div>
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                            <span class="text-xs font-semibold hidden md:inline">@User.Identity?.Name</span>
+                            <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </div>
-                        <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-2xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-2xl w-56 border border-slate-200 dark:border-slate-700 mt-2 text-xs transition-colors">
-                            <li class="px-3 py-1.5 text-[11px] text-slate-400 font-semibold uppercase">Sesión Iniciada</li>
-                            <li class="px-3 py-0.5 text-xs font-bold text-blue-900 dark:text-cyan-300">@User.Identity?.Name</li>
-                            <li class="px-3 py-0.5 text-[11px] text-slate-500 dark:text-slate-400 flex flex-wrap gap-1 items-center">
-                                <span>Roles:</span>
-                                @foreach (var rolClaim in User.FindAll(System.Security.Claims.ClaimTypes.Role))
-                                {
-                                    <span class="badge badge-xs badge-outline badge-primary font-semibold">@rolClaim.Value</span>
-                                }
-                            </li>
-                            <li class="divider my-1 border-slate-200 dark:border-slate-700"></li>
+                        <ul tabindex="0" class="dropdown-content z-[1] menu p-2 shadow-xl bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-200 rounded-2xl w-52 border border-slate-200 dark:border-slate-700 mt-2 text-xs">
+                            <li class="px-3 py-1 text-[11px] text-slate-400 font-semibold">@userRol.ToUpper()</li>
                             <li>
-                                <a href="/Docs" class="flex items-center gap-2 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
-                                    <span>📚 Centro de Tutoriales</span>
+                                <a href="/Docs" class="py-2 rounded-xl text-slate-700 dark:text-slate-300">
+                                    📚 Videotutoriales
                                 </a>
                             </li>
+                            <li class="divider my-1 border-slate-100 dark:border-slate-700"></li>
                             <li>
-                                <button type="button" onclick="toggleAquilaTheme()" class="flex items-center justify-between py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700">
-                                    <span class="flex items-center gap-2">
-                                        <span class="theme-icon-sun hidden">☀️ Modo Claro</span>
-                                        <span class="theme-icon-moon">🌙 Modo Oscuro</span>
-                                    </span>
-                                </button>
-                            </li>
-                            <li class="divider my-1 border-slate-200 dark:border-slate-700"></li>
-                            <li>
-                                <a href="/Account/Logout" class="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-semibold flex items-center gap-2 rounded-xl py-2">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                                    <span>Cerrar Sesión</span>
+                                <a href="/Account/Logout" class="text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/40 font-semibold py-2 rounded-xl">
+                                    Cerrar Sesión
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </div>
-            </div>
+            </header>
 
             <!-- Contenido Principal -->
             <main class="flex-1 p-4 lg:p-8 max-w-7xl w-full mx-auto">
@@ -459,219 +335,147 @@ else if (isAuth)
             </main>
 
             <!-- Footer Institucional -->
-            <footer class="p-6 bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors duration-200">
-                <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <p class="font-medium">🦅 <strong>AQUILA A-ERP</strong> — Intranet Institucional del IESTP Público "Argentina" 2026</p>
-                    <p class="text-slate-400 dark:text-slate-500">10 Módulos Desacoplados • .NET 10 LTS • Cuidado Ocular Anti-Fatiga</p>
+            <footer class="p-5 bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+                <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+                    <p class="font-medium">🦅 AQUILA A-ERP • IESTP "Argentina" 2026</p>
+                    <p class="text-slate-400 dark:text-slate-500">10 Módulos Desacoplados • .NET 10 LTS</p>
                 </div>
             </footer>
         </div>
 
-        <!-- Barra Lateral ERP: 10 Módulos Operativos -->
+        <!-- Barra Lateral Limpia y Elegante: 10 Módulos Operativos -->
         <div class="drawer-side z-40">
-            <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
-            <aside class="bg-white dark:bg-[#0f172a] w-72 min-h-full border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm transition-colors duration-200">
-                <!-- Encabezado Sidebar con Logo Minimalista Águila -->
-                <div class="p-5 border-b border-slate-100 dark:border-slate-800 flex items-center gap-3 bg-slate-50/50 dark:bg-slate-900/40">
-                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 border border-cyan-500/30 p-1.5 flex items-center justify-center shadow-md shadow-blue-500/10 shrink-0">
-                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_6px_rgba(56,189,248,0.6)]" fill="none">
-                            <defs>
-                                <linearGradient id="erpSideWingL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#1d4ed8" /></linearGradient>
-                                <linearGradient id="erpSideWingR" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#2563eb" /></linearGradient>
-                                <linearGradient id="erpSideCore" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#ffffff" /><stop offset="100%" stop-color="#93c5fd" /></linearGradient>
-                            </defs>
-                            <polygon points="48,10 4,68 32,60 46,38" fill="url(#erpSideWingL)" />
-                            <polygon points="52,10 96,68 68,60 54,38" fill="url(#erpSideWingR)" />
-                            <polygon points="50,6 43,44 50,88 57,44" fill="url(#erpSideCore)" />
-                            <polygon points="50,22 46,44 50,70 54,44" fill="#0284c7" />
-                        </svg>
+            <label for="main-drawer" aria-label="Cerrar menú" class="drawer-overlay"></label>
+            <aside class="bg-white dark:bg-[#0f172a] w-64 min-h-full border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm">
+                <!-- Encabezado Sidebar -->
+                <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center gap-2.5">
+                    <div class="w-8 h-8 rounded-lg bg-slate-900 dark:bg-slate-800 text-cyan-400 flex items-center justify-center font-bold text-xs">
+                        🦅
                     </div>
                     <div>
-                        <div class="flex items-center gap-1.5">
-                            <h2 class="font-black text-slate-900 dark:text-slate-100 text-sm tracking-tight">AQUILA</h2>
-                            <span class="text-[9px] bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-cyan-300 font-extrabold px-1.5 py-0.5 rounded border border-blue-200 dark:border-blue-800">A-ERP</span>
-                        </div>
-                        <span class="text-[10px] text-blue-700 dark:text-cyan-400 font-semibold block -mt-0.5">
-                            Intranet Institucional
-                        </span>
+                        <h2 class="font-bold text-slate-900 dark:text-slate-100 text-xs tracking-tight">AQUILA ERP</h2>
+                        <span class="text-[10px] text-slate-400 block -mt-0.5">IESTP Argentina</span>
                     </div>
                 </div>
 
-                <!-- Menú de Navegación ERP -->
-                <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto">
+                <!-- Menú de Navegación ERP: Directo, 1 sola línea por módulo -->
+                <nav class="flex-1 p-3 space-y-1 overflow-y-auto text-xs">
                     <!-- Dashboard Principal -->
-                    <a href="/" class="flex items-center gap-3 px-3.5 py-2.5 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-blue-50 dark:hover:bg-slate-800 hover:text-blue-700 dark:hover:text-cyan-300 transition font-medium text-xs group">
-                        <div class="w-8 h-8 rounded-xl bg-blue-100/80 dark:bg-blue-950 text-blue-700 dark:text-cyan-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
-                        </div>
+                    <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="text-slate-400">🏠</span>
                         <span>Panel Principal</span>
                     </a>
 
-                    <!-- Centro de Documentación & Videotutoriales -->
-                    <a href="/Docs" class="flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-cyan-50 dark:hover:bg-slate-800 hover:text-cyan-700 dark:hover:text-cyan-300 transition font-medium text-xs group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-cyan-100/80 dark:bg-cyan-950/80 text-cyan-700 dark:text-cyan-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                            </div>
-                            <span>Tutoriales & Docs</span>
-                        </div>
-                        <span class="badge badge-primary badge-xs text-[9px] font-bold px-1.5 py-0.5">Videos</span>
+                    <!-- Centro de Documentación -->
+                    <a href="/Docs" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="text-slate-400">📚</span>
+                        <span>Guías & Videos</span>
                     </a>
 
-                    <div class="pt-3 pb-1 px-3.5">
-                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Módulos del Sistema</span>
+                    <div class="pt-3 pb-1 px-3">
+                        <span class="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Módulos</span>
                     </div>
 
-                    <!-- Módulo 00 (Slate) - Seguridad & Login (Toro) -->
-                    <a href="/Modulo00" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 00</span>
-                                <span class="text-[10px] text-slate-500 dark:text-slate-400 block -mt-0.5">Login & Seguridad (Toro)</span>
-                            </div>
-                        </div>
-                        <span class="text-[9px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-1.5 py-0.5 rounded-md border border-slate-200 dark:border-slate-700">CORE</span>
+                    <!-- Módulo 00 - Seguridad -->
+                    <a href="/Modulo00" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>🛡️</span>
+                            <span>00. Seguridad</span>
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-mono">00</span>
                     </a>
 
-                    <!-- Módulo 01 (Sky Pastel) - Matrícula (Ismael) -->
-                    <a href="/Modulo01" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-sky-50 dark:hover:bg-sky-950/50 hover:text-sky-800 dark:hover:text-sky-300 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 01</span>
-                                <span class="text-[10px] text-sky-600 dark:text-sky-400 block -mt-0.5">Matrícula (Ismael)</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-2 py-0.5 rounded-lg border border-sky-200 dark:border-sky-800">Eq 01</span>
+                    <!-- Módulo 01 - Matrícula -->
+                    <a href="/Modulo01" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>📝</span>
+                            <span>01. Matrícula</span>
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-mono">01</span>
                     </a>
 
-                    <!-- Módulo 02 (Indigo Pastel) - Asistencia (Sheyla) -->
-                    <a href="/Modulo02" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-indigo-50 dark:hover:bg-indigo-950/50 hover:text-indigo-800 dark:hover:text-indigo-300 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 02</span>
-                                <span class="text-[10px] text-indigo-600 dark:text-indigo-400 block -mt-0.5">Asistencia 18 Semanas (Sheyla)</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg border border-indigo-200 dark:border-indigo-800">Eq 02</span>
+                    <!-- Módulo 02 - Asistencia & DPI (Destacado sutil) -->
+                    <a href="/Modulo02" class="flex items-center justify-between px-3 py-2 rounded-xl text-indigo-700 dark:text-indigo-300 bg-indigo-50/60 dark:bg-indigo-950/40 font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>📅</span>
+                            <span>02. Asistencia & DPI</span>
+                        </span>
+                        <span class="text-[9px] bg-indigo-200 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 font-bold px-1.5 py-0.2 rounded">PRO</span>
                     </a>
 
-                    <!-- Módulo 03 (Emerald Pastel) - Calificaciones (Quispe) -->
-                    <a href="/Modulo03" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 hover:text-emerald-800 dark:hover:text-emerald-300 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 03</span>
-                                <span class="text-[10px] text-emerald-600 dark:text-emerald-400 block -mt-0.5">Calificaciones & Actas (Quispe)</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-lg border border-emerald-200 dark:border-emerald-800">Eq 03</span>
+                    <!-- Módulo 03 - Calificaciones -->
+                    <a href="/Modulo03" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>📊</span>
+                            <span>03. Calificaciones</span>
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-mono">03</span>
                     </a>
 
-                    <!-- Módulo 04 (Amber Pastel) - Horarios & Aulas (Morales) -->
-                    <a href="/Modulo04" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-amber-50 dark:hover:bg-amber-950/50 hover:text-amber-800 dark:hover:text-amber-300 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 04</span>
-                                <span class="text-[10px] text-amber-600 dark:text-amber-400 block -mt-0.5">Horarios & Aulas (Morales)</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-lg border border-amber-200 dark:border-amber-800">Eq 04</span>
+                    <!-- Módulo 04 - Horarios -->
+                    <a href="/Modulo04" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>⏰</span>
+                            <span>04. Horarios & Aulas</span>
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-mono">04</span>
                     </a>
 
-                    <!-- Módulo 05 (Purple Pastel) - Docentes & Carga Lectiva (Ramírez) -->
-                    <a href="/Modulo05" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-purple-50 dark:hover:bg-purple-950/50 hover:text-purple-800 dark:hover:text-purple-300 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 05</span>
-                                <span class="text-[10px] text-purple-600 dark:text-purple-400 block -mt-0.5">Docentes & Carga (Ramírez)</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800">Eq 05</span>
+                    <!-- Módulo 05 - Docentes -->
+                    <a href="/Modulo05" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>👨‍🏫</span>
+                            <span>05. Carga Docente</span>
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-mono">05</span>
                     </a>
 
-                    <!-- Módulo 06 (Rose Pastel) - Trámites & Mesa de Partes (Gómez) -->
-                    <a href="/Modulo06" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-rose-50 dark:hover:bg-rose-950/50 hover:text-rose-800 dark:hover:text-rose-300 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 06</span>
-                                <span class="text-[10px] text-rose-600 dark:text-rose-400 block -mt-0.5">Trámites & Mesa de Partes</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded-lg border border-rose-200 dark:border-rose-800">Eq 06</span>
+                    <!-- Módulo 06 - Trámites -->
+                    <a href="/Modulo06" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>📋</span>
+                            <span>06. Mesa de Partes</span>
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-mono">06</span>
                     </a>
 
-                    <!-- Módulo 07 (Teal Pastel) - Bolsa de Trabajo & Prácticas (Castro) -->
-                    <a href="/Modulo07" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-teal-50 dark:hover:bg-teal-950/50 hover:text-teal-800 dark:hover:text-teal-300 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 07</span>
-                                <span class="text-[10px] text-teal-600 dark:text-teal-400 block -mt-0.5">Bolsa de Trabajo & Prácticas</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded-lg border border-teal-200 dark:border-teal-800">Eq 07</span>
+                    <!-- Módulo 07 - Bolsa de Trabajo -->
+                    <a href="/Modulo07" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>💼</span>
+                            <span>07. Bolsa de Trabajo</span>
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-mono">07</span>
                     </a>
 
-                    <!-- Módulo 08 (Orange Pastel) - Encuestas (Brayan) -->
-                    <a href="/Modulo08" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-orange-50 dark:hover:bg-orange-950/50 hover:text-orange-800 dark:hover:text-orange-300 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 08</span>
-                                <span class="text-[10px] text-orange-600 dark:text-orange-400 block -mt-0.5">Encuestas Docentes (Brayan)</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded-lg border border-orange-200 dark:border-orange-800">Eq 08</span>
+                    <!-- Módulo 08 - Encuestas -->
+                    <a href="/Modulo08" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>📋</span>
+                            <span>08. Encuestas</span>
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-mono">08</span>
                     </a>
 
-                    <!-- Módulo 09 (Cyan Pastel) - Tesorería & Pagos -->
-                    <a href="/Modulo09" class="flex items-center justify-between px-3 py-2 rounded-2xl text-slate-700 dark:text-slate-300 hover:bg-cyan-50 dark:hover:bg-cyan-950/50 hover:text-cyan-800 dark:hover:text-cyan-300 transition text-xs font-medium group">
-                        <div class="flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-xl bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 flex items-center justify-center shrink-0 group-hover:scale-105 transition">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                            </div>
-                            <div>
-                                <span class="truncate block font-bold text-xs">Módulo 09</span>
-                                <span class="text-[10px] text-cyan-600 dark:text-cyan-400 block -mt-0.5">Tesorería & Pagos (Vargas)</span>
-                            </div>
-                        </div>
-                        <span class="text-[10px] font-bold bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 rounded-lg border border-cyan-200 dark:border-cyan-800">Eq 09</span>
+                    <!-- Módulo 09 - Tesorería -->
+                    <a href="/Modulo09" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
+                        <span class="flex items-center gap-2.5">
+                            <span>💳</span>
+                            <span>09. Tesorería & Pagos</span>
+                        </span>
+                        <span class="text-[9px] text-slate-400 font-mono">09</span>
                     </a>
                 </nav>
 
                 <!-- Pie del Sidebar ERP -->
-                <div class="p-3 border-t border-slate-100 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900/50">
-                    <button type="button" onclick="toggleAquilaTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-                        <div class="flex items-center gap-2">
+                <div class="p-3 border-t border-slate-100 dark:border-slate-800">
+                    <button type="button" onclick="toggleAquilaTheme()" class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+                        <span class="flex items-center gap-2">
                             <span class="theme-icon-sun text-sm hidden">☀️</span>
                             <span class="theme-icon-moon text-sm">🌙</span>
                             <span class="theme-mode-text">Modo Oscuro</span>
-                        </div>
-                        <span class="text-[9px] bg-amber-400/20 text-amber-800 dark:text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-400/30">Cuidado Ocular</span>
+                        </span>
+                        <span class="text-[10px] text-slate-400">Ctrl+T</span>
                     </button>
                 </div>
             </aside>
@@ -684,10 +488,10 @@ else
     <!-- 🔐 VISTA LIMPIA PARA PANTALLA DE LOGIN (SIN SIDEBAR)                      -->
     <!-- ========================================================================= -->
     <div class="min-h-screen flex flex-col justify-between bg-slate-50 dark:bg-[#0b0f19] transition-colors">
-        <header class="navbar bg-gradient-to-r from-[#0b132b] via-[#111c3a] to-[#0d1b2a] text-white shadow-md px-6 h-16 min-h-0 border-b border-white/10 dark:border-slate-800">
+        <header class="navbar bg-slate-900/95 dark:bg-[#0f172a]/95 backdrop-blur-md text-white shadow-sm px-6 h-16 min-h-0 border-b border-slate-800">
             <div class="flex-1 items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
-                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(56,189,248,0.7)]" fill="none">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-slate-900 to-blue-950 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-sm shrink-0">
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_6px_rgba(56,189,248,0.7)]" fill="none">
                         <defs>
                             <linearGradient id="unauthWingL" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#38bdf8" /><stop offset="100%" stop-color="#1d4ed8" /></linearGradient>
                             <linearGradient id="unauthWingR" x1="100%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="#60a5fa" /><stop offset="100%" stop-color="#2563eb" /></linearGradient>
@@ -699,32 +503,20 @@ else
                         <polygon points="50,22 46,44 50,70 54,44" fill="#0284c7" />
                     </svg>
                 </div>
-                <div>
-                    <div class="flex items-center gap-2">
-                        <span class="text-base sm:text-lg font-black tracking-tight text-white">
-                            AQUILA
-                        </span>
-                        <span class="text-[10px] bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-md font-black border border-cyan-400/30">
-                            A-ERP
-                        </span>
-                        <span class="text-[10px] bg-white/20 text-blue-100 px-2 py-0.5 rounded-full font-bold border border-white/20 hidden sm:inline">
-                            INTRANET INSTITUCIONAL
-                        </span>
-                    </div>
-                    <p class="text-[11px] text-blue-100/80 font-medium hidden sm:block">IESTP "Argentina" — Acceso Seguro</p>
+                <div class="flex items-center gap-2">
+                    <span class="text-base font-black tracking-tight text-white">AQUILA</span>
+                    <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-bold border border-cyan-500/30">A-ERP</span>
                 </div>
             </div>
             
             <div class="flex-none items-center gap-2">
-                <!-- Enlace al Centro de Documentación público -->
-                <a href="/Docs" class="badge bg-cyan-400/20 hover:bg-cyan-400/30 text-cyan-200 border-cyan-400/30 text-xs font-bold px-3 py-2 flex items-center gap-1.5 transition">
-                    <span>🎥 Tutoriales & Docs</span>
+                <a href="/Docs" class="btn btn-ghost btn-sm text-slate-300 hover:text-white rounded-xl text-xs font-medium">
+                    📚 Guías & Videos
                 </a>
 
-                <!-- Botón Modo Oscuro -->
-                <button type="button" onclick="toggleAquilaTheme()" class="btn btn-ghost btn-sm btn-circle text-amber-300 hover:text-amber-200 hover:bg-white/10 transition" title="Alternar Modo Oscuro">
-                    <svg class="theme-icon-sun w-5 h-5 hidden text-amber-300 drop-shadow-[0_0_8px_rgba(252,211,77,0.7)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                    <svg class="theme-icon-moon w-5 h-5 text-cyan-200 drop-shadow-[0_0_6px_rgba(56,189,248,0.5)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                <button type="button" onclick="toggleAquilaTheme()" class="btn btn-ghost btn-sm btn-circle text-amber-300 hover:bg-white/10 transition" title="Alternar Modo Oscuro">
+                    <svg class="theme-icon-sun w-5 h-5 hidden text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg class="theme-icon-moon w-5 h-5 text-cyan-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
                 </button>
             </div>
         </header>
@@ -733,8 +525,8 @@ else
             @RenderBody()
         </main>
 
-        <footer class="p-4 bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400 transition-colors">
-            <p class="font-medium">🦅 <strong>AQUILA A-ERP</strong> — Intranet Institucional del IESTP Público "Argentina" 2026</p>
+        <footer class="p-4 bg-white dark:bg-[#0f172a] border-t border-slate-200 dark:border-slate-800 text-center text-xs text-slate-500 dark:text-slate-400">
+            <p class="font-medium">🦅 AQUILA A-ERP • IESTP "Argentina" 2026</p>
         </footer>
     </div>
 }
