@@ -1,25 +1,61 @@
 # ==============================================================================
-# 🏛️ IESTP ARGENTINA - ASISTENTE DE DESARROLLO EN POWERSHELL
+# 🦅 AQUILA A-ERP — ASISTENTE DEV EN POWERSHELL (WINDOWS)
+# Intranet Institucional IESTP Argentina • .NET 10 LTS • PostgreSQL 16
 # ==============================================================================
 
 $ErrorActionPreference = "Stop"
 
-# Instalar guardián local contra push a main
+# Instalar guardianes locales contra push directo a 'main' y aislamiento modular
 if (Test-Path .git) {
-    $hookPath = ".git/hooks/pre-push"
-    if (-not (Test-Path $hookPath)) {
-        $hookDir = ".git/hooks"
-        if (-not (Test-Path $hookDir)) { New-Item -ItemType Directory -Path $hookDir | Out-Null }
-        $hookScript = @"
+    $hookDir = ".git/hooks"
+    if (-not (Test-Path $hookDir)) { New-Item -ItemType Directory -Path $hookDir | Out-Null }
+    
+    # 1. Pre-push hook
+    $hookPush = "$hookDir/pre-push"
+    if (-not (Test-Path $hookPush)) {
+        $hookScriptPush = @"
 #!/usr/bin/env bash
 BRANCH=`$(git rev-parse --abbrev-ref HEAD)
 if [ "`$BRANCH" = "main" ]; then
-    echo -e "\033[1;31m⛔ ALERTA: No puedes hacer push directo a 'main'. Usa una rama de equipo.\033[0m"
+    echo -e "\033[1;31m⛔ ALERTA: No puedes hacer push directo a 'main'. Usa una rama de equipo (moduloXX/tarea).\033[0m"
     exit 1
 fi
 exit 0
 "@
-        Set-Content -Path $hookPath -Value $hookScript -NoNewline
+        Set-Content -Path $hookPush -Value $hookScriptPush -NoNewline
+    }
+
+    # 2. Pre-commit hook
+    $hookCommit = "$hookDir/pre-commit"
+    if (-not (Test-Path $hookCommit)) {
+        $hookScriptCommit = @"
+#!/usr/bin/env bash
+BRANCH=`$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+if [ "`$BRANCH" = "main" ]; then
+    echo -e "\033[1;31m⛔ ALERTA: No puedes hacer commit directo en 'main'. Usa una rama de equipo.\033[0m"
+    exit 1
+fi
+
+MOD_NUM=`$(echo "`$BRANCH" | grep -o -E 'modulo-?[0-9]{2}' | tr -d '-' | tr '[:upper:]' '[:lower:]' | grep -o -E '[0-9]{2}' || true)
+if [ -n "`$MOD_NUM" ]; then
+    ALLOWED_DIR="src/02_Modulos/Intranet.Modulo`$MOD_NUM/"
+    STAGED_FILES=`$(git diff --cached --name-only)
+    VIOLATIONS=0
+    for file in `$STAGED_FILES; do
+        if [[ "`$file" != "`$ALLOWED_DIR"* ]] && [[ "`$file" != "docs/"* ]] && [[ "`$file" != *.md ]] && [[ "`$file" != "dev.sh" ]] && [[ "`$file" != "dev.ps1" ]]; then
+            echo -e "\033[1;31m❌ VIOLACIÓN DE LÍMITES MODULARES (Zero-Blast-Radius):\033[0m"
+            echo -e "   El archivo '`$file' está fuera de tu módulo '`$ALLOWED_DIR'."
+            VIOLATIONS=`$((VIOLATIONS + 1))
+        fi
+    done
+    if [ `$VIOLATIONS -gt 0 ]; then
+        echo -e "\033[1;31m⛔ COMMIT BLOQUEADO: Solo puedes modificar archivos en `$ALLOWED_DIR\033[0m"
+        exit 1
+    fi
+fi
+exit 0
+"@
+        Set-Content -Path $hookCommit -Value $hookScriptCommit -NoNewline
     }
 }
 
@@ -29,31 +65,29 @@ function Show-Menu {
     if (-not $currentBranch) { $currentBranch = "desconocida" }
     
     Write-Host "======================================================================" -ForegroundColor Blue
-    Write-Host "🏛️  INTRANET INSTITUCIONAL IESTP ARGENTINA — ASISTENTE DEV" -ForegroundColor Blue
+    Write-Host "🦅 AQUILA A-ERP — INTRANET INSTITUCIONAL IESTP ARGENTINA" -ForegroundColor Cyan
     Write-Host "======================================================================" -ForegroundColor Blue
-    Write-Host "  Plataforma .NET 10 LTS • PostgreSQL 16 • 9 Módulos Desacoplados" -ForegroundColor Cyan
+    Write-Host "  Plataforma .NET 10 LTS • PostgreSQL 16 • 10 Módulos (00 - 09)" -ForegroundColor Cyan
     Write-Host "  🌿 Rama actual: $currentBranch" -ForegroundColor Yellow
     Write-Host "----------------------------------------------------------------------" -ForegroundColor Blue
     Write-Host ""
-    Write-Host "  1) 🚀 Iniciar Intranet (Ver cambios en vivo en tu navegador con Hot-Reload)" -ForegroundColor Green
-    Write-Host "  2) 🌿 Crear / Cambiar a mi Rama de Equipo (Elige tu equipo 01 al 09)" -ForegroundColor Green
-    Write-Host "  3) ⚡ Generar Formulario / Tabla (Modelo, Controlador, Vista y SQL Postgres)" -ForegroundColor Green
-    Write-Host "  4) 🧪 Compilar y Validar mi Módulo (Verifica 0 errores localmente)" -ForegroundColor Green
-    Write-Host "  5) 📤 Subir mi Trabajo a GitHub (Guarda, sincroniza y genera enlace de PR)" -ForegroundColor Green
-    Write-Host "  6) 🗄️ Credenciales y Guía PostgreSQL 16 (Ver accesos de Adminer / DB)" -ForegroundColor Green
-    Write-Host "  7) 🤖 Preguntar al Asistente IA de Arquitectura (RAG Gemini + Qdrant)" -ForegroundColor Green
+    Write-Host "  1) 🚀 Iniciar Intranet (Ver cambios en vivo con Hot-Reload en http://localhost:5000)" -ForegroundColor Green
+    Write-Host "  2) 🌿 Mi Rama de Equipo (Crear o cambiar a tu rama modulo00..modulo09)" -ForegroundColor Green
+    Write-Host "  3) 🧪 Compilar y Validar (Verifica 0 errores en toda la solución .NET 10)" -ForegroundColor Green
+    Write-Host "  4) 📤 Subir a GitHub (Guarda cambios, sincroniza y genera enlace de PR)" -ForegroundColor Green
+    Write-Host "  5) 🗄️  Base de Datos PostgreSQL (Credenciales Adminer y Configuración Local)" -ForegroundColor Green
     Write-Host "  0) 🚪 Salir" -ForegroundColor Red
     Write-Host ""
 }
 
 function Start-App {
-    Write-Host "`n🚀 Iniciando la Intranet en tu navegador (http://localhost:5000)..." -ForegroundColor Blue
+    Write-Host "`n🚀 Iniciando Aquila A-ERP en tu navegador (http://localhost:5000)..." -ForegroundColor Blue
     dotnet watch --project src/03_Web/Intranet.Web --urls http://localhost:5000
 }
 
 function Create-Branch {
-    Write-Host "`n🌿 CONFIGURAR RAMA DE TRABAJO" -ForegroundColor Blue
-    $num = Read-Host "👉 ¿Qué número de equipo eres? (1 al 9)"
+    Write-Host "`n🌿 CONFIGURAR RAMA DE TRABAJO (EQUIPOS 00 AL 09)" -ForegroundColor Blue
+    $num = Read-Host "👉 ¿Qué número de equipo eres? (0 al 9)"
     
     if (-not [int]::TryParse($num, [ref]$null)) {
         Write-Host "❌ Debes ingresar un número válido." -ForegroundColor Red
@@ -61,13 +95,13 @@ function Create-Branch {
     }
     
     $numInt = [int]$num
-    if ($numInt -lt 1 -or $numInt -gt 9) {
-        Write-Host "❌ Número fuera de rango. Debe ser entre 1 y 9." -ForegroundColor Red
+    if ($numInt -lt 0 -or $numInt -gt 9) {
+        Write-Host "❌ Número fuera de rango. Debe ser entre 0 y 9." -ForegroundColor Red
         return
     }
     
     $numFmt = "{0:D2}" -f $numInt
-    $tarea = Read-Host "👉 ¿Qué tarea vas a hacer? (ej: formulario-registro)"
+    $tarea = Read-Host "👉 ¿Qué tarea vas a realizar? (ej: login-seguridad, asistencia-alumnos)"
     if ([string]::IsNullOrWhiteSpace($tarea)) { $tarea = "avance" }
     
     $tarea = $tarea.ToLower() -replace '[^a-z0-9-]', '-'
@@ -85,226 +119,12 @@ function Create-Branch {
         Write-Host "`n✅ ¡Rama creada con éxito: $branch!" -ForegroundColor Green
     }
     
-    Write-Host "Recuerda programar en: src/02_Modulos/Intranet.Modulo$numFmt/" -ForegroundColor Yellow
-}
-
-function Scaffold-Code {
-    Write-Host "`n⚡ GENERAR PLANTILLA PARA TU MÓDULO (PostgreSQL 16 + Razor + C#)" -ForegroundColor Blue
-    $num = Read-Host "👉 ¿Qué número de equipo eres? (1 al 9)"
-    $numInt = [int]$num
-    $numFmt = "{0:D2}" -f $numInt
-    
-    $entidad = Read-Host "👉 Nombre del registro (ej: Alumno, Horario, Pago)"
-    if ([string]::IsNullOrWhiteSpace($entidad)) {
-        Write-Host "❌ El nombre de la entidad es obligatorio." -ForegroundColor Red
-        return
-    }
-    
-    $entidadRaw = $entidad
-    $entidad = ($entidad -replace '\s+', '-') -replace '[^a-zA-Z0-9-]', ''
-    if ($entidad -notmatch '^[a-zA-Z][a-zA-Z0-9-]*$') {
-        Write-Host "❌ '$entidadRaw' no es un nombre válido. Debe empezar por una letra (ej: Matricula, PagoMensual)." -ForegroundColor Red
-        return
-    }
-    
-    # PascalCase
-    $segments = $entidad -split '-'
-    $pascalSegments = foreach ($seg in $segments) {
-        if ([string]::IsNullOrEmpty($seg)) { continue }
-        if ($seg.Length -eq 1) { $seg.ToUpper() }
-        else {
-            $first = $seg.Substring(0, 1).ToUpper()
-            $rest = if ($seg -ceq $seg.ToUpper()) { $seg.Substring(1).ToLower() } else { $seg.Substring(1) }
-            "$first$rest"
-        }
-    }
-    $entidad = -join $pascalSegments
-    
-    $modPath = "src/02_Modulos/Intranet.Modulo$numFmt"
-    if (-not (Test-Path $modPath)) {
-        Write-Host "❌ No se encontró la carpeta del módulo: $modPath" -ForegroundColor Red
-        return
-    }
-    
-    $ctrlDir = "$modPath/Controllers"
-    $modelDir = "$modPath/Models"
-    $viewDir = "$modPath/Views/$entidad"
-    $sqlDir = "$modPath/Sql"
-    
-    New-Item -ItemType Directory -Force -Path $ctrlDir | Out-Null
-    New-Item -ItemType Directory -Force -Path $modelDir | Out-Null
-    New-Item -ItemType Directory -Force -Path $sqlDir | Out-Null
-    New-Item -ItemType Directory -Force -Path $viewDir | Out-Null
-    
-    $entidadSql = $entidad.ToLower()
-    $sqlContent = @"
--- Esquema y Tabla para Módulo $numFmt en PostgreSQL 16
-CREATE TABLE IF NOT EXISTS mod${numFmt}.${entidadSql} (
-  id SERIAL PRIMARY KEY,
-  codigo VARCHAR(30) NOT NULL,
-  nombre VARCHAR(150) NOT NULL,
-  descripcion TEXT NULL,
-  fecha_registro TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
-"@
-    Add-Content -Path "$sqlDir/schema.sql" -Value $sqlContent -Encoding utf8
-    
-    $modelCode = @"
-namespace Intranet.Modulo$numFmt.Models;
-
-public class $entidad
-{
-    public int Id { get; set; }
-    public string Codigo { get; set; } = string.Empty;
-    public string Nombre { get; set; } = string.Empty;
-    public string Descripcion { get; set; } = string.Empty;
-    public DateTime FechaRegistro { get; set; } = DateTime.Now;
-}
-"@
-    Set-Content -Path "$modelDir/$entidad.cs" -Value $modelCode
-    
-    $ctrlCode = @"
-using Microsoft.AspNetCore.Mvc;
-using Intranet.Core.Controllers;
-using Intranet.Modulo$numFmt.Models;
-
-namespace Intranet.Modulo$numFmt.Controllers;
-
-[Route("Modulo$numFmt/[controller]")]
-public class ${entidad}Controller : ModuloBaseController
-{
-    private static readonly List<$entidad> _lista = new()
-    {
-        new $entidad { Id = 1, Codigo = "REG-001", Nombre = "Registro de Prueba 1", Descripcion = "Demostración inicial" },
-        new $entidad { Id = 2, Codigo = "REG-002", Nombre = "Registro de Prueba 2", Descripcion = "Segundo elemento" }
-    };
-
-    [HttpGet("")]
-    [HttpGet("Index")]
-    public IActionResult Index()
-    {
-        ViewData["Title"] = "Gestión de $entidad";
-        ViewData["TeamName"] = "Equipo $numFmt";
-        ViewData["UsuarioNombre"] = UsuarioActualNombre;
-        ViewData["UsuarioRol"] = UsuarioActualRol;
-
-        return View(_lista);
-    }
-
-    [HttpPost("Crear")]
-    public IActionResult Crear($entidad item)
-    {
-        if (string.IsNullOrWhiteSpace(item.Nombre))
-        {
-            MostrarAlertaError("El nombre no puede estar vacío.");
-            return RedirectToAction(nameof(Index));
-        }
-
-        item.Id = _lista.Count + 1;
-        item.FechaRegistro = DateTime.Now;
-        _lista.Add(item);
-
-        MostrarAlertaExito("$entidad guardado con éxito.");
-        return RedirectToAction(nameof(Index));
-    }
-}
-"@
-    Set-Content -Path "$ctrlDir/${entidad}Controller.cs" -Value $ctrlCode
-    
-    $viewCode = @"
-@model IEnumerable<Intranet.Modulo$numFmt.Models.$entidad>
-@{
-    ViewData["Title"] = "Gestión de $entidad";
-}
-
-<div class="space-y-6">
-    <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <div class="flex items-center gap-2 mb-1">
-                <a href="/Modulo$numFmt" class="text-xs text-blue-600 font-semibold hover:underline">← Módulo $numFmt</a>
-                <span class="text-slate-300">•</span>
-                <span class="badge badge-primary font-bold text-[10px]">Equipo $numFmt</span>
-            </div>
-            <h1 class="text-2xl font-extrabold text-slate-900">Listado de ${entidad}s</h1>
-            <p class="text-xs text-slate-500">Módulo del Equipo $numFmt. Usuario actual: @ViewData["UsuarioNombre"]</p>
-        </div>
-        <div class="flex gap-2">
-            <a href="/Modulo$numFmt" class="btn btn-ghost btn-sm rounded-xl text-xs">Volver</a>
-            <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo.showModal()">+ Nuevo $entidad</button>
-        </div>
-    </div>
-
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <table class="table table-zebra w-full text-xs">
-            <thead>
-                <tr class="bg-slate-100 text-slate-700 font-bold">
-                    <th>#</th>
-                    <th>Código</th>
-                    <th>Nombre</th>
-                    <th>Descripción</th>
-                    <th>Fecha</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <td class="font-bold">@item.Id</td>
-                        <td><span class="badge badge-ghost font-mono">@item.Codigo</span></td>
-                        <td class="font-semibold">@item.Nombre</td>
-                        <td class="text-slate-500">@item.Descripcion</td>
-                        <td>@item.FechaRegistro.ToString("dd/MM/yyyy")</td>
-                    </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-</div>
-
-<dialog id="modal_nuevo" class="modal">
-    <div class="modal-box rounded-3xl">
-        <h3 class="font-bold text-base mb-3">Nuevo $entidad</h3>
-        <form asp-action="Crear" method="post" class="space-y-3 text-xs">
-            <div>
-                <label class="font-bold block mb-1">Código</label>
-                <input type="text" name="Codigo" required placeholder="Ej: COD-100" class="input input-sm input-bordered w-full rounded-xl" />
-            </div>
-            <div>
-                <label class="font-bold block mb-1">Nombre</label>
-                <input type="text" name="Nombre" required placeholder="Nombre del elemento" class="input input-sm input-bordered w-full rounded-xl" />
-            </div>
-            <div>
-                <label class="font-bold block mb-1">Descripción</label>
-                <textarea name="Descripcion" rows="2" placeholder="Detalle..." class="textarea textarea-bordered w-full rounded-xl"></textarea>
-            </div>
-            <div class="modal-action">
-                <button type="button" onclick="modal_nuevo.close()" class="btn btn-ghost btn-sm">Cancelar</button>
-                <button type="submit" class="btn btn-primary btn-sm">Guardar</button>
-            </div>
-        </form>
-    </div>
-</dialog>
-"@
-    Set-Content -Path "$viewDir/Index.cshtml" -Value $viewCode
-    
-    Write-Host "`n🎉 ¡Plantilla para '$entidad' creada con éxito!" -ForegroundColor Green
-    Write-Host "Ruta web: http://localhost:5000/Modulo$numFmt/$entidad" -ForegroundColor Cyan
-    Write-Host "Script SQL añadido en: $sqlDir/schema.sql" -ForegroundColor Cyan
+    Write-Host "🔒 Guardián Activado: Solo puedes modificar archivos en: src/02_Modulos/Intranet.Modulo$numFmt/" -ForegroundColor Yellow
 }
 
 function Validate-Code {
-    Write-Host "`n🧪 VALIDANDO COMPILACIÓN Y CALIDAD DE CÓDIGO..." -ForegroundColor Blue
-    Write-Host "Ejecutando: dotnet build IntranetInstitucional.sln" -ForegroundColor Cyan
-    
-    try {
-        dotnet build "IntranetInstitucional.sln" --nologo -c Release
-        Write-Host "`n======================================================================" -ForegroundColor Green
-        Write-Host "✅ ¡TODO EL PROYECTO COMPILA CON 0 ERRORES Y 0 WARNINGS!" -ForegroundColor Green
-        Write-Host "======================================================================" -ForegroundColor Green
-    } catch {
-        Write-Host "`n⛔ Se encontraron errores de compilación. Revisa los mensajes de arriba." -ForegroundColor Red
-    }
+    Write-Host "`n🧪 VALIDANDO COMPILACIÓN Y CALIDAD DE CÓDIGO (.NET 10)...`n" -ForegroundColor Blue
+    dotnet build "IntranetInstitucional.sln" --nologo -c Release
 }
 
 function Push-Work {
@@ -316,90 +136,86 @@ function Push-Work {
         return
     }
     
-    Write-Host "🌿 Rama de trabajo: $branch" -ForegroundColor Cyan
+    Write-Host "🌿 Rama de trabajo actual: $branch" -ForegroundColor Cyan
     
-    $status = $(git status --porcelain)
-    if ($status) {
-        $msg = Read-Host "👉 Describe qué cambiaste (ej: agregue formulario)"
-        if ([string]::IsNullOrWhiteSpace($msg)) { $msg = "feat($branch): actualizacion de avance" }
-        git add .
-        git commit -m "$msg"
-        Write-Host "✓ Cambios guardados localmente." -ForegroundColor Green
-    } else {
-        Write-Host "ℹ️ No hay archivos nuevos por guardar, sincronizando con GitHub..." -ForegroundColor Yellow
-    }
+    $msg = Read-Host "👉 Describe qué cambiaste (ej: avance del formulario)"
+    if ([string]::IsNullOrWhiteSpace($msg)) { $msg = "feat($branch): actualizacion de avance" }
     
-    Write-Host "Sincronizando con GitHub..." -ForegroundColor Cyan
-    try {
-        git pull --rebase origin $branch 2>$null | Out-Null
-    } catch {
-        git rebase --abort 2>$null | Out-Null
-        Write-Host "`n⚠️  CONFLICTO DETECTADO: Un compañero subió cambios que chocan con los tuyos." -ForegroundColor Red
-        return
-    }
+    git add .
+    git commit -m "$msg"
+    git pull --rebase origin $branch 2>$null
     
-    Write-Host "🔨 Compilando tu módulo antes de subir (verificación local)..." -ForegroundColor Cyan
-    try {
-        dotnet build "IntranetInstitucional.sln" -v q --nologo
-    } catch {
-        Write-Host "`n⛔ EL CÓDIGO NO COMPILÓ. No se subió nada a GitHub." -ForegroundColor Red
-        Write-Host "💡 Corrige los errores de arriba y vuelve a intentar." -ForegroundColor Yellow
-        return
-    }
+    Write-Host "`n🔨 Verificando compilación..." -ForegroundColor Cyan
+    dotnet build "IntranetInstitucional.sln" -v q --nologo
     
-    Write-Host "Publicando rama '$branch' en GitHub..." -ForegroundColor Cyan
+    Write-Host "Publicando en GitHub..." -ForegroundColor Cyan
     git push -u origin $branch
     
-    Write-Host "`n======================================================================" -ForegroundColor Green
-    Write-Host "🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!" -ForegroundColor Green
-    Write-Host "======================================================================" -ForegroundColor Green
-    Write-Host "👉 Crea o revisa tu Pull Request aquí:" -ForegroundColor White
-    Write-Host "   https://github.com/felipeostosb/intranet-institucional-modular/compare/main...$branch" -ForegroundColor Cyan
+    Write-Host "`n🎉 ¡TU TRABAJO ESTÁ PUBLICADO Y SINCRONIZADO EN GITHUB!" -ForegroundColor Green
+    Write-Host "👉 Abre tu Pull Request en: https://github.com/felipeostosb/intranet-institucional-modular/compare/main...$branch" -ForegroundColor Cyan
 }
 
-function Show-DbInfo {
+function Manage-Db {
     Write-Host "`n======================================================================" -ForegroundColor Blue
-    Write-Host "🗄️  INFORMACIÓN DE BASE DE DATOS POSTGRESQL 16 & ADMINER" -ForegroundColor Blue
+    Write-Host "🗄️  INFORMACIÓN Y CONFIGURACIÓN DE BASE DE DATOS (PostgreSQL 16)" -ForegroundColor Blue
     Write-Host "======================================================================" -ForegroundColor Blue
-    Write-Host "  🌐 Panel Web Adminer: http://35.206.81.32:8080" -ForegroundColor Cyan
-    Write-Host "  ⚙️  Motor: PostgreSQL 16" -ForegroundColor Cyan
-    Write-Host "  🖥️  Servidor: postgres (o 35.206.81.32 desde DBeaver/VS Code)" -ForegroundColor Cyan
-    Write-Host "  📊 Base de Datos: db_intranet_iestp" -ForegroundColor Cyan
-    Write-Host "  👤 Usuario: user_equipo[XX] (Tu usuario asignado)" -ForegroundColor Cyan
-    Write-Host "  🔑 Contraseña: (Consulta tu Ficha Privada entregada por el Administrador)" -ForegroundColor Cyan
-    Write-Host "  🛡️  Esquema Soberano: mod[XX] (Tu espacio aislado de tablas)" -ForegroundColor Cyan
+    Write-Host "  🌐 Panel Web Adminer:  http://35.206.81.32:8080" -ForegroundColor Cyan
+    Write-Host "  ⚙️  Motor:              PostgreSQL 16" -ForegroundColor Cyan
+    Write-Host "  🖥️  Host / Servidor:    35.206.81.32  (Puerto: 5432)" -ForegroundColor Cyan
+    Write-Host "  📊 Base de Datos:      db_intranet_iestp" -ForegroundColor Cyan
+    Write-Host "  👤 Usuario Equipo:     user_equipo[00..09]" -ForegroundColor Cyan
+    Write-Host "  🛡️  Esquema Soberano:   mod[00..09] (Control total INSERT/UPDATE/DELETE)" -ForegroundColor Cyan
+    Write-Host "  📖 Esquema Común:      core (Solo lectura SELECT para roles y usuarios)" -ForegroundColor Cyan
     Write-Host "----------------------------------------------------------------------" -ForegroundColor Blue
-    Write-Host "  💡 Permisos RBAC: Control total en 'modXX' y lectura (SELECT) en 'core'." -ForegroundColor Yellow
-    Write-Host "  💡 Conexión Automática: La app ya lee tu cadena desde appsettings.json." -ForegroundColor Cyan
-    Write-Host "======================================================================" -ForegroundColor Blue
-    Write-Host ""
+    
+    $confOpt = Read-Host "👉 ¿Deseas configurar/actualizar tu contraseña local (appsettings.Local.json)? [s/N]"
+    if ($confOpt -match "^[sSyY]$") {
+        $num = Read-Host "👉 ¿Qué número de equipo eres? (0 al 9)"
+        $numInt = [int]$num
+        if ($numInt -lt 0 -or $numInt -gt 9) {
+            Write-Host "❌ Número no válido. Debe ser entre 0 y 9." -ForegroundColor Red
+            return
+        }
+        $numFmt = "{0:D2}" -f $numInt
+        
+        Write-Host "👤 Usuario PostgreSQL asignado: user_equipo$numFmt" -ForegroundColor Cyan
+        $pass = Read-Host "🔑 Ingresa la contraseña de tu equipo (de tu Ficha Privada)"
+        
+        if ([string]::IsNullOrWhiteSpace($pass)) {
+            Write-Host "❌ La contraseña no puede estar vacía." -ForegroundColor Red
+            return
+        }
+        
+        $dbhost = Read-Host "🌐 Host de BD [ENTER para usar '35.206.81.32' o escribe '127.0.0.1']"
+        if ([string]::IsNullOrWhiteSpace($dbhost)) { $dbhost = "35.206.81.32" }
+        
+        $localConfig = "src/03_Web/Intranet.Web/appsettings.Local.json"
+        $jsonContent = @"
+{
+  "// LOCAL OVERRIDE": "Configuracion de conexion para Equipo $numFmt. Protegido en .gitignore.",
+  "ConnectionStrings": {
+    "Modulo${numFmt}Connection": "Host=$dbhost;Port=5432;Database=db_intranet_iestp;Username=user_equipo$numFmt;Password=$pass;SearchPath=mod$numFmt,core,public;Pooling=true;MinPoolSize=2;MaxPoolSize=15;"
+  }
 }
-
-function Ask-AiAssistant {
-    Write-Host "`n======================================================================" -ForegroundColor Blue
-    Write-Host "🤖  ASISTENTE IA DE ARQUITECTURA & REGLAMENTO (RAG GEMINI + QDRANT)" -ForegroundColor Blue
-    Write-Host "======================================================================" -ForegroundColor Blue
-    Write-Host "  Pregunta lo que necesites sobre C#, PostgreSQL 16, CI/CD o el Reglamento.`n" -ForegroundColor Cyan
-    $pregunta = Read-Host "💬 Escribe tu pregunta técnica"
-    if (![string]::IsNullOrWhiteSpace($pregunta)) {
-        Write-Host ""
-        python scripts/rag/ingest_and_query_rag.py --query "$pregunta"
+"@
+        Set-Content -Path $localConfig -Value $jsonContent
+        
+        Write-Host "`n✅ ¡CONFIGURACIÓN LOCAL COMPLETADA CON ÉXITO!" -ForegroundColor Green
+        Write-Host "📄 Archivo creado: $localConfig (Protegido en .gitignore)" -ForegroundColor Cyan
     }
 }
 
 while ($true) {
     Show-Menu
-    $op = Read-Host "👉 Elige una opción [0-7]"
+    $op = Read-Host "👉 Elige una opción [0-5]"
     switch ($op) {
         "1" { Start-App }
         "2" { Create-Branch }
-        "3" { Scaffold-Code }
-        "4" { Validate-Code }
-        "5" { Push-Work }
-        "6" { Show-DbInfo }
-        "7" { Ask-AiAssistant }
-        "0" { Write-Host "`n¡Buen trabajo! Hasta luego.`n" -ForegroundColor Green; break }
-        default { Write-Host "`nOpción no válida." -ForegroundColor Red }
+        "3" { Validate-Code }
+        "4" { Push-Work }
+        "5" { Manage-Db }
+        "0" { Write-Host "`n¡Buen trabajo! Hasta la próxima sesión.`n" -ForegroundColor Green; exit }
+        Default { Write-Host "`nOpción no válida. Ingresa un número del 0 al 5." -ForegroundColor Red }
     }
     Write-Host "`nPresiona ENTER para volver al menú..." -ForegroundColor Yellow
     [void][System.Console]::ReadLine()

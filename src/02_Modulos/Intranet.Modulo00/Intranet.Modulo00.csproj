@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <AddRazorSupportForMvc>true</AddRazorSupportForMvc>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Sql/schema.sql" CopyToOutputDirectory="PreserveNewest" Link="Sql/modulo00_schema.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="../../01_Core/Intranet.Core/Intranet.Core.csproj" />
+  </ItemGroup>
+</Project>

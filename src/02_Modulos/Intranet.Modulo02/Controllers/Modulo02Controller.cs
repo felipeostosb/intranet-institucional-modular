@@ -25,6 +25,7 @@ public class Modulo02Controller : ModuloBaseController
         ViewData["UsuarioRol"] = UsuarioActualRol;
 
         var vm = await _asistenciaService.GetDashboardAsync(PersonaActualId, UsuarioActualRol);
+        vm.NombreUsuario = UsuarioActualNombre;
         return View(vm);
     }
 

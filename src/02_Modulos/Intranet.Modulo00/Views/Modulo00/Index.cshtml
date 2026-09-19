@@ -1,0 +1,57 @@
+@{
+    ViewData["Title"] = "Módulo 00 - Login, Seguridad & Gestión de Accesos";
+}
+
+<div class="space-y-6">
+    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex items-center gap-4">
+            <div class="w-14 h-14 rounded-2xl bg-slate-900 text-white flex items-center justify-center text-2xl shrink-0 shadow-md">
+                🛡️
+            </div>
+            <div>
+                <div class="flex items-center gap-2 mb-1">
+                    <span class="text-xs font-bold bg-slate-100 text-slate-800 px-2.5 py-0.5 rounded-full border border-slate-200">Módulo 00</span>
+                    <span class="text-xs text-slate-400 font-medium">Equipo Toro • Seguridad & Auditoría</span>
+                </div>
+                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                    Login, Seguridad & Gestión de Accesos
+                </h1>
+                <p class="text-xs text-slate-500">
+                    Monitoreo de autenticación SSO, políticas de contraseñas, tokens y auditoría de eventos institucionales.
+                </p>
+            </div>
+        </div>
+        <div class="flex gap-2">
+            <a href="/Account/Login" class="btn btn-outline btn-sm rounded-xl text-xs">
+                🔑 Pantalla Login SSO
+            </a>
+            <button class="btn bg-slate-900 hover:bg-slate-800 text-white btn-sm rounded-xl text-xs font-bold">
+                📊 Registro de Accesos
+            </button>
+        </div>
+    </div>
+
+    <!-- Panel de Estado de Seguridad -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estado del SSO Core</span>
+            <div class="text-2xl font-black text-emerald-600 flex items-center gap-2">
+                <span>Activo</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            </div>
+            <p class="text-xs text-slate-500">Autenticación por Cookies Criptográficas (.NET 10)</p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema Soberano</span>
+            <div class="text-2xl font-black text-slate-900 font-mono">mod00</div>
+            <p class="text-xs text-slate-500">PostgreSQL 16 RBAC con usuario <code class="font-bold">user_equipo00</code></p>
+        </div>
+
+        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm space-y-2">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Políticas de Acceso</span>
+            <div class="text-2xl font-black text-indigo-600">5 Intentos</div>
+            <p class="text-xs text-slate-500">Bloqueo temporal de 15 min ante ataques de fuerza bruta</p>
+        </div>
+    </div>
+</div>

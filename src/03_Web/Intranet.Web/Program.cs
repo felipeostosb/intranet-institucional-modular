@@ -10,6 +10,9 @@ using Intranet.Data.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Soporte opcional para credenciales y overrides locales de desarrollo (en .gitignore)
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
 // 1. Registro de Módulos (9 Equipos en Paralelo) con Protección CSRF Global
 var mvcBuilder = builder.Services.AddControllersWithViews(options =>
 {
@@ -18,6 +21,7 @@ var mvcBuilder = builder.Services.AddControllersWithViews(options =>
 
 var moduleAssemblies = new List<Assembly>
 {
+    typeof(Intranet.Modulo00.Controllers.Modulo00Controller).Assembly,
     typeof(Intranet.Modulo01.Controllers.Modulo01Controller).Assembly,
     typeof(Intranet.Modulo02.Controllers.Modulo02Controller).Assembly,
     typeof(Intranet.Modulo03.Controllers.Modulo03Controller).Assembly,

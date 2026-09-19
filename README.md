@@ -1,6 +1,6 @@
-# 🏛️ Intranet Institucional Modular (.NET 10 LTS + PostgreSQL 16)
+# 🦅 AQUILA A-ERP — Intranet Institucional Modular (.NET 10 LTS + PostgreSQL 16)
 
-Bienvenido al proyecto integrador de la Intranet Institucional del **IESTP "Argentina"**. Este sistema está construido sobre **.NET 10 LTS (Soporte Oficial a Largo Plazo hasta Noviembre 2028)**, **PostgreSQL 16 LTS** y una **Arquitectura de Monolito Modular Desacoplado** diseñada para que **36 desarrolladores (9 equipos de 4 personas)** trabajen en paralelo con total autonomía y cero colisiones (*Zero-Blast-Radius*).
+Bienvenido a **AQUILA A-ERP** (Intranet Institucional del **IESTP "Argentina"**). Este sistema está construido sobre **.NET 10 LTS (Soporte Oficial a Largo Plazo hasta Noviembre 2028)**, **PostgreSQL 16 LTS** y una **Arquitectura de Monolito Modular Desacoplado** diseñada para que **36 desarrolladores (10 equipos de trabajo: Módulo 00 al 09)** trabajen en paralelo con total autonomía y cero colisiones (*Zero-Blast-Radius*).
 
 ---
 
@@ -11,7 +11,7 @@ Bienvenido al proyecto integrador de la Intranet Institucional del **IESTP "Arge
 
 ## ⚡ Guía de Inicio Rápido (The Golden Path - 1 Solo Clic)
 
-Hemos creado un **CLI Interactivo** que automatiza todo el flujo de Git, nombres de ramas, scaffolding de código y validaciones locales para que **no cometas ningún error de principiante**:
+Hemos creado un **CLI Interactivo** que automatiza todo el flujo de Git, nombres de ramas, validaciones locales y conexiones a la base de datos para que **no cometas ningún error de principiante**:
 
 ### 🐧 En Linux, macOS o Git Bash:
 ```bash
@@ -37,38 +37,38 @@ cd intranet-institucional-modular
 
 ## 🖥️ ¿Qué hace el Asistente Interactivo (`./dev.sh` / `.\dev.ps1`) por ti?
 
-El asistente te ofrece **6 opciones claras y directas**:
+El asistente te ofrece **5 opciones indispensables de alta frecuencia**:
 
 1. **🚀 Iniciar Intranet:** Lanza la aplicación local en `http://localhost:5000` con **Hot-Reload** (se actualiza sola en ~100ms al guardar cambios en cualquier archivo C# o Razor).
-2. **🌿 Crear / Cambiar a mi Rama de Equipo:** Te pide tu número de equipo y crea automáticamente ramas estandarizadas como `modulo04/formulario-registro` sincronizadas con `main`.
-3. **⚡ Generar Formulario / Tabla:** En 1 segundo genera un Modelo C#, un Controlador con `ModuloBaseController`, una Vista Razor con diseño moderno (DaisyUI / Tailwind) y el script SQL correspondiente para **PostgreSQL 16**.
-4. **🧪 Compilar y Validar mi Módulo:** Ejecuta `dotnet build` localmente para verificar que tu código no contenga errores antes de subirlo.
-5. **📤 Subir mi Trabajo a GitHub:** Guarda automáticamente tus cambios, descarga actualizaciones remotas con `git pull --rebase` y publica tu rama en GitHub con el enlace directo para abrir tu Pull Request.
-6. **🗄️ Credenciales y Guía PostgreSQL 16:** Muestra los datos de conexión y credenciales de acceso para tu equipo en Adminer y clientes de base de datos.
+2. **🌿 Mi Rama de Equipo:** Te pide tu número de equipo (00 al 09) y crea automáticamente ramas estandarizadas como `modulo02/asistencia-semanas` sincronizadas con `main`.
+3. **🧪 Compilar y Validar:** Ejecuta `dotnet build` localmente para verificar que tu código compile con 0 errores antes de subirlo.
+4. **📤 Subir a GitHub:** Guarda automáticamente tus cambios, descarga actualizaciones con `git pull --rebase`, valida la compilación y publica tu rama en GitHub con el enlace directo para abrir tu Pull Request.
+5. **🗄️ Base de Datos PostgreSQL:** Muestra los datos de conexión de Adminer / Cloud DB y te permite configurar tu contraseña privada local en `appsettings.Local.json` a 1 clic.
 
 > [!NOTE]
-> **🛡️ Guardián Git Poka-Yoke:** Al ejecutar el asistente, se instala automáticamente un *hook* local que bloquea de forma preventiva cualquier intento de hacer `git push` accidental directo a la rama `main`.
+> **🛡️ Guardianes Git Poka-Yoke:** Al ejecutar el asistente, se instalan automáticamente *hooks* locales que bloquean cualquier intento de hacer `git push` o `git commit` accidental directo a `main`, y te protegen para que solo puedas modificar la carpeta de tu propio módulo (*Zero-Blast-Radius*).
 
 ---
 
-## 👥 Distribución Soberana de los 9 Módulos y Esquemas PostgreSQL
+## 👥 Distribución Soberana de los 10 Módulos y Esquemas PostgreSQL
 
 El sistema opera sobre una **Base de Datos Unificada (`db_intranet_iestp`)** en **PostgreSQL 16 LTS** con aislamiento nativo por **`SCHEMAS` (Espacios de Nombres)** y gestión unificada de personas (**Patrón Party-Role**):
 
 * **🌐 Esquema Central (`core`):** `core.personas`, `core.usuarios`, `core.roles`, `core.usuario_roles`, `core.carreras`, `core.periodos_academicos`, `core.aulas`, `core.unidades_didacticas`, `core.estudiantes`, `core.docentes`, `core.administrativos`, `core.auditoria_logs`.
-* **📦 Esquemas Soberanos por Módulo (`modXX`):**
+* **📦 Esquemas Soberanos por Módulo (`mod00` .. `mod09`):**
 
-| Equipo | Módulo | Carpeta Soberana | Esquema PostgreSQL | Usuario DB | Color Distintivo |
+| Equipo | Módulo | Carpeta Soberana | Esquema PostgreSQL | Usuario DB | Responsable / Líder |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| **01** | **Módulo 01 (Matrícula)** | `src/02_Modulos/Intranet.Modulo01/` | `mod01` | `user_equipo01` | 🩵 Sky Pastel |
-| **02** | **Módulo 02 (Asistencia)** | `src/02_Modulos/Intranet.Modulo02/` | `mod02` | `user_equipo02` | 💙 Indigo Pastel |
-| **03** | **Módulo 03 (Calificaciones)** | `src/02_Modulos/Intranet.Modulo03/` | `mod03` | `user_equipo03` | 💚 Emerald Pastel |
-| **04** | **Módulo 04 (Horarios & Aulas)** | `src/02_Modulos/Intranet.Modulo04/` | `mod04` | `user_equipo04` | 💛 Amber Pastel |
-| **05** | **Módulo 05 (Prácticas EFSRT)** | `src/02_Modulos/Intranet.Modulo05/` | `mod05` | `user_equipo05` | 💜 Purple Pastel |
-| **06** | **Módulo 06 (Mesa Partes / TUPA)** | `src/02_Modulos/Intranet.Modulo06/` | `mod06` | `user_equipo06` | 🩷 Rose Pastel |
-| **07** | **Módulo 07 (Biblioteca Virtual)** | `src/02_Modulos/Intranet.Modulo07/` | `mod07` | `user_equipo07` | 🩵 Teal Pastel |
-| **08** | **Módulo 08 (Bolsa de Trabajo)** | `src/02_Modulos/Intranet.Modulo08/` | `mod08` | `user_equipo08` | 🧡 Orange Pastel |
-| **09** | **Módulo 09 (Tesorería / Pagos)** | `src/02_Modulos/Intranet.Modulo09/` | `mod09` | `user_equipo09` | 🌐 Cyan Pastel |
+| **00** | **Módulo 00 (Seguridad & Roles / Login)** | `src/02_Modulos/Intranet.Modulo00/` | `mod00` | `user_equipo00` | 🛡️ Toro |
+| **01** | **Módulo 01 (Admisión & Matrícula)** | `src/02_Modulos/Intranet.Modulo01/` | `mod01` | `user_equipo01` | 📝 Mendoza |
+| **02** | **Módulo 02 (Asistencia 18 Semanas)** | `src/02_Modulos/Intranet.Modulo02/` | `mod02` | `user_equipo02` | 📅 Sheyla |
+| **03** | **Módulo 03 (Calificaciones & Actas)** | `src/02_Modulos/Intranet.Modulo03/` | `mod03` | `user_equipo03` | 📊 Quispe |
+| **04** | **Módulo 04 (Horarios & Aulas)** | `src/02_Modulos/Intranet.Modulo04/` | `mod04` | `user_equipo04` | ⏰ Morales |
+| **05** | **Módulo 05 (Docentes & Carga Lectiva)** | `src/02_Modulos/Intranet.Modulo05/` | `mod05` | `user_equipo05` | 👨‍🏫 Ramírez |
+| **06** | **Módulo 06 (Trámites & Mesa de Partes)** | `src/02_Modulos/Intranet.Modulo06/` | `mod06` | `user_equipo06` | 📋 Gómez |
+| **07** | **Módulo 07 (Bolsa de Trabajo & Prácticas)** | `src/02_Modulos/Intranet.Modulo07/` | `mod07` | `user_equipo07` | 💼 Castro |
+| **08** | **Módulo 08 (Encuestas & Tutoría)** | `src/02_Modulos/Intranet.Modulo08/` | `mod08` | `user_equipo08` | 📋 Brayan |
+| **09** | **Módulo 09 (Tesorería / Pagos)** | `src/02_Modulos/Intranet.Modulo09/` | `mod09` | `user_equipo09` | 💳 Vargas |
 
 > [!TIP]
 > **🛡️ Blindaje RBAC en PostgreSQL:** Cada usuario `user_equipoXX` tiene permisos de control total (`CREATE`, `INSERT`, `UPDATE`, `DELETE`, `DROP`) **únicamente en su esquema `modXX`**, y permisos de **SOLO LECTURA (`SELECT`)** sobre `core` y los demás esquemas. Si un equipo intenta modificar datos de otro, el motor PostgreSQL rechaza la operación automáticamente.
