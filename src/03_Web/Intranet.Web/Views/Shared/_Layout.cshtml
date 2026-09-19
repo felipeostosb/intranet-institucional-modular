@@ -56,8 +56,8 @@
         <input id="main-drawer" type="checkbox" class="drawer-toggle" />
         
         <div class="drawer-content flex flex-col">
-            <!-- Barra Superior Azul Institucional Vistosa con Branding AQUILA A-ERP -->
-            <div class="navbar bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white shadow-md sticky top-0 z-30 px-4 lg:px-8 h-16 min-h-0">
+            <!-- Barra Superior Azul Institucional con Logotipo Minimalista Futurista AQUILA -->
+            <div class="navbar bg-gradient-to-r from-blue-950 via-blue-900 to-indigo-950 text-white shadow-md sticky top-0 z-30 px-4 lg:px-8 h-16 min-h-0 border-b border-white/10">
                 <div class="flex-none lg:hidden">
                     <label for="main-drawer" aria-label="open sidebar" class="btn btn-square btn-ghost btn-sm text-white">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block w-6 h-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
@@ -65,15 +65,28 @@
                 </div>
                 <div class="flex-1 items-center gap-3">
                     <a href="/" class="flex items-center gap-3 group">
-                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 border border-white/30 text-white flex items-center justify-center font-extrabold text-lg shadow-md group-hover:scale-105 transition">
-                            🦅
+                        <!-- Logotipo Águila Minimalista Futurista -->
+                        <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-md shadow-cyan-500/20 group-hover:scale-105 group-hover:border-cyan-300 transition shrink-0">
+                            <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(56,189,248,0.7)]" fill-rule="evenodd">
+                                <polygon points="50,14 42,32 50,46 58,32" fill="#ffffff" />
+                                <polygon points="50,38 45,47 50,54 55,47" fill="#38bdf8" />
+                                <polygon points="50,14 42,32 24,42 6,34 30,22" fill="#67e8f9" opacity="0.95" />
+                                <polygon points="50,14 58,32 76,42 94,34 70,22" fill="#38bdf8" opacity="0.95" />
+                                <polygon points="42,32 50,46 44,64 34,62 16,56 24,42" fill="#2563eb" opacity="0.9" />
+                                <polygon points="58,32 50,46 56,64 66,62 84,56 76,42" fill="#60a5fa" opacity="0.9" />
+                                <polygon points="34,62 44,64 42,76 24,70" fill="#1e3a8a" opacity="0.85" />
+                                <polygon points="66,62 56,64 58,76 76,70" fill="#1e3a8a" opacity="0.85" />
+                                <polygon points="50,54 44,66 50,86 56,66" fill="#38bdf8" />
+                                <polygon points="50,68 46,78 50,88 54,78" fill="#ffffff" />
+                                <circle cx="50" cy="30" r="2.2" fill="#0284c7" stroke="#ffffff" stroke-width="0.8" />
+                            </svg>
                         </div>
                         <div>
                             <div class="flex items-center gap-2">
                                 <span class="text-base sm:text-lg font-black tracking-tight text-white flex items-center gap-1.5">
                                     AQUILA
                                 </span>
-                                <span class="text-[10px] bg-white/20 text-blue-100 px-2 py-0.5 rounded-md font-extrabold border border-white/20">
+                                <span class="text-[10px] bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-md font-black border border-cyan-400/30">
                                     A-ERP
                                 </span>
                                 <span class="text-[10px] bg-white/20 text-blue-100 px-2 py-0.5 rounded-full font-bold border border-white/20 hidden sm:inline">
@@ -97,12 +110,12 @@
                     
                     <div class="dropdown dropdown-end">
                         <div tabindex="0" role="button" class="btn btn-ghost btn-sm flex items-center gap-2.5 normal-case rounded-xl px-2.5 py-1.5 h-auto hover:bg-white/10 text-white">
-                            <div class="w-8 h-8 rounded-xl bg-blue-500 text-white flex items-center justify-center text-xs font-bold shadow-inner">
+                            <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-inner border border-white/20">
                                 @(User.Identity?.Name?[..Math.Min(2, User.Identity.Name.Length)].ToUpper() ?? "US")
                             </div>
                             <div class="text-left hidden md:block leading-tight">
                                 <p class="text-xs font-bold text-white">@User.Identity?.Name</p>
-                                <p class="text-[10px] text-blue-200">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno")</p>
+                                <p class="text-[10px] text-cyan-200">@(User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno")</p>
                             </div>
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-200" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
                         </div>
@@ -152,8 +165,8 @@
             <!-- Footer Institucional -->
             <footer class="p-6 bg-white border-t border-slate-200 text-center text-xs text-slate-500">
                 <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-3">
-                    <p class="font-medium">🦅 <strong>AQUILA A-ERP</strong> — Instituto de Educación Superior Tecnológico Público "Argentina" 2026</p>
-                    <p class="text-slate-400">Agentic ERP • 10 Módulos Desacoplados • .NET 10 LTS • PostgreSQL 16</p>
+                    <p class="font-medium">🦅 <strong>AQUILA A-ERP</strong> — Intranet Institucional del IESTP Público "Argentina" 2026</p>
+                    <p class="text-slate-400">10 Módulos Desacoplados • .NET 10 LTS • PostgreSQL 16 LTS</p>
                 </div>
             </footer>
         </div>
@@ -162,10 +175,22 @@
         <div class="drawer-side z-40">
             <label for="main-drawer" aria-label="close sidebar" class="drawer-overlay"></label>
             <aside class="bg-white w-72 min-h-full border-r border-slate-200 flex flex-col shadow-sm">
-                <!-- Encabezado Sidebar con Branding AQUILA -->
+                <!-- Encabezado Sidebar con Logo Futurista Minimalista -->
                 <div class="p-5 border-b border-slate-100 flex items-center gap-3 bg-slate-50/50">
-                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-blue-700 to-indigo-600 text-white flex items-center justify-center font-bold shadow-md shadow-blue-500/20 text-lg">
-                        🦅
+                    <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 to-blue-950 border border-cyan-500/30 p-1.5 flex items-center justify-center shadow-md shadow-blue-500/10 shrink-0">
+                        <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_6px_rgba(56,189,248,0.6)]" fill-rule="evenodd">
+                            <polygon points="50,14 42,32 50,46 58,32" fill="#ffffff" />
+                            <polygon points="50,38 45,47 50,54 55,47" fill="#38bdf8" />
+                            <polygon points="50,14 42,32 24,42 6,34 30,22" fill="#67e8f9" opacity="0.95" />
+                            <polygon points="50,14 58,32 76,42 94,34 70,22" fill="#38bdf8" opacity="0.95" />
+                            <polygon points="42,32 50,46 44,64 34,62 16,56 24,42" fill="#2563eb" opacity="0.9" />
+                            <polygon points="58,32 50,46 56,64 66,62 84,56 76,42" fill="#60a5fa" opacity="0.9" />
+                            <polygon points="34,62 44,64 42,76 24,70" fill="#1e3a8a" opacity="0.85" />
+                            <polygon points="66,62 56,64 58,76 76,70" fill="#1e3a8a" opacity="0.85" />
+                            <polygon points="50,54 44,66 50,86 56,66" fill="#38bdf8" />
+                            <polygon points="50,68 46,78 50,88 54,78" fill="#ffffff" />
+                            <circle cx="50" cy="30" r="2.2" fill="#0284c7" stroke="#ffffff" stroke-width="0.8" />
+                        </svg>
                     </div>
                     <div>
                         <div class="flex items-center gap-1.5">
@@ -340,19 +365,31 @@
 }
 else
 {
-    <!-- Vista limpia sin Sidebar para pantalla de Login con Branding AQUILA A-ERP -->
+    <!-- Vista limpia sin Sidebar para pantalla de Login con Logotipo Minimalista Futurista AQUILA -->
     <div class="min-h-screen flex flex-col justify-between">
-        <header class="navbar bg-gradient-to-r from-blue-900 via-blue-800 to-indigo-900 text-white shadow-md px-6 h-16 min-h-0">
+        <header class="navbar bg-gradient-to-r from-blue-950 via-blue-900 to-indigo-950 text-white shadow-md px-6 h-16 min-h-0 border-b border-white/10">
             <div class="flex-1 items-center gap-3">
-                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 border border-white/30 text-white flex items-center justify-center font-extrabold text-lg shadow-sm">
-                    🦅
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-br from-slate-900 via-blue-950 to-indigo-950 border border-cyan-400/40 p-1.5 flex items-center justify-center shadow-md shadow-cyan-500/20 shrink-0">
+                    <svg viewBox="0 0 100 100" class="w-full h-full drop-shadow-[0_0_8px_rgba(56,189,248,0.7)]" fill-rule="evenodd">
+                        <polygon points="50,14 42,32 50,46 58,32" fill="#ffffff" />
+                        <polygon points="50,38 45,47 50,54 55,47" fill="#38bdf8" />
+                        <polygon points="50,14 42,32 24,42 6,34 30,22" fill="#67e8f9" opacity="0.95" />
+                        <polygon points="50,14 58,32 76,42 94,34 70,22" fill="#38bdf8" opacity="0.95" />
+                        <polygon points="42,32 50,46 44,64 34,62 16,56 24,42" fill="#2563eb" opacity="0.9" />
+                        <polygon points="58,32 50,46 56,64 66,62 84,56 76,42" fill="#60a5fa" opacity="0.9" />
+                        <polygon points="34,62 44,64 42,76 24,70" fill="#1e3a8a" opacity="0.85" />
+                        <polygon points="66,62 56,64 58,76 76,70" fill="#1e3a8a" opacity="0.85" />
+                        <polygon points="50,54 44,66 50,86 56,66" fill="#38bdf8" />
+                        <polygon points="50,68 46,78 50,88 54,78" fill="#ffffff" />
+                        <circle cx="50" cy="30" r="2.2" fill="#0284c7" stroke="#ffffff" stroke-width="0.8" />
+                    </svg>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
                         <span class="text-base sm:text-lg font-black tracking-tight text-white">
                             AQUILA
                         </span>
-                        <span class="text-[10px] bg-white/20 text-blue-100 px-2 py-0.5 rounded-md font-extrabold border border-white/20">
+                        <span class="text-[10px] bg-cyan-400/20 text-cyan-200 px-2 py-0.5 rounded-md font-black border border-cyan-400/30">
                             A-ERP
                         </span>
                         <span class="text-[10px] bg-white/20 text-blue-100 px-2 py-0.5 rounded-full font-bold border border-white/20">
@@ -373,7 +410,7 @@ else
         </main>
 
         <footer class="p-4 bg-white border-t border-slate-200 text-center text-xs text-slate-500">
-            <p class="font-medium">🦅 <strong>AQUILA A-ERP</strong> (Agentic Academic ERP) — Instituto de Educación Superior Tecnológico Público "Argentina" 2026</p>
+            <p class="font-medium">🦅 <strong>AQUILA A-ERP</strong> — Intranet Institucional del IESTP Público "Argentina" 2026</p>
         </footer>
     </div>
 }

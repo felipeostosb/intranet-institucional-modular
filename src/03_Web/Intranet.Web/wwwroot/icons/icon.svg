@@ -1,4 +1,51 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
-  <rect width="512" height="512" rx="100" fill="#4f46e5"/>
-  <path d="M256 96L96 176v32h320v-32L256 96zm-128 144v144h48V240h-48zm96 0v144h48V240h-48zm96 0v144h48V240h-48zm-224 176v32h320v-32H96z" fill="#ffffff"/>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100%" height="100%">
+  <defs>
+    <!-- Gradiente Cyan/Azul Cyberpunk / Futuristic -->
+    <linearGradient id="aquilaGradPrimary" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8" />
+      <stop offset="50%" stop-color="#2563eb" />
+      <stop offset="100%" stop-color="#1e3a8a" />
+    </linearGradient>
+    <linearGradient id="aquilaGradAccent" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#67e8f9" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+    <linearGradient id="aquilaGradLight" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#93c5fd" stop-opacity="0.8" />
+    </linearGradient>
+    <linearGradient id="aquilaGradDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e40af" />
+      <stop offset="100%" stop-color="#0f172a" />
+    </linearGradient>
+  </defs>
+
+  <g id="aquila-futuristic-eagle" fill-rule="evenodd" stroke-linejoin="round" stroke-linecap="round">
+    <!-- Cabeza & Pico Central (Filtro Geométrico) -->
+    <polygon points="50,14 42,32 50,46 58,32" fill="url(#aquilaGradLight)" />
+    <!-- Punta del Pico Afilada -->
+    <polygon points="50,38 45,47 50,54 55,47" fill="url(#aquilaGradAccent)" />
+    
+    <!-- Ala Izquierda - Panel Superior (Velocidad & Altura) -->
+    <polygon points="50,14 42,32 24,42 6,34 30,22" fill="url(#aquilaGradAccent)" opacity="0.95" />
+    <!-- Ala Derecha - Panel Superior -->
+    <polygon points="50,14 58,32 76,42 94,34 70,22" fill="url(#aquilaGradPrimary)" opacity="0.95" />
+
+    <!-- Ala Izquierda - Panel Medio (Despliegue) -->
+    <polygon points="42,32 50,46 44,64 34,62 16,56 24,42" fill="url(#aquilaGradPrimary)" opacity="0.9" />
+    <!-- Ala Derecha - Panel Medio -->
+    <polygon points="58,32 50,46 56,64 66,62 84,56 76,42" fill="url(#aquilaGradAccent)" opacity="0.9" />
+
+    <!-- Ala Izquierda - Panel Inferior -->
+    <polygon points="34,62 44,64 42,76 24,70" fill="url(#aquilaGradDark)" opacity="0.85" />
+    <!-- Ala Derecha - Panel Inferior -->
+    <polygon points="66,62 56,64 58,76 76,70" fill="url(#aquilaGradDark)" opacity="0.85" />
+
+    <!-- Cola / Propulsión Agéntica Central -->
+    <polygon points="50,54 44,66 50,86 56,66" fill="url(#aquilaGradAccent)" />
+    <polygon points="50,68 46,78 50,88 54,78" fill="url(#aquilaGradLight)" />
+
+    <!-- Nodo Central / Ojo IA de Precisión -->
+    <circle cx="50" cy="30" r="2.2" fill="#0284c7" stroke="#ffffff" stroke-width="0.8" />
+  </g>
 </svg>
