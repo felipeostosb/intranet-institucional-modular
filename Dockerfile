@@ -7,10 +7,11 @@ FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
 # 1. Copiar archivos de proyectos para restaurar dependencias con caché
+#    (los 10 módulos: Modulo00..Modulo09 — Web referencia a TODOS en su csproj)
 COPY ["Directory.Build.props", "./"]
 COPY ["src/01_Core/Intranet.Core/Intranet.Core.csproj", "src/01_Core/Intranet.Core/"]
 COPY ["src/01_Core/Intranet.Data/Intranet.Data.csproj", "src/01_Core/Intranet.Data/"]
-COPY ["src/02_Modulos/Intranet.Modulo01/Intranet.Modulo01.csproj", "src/02_Modulos/Intranet.Modulo01/"]
+COPY ["src/02_Modulos/Intranet.Modulo00/Intranet.Modulo00.csproj", "src/02_Modulos/Intranet.Modulo00/"]
 COPY ["src/02_Modulos/Intranet.Modulo02/Intranet.Modulo02.csproj", "src/02_Modulos/Intranet.Modulo02/"]
 COPY ["src/02_Modulos/Intranet.Modulo03/Intranet.Modulo03.csproj", "src/02_Modulos/Intranet.Modulo03/"]
 COPY ["src/02_Modulos/Intranet.Modulo04/Intranet.Modulo04.csproj", "src/02_Modulos/Intranet.Modulo04/"]
