@@ -58,18 +58,18 @@ El sistema opera sobre una **Base de Datos Unificada (`db_intranet_iestp`)** en 
 * **🌐 Esquema Central (`core`):** `core.personas`, `core.usuarios`, `core.roles`, `core.usuario_roles`, `core.carreras`, `core.periodos_academicos`, `core.aulas`, `core.unidades_didacticas`, `core.estudiantes`, `core.docentes`, `core.administrativos`, `core.auditoria_logs`.
 * **📦 Esquemas Soberanos por Módulo (`mod00` .. `mod09`):**
 
-| Equipo | Módulo | Carpeta Soberana | Esquema PostgreSQL | Usuario DB | Responsable / Líder |
+| Equipo | Módulo Institucional Real | Carpeta Soberana | Esquema PostgreSQL | Usuario DB | Responsable BD / Líder |
 | :---: | :--- | :--- | :--- | :--- | :--- |
-| **00** | **Módulo 00 (Seguridad & Roles / Login)** | `src/02_Modulos/Intranet.Modulo00/` | `mod00` | `user_equipo00` | 🛡️ Toro |
-| **01** | **Módulo 01 (Admisión & Matrícula)** | `src/02_Modulos/Intranet.Modulo01/` | `mod01` | `user_equipo01` | 📝 Mendoza |
-| **02** | **Módulo 02 (Asistencia 18 Semanas)** | `src/02_Modulos/Intranet.Modulo02/` | `mod02` | `user_equipo02` | 📅 Sheyla |
-| **03** | **Módulo 03 (Calificaciones & Actas)** | `src/02_Modulos/Intranet.Modulo03/` | `mod03` | `user_equipo03` | 📊 Quispe |
-| **04** | **Módulo 04 (Horarios & Aulas)** | `src/02_Modulos/Intranet.Modulo04/` | `mod04` | `user_equipo04` | ⏰ Morales |
-| **05** | **Módulo 05 (Docentes & Carga Lectiva)** | `src/02_Modulos/Intranet.Modulo05/` | `mod05` | `user_equipo05` | 👨‍🏫 Ramírez |
-| **06** | **Módulo 06 (Trámites & Mesa de Partes)** | `src/02_Modulos/Intranet.Modulo06/` | `mod06` | `user_equipo06` | 📋 Gómez |
-| **07** | **Módulo 07 (Bolsa de Trabajo & Prácticas)** | `src/02_Modulos/Intranet.Modulo07/` | `mod07` | `user_equipo07` | 💼 Castro |
-| **08** | **Módulo 08 (Encuestas & Tutoría)** | `src/02_Modulos/Intranet.Modulo08/` | `mod08` | `user_equipo08` | 📋 Brayan |
-| **09** | **Módulo 09 (Tesorería / Pagos)** | `src/02_Modulos/Intranet.Modulo09/` | `mod09` | `user_equipo09` | 💳 Vargas |
+| **00** | **00. Seguridad Core & Auditoría** | `src/02_Modulos/Intranet.Modulo00/` | `mod00` | `user_equipo00` | 🛡️ DevOps / Core |
+| **01** | **01. Matrícula Académica & Admisión** | `src/02_Modulos/Intranet.Modulo01/` | `mod01` | `user_equipo01` | 📝 Ismael |
+| **02** | **02. Asistencia 18 Semanas & DPI** | `src/02_Modulos/Intranet.Modulo02/` | `mod02` | `user_equipo02` | 📅 Sheyla / Felipe |
+| **03** | **03. Inventario & Equipos** | `src/02_Modulos/Intranet.Modulo03/` | `mod03` | `user_equipo03` | 📦 Brenda |
+| **04** | **04. Horarios, Aulas & Turnos** | `src/02_Modulos/Intranet.Modulo04/` | `mod04` | `user_equipo04` | ⏰ Equipo 04 (Morales) |
+| **05** | **05. Incidencias & Requerimientos TI** | `src/02_Modulos/Intranet.Modulo05/` | `mod05` | `user_equipo05` | 🛠️ Oliva |
+| **06** | **06. Egresados & Titulación** | `src/02_Modulos/Intranet.Modulo06/` | `mod06` | `user_equipo06` | 🎓 Sandra |
+| **07** | **07. Encuestas & Calidad Docente** | `src/02_Modulos/Intranet.Modulo07/` | `mod07` | `user_equipo07` | 📊 Brayan |
+| **08** | **08. Login, Seguridad & Roles** | `src/02_Modulos/Intranet.Modulo08/` | `mod08` | `user_equipo08` | 🔐 Toro |
+| **09** | **09. Tesorería & Pagos TUPA** | `src/02_Modulos/Intranet.Modulo09/` | `mod09` | `user_equipo09` | 💳 Equipo 09 (Vargas) |
 
 > [!TIP]
 > **🛡️ Blindaje RBAC en PostgreSQL:** Cada usuario `user_equipoXX` tiene permisos de control total (`CREATE`, `INSERT`, `UPDATE`, `DELETE`, `DROP`) **únicamente en su esquema `modXX`**, y permisos de **SOLO LECTURA (`SELECT`)** sobre `core` y los demás esquemas. Si un equipo intenta modificar datos de otro, el motor PostgreSQL rechaza la operación automáticamente.

@@ -1,87 +1,90 @@
 @{
-    ViewData["Title"] = "07. Bolsa de Trabajo";
+    ViewData["Title"] = "07. Encuestas & Calidad Docente";
 }
 
 <div class="space-y-6">
+    <!-- Header Zen del Módulo -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-2xl bg-teal-50 dark:bg-teal-950/50 text-teal-600 dark:text-teal-400 flex items-center justify-center text-xl shrink-0">
-                💼
+                📊
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-1">
                     <span class="text-[10px] font-mono font-bold bg-teal-100 dark:bg-teal-950 text-teal-800 dark:text-teal-300 px-2 py-0.5 rounded">07</span>
-                    <span class="text-xs text-slate-400">Equipo 07 • Convenios & Empleabilidad</span>
+                    <span class="text-xs font-bold text-teal-700 dark:text-teal-300 bg-teal-50 dark:bg-teal-900/40 px-2 py-0.5 rounded-md border border-teal-200 dark:border-teal-800">🗄️ Responsable BD: Brayan</span>
                 </div>
                 <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                    Bolsa de Trabajo & Prácticas Pre-Profesionales
+                    Encuestas & Evaluación del Desempeño Docente
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Ofertas laborales para egresados, convenios empresariales y seguimiento de prácticas.
+                    Evaluación del desempeño académico docente, encuestas de satisfacción y control de calidad institucional.
                 </p>
             </div>
         </div>
         <div class="flex gap-2">
             <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo_07.showModal()">
-                + Publicar Oferta
+                + Crear Encuesta
             </button>
         </div>
     </div>
 
+    <!-- Indicadores -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Ofertas Activas</span>
-            <div class="text-xl font-bold text-teal-600 dark:text-teal-400 mt-1">16</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Empresas aliadas</p>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Encuestas Activas</span>
+            <div class="text-xl font-bold text-teal-600 dark:text-teal-400 mt-1">3</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Periodo 2026-II</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Postulaciones</span>
-            <div class="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">54</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Alumnos aplicados</p>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Respuestas Recibidas</span>
+            <div class="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1 font-mono">245</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Estudiantes Evaluaron</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema BD</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema & DBA</span>
             <div class="text-xl font-bold text-slate-900 dark:text-slate-100 font-mono mt-1">mod07</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">PostgreSQL Cloud</p>
+            <p class="text-[10px] text-teal-600 dark:text-teal-400 font-semibold mt-0.5">DBA: Brayan</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Usuario</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Usuario Activo</span>
             <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 truncate">@ViewData["UsuarioNombre"]</div>
             <p class="text-[10px] text-slate-400 mt-0.5">Rol: @ViewData["UsuarioRol"]</p>
         </div>
     </div>
 
+    <!-- Listado Zen de Encuestas -->
     <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
             <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                Convocatorias Laborales Vigentes
+                Encuestas & Instrumentos de Evaluación
             </h2>
         </div>
         <div class="overflow-x-auto">
             <table class="table table-zebra w-full text-xs">
                 <thead>
                     <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
-                        <th>#</th>
-                        <th>Empresa</th>
-                        <th>Puesto / Vacante</th>
-                        <th>Modalidad</th>
+                        <th>Cód.</th>
+                        <th>Título de la Encuesta</th>
+                        <th>Destinatarios</th>
+                        <th>Participación</th>
                         <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody class="text-slate-700 dark:text-slate-300">
                     <tr>
-                        <td class="text-slate-400 font-mono">1</td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Tech Solutions Perú</td>
-                        <td>Practicante Backend .NET / Go</td>
-                        <td>Híbrido (Miraflores)</td>
-                        <td><span class="badge badge-success badge-xs font-semibold text-white">Vigente</span></td>
+                        <td class="font-mono font-bold text-teal-600 dark:text-teal-400">#ENC-01</td>
+                        <td class="font-medium text-slate-900 dark:text-slate-100">Evaluación del Desempeño Docente 2026-II</td>
+                        <td>Todos los Estudiantes</td>
+                        <td class="font-mono font-bold">84%</td>
+                        <td><span class="badge badge-success badge-xs font-semibold text-white">Activa</span></td>
                     </tr>
                     <tr>
-                        <td class="text-slate-400 font-mono">2</td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Banco de Crédito BCP</td>
-                        <td>Analista QA Trainee</td>
-                        <td>Remoto</td>
-                        <td><span class="badge badge-success badge-xs font-semibold text-white">Vigente</span></td>
+                        <td class="font-mono font-bold text-teal-600 dark:text-teal-400">#ENC-02</td>
+                        <td class="font-medium text-slate-900 dark:text-slate-100">Satisfacción de Infraestructura & Laboratorios</td>
+                        <td>Estudiantes DSI / Contabilidad</td>
+                        <td class="font-mono font-bold">62%</td>
+                        <td><span class="badge badge-info badge-xs font-semibold text-white">En Curso</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -91,21 +94,21 @@
 
 <dialog id="modal_nuevo_07" class="modal">
     <div class="modal-box max-w-md bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-200 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xl">
-        <h3 class="text-sm font-bold mb-3">Publicar Oferta Laboral</h3>
+        <h3 class="text-sm font-bold mb-3">Crear Encuesta de Evaluación</h3>
         <div class="space-y-3 text-xs">
             <div>
-                <label class="font-bold block mb-1 text-[11px]">Empresa / Razón Social</label>
-                <input type="text" placeholder="Empresa S.A.C." class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
+                <label class="font-bold block mb-1 text-[11px]">Título de la Encuesta</label>
+                <input type="text" placeholder="Ej: Evaluación de Metodología Docente" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
             <div>
-                <label class="font-bold block mb-1 text-[11px]">Puesto de Trabajo</label>
-                <input type="text" placeholder="Desarrollador Junior" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
+                <label class="font-bold block mb-1 text-[11px]">Público Objetivo</label>
+                <input type="text" placeholder="Estudiantes de Semestre VI" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
         </div>
         <div class="modal-action pt-2">
             <form method="dialog">
                 <button class="btn btn-ghost btn-xs rounded-xl">Cancelar</button>
-                <button class="btn btn-primary btn-xs rounded-xl font-bold">Publicar</button>
+                <button class="btn btn-primary btn-xs rounded-xl font-bold">Crear Encuesta</button>
             </form>
         </div>
     </div>

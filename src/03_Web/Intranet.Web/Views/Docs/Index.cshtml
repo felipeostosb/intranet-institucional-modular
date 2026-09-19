@@ -654,82 +654,107 @@ Genera el checklist en formato Markdown con casillas de verificación (- [ ]) li
                 <thead>
                     <tr class="bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
                         <th class="py-3 px-4">N°</th>
-                        <th>Módulo Institucional</th>
+                        <th>Módulo Institucional Real</th>
                         <th>Esquema PostgreSQL</th>
+                        <th>Usuario BD</th>
+                        <th>Responsable BD / Líder</th>
                         <th>Funcionalidad Principal</th>
-                        <th>Líder / PO</th>
+                        <th>Carpeta Soberana</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">00</td>
-                        <td class="font-bold text-slate-900 dark:text-slate-100">Seguridad & Roles</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod00</code></td>
-                        <td>Autenticación, RBAC, auditoría y claims</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Toro</td>
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400 font-mono">00</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Seguridad Core & Auditoría</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded font-mono text-xs">mod00</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo00</code></td>
+                        <td><span class="badge badge-neutral badge-xs text-[10px]">DevOps / Core</span></td>
+                        <td>Autenticación SSO, gestión de sesiones y auditoría base</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo00/</code></td>
                     </tr>
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">01</td>
-                        <td class="font-bold text-slate-900 dark:text-slate-100">Admisión & Matrícula</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod01</code></td>
-                        <td>Postulación, fichas y vacantes académicas</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Mendoza</td>
+                        <td class="font-bold py-2.5 px-4 text-sky-600 dark:text-sky-400 font-mono">01</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Matrícula & Admisión</td>
+                        <td><code class="bg-sky-50 dark:bg-sky-950/60 text-sky-700 dark:text-sky-300 px-2 py-0.5 rounded font-mono text-xs">mod01</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo01</code></td>
+                        <td><span class="badge badge-sky badge-xs bg-sky-100 dark:bg-sky-900 text-sky-800 dark:text-sky-200 font-bold text-[10px]">📝 Ismael</span></td>
+                        <td>Postulación, fichas académicas y reserva de vacantes</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo01/</code></td>
                     </tr>
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">02</td>
-                        <td class="font-bold text-slate-900 dark:text-slate-100">Asistencia & DPI</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod02</code></td>
+                        <td class="font-bold py-2.5 px-4 text-indigo-600 dark:text-indigo-400 font-mono">02</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100 flex items-center gap-1.5 py-2.5">
+                            <span>Asistencia & DPI (18 Semanas)</span>
+                            <span class="badge badge-primary badge-xs text-[9px] font-bold">PRO</span>
+                        </td>
+                        <td><code class="bg-indigo-50 dark:bg-indigo-950/60 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded font-mono text-xs">mod02</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo02</code></td>
+                        <td><span class="badge badge-indigo badge-xs bg-indigo-100 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-bold text-[10px]">📅 Sheyla / Felipe</span></td>
                         <td>Sábana 18 semanas, alertas automáticas >30% DPI</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Sheyla</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo02/</code></td>
                     </tr>
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">03</td>
-                        <td class="font-bold text-slate-900 dark:text-slate-100">Calificaciones & Actas</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod03</code></td>
-                        <td>Registro vigesimal (0-20), actas oficiales y ponderados</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 03</td>
+                        <td class="font-bold py-2.5 px-4 text-emerald-600 dark:text-emerald-400 font-mono">03</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Inventario & Equipos</td>
+                        <td><code class="bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded font-mono text-xs">mod03</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo03</code></td>
+                        <td><span class="badge badge-success badge-xs bg-emerald-100 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-bold text-[10px]">📦 Brenda</span></td>
+                        <td>Control patrimonial, inventario de laboratorios y equipos</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo03/</code></td>
                     </tr>
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">04</td>
+                        <td class="font-bold py-2.5 px-4 text-amber-600 dark:text-amber-400 font-mono">04</td>
                         <td class="font-bold text-slate-900 dark:text-slate-100">Horarios & Aulas</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod04</code></td>
-                        <td>Asignación de pabellones, laboratorios y turnos</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 04</td>
+                        <td><code class="bg-amber-50 dark:bg-amber-950/60 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded font-mono text-xs">mod04</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo04</code></td>
+                        <td><span class="badge badge-warning badge-xs bg-amber-100 dark:bg-amber-900 text-amber-800 dark:text-amber-200 font-bold text-[10px]">⏰ Equipo 04 (Morales)</span></td>
+                        <td>Asignación de pabellones, laboratorios y turnos lectivos</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo04/</code></td>
                     </tr>
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">05</td>
-                        <td class="font-bold text-slate-900 dark:text-slate-100">Docentes & Carga</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod05</code></td>
-                        <td>Horas lectivas, legajos y asignación de cursos</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 05</td>
+                        <td class="font-bold py-2.5 px-4 text-purple-600 dark:text-purple-400 font-mono">05</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Incidencias & Requerimientos</td>
+                        <td><code class="bg-purple-50 dark:bg-purple-950/60 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded font-mono text-xs">mod05</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo05</code></td>
+                        <td><span class="badge badge-secondary badge-xs bg-purple-100 dark:bg-purple-900 text-purple-800 dark:text-purple-200 font-bold text-[10px]">🛠️ Oliva</span></td>
+                        <td>Mesa de ayuda TI, tickets de soporte y requerimientos técnicos</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo05/</code></td>
                     </tr>
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">06</td>
-                        <td class="font-bold text-slate-900 dark:text-slate-100">Mesa de Partes & Trámites</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod06</code></td>
-                        <td>FUT digital, TUPA, expedientes y resoluciones</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 06</td>
+                        <td class="font-bold py-2.5 px-4 text-rose-600 dark:text-rose-400 font-mono">06</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Egresados & Titulación</td>
+                        <td><code class="bg-rose-50 dark:bg-rose-950/60 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded font-mono text-xs">mod06</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo06</code></td>
+                        <td><span class="badge badge-error badge-xs bg-rose-100 dark:bg-rose-900 text-rose-800 dark:text-rose-200 font-bold text-[10px]">🎓 Sandra</span></td>
+                        <td>Seguimiento a graduados, trámites de titulación y constancias</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo06/</code></td>
                     </tr>
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">07</td>
-                        <td class="font-bold text-slate-900 dark:text-slate-100">Bolsa de Trabajo & EFSRT</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod07</code></td>
-                        <td>Prácticas pre-profesionales y convenios de empleo</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 07</td>
+                        <td class="font-bold py-2.5 px-4 text-teal-600 dark:text-teal-400 font-mono">07</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Encuestas & Calidad Docente</td>
+                        <td><code class="bg-teal-50 dark:bg-teal-950/60 text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded font-mono text-xs">mod07</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo07</code></td>
+                        <td><span class="badge badge-accent badge-xs bg-teal-100 dark:bg-teal-900 text-teal-800 dark:text-teal-200 font-bold text-[10px]">📊 Brayan</span></td>
+                        <td>Evaluación de desempeño docente y encuestas de satisfacción</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo07/</code></td>
                     </tr>
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">08</td>
-                        <td class="font-bold text-slate-900 dark:text-slate-100">Encuestas & Tutoría</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod08</code></td>
-                        <td>Evaluación docente y seguimiento psicopedagógico</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Brayan</td>
+                        <td class="font-bold py-2.5 px-4 text-orange-600 dark:text-orange-400 font-mono">08</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Login, Seguridad & Roles</td>
+                        <td><code class="bg-orange-50 dark:bg-orange-950/60 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded font-mono text-xs">mod08</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo08</code></td>
+                        <td><span class="badge badge-warning badge-xs bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200 font-bold text-[10px]">🔐 Toro</span></td>
+                        <td>Gestión de credenciales institucionales, políticas RBAC y accesos</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo08/</code></td>
                     </tr>
                     <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
-                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">09</td>
-                        <td class="font-bold text-slate-900 dark:text-slate-100">Tesorería & Pagos</td>
-                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod09</code></td>
-                        <td>Recaudación de pensiones, caja y constancias de pago</td>
-                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 09</td>
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400 font-mono">09</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Tesorería & Pagos TUPA</td>
+                        <td><code class="bg-cyan-50 dark:bg-cyan-950/60 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 rounded font-mono text-xs">mod09</code></td>
+                        <td><code class="text-[11px] font-mono text-slate-500">user_equipo09</code></td>
+                        <td><span class="badge badge-info badge-xs bg-cyan-100 dark:bg-cyan-900 text-cyan-800 dark:text-cyan-200 font-bold text-[10px]">💳 Equipo 09 (Vargas)</span></td>
+                        <td>Recaudación de tasas TUPA, caja chica y estado de cuenta</td>
+                        <td><code class="text-[10px] text-slate-400 font-mono">src/02_Modulos/Intranet.Modulo09/</code></td>
                     </tr>
                 </tbody>
             </table>
@@ -763,15 +788,15 @@ Genera el checklist en formato Markdown con casillas de verificación (- [ ]) li
                         ("Todos", "Todos"),
                         ("General", "General"),
                         ("Modulo00", "00. Seguridad"),
-                        ("Modulo01", "01. Matrícula"),
-                        ("Modulo02", "02. Asistencia"),
-                        ("Modulo03", "03. Notas"),
-                        ("Modulo04", "04. Horarios"),
-                        ("Modulo05", "05. Docentes"),
-                        ("Modulo06", "06. Trámites"),
-                        ("Modulo07", "07. Bolsa"),
-                        ("Modulo08", "08. Encuestas"),
-                        ("Modulo09", "09. Tesorería")
+                        ("Modulo01", "01. Matrícula (Ismael)"),
+                        ("Modulo02", "02. Asistencia (Sheyla)"),
+                        ("Modulo03", "03. Inventario (Brenda)"),
+                        ("Modulo04", "04. Horarios (Eq 04)"),
+                        ("Modulo05", "05. Incidencias (Oliva)"),
+                        ("Modulo06", "06. Egresados (Sandra)"),
+                        ("Modulo07", "07. Encuestas (Brayan)"),
+                        ("Modulo08", "08. Login & Roles (Toro)"),
+                        ("Modulo09", "09. Tesorería (Eq 09)")
                     };
                 }
                 @foreach (var (cod, nom) in modulosFiltro)

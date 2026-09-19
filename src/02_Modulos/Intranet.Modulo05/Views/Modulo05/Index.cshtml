@@ -1,87 +1,90 @@
 @{
-    ViewData["Title"] = "05. Carga Docente";
+    ViewData["Title"] = "05. Incidencias & Requerimientos";
 }
 
 <div class="space-y-6">
+    <!-- Header Zen del Módulo -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-2xl bg-purple-50 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 flex items-center justify-center text-xl shrink-0">
-                👨‍🏫
+                🛠️
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-1">
                     <span class="text-[10px] font-mono font-bold bg-purple-100 dark:bg-purple-950 text-purple-800 dark:text-purple-300 px-2 py-0.5 rounded">05</span>
-                    <span class="text-xs text-slate-400">Equipo 05 • Plana Docente & Legajos</span>
+                    <span class="text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/40 px-2 py-0.5 rounded-md border border-purple-200 dark:border-purple-800">🗄️ Responsable BD: Oliva</span>
                 </div>
                 <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                    Docentes & Carga Lectiva
+                    Incidencias & Requerimientos TI
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Asignación de unidades didácticas, horas lectivas y legajo del personal docente.
+                    Mesa de ayuda técnica, gestión de tickets de soporte, incidencias de red, equipos y requerimientos.
                 </p>
             </div>
         </div>
         <div class="flex gap-2">
             <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo_05.showModal()">
-                + Asignar Docente
+                + Nuevo Ticket
             </button>
         </div>
     </div>
 
+    <!-- Indicadores -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Docentes Activos</span>
-            <div class="text-xl font-bold text-purple-600 dark:text-purple-400 mt-1">24</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Plana 2026</p>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tickets Abiertos</span>
+            <div class="text-xl font-bold text-purple-600 dark:text-purple-400 mt-1">14</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">En Atención</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Horas Asignadas</span>
-            <div class="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">360 hrs</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Semana lectiva</p>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resueltos (Mes)</span>
+            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 font-mono">89</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">SLA Cumplido</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema BD</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema & DBA</span>
             <div class="text-xl font-bold text-slate-900 dark:text-slate-100 font-mono mt-1">mod05</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">PostgreSQL Cloud</p>
+            <p class="text-[10px] text-purple-600 dark:text-purple-400 font-semibold mt-0.5">DBA: Oliva</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Usuario</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Usuario Activo</span>
             <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 truncate">@ViewData["UsuarioNombre"]</div>
             <p class="text-[10px] text-slate-400 mt-0.5">Rol: @ViewData["UsuarioRol"]</p>
         </div>
     </div>
 
+    <!-- Listado Zen de Tickets -->
     <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
             <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                Plana Docente & Asignaciones
+                Tickets de Soporte Recientes
             </h2>
         </div>
         <div class="overflow-x-auto">
             <table class="table table-zebra w-full text-xs">
                 <thead>
                     <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
-                        <th>#</th>
-                        <th>Docente</th>
-                        <th>Especialidad</th>
-                        <th>Cursos Asignados</th>
-                        <th>Horas</th>
+                        <th>Ticket</th>
+                        <th>Solicitante</th>
+                        <th>Asunto / Incidencia</th>
+                        <th>Prioridad</th>
+                        <th>Estado</th>
                     </tr>
                 </thead>
                 <tbody class="text-slate-700 dark:text-slate-300">
                     <tr>
-                        <td class="text-slate-400 font-mono">1</td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Sheyla Quispe</td>
-                        <td>Ingeniería de Software</td>
-                        <td>Taller de Programación Web</td>
-                        <td class="font-mono font-bold">18 hrs/sem</td>
+                        <td class="font-mono font-bold text-purple-600 dark:text-purple-400">#TK-1042</td>
+                        <td class="font-medium text-slate-900 dark:text-slate-100">Lab 02 Cómputo</td>
+                        <td>Fallo de conexión switch switch-rack-3</td>
+                        <td><span class="badge badge-error badge-xs font-bold text-white">Alta</span></td>
+                        <td><span class="badge badge-warning badge-xs font-semibold">En Proceso</span></td>
                     </tr>
                     <tr>
-                        <td class="text-slate-400 font-mono">2</td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Ing. Rodríguez</td>
-                        <td>Base de Datos & Arquitectura</td>
-                        <td>Gestión de Bases de Datos</td>
-                        <td class="font-mono font-bold">20 hrs/sem</td>
+                        <td class="font-mono font-bold text-purple-600 dark:text-purple-400">#TK-1041</td>
+                        <td class="font-medium text-slate-900 dark:text-slate-100">Coordinación DSI</td>
+                        <td>Instalación de SDK .NET 10 en PCs docentes</td>
+                        <td><span class="badge badge-neutral badge-xs font-semibold">Media</span></td>
+                        <td><span class="badge badge-success badge-xs font-semibold text-white">Cerrado</span></td>
                     </tr>
                 </tbody>
             </table>
@@ -91,21 +94,21 @@
 
 <dialog id="modal_nuevo_05" class="modal">
     <div class="modal-box max-w-md bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-200 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xl">
-        <h3 class="text-sm font-bold mb-3">Asignar Docente</h3>
+        <h3 class="text-sm font-bold mb-3">Registrar Ticket de Soporte</h3>
         <div class="space-y-3 text-xs">
             <div>
-                <label class="font-bold block mb-1 text-[11px]">DNI / Nombre del Docente</label>
-                <input type="text" placeholder="12345678" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
+                <label class="font-bold block mb-1 text-[11px]">Solicitante / Ambiente</label>
+                <input type="text" placeholder="Ej: Aula 204 Pabellón A" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
             <div>
-                <label class="font-bold block mb-1 text-[11px]">Unidad Didáctica</label>
-                <input type="text" placeholder="Desarrollo Web" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
+                <label class="font-bold block mb-1 text-[11px]">Descripción de la Incidencia</label>
+                <textarea rows="2" placeholder="Detalle del problema..." class="textarea textarea-xs textarea-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700"></textarea>
             </div>
         </div>
         <div class="modal-action pt-2">
             <form method="dialog">
                 <button class="btn btn-ghost btn-xs rounded-xl">Cancelar</button>
-                <button class="btn btn-primary btn-xs rounded-xl font-bold">Guardar</button>
+                <button class="btn btn-primary btn-xs rounded-xl font-bold">Guardar Ticket</button>
             </form>
         </div>
     </div>

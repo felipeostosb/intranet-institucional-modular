@@ -157,209 +157,243 @@
     </div>
 
     <!-- Módulos de la Plataforma -->
+    <!-- Módulos de la Plataforma con Responsables de Base de Datos -->
     <div class="space-y-3">
-        <h2 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            Módulos del Sistema
-        </h2>
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+            <h2 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                10 Módulos del Sistema • Mapa de Responsables de Base de Datos
+            </h2>
+            <span class="text-[11px] text-slate-400">Esquemas aislados mod00..mod09</span>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            <!-- Módulo 00 -->
+            <!-- Módulo 00 - Seguridad Core -->
             <a href="/Modulo00" class="p-5 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xl">🛡️</span>
-                        <span class="text-[10px] font-mono text-slate-400 font-semibold">00</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-2 py-0.5 rounded">mod00</span>
+                            <span class="text-[10px] bg-slate-200/70 dark:bg-slate-700 text-slate-700 dark:text-slate-200 font-semibold px-2 py-0.5 rounded">Core</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">
-                        00. Seguridad & Accesos
+                        00. Seguridad Core & Auditoría
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Control central de credenciales, roles y auditoría.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Control central de sesiones SSO, tokens de recuperación y auditoría de eventos.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400 font-medium">🗄️ Esquema: <code class="font-mono text-cyan-600 dark:text-cyan-400">mod00</code></span>
+                    <span class="text-blue-600 dark:text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
 
-            <!-- Módulo 01 -->
+            <!-- Módulo 01 - Matrícula (Ismael) -->
             <a href="/Modulo01" class="p-5 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xl">📝</span>
-                        <span class="text-[10px] font-mono text-slate-400 font-semibold">01</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 px-2 py-0.5 rounded">mod01</span>
+                            <span class="text-[10px] bg-sky-50 dark:bg-sky-900/60 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 font-bold px-2 py-0.5 rounded">BD: Ismael</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">
-                        01. Matrícula Académica
+                        01. Matrícula & Admisión
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Matrícula regular, convalidaciones y reserva de vacantes.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Matrícula académica regular, convalidaciones y reserva de vacantes.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400 font-medium">🗄️ DBA: <strong class="text-slate-700 dark:text-slate-300">Ismael</strong></span>
+                    <span class="text-blue-600 dark:text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
 
-            <!-- Módulo 02 (Destacado) -->
+            <!-- Módulo 02 - Asistencia & DPI (Sheyla / Felipe) -->
             <a href="/Modulo02" class="p-5 rounded-2xl bg-indigo-50/40 dark:bg-indigo-950/20 hover:bg-indigo-50/80 dark:hover:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-900/50 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xl">📅</span>
-                        <span class="text-[10px] bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold px-1.5 py-0.5 rounded">PRO</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] bg-indigo-100 dark:bg-indigo-900 text-indigo-700 dark:text-indigo-300 font-bold px-1.5 py-0.5 rounded">PRO</span>
+                            <span class="text-[10px] bg-indigo-50 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 font-bold px-2 py-0.5 rounded">BD: Sheyla</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-indigo-600 dark:group-hover:text-indigo-300 transition">
-                        02. Asistencia & DPI
+                        02. Asistencia & DPI (18 Semanas)
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Toma de lista en 1 clic, sábana de 18 semanas y control de 30% DPI.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Toma de lista en 1 clic, sábana de 18 semanas y regla de oro >30% DPI.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-indigo-100 dark:border-indigo-900/50 flex items-center justify-between text-[11px] font-semibold text-indigo-600 dark:text-indigo-300">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-indigo-100 dark:border-indigo-900/50 flex items-center justify-between text-[11px]">
+                    <span class="text-indigo-600/80 dark:text-indigo-400 font-medium">🗄️ DBA: <strong>Sheyla / Felipe</strong></span>
+                    <span class="text-indigo-600 dark:text-indigo-300 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
 
-            <!-- Módulo 03 -->
+            <!-- Módulo 03 - Inventario (Brenda) -->
             <a href="/Modulo03" class="p-5 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xl">📊</span>
-                        <span class="text-[10px] font-mono text-slate-400 font-semibold">03</span>
+                        <span class="text-xl">📦</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded">mod03</span>
+                            <span class="text-[10px] bg-emerald-50 dark:bg-emerald-900/60 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 font-bold px-2 py-0.5 rounded">BD: Brenda</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">
-                        03. Calificaciones & Actas
+                        03. Inventario & Equipos
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Notas vigesimales, actas finales y ponderados académicos.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Control patrimonial, inventario de laboratorios y asignación de equipos informáticos.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400 font-medium">🗄️ DBA: <strong class="text-slate-700 dark:text-slate-300">Brenda</strong></span>
+                    <span class="text-blue-600 dark:text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
 
-            <!-- Módulo 04 -->
+            <!-- Módulo 04 - Horarios & Aulas -->
             <a href="/Modulo04" class="p-5 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xl">⏰</span>
-                        <span class="text-[10px] font-mono text-slate-400 font-semibold">04</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded">mod04</span>
+                            <span class="text-[10px] bg-amber-50 dark:bg-amber-900/60 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800 font-bold px-2 py-0.5 rounded">BD: Eq 04</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">
                         04. Horarios & Aulas
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Distribución de aulas, turnos y disponibilidad horaria.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Distribución de pabellones, turnos académicos y disponibilidad de laboratorios.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400 font-medium">🗄️ DBA: <strong class="text-slate-700 dark:text-slate-300">Equipo 04</strong></span>
+                    <span class="text-blue-600 dark:text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
 
-            <!-- Módulo 05 -->
+            <!-- Módulo 05 - Incidencias & Requerimientos (Oliva) -->
             <a href="/Modulo05" class="p-5 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xl">👨‍🏫</span>
-                        <span class="text-[10px] font-mono text-slate-400 font-semibold">05</span>
+                        <span class="text-xl">🛠️</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded">mod05</span>
+                            <span class="text-[10px] bg-purple-50 dark:bg-purple-900/60 text-purple-700 dark:text-purple-300 border border-purple-200 dark:border-purple-800 font-bold px-2 py-0.5 rounded">BD: Oliva</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">
-                        05. Carga Docente
+                        05. Incidencias & Requerimientos
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Asignación de unidades didácticas y horas lectivas.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Mesa de ayuda TI, tickets de soporte técnico, incidentes de red y requerimientos.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400 font-medium">🗄️ DBA: <strong class="text-slate-700 dark:text-slate-300">Oliva</strong></span>
+                    <span class="text-blue-600 dark:text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
 
-            <!-- Módulo 06 -->
+            <!-- Módulo 06 - Egresados & Titulación (Sandra) -->
             <a href="/Modulo06" class="p-5 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xl">📋</span>
-                        <span class="text-[10px] font-mono text-slate-400 font-semibold">06</span>
+                        <span class="text-xl">🎓</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 px-2 py-0.5 rounded">mod06</span>
+                            <span class="text-[10px] bg-rose-50 dark:bg-rose-900/60 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-800 font-bold px-2 py-0.5 rounded">BD: Sandra</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">
-                        06. Mesa de Partes & Trámites
+                        06. Egresados & Titulación
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Recepción de expedientes, solicitudes y trámites digitales.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Seguimiento a graduados, trámites de titulación profesional, grados y constancias.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400 font-medium">🗄️ DBA: <strong class="text-slate-700 dark:text-slate-300">Sandra</strong></span>
+                    <span class="text-blue-600 dark:text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
 
-            <!-- Módulo 07 -->
+            <!-- Módulo 07 - Encuestas & Evaluación (Brayan) -->
             <a href="/Modulo07" class="p-5 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xl">💼</span>
-                        <span class="text-[10px] font-mono text-slate-400 font-semibold">07</span>
+                        <span class="text-xl">📊</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 px-2 py-0.5 rounded">mod07</span>
+                            <span class="text-[10px] bg-teal-50 dark:bg-teal-900/60 text-teal-700 dark:text-teal-300 border border-teal-200 dark:border-teal-800 font-bold px-2 py-0.5 rounded">BD: Brayan</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">
-                        07. Bolsa de Trabajo & Prácticas
+                        07. Encuestas & Calidad Docente
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Ofertas laborales, prácticas pre-profesionales y convenios.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Evaluación del desempeño docente, encuestas de satisfacción y calidad institucional.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400 font-medium">🗄️ DBA: <strong class="text-slate-700 dark:text-slate-300">Brayan</strong></span>
+                    <span class="text-blue-600 dark:text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
 
-            <!-- Módulo 08 -->
+            <!-- Módulo 08 - Login & Seguridad (Toro) -->
             <a href="/Modulo08" class="p-5 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
-                        <span class="text-xl">📋</span>
-                        <span class="text-[10px] font-mono text-slate-400 font-semibold">08</span>
+                        <span class="text-xl">🔐</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300 px-2 py-0.5 rounded">mod08</span>
+                            <span class="text-[10px] bg-orange-50 dark:bg-orange-900/60 text-orange-700 dark:text-orange-300 border border-orange-200 dark:border-orange-800 font-bold px-2 py-0.5 rounded">BD: Toro</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">
-                        08. Encuestas & Evaluación
+                        08. Login, Seguridad & Roles
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Encuestas de satisfacción y evaluación docente.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Gestión de credenciales, políticas de acceso institucional y asignación de roles.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400 font-medium">🗄️ DBA: <strong class="text-slate-700 dark:text-slate-300">Toro</strong></span>
+                    <span class="text-blue-600 dark:text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
 
-            <!-- Módulo 09 -->
+            <!-- Módulo 09 - Tesorería & Pagos -->
             <a href="/Modulo09" class="p-5 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <span class="text-xl">💳</span>
-                        <span class="text-[10px] font-mono text-slate-400 font-semibold">09</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-mono font-bold bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 rounded">mod09</span>
+                            <span class="text-[10px] bg-cyan-50 dark:bg-cyan-900/60 text-cyan-700 dark:text-cyan-300 border border-cyan-200 dark:border-cyan-800 font-bold px-2 py-0.5 rounded">BD: Eq 09</span>
+                        </div>
                     </div>
                     <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">
-                        09. Tesorería & Pagos
+                        09. Tesorería & Pagos TUPA
                     </h3>
-                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1">
-                        Pagos de tasas TUPA, certificados y constancias.
+                    <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 leading-relaxed">
+                        Recaudación de tasas institucionales, constancias, caja chica y estado de cuenta.
                     </p>
                 </div>
-                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px] text-slate-400 group-hover:text-blue-600 dark:group-hover:text-cyan-400">
-                    <span>Ingresar</span>
-                    <span>→</span>
+                <div class="mt-4 pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
+                    <span class="text-slate-400 font-medium">🗄️ DBA: <strong class="text-slate-700 dark:text-slate-300">Equipo 09</strong></span>
+                    <span class="text-blue-600 dark:text-cyan-400 font-semibold group-hover:translate-x-0.5 transition">Ingresar →</span>
                 </div>
             </a>
         </div>
