@@ -5,7 +5,7 @@
     var buscar = (string)(ViewData["Buscar"] ?? "");
 }
 
-<div class="space-y-8 animate-fade-in">
+<div class="space-y-10 animate-fade-in">
     <!-- Hero Header / Banner de Documentación -->
     <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white p-6 sm:p-10 border border-white/10 shadow-xl dark:border-slate-800">
         <div class="absolute -right-10 -bottom-10 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
@@ -38,66 +38,59 @@
         </div>
     </div>
 
-    <!-- Filtros de Módulos & Barra de Búsqueda -->
-    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 transition-colors">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-            <div>
-                <h3 class="font-black text-slate-800 dark:text-slate-100 text-base">Filtrar por Módulo</h3>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Selecciona el módulo para ver sus tutoriales específicos:</p>
+    <!-- SECCIÓN 1: VIDEOTUTORIALES (Filtros + Grid) -->
+    <div id="videos" class="space-y-6">
+        <!-- Filtros de Módulos & Barra de Búsqueda -->
+        <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-4 transition-colors">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <h3 class="font-black text-slate-800 dark:text-slate-100 text-base">Videotutoriales por Módulo</h3>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Selecciona el módulo para filtrar demostraciones y manuales:</p>
+                </div>
+                
+                <!-- Barra de Búsqueda -->
+                <form method="get" asp-action="Index" class="flex gap-2 w-full md:w-80">
+                    <input type="hidden" name="modulo" value="@moduloActual" />
+                    <input type="text" name="buscar" value="@buscar" placeholder="Buscar video, tema, autor..." class="input input-sm input-bordered w-full rounded-xl bg-slate-50 dark:bg-slate-800 dark:border-slate-700 text-xs" />
+                    <button type="submit" class="btn btn-sm btn-neutral rounded-xl text-xs">Buscar</button>
+                    @if (!string.IsNullOrWhiteSpace(buscar) || moduloActual != "Todos")
+                    {
+                        <a href="/Docs" class="btn btn-sm btn-ghost rounded-xl text-xs">Limpiar</a>
+                    }
+                </form>
             </div>
-            
-            <!-- Barra de Búsqueda -->
-            <form method="get" asp-action="Index" class="flex gap-2 w-full md:w-80">
-                <input type="hidden" name="modulo" value="@moduloActual" />
-                <input type="text" name="buscar" value="@buscar" placeholder="Buscar video, tema, autor..." class="input input-sm input-bordered w-full rounded-xl bg-slate-50 dark:bg-slate-800 dark:border-slate-700 text-xs" />
-                <button type="submit" class="btn btn-sm btn-neutral rounded-xl text-xs">Buscar</button>
-                @if (!string.IsNullOrWhiteSpace(buscar) || moduloActual != "Todos")
-                {
-                    <a href="/Docs" class="btn btn-sm btn-ghost rounded-xl text-xs">Limpiar</a>
+
+            <!-- Pestañas de Filtros -->
+            <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                @{
+                    var modulosFiltro = new[]
+                    {
+                        ("Todos", "🌐 Todos"),
+                        ("General", "🚀 General / Onboarding"),
+                        ("Modulo00", "🛡️ Mód 00 (Seguridad)"),
+                        ("Modulo01", "📝 Mód 01 (Matrícula)"),
+                        ("Modulo02", "📅 Mód 02 (Asistencia)"),
+                        ("Modulo03", "📊 Mód 03 (Notas)"),
+                        ("Modulo04", "⏰ Mód 04 (Horarios)"),
+                        ("Modulo05", "👨‍🏫 Mód 05 (Docentes)"),
+                        ("Modulo06", "📋 Mód 06 (Trámites)"),
+                        ("Modulo07", "💼 Mód 07 (Bolsa)"),
+                        ("Modulo08", "📋 Mód 08 (Encuestas)"),
+                        ("Modulo09", "💳 Mód 09 (Tesorería)")
+                    };
                 }
-            </form>
-        </div>
-
-        <!-- Pestañas de Filtros -->
-        <div class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
-            @{
-                var modulosFiltro = new[]
+                @foreach (var (cod, nom) in modulosFiltro)
                 {
-                    ("Todos", "🌐 Todos"),
-                    ("General", "🚀 General / Onboarding"),
-                    ("Modulo00", "🛡️ Mód 00 (Seguridad)"),
-                    ("Modulo01", "📝 Mód 01 (Matrícula)"),
-                    ("Modulo02", "📅 Mód 02 (Asistencia)"),
-                    ("Modulo03", "📊 Mód 03 (Notas)"),
-                    ("Modulo04", "⏰ Mód 04 (Horarios)"),
-                    ("Modulo05", "👨‍🏫 Mód 05 (Docentes)"),
-                    ("Modulo06", "📋 Mód 06 (Trámites)"),
-                    ("Modulo07", "💼 Mód 07 (Bolsa)"),
-                    ("Modulo08", "📋 Mód 08 (Encuestas)"),
-                    ("Modulo09", "💳 Mód 09 (Tesorería)")
-                };
-            }
-            @foreach (var (cod, nom) in modulosFiltro)
-            {
-                var activo = moduloActual.Equals(cod, StringComparison.OrdinalIgnoreCase);
-                <a href="/Docs?modulo=@cod@(string.IsNullOrWhiteSpace(buscar) ? "" : "&buscar=" + buscar)" 
-                   class="badge text-xs px-3.5 py-3 rounded-xl font-bold transition whitespace-nowrap @(activo ? "badge-primary text-white shadow-sm" : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border-none")">
-                    @nom
-                </a>
-            }
-        </div>
-    </div>
-
-    <!-- Galería de Videotutoriales -->
-    <div>
-        <div class="flex justify-between items-center mb-4">
-            <h2 class="text-xl font-extrabold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                <span>🎬 Tutoriales Disponibles</span>
-                <span class="badge badge-neutral text-xs font-bold">@Model.Count()</span>
-            </h2>
-            <span class="text-xs text-slate-500 dark:text-slate-400">Haz clic en cualquier video para reproducirlo</span>
+                    var activo = moduloActual.Equals(cod, StringComparison.OrdinalIgnoreCase);
+                    <a href="/Docs?modulo=@cod@(string.IsNullOrWhiteSpace(buscar) ? "" : "&buscar=" + buscar)#videos" 
+                       class="badge text-xs px-3.5 py-3 rounded-xl font-bold transition whitespace-nowrap @(activo ? "badge-primary text-white shadow-sm" : "bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-300 border-none")">
+                        @nom
+                    </a>
+                }
+            </div>
         </div>
 
+        <!-- Grid de Videos -->
         @if (!Model.Any())
         {
             <div class="bg-white dark:bg-slate-900 rounded-3xl p-12 text-center border border-slate-200 dark:border-slate-800 shadow-sm space-y-4">
@@ -168,65 +161,146 @@
         }
     </div>
 
-    <!-- Pestañas de Documentación Escrita & CheatSheets -->
-    <div class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
+    <!-- SECCIÓN 2: ONBOARDING & CLI -->
+    <div id="onboarding" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
         <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/40 text-blue-600 dark:text-cyan-400 flex items-center justify-center font-black">
-                📖
+            <div class="w-10 h-10 rounded-2xl bg-blue-100 dark:bg-blue-950/50 text-blue-600 dark:text-cyan-400 flex items-center justify-center font-black text-base">
+                🚀
             </div>
             <div>
-                <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">Guías Rápidas de Arquitectura & Reglas</h2>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Documentación de referencia inmediata para desarrolladores y DBAs:</p>
+                <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">1. Onboarding & Asistente CLI de Desarrollo</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Cómo configurar tu entorno en 3 minutos sin fricción técnica:</p>
             </div>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
-            <!-- Tarjeta 1: CLI & Git -->
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-primary text-[10px] font-bold">1. Flujo Git & CLI</span>
-                <h4 class="font-extrabold text-slate-800 dark:text-slate-200">Uso de ./dev.sh</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
-                    Usa siempre la <strong>Opción 2</strong> para crear ramas (<code>moduloXX/tarea</code>) y la <strong>Opción 4</strong> para subir y abrir tu PR automáticamente.
-                </p>
-                <div class="font-mono bg-slate-200 dark:bg-slate-900 p-2 rounded-xl text-[10px] text-slate-700 dark:text-slate-300">
-                    ./dev.sh (Linux/Mac)<br/>.\dev.ps1 (Windows)
+        <div id="git-cli" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Columna 1: Comandos Rápidos -->
+            <div class="space-y-3">
+                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">Pasos de Instalación</h4>
+                
+                <div class="space-y-2 text-xs">
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+                        <p class="font-bold text-slate-800 dark:text-slate-200 mb-1">1. Clonar el repositorio oficial</p>
+                        <code class="block font-mono bg-slate-900 text-cyan-300 p-2 rounded-xl text-[11px] select-all">git clone https://github.com/felipeostosb/intranet-institucional-modular.git</code>
+                    </div>
+
+                    <div class="bg-slate-50 dark:bg-slate-800/60 p-3.5 rounded-2xl border border-slate-200 dark:border-slate-700/60">
+                        <p class="font-bold text-slate-800 dark:text-slate-200 mb-1">2. Ejecutar el asistente interactivo</p>
+                        <div class="font-mono bg-slate-900 text-emerald-300 p-2 rounded-xl text-[11px] select-all space-y-0.5">
+                            <div>./dev.sh <span class="text-slate-500"># En Linux / macOS</span></div>
+                            <div>.\dev.ps1 <span class="text-slate-500"># En Windows PowerShell</span></div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <!-- Tarjeta 2: Base de Datos Soberana -->
-            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-secondary text-[10px] font-bold">2. PostgreSQL 16</span>
-                <h4 class="font-extrabold text-slate-800 dark:text-slate-200">Adminer & Esquemas</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
-                    Tienes control total en tu esquema <code>modXX</code> y lectura en <code>core</code>. Conéctate vía web en <a href="http://35.206.81.32:8080" target="_blank" class="text-blue-600 dark:text-cyan-400 underline font-bold">Adminer :8080</a>.
-                </p>
-                <div class="font-mono bg-slate-200 dark:bg-slate-900 p-2 rounded-xl text-[10px] text-slate-700 dark:text-slate-300">
-                    Host: 35.206.81.32:5432<br/>DB: db_intranet_iestp
+            <!-- Columna 2: Menú de 5 Opciones -->
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-5 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-3 text-xs">
+                <h4 class="font-bold text-xs uppercase text-slate-400 tracking-wider">Las 5 Opciones del Menú dev.sh</h4>
+                <ul class="space-y-2 text-slate-600 dark:text-slate-300 text-[11px]">
+                    <li class="flex items-center gap-2">
+                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">1)</span> <strong>🚀 Iniciar Intranet:</strong> Lanza localhost:5000 con Hot-Reload.
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">2)</span> <strong>🌿 Mi Rama de Equipo:</strong> Elige tu equipo (00 al 09) y crea tu rama.
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">3)</span> <strong>🧪 Compilar y Validar:</strong> Verifica 0 errores en .NET 10.
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">4)</span> <strong>📤 Subir a GitHub:</strong> Guarda, rebasea y genera enlace de Pull Request.
+                    </li>
+                    <li class="flex items-center gap-2">
+                        <span class="font-bold text-blue-600 dark:text-cyan-400 font-mono">5)</span> <strong>🗄️ Base de Datos:</strong> Muestra accesos y guarda appsettings.Local.json.
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 3: BASE DE DATOS & CLOUD -->
+    <div id="database" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center font-black text-base">
+                    🗄️
+                </div>
+                <div>
+                    <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">2. Base de Datos PostgreSQL 16 & Adminer</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Aislamiento por esquemas soberanos y acceso web:</p>
                 </div>
             </div>
+            
+            <a href="http://35.206.81.32:8080" target="_blank" class="btn btn-sm btn-outline btn-success rounded-xl text-xs gap-1.5 hidden sm:flex">
+                <span>Abrir Adminer Web</span>
+                <span>→</span>
+            </a>
+        </div>
 
-            <!-- Tarjeta 3: Periodos y Trazabilidad -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
             <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-accent text-[10px] font-bold">3. Eje Temporal</span>
-                <h4 class="font-extrabold text-slate-800 dark:text-slate-200">core.periodos_academicos</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
-                    Toda tabla transaccional (asistencia, notas, horarios) debe incluir <code>periodo_id</code> para permitir la evolución año a año sin reiniciar datos.
+                <span class="badge badge-success text-[10px] font-bold">Panel Web</span>
+                <h4 class="font-bold text-slate-800 dark:text-slate-200">Adminer GUI</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
+                    URL: <code class="font-mono text-blue-600 dark:text-cyan-400">http://35.206.81.32:8080</code><br/>
+                    Motor: <strong>PostgreSQL</strong><br/>
+                    Servidor: <strong>postgres</strong> (o 35.206.81.32)
                 </p>
-                <div class="font-mono bg-slate-200 dark:bg-slate-900 p-2 rounded-xl text-[10px] text-slate-700 dark:text-slate-300">
-                    REFERENCES core.periodos_academicos(id)
-                </div>
             </div>
 
-            <!-- Tarjeta 4: Normativa MINEDU -->
             <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
-                <span class="badge badge-warning text-[10px] font-bold">4. Reglas Académicas</span>
-                <h4 class="font-extrabold text-slate-800 dark:text-slate-200">18 Semanas & DPI</h4>
-                <p class="text-slate-500 dark:text-slate-400 text-[11px] leading-relaxed">
-                    Nota mínima aprobatoria: <strong>13</strong>. Estudiantes con más de <strong>30% de faltas</strong> quedan automáticamente en condición <code>DPI</code>.
+                <span class="badge badge-primary text-[10px] font-bold">Esquemas Soberanos</span>
+                <h4 class="font-bold text-slate-800 dark:text-slate-200">mod00 .. mod09</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
+                    Tienes control total (INSERT/UPDATE/DELETE/CREATE) en tu esquema <code>modXX</code>. Las demás tablas están protegidas.
                 </p>
-                <div class="font-mono bg-slate-200 dark:bg-slate-900 p-2 rounded-xl text-[10px] text-slate-700 dark:text-slate-300">
-                    Faltas &gt; 30% =&gt; DPI (Nota 00)
-                </div>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
+                <span class="badge badge-accent text-[10px] font-bold">Eje Temporal</span>
+                <h4 class="font-bold text-slate-800 dark:text-slate-200">core.periodos_academicos</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
+                    Incluye siempre <code>periodo_id</code> en tablas transaccionales (asistencia, notas, matrículas) para soportar el cambio de año.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SECCIÓN 4: NORMATIVA ACADÉMICA MINEDU -->
+    <div id="minedu" class="bg-white dark:bg-slate-900 rounded-3xl p-6 sm:p-8 border border-slate-200 dark:border-slate-800 shadow-sm space-y-6 transition-colors">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-2xl bg-amber-100 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center font-black text-base">
+                ⚖️
+            </div>
+            <div>
+                <h2 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100">3. Normativa Académica Oficial (MINEDU / IESTP)</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Reglas de negocio indispensables que deben respetar las actas y cálculos:</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
+                <span class="badge badge-warning text-[10px] font-bold">Sábana de 18 Semanas</span>
+                <h4 class="font-bold text-slate-800 dark:text-slate-200">Semestre Académico</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
+                    Cada unidad didáctica desarrolla 18 semanas de clases lectivas con sesiones teóricas y prácticas.
+                </p>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
+                <span class="badge badge-error text-[10px] font-bold">Inasistencias &gt; 30%</span>
+                <h4 class="font-bold text-slate-800 dark:text-slate-200">Condición DPI</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
+                    Si un estudiante supera el 30% de inasistencias injustificadas, se marca automáticamente como <strong>DPI (Desaprobado por Inasistencia)</strong> con nota 00.
+                </p>
+            </div>
+
+            <div class="bg-slate-50 dark:bg-slate-800/60 p-4 rounded-2xl border border-slate-200 dark:border-slate-700/60 space-y-2">
+                <span class="badge badge-info text-[10px] font-bold">Escala 0 a 20</span>
+                <h4 class="font-bold text-slate-800 dark:text-slate-200">Calificación Vigesimal</h4>
+                <p class="text-slate-500 dark:text-slate-400 text-[11px]">
+                    Nota mínima aprobatoria: <strong>13</strong>. Estudiantes con promedio entre 10 y 12 tienen derecho a evaluación de recuperación.
+                </p>
             </div>
         </div>
     </div>
