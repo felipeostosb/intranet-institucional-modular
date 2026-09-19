@@ -53,6 +53,7 @@ public class AccountController : Controller
             return View();
         }
 
+        var rolInicial = usuario.RolPrincipal;
         var claims = new List<Claim>
         {
             new(ClaimTypes.NameIdentifier, usuario.Id.ToString()),
@@ -61,7 +62,8 @@ public class AccountController : Controller
             new("Dni", usuario.Dni),
             new("CodigoInstitucional", usuario.CodigoInstitucional),
             new("PersonaId", usuario.PersonaId.ToString()),
-            new("RolPrincipal", usuario.RolPrincipal)
+            new("RolPrincipal", rolInicial),
+            new("ActiveRole", rolInicial)
         };
 
         // Multi-rol soportado nativamente en Claims
@@ -71,6 +73,44 @@ public class AccountController : Controller
         }
 
         var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties
+        {
+            IsPersistent = true,
+            ExpiresUtc = DateTimeOffset.UtcNow.AddDays(7)
+        });
+
+        if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
+        {
+            return Redirect(returnUrl);
+        }
+
+        return RedirectToAction("Index", "Home");
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> CambiarRol(string rol, string? returnUrl = null)
+    {
+        if (User.Identity?.IsAuthenticated != true || string.IsNullOrWhiteSpace(rol))
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
+        var rolesUsuario = User.FindAll(ClaimTypes.Role).Select(r => r.Value).ToList();
+        var esDirectorOAdmin = User.IsInRole("Director") || User.IsInRole("Admin");
+
+        // Validar que el usuario posea ese rol o tenga privilegios de dirección
+        if (!rolesUsuario.Contains(rol, StringComparer.OrdinalIgnoreCase) && !esDirectorOAdmin)
+        {
+            return RedirectToAction("Index", "Home");
+        }
+
+        // Reconstruir claims actualizando ActiveRole
+        var currentClaims = User.Claims.Where(c => c.Type != "ActiveRole").ToList();
+        currentClaims.Add(new Claim("ActiveRole", rol));
+
+        var identity = new ClaimsIdentity(currentClaims, CookieAuthenticationDefaults.AuthenticationScheme);
         var principal = new ClaimsPrincipal(identity);
 
         await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, principal, new AuthenticationProperties

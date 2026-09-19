@@ -148,11 +148,11 @@ public class UsuarioService : IUsuarioService
     {
         return new List<UsuarioDto>
         {
-            new(1, 1, "10000001", "DIR-001", "Felipe / Director Institucional", "director@iestpargentina.edu.pe", "Director", new List<string> { "Director", "Admin" }),
-            new(2, 2, "20000001", "COORD-001", "Ing. Carlos Rodríguez (Coordinador)", "coordinacion@iestpargentina.edu.pe", "Coordinador", new List<string> { "Coordinador" }),
+            new(1, 1, "10000001", "DIR-001", "Felipe / Director Institucional", "director@iestpargentina.edu.pe", "Director", new List<string> { "Director", "Admin", "Docente", "Alumno", "Coordinador" }),
+            new(2, 2, "20000001", "COORD-001", "Ing. Carlos Rodríguez (Coordinador)", "coordinacion@iestpargentina.edu.pe", "Coordinador", new List<string> { "Coordinador", "Docente" }),
             new(3, 3, "30000001", "SEC-001", "Lic. María Elena Flores (Secretaría)", "secretaria@iestpargentina.edu.pe", "Secretaria", new List<string> { "Secretaria" }),
             new(4, 4, "40000001", "TES-001", "Lic. Juan Alberto Pérez (Tesorería)", "tesoreria@iestpargentina.edu.pe", "Tesoreria", new List<string> { "Tesoreria" }),
-            new(5, 5, "12345678", "DOC-001", "Sheyla Quispe / Docente", "sheyla.docente@iestpargentina.edu.pe", "Docente", new List<string> { "Docente" }),
+            new(5, 5, "12345678", "DOC-001", "Sheyla Quispe / Docente", "sheyla.docente@iestpargentina.edu.pe", "Docente", new List<string> { "Docente", "Alumno" }),
             new(6, 6, "87654321", "EST-2024-001", "Carlos Alberto Mendoza Flores", "carlos.mendoza@iestpargentina.edu.pe", "Alumno", new List<string> { "Alumno" })
         };
     }

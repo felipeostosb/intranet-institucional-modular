@@ -1,11 +1,11 @@
 @{
     ViewData["Title"] = "Panel Principal";
-    var rolPrincipal = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno";
-    var esDocenteODirector = User.IsInRole("Docente") || User.IsInRole("Director") || User.IsInRole("Admin") || User.IsInRole("Coordinador");
+    var rawRol = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno";
+    var activeRole = User.FindFirst("ActiveRole")?.Value ?? rawRol;
 }
 
 <div class="space-y-6">
-    <!-- Header Zen de Bienvenida -->
+    <!-- Header Zen de Bienvenida según Contexto Activo -->
     <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 border border-white/10 shadow-lg relative overflow-hidden">
         <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div class="space-y-1">
@@ -17,13 +17,19 @@
                     ¡Hola, @User.Identity?.Name! 👋
                 </h1>
                 <p class="text-xs sm:text-sm text-slate-300 max-w-xl">
-                    Bienvenido al panel central de la Intranet Institucional.
+                    @(activeRole switch
+                    {
+                        "Docente" => "Estás en Modo Docente. Gestiona tus clases, asistencia de 18 semanas y actas.",
+                        "Director" or "Admin" => "Estás en Modo Dirección General. Supervisión integral del ecosistema institucional.",
+                        "Coordinador" => "Estás en Modo Coordinación. Gestión de aulas, horarios y carga docente.",
+                        _ => "Estás en Modo Estudiante. Consulta tu récord de asistencia, matrícula y trámites."
+                    })
                 </p>
             </div>
             
             <div class="flex items-center gap-2 shrink-0">
                 <span class="badge badge-primary text-xs font-bold px-3 py-2">
-                    Rol: @rolPrincipal
+                    Modo: @activeRole
                 </span>
                 <a href="/Docs" class="btn btn-sm btn-ghost bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold">
                     📚 Guías & Videos
@@ -33,14 +39,17 @@
         <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
     </div>
 
-    <!-- Acciones Rápidas -->
+    <!-- Acciones Frecuentes según Sombrero Activo (Zero Cognitive Load) -->
     <div class="space-y-3">
-        <h2 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
-            Acciones Frecuentes
-        </h2>
+        <div class="flex items-center justify-between">
+            <h2 class="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">
+                Acciones Frecuentes • Modo @activeRole
+            </h2>
+            <span class="text-[11px] text-slate-400">4 accesos directos priorizados</span>
+        </div>
 
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            @if (esDocenteODirector)
+            @if (activeRole.Equals("Docente", StringComparison.OrdinalIgnoreCase))
             {
                 <a href="/Modulo02/TomarAsistencia" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
                     <div class="text-2xl mb-2">📋</div>
@@ -66,12 +75,64 @@
                     <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Bandeja de solicitudes</p>
                 </a>
             }
+            else if (activeRole.Equals("Director", StringComparison.OrdinalIgnoreCase) || activeRole.Equals("Admin", StringComparison.OrdinalIgnoreCase))
+            {
+                <a href="/Modulo02" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">📊</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Panel Asistencia</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Supervisión institucional</p>
+                </a>
+
+                <a href="/Modulo00" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">🛡️</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Seguridad & Roles</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Credenciales y auditoría</p>
+                </a>
+
+                <a href="/Modulo06" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">📋</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Mesa de Partes</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Expedientes y trámites</p>
+                </a>
+
+                <a href="/Modulo09" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">💳</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Tesorería & Pagos</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Recaudación TUPA</p>
+                </a>
+            }
+            else if (activeRole.Equals("Coordinador", StringComparison.OrdinalIgnoreCase))
+            {
+                <a href="/Modulo04" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">⏰</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Horarios & Aulas</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Distribución ambientes</p>
+                </a>
+
+                <a href="/Modulo05" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">👨‍🏫</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Carga Docente</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Asignación lectiva</p>
+                </a>
+
+                <a href="/Modulo03" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">📊</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Calificaciones</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Actas y ponderados</p>
+                </a>
+
+                <a href="/Modulo02/ReportesDpi" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">⚠️</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Alertas DPI</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Deserción temprana</p>
+                </a>
+            }
             else
             {
                 <a href="/Modulo02/MiAsistencia" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
                     <div class="text-2xl mb-2">🎓</div>
                     <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Mi Asistencia</p>
-                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Ver récord y faltas</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Ver récord y faltas DPI</p>
                 </a>
 
                 <a href="/Modulo01" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
@@ -89,7 +150,7 @@
                 <a href="/Modulo09" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
                     <div class="text-2xl mb-2">💳</div>
                     <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Trámites TUPA</p>
-                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Certificados y constancias</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Certificados y pagos</p>
                 </a>
             }
         </div>
