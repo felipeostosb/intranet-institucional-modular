@@ -6,10 +6,12 @@
 FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS build
 WORKDIR /src
 
-# 1. Copiar archivos de proyectos para restaurar dependencias con caché
+# 1. Copiar archivos de solución y proyectos para restaurar dependencias con caché
+COPY ["IntranetInstitucional.sln", "./"]
 COPY ["Directory.Build.props", "./"]
 COPY ["src/01_Core/Intranet.Core/Intranet.Core.csproj", "src/01_Core/Intranet.Core/"]
 COPY ["src/01_Core/Intranet.Data/Intranet.Data.csproj", "src/01_Core/Intranet.Data/"]
+COPY ["src/02_Modulos/Intranet.Modulo00/Intranet.Modulo00.csproj", "src/02_Modulos/Intranet.Modulo00/"]
 COPY ["src/02_Modulos/Intranet.Modulo01/Intranet.Modulo01.csproj", "src/02_Modulos/Intranet.Modulo01/"]
 COPY ["src/02_Modulos/Intranet.Modulo02/Intranet.Modulo02.csproj", "src/02_Modulos/Intranet.Modulo02/"]
 COPY ["src/02_Modulos/Intranet.Modulo03/Intranet.Modulo03.csproj", "src/02_Modulos/Intranet.Modulo03/"]
@@ -21,7 +23,7 @@ COPY ["src/02_Modulos/Intranet.Modulo08/Intranet.Modulo08.csproj", "src/02_Modul
 COPY ["src/02_Modulos/Intranet.Modulo09/Intranet.Modulo09.csproj", "src/02_Modulos/Intranet.Modulo09/"]
 COPY ["src/03_Web/Intranet.Web/Intranet.Web.csproj", "src/03_Web/Intranet.Web/"]
 
-RUN dotnet restore "src/03_Web/Intranet.Web/Intranet.Web.csproj"
+RUN dotnet restore "IntranetInstitucional.sln"
 
 # 2. Copiar el código fuente completo y compilar en Release
 COPY . .
