@@ -1,42 +1,489 @@
 @model IEnumerable<Intranet.Web.Controllers.TutorialItem>
 @{
-    ViewData["Title"] = "Guías & Videotutoriales";
+    ViewData["Title"] = "Centro de Documentación & Manuales";
     var moduloActual = (string)(ViewData["ModuloSeleccionado"] ?? "Todos");
     var buscar = (string)(ViewData["Buscar"] ?? "");
 }
 
-<div class="space-y-8">
-    <!-- Header Zen de Documentación -->
-    <div class="bg-gradient-to-r from-slate-900 via-blue-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-8 border border-white/10 shadow-lg relative overflow-hidden">
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div class="space-y-1">
+<div class="space-y-12 pb-16">
+    <!-- ========================================================================= -->
+    <!-- 🌟 HERO ZEN: CENTRO DE DOCUMENTACIÓN & MANUALES OPERATIVOS                -->
+    <!-- ========================================================================= -->
+    <div class="bg-gradient-to-br from-slate-900 via-blue-950 to-slate-950 text-white rounded-3xl p-6 sm:p-8 border border-slate-800 shadow-xl relative overflow-hidden">
+        <div class="relative z-10 space-y-4">
+            <div class="flex flex-wrap items-center justify-between gap-3">
                 <div class="flex items-center gap-2">
-                    <span class="text-[11px] bg-cyan-400/20 text-cyan-200 border border-cyan-400/30 px-2.5 py-0.5 rounded-full font-bold">Academia Multimedia</span>
-                    <span class="text-xs text-slate-400">• IESTP Argentina</span>
+                    <span class="text-[11px] bg-cyan-400/20 text-cyan-200 border border-cyan-400/30 px-3 py-1 rounded-full font-bold uppercase tracking-wider">
+                        Documentación Oficial
+                    </span>
+                    <span class="text-xs text-slate-400 font-medium">• AQUILA A-ERP</span>
                 </div>
-                <h1 class="text-2xl sm:text-3xl font-black tracking-tight text-white">
-                    Guías & Videotutoriales
+                <div class="flex items-center gap-2">
+                    <button onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-sm rounded-xl text-xs font-bold gap-1.5 shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                        <span>Publicar Video</span>
+                    </button>
+                    <a href="http://35.206.81.32:8080" target="_blank" class="btn btn-ghost btn-sm text-slate-300 hover:text-white rounded-xl text-xs font-semibold gap-1 bg-white/5 border border-white/10">
+                        <span>Adminer BD</span>
+                        <span class="text-[11px]">↗</span>
+                    </a>
+                </div>
+            </div>
+
+            <div class="max-w-3xl space-y-2">
+                <h1 class="text-2xl sm:text-4xl font-black tracking-tight text-white">
+                    Guías de Operación, Roles & Academia
                 </h1>
-                <p class="text-xs sm:text-sm text-slate-300 max-w-xl">
-                    Demostraciones paso a paso y guías de desarrollo para cada módulo.
+                <p class="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                    Ecosistema de ingeniería modular para los 10 equipos del IESTP Argentina. Consulta las directrices para <strong>Scrum Master</strong>, <strong>Product Owner</strong> y <strong>Especialista de Base de Datos</strong>, y aprende cómo trabajar en sinergia para entregar valor continuo.
                 </p>
             </div>
-            
-            <div class="flex items-center gap-2 shrink-0">
-                <button onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-sm rounded-xl text-xs font-bold gap-1.5 shadow-sm">
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    <span>Publicar Video</span>
-                </button>
+
+            <!-- Accesos Rápidos (Chips Minimalistas) -->
+            <div class="flex flex-wrap gap-2 pt-2">
+                <a href="#onboarding" class="px-3 py-1 rounded-xl text-xs font-semibold bg-white/10 hover:bg-white/20 text-slate-200 transition border border-white/10">
+                    ⚡ Inicio Rápido
+                </a>
+                <a href="#scrum-master" class="px-3 py-1 rounded-xl text-xs font-semibold bg-cyan-500/20 hover:bg-cyan-500/30 text-cyan-200 transition border border-cyan-500/30">
+                    🏃 Scrum Master
+                </a>
+                <a href="#product-owner" class="px-3 py-1 rounded-xl text-xs font-semibold bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-200 transition border border-emerald-500/30">
+                    👑 Product Owner
+                </a>
+                <a href="#database" class="px-3 py-1 rounded-xl text-xs font-semibold bg-indigo-500/20 hover:bg-indigo-500/30 text-indigo-200 transition border border-indigo-500/30">
+                    🗄️ Especialista BD
+                </a>
+                <a href="#sinergia" class="px-3 py-1 rounded-xl text-xs font-semibold bg-amber-500/20 hover:bg-amber-500/30 text-amber-200 transition border border-amber-500/30">
+                    🤝 Trabajo en Equipo
+                </a>
+                <a href="#modulos" class="px-3 py-1 rounded-xl text-xs font-semibold bg-purple-500/20 hover:bg-purple-500/30 text-purple-200 transition border border-purple-500/30">
+                    🏢 10 Módulos
+                </a>
+                <a href="#videos" class="px-3 py-1 rounded-xl text-xs font-semibold bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 transition border border-rose-500/30">
+                    📹 Videotutoriales
+                </a>
             </div>
         </div>
-        <div class="absolute -right-10 -bottom-10 w-60 h-60 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="absolute -right-16 -bottom-16 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
     </div>
 
-    <!-- SECCIÓN DE VIDEOS: Filtro + Grid -->
-    <div id="videos" class="space-y-4">
-        <!-- Barra de Búsqueda y Filtro de Pestañas -->
+    <!-- ========================================================================= -->
+    <!-- ⚡ SECCIÓN 1: ONBOARDING & ARQUITECTURA BASE                               -->
+    <!-- ========================================================================= -->
+    <section id="onboarding" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center gap-2 border-b border-slate-200 dark:border-slate-800 pb-3">
+            <span class="text-xl">⚡</span>
+            <div>
+                <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">1. Inicio Rápido & Arquitectura Base</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Cómo configurar tu entorno local y conectarte al backend en la nube en menos de 3 minutos.</p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Tarjeta 1: Stack -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Stack Tecnológico</span>
+                    <span class="badge badge-xs badge-neutral text-[10px]">.NET 10 LTS</span>
+                </div>
+                <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5 pt-1">
+                    <li>• <strong>Backend:</strong> C# 13 en .NET 10 LTS Modular</li>
+                    <li>• <strong>Frontend:</strong> ASP.NET Core MVC + Tailwind + DaisyUI</li>
+                    <li>• <strong>Base de Datos:</strong> PostgreSQL 16 Cloud en GCP</li>
+                    <li>• <strong>Aislamiento:</strong> 1 Esquema soberano por equipo</li>
+                </ul>
+            </div>
+
+            <!-- Tarjeta 2: CLI dev.sh -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">CLI Asistido (5 Opciones)</span>
+                    <span class="badge badge-xs badge-primary text-[10px]">dev.sh</span>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Ejecuta el asistente interactivo en la raíz del repositorio:
+                </p>
+                <div class="font-mono bg-slate-900 text-cyan-300 p-2.5 rounded-xl text-xs space-y-0.5 select-all">
+                    <div>./dev.sh <span class="text-slate-500"># Linux / macOS</span></div>
+                    <div>.\dev.ps1 <span class="text-slate-500"># Windows PowerShell</span></div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 3: PostgreSQL Cloud -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">PostgreSQL Cloud</span>
+                    <a href="http://35.206.81.32:8080" target="_blank" class="text-xs text-blue-600 dark:text-cyan-400 font-semibold hover:underline">Adminer ↗</a>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Servidor en la nube para sincronización multi-equipo:
+                </p>
+                <div class="text-xs text-slate-600 dark:text-slate-400 space-y-1 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-800 font-mono">
+                    <div>Host: <strong>35.206.81.32:5432</strong></div>
+                    <div>BD: <strong>db_intranet_iestp</strong></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 🏃 SECCIÓN 2: MANUAL DEL SCRUM MASTER (SM)                                -->
+    <!-- ========================================================================= -->
+    <section id="scrum-master" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🏃</span>
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">2. Manual del Scrum Master (SM)</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Gobernanza del flujo ágil, blindaje de la rama main y eliminación de bloqueos técnicos.</p>
+                </div>
+            </div>
+            <span class="badge badge-sm bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 border-cyan-500/30 font-bold">Liderazgo Ágil</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Tarjeta 1: Gobernanza de Ramas -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🌿</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Flujo Estricto de Ramas</h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    <strong>Regla de Oro:</strong> Ningún desarrollador puede hacer commit directo en <code class="font-mono text-cyan-600 dark:text-cyan-400">main</code>.
+                </p>
+                <div class="text-[11px] space-y-1 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-800 font-mono">
+                    <div class="text-slate-400">// Formato obligatorio:</div>
+                    <div class="text-emerald-600 dark:text-emerald-400 font-bold">moduloXX/nombre-tarea</div>
+                    <div class="text-slate-500 text-[10px]">Ej: modulo02/asistencia-18sem</div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2: Daily Standup -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">⏱️</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Daily Sync en 5 Minutos</h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Preguntas directas a cada miembro del equipo al iniciar:
+                </p>
+                <ol class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5 list-decimal list-inside">
+                    <li>¿Qué pantalla o tabla completaste ayer?</li>
+                    <li>¿Qué funcionalidad conectarás hoy?</li>
+                    <li>¿Tienes algún bloqueo con la BD o Git?</li>
+                </ol>
+            </div>
+
+            <!-- Tarjeta 3: Definition of Done (DoD) -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">✅</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Definition of Done (DoD)</h3>
+                </div>
+                <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5">
+                    <li>✓ <code class="font-mono">dotnet build</code> con <strong>0 Warnings, 0 Errors</strong>.</li>
+                    <li>✓ Vista Razor sigue el estándar <strong>Zen Minimalista</strong>.</li>
+                    <li>✓ Código encapsulado en su carpeta <code class="font-mono">Intranet.ModuloXX</code>.</li>
+                    <li>✓ Aprobación en vivo del Product Owner.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 👑 SECCIÓN 3: MANUAL DEL PRODUCT OWNER (PO)                               -->
+    <!-- ========================================================================= -->
+    <section id="product-owner" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">👑</span>
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">3. Manual del Product Owner (PO)</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Criterios de aceptación, reglas de negocio y alineación con la normativa educativa MINEDU.</p>
+                </div>
+            </div>
+            <span class="badge badge-sm bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-bold">Negocio & Normativa</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Tarjeta 1: Normativa MINEDU -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">⚖️</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Normativa MINEDU Obligatoria</h3>
+                </div>
+                <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5">
+                    <li>• <strong>18 Semanas Lectivas:</strong> Duración reglamentaria de todo semestre académico.</li>
+                    <li>• <strong>30% Inasistencias (DPI):</strong> Desaprueba automáticamente la unidad con nota 00.</li>
+                    <li>• <strong>Escala Vigesimal:</strong> Calificaciones de 00 a 20 (aprobatorio $\ge 13$).</li>
+                </ul>
+            </div>
+
+            <!-- Tarjeta 2: Redacción de Historias de Usuario -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">📝</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Estructura de Historias (DoR)</h3>
+                </div>
+                <div class="text-xs text-slate-600 dark:text-slate-400 space-y-1 leading-relaxed bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-800">
+                    <p><strong>Como:</strong> Docente de la unidad didáctica.</p>
+                    <p><strong>Quiero:</strong> Registrar asistencias en la sábana de 18 semanas.</p>
+                    <p><strong>Para:</strong> Detectar automáticamente alumnos con >30% de faltas.</p>
+                </div>
+            </div>
+
+            <!-- Tarjeta 3: Validación & Criterios de Aceptación -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🔍</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Criterios Gherkin</h3>
+                </div>
+                <div class="text-[11px] text-slate-600 dark:text-slate-400 space-y-1 font-mono bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-xl border border-slate-200/50 dark:border-slate-800">
+                    <div><strong>Dado:</strong> Que el alumno supera 5 faltas.</div>
+                    <div><strong>Cuando:</strong> El docente guarda la sesión.</div>
+                    <div><strong>Entonces:</strong> Se marca la fila en rojo y se emite alerta DPI.</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 🗄️ SECCIÓN 4: MANUAL DEL ESPECIALISTA DE BASE DE DATOS (DBA)              -->
+    <!-- ========================================================================= -->
+    <section id="database" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🗄️</span>
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">4. Manual del Especialista de Base de Datos (DBA)</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Soberanía de esquemas en PostgreSQL 16 Cloud, integridad referencial y permisos soberanos.</p>
+                </div>
+            </div>
+            <span class="badge badge-sm bg-indigo-500/20 text-indigo-700 dark:text-indigo-300 border-indigo-500/30 font-bold">Datos & Arquitectura</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Tarjeta 1: Soberanía de Esquemas -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🛡️</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Aislamiento por Esquema</h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    Cada equipo opera en su propio esquema (<code class="font-mono text-cyan-600 dark:text-cyan-400">mod00</code> a <code class="font-mono text-cyan-600 dark:text-cyan-400">mod09</code>) con usuario soberano <code class="font-mono">user_equipoXX</code>.
+                </p>
+                <div class="text-[11px] bg-slate-50 dark:bg-slate-900/60 p-2 rounded-xl border border-slate-200/50 dark:border-slate-800 text-slate-600 dark:text-slate-400 font-mono">
+                    <div>• <strong>ALL PRIVILEGES</strong> en <code class="text-cyan-600 dark:text-cyan-400">modXX.*</code></div>
+                    <div>• <strong>SELECT</strong> de solo lectura en <code class="text-emerald-600 dark:text-emerald-400">core.*</code></div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 2: Relaciones & Claves Foráneas -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">🔗</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Integridad Referencial</h3>
+                </div>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Las tablas del módulo deben referenciar las entidades globales de <code class="font-mono">core</code>:
+                </p>
+                <div class="text-[11px] font-mono bg-slate-900 text-cyan-300 p-2.5 rounded-xl space-y-0.5 select-all">
+                    <div>estudiante_id INT REFERENCES core.estudiantes(id)</div>
+                    <div>docente_id INT REFERENCES core.docentes(id)</div>
+                </div>
+            </div>
+
+            <!-- Tarjeta 3: Buenas Prácticas SQL -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm space-y-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="text-sm">⚡</span>
+                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Buenas Prácticas</h3>
+                </div>
+                <ul class="text-xs text-slate-600 dark:text-slate-400 space-y-1.5">
+                    <li>• Llaves primarias estándar: <code class="font-mono">id SERIAL PRIMARY KEY</code>.</li>
+                    <li>• Crear índices B-Tree en columnas de búsqueda (<code class="font-mono">dni</code>, <code class="font-mono">estado</code>).</li>
+                    <li>• Prohibido hacer <code class="font-mono text-rose-500">ALTER/DROP</code> en esquemas ajenos.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 🤝 SECCIÓN 5: SINERGIA TRIPARTITA (CÓMO TRABAJAN JUNTOS)                  -->
+    <!-- ========================================================================= -->
+    <section id="sinergia" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🤝</span>
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">5. Protocolo de Sinergia Tripartita</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">El ciclo de entrega de 3 días para lanzar una pantalla o feature sin pisarse ni duplicar trabajo.</p>
+                </div>
+            </div>
+            <span class="badge badge-sm bg-amber-500/20 text-amber-700 dark:text-amber-300 border-amber-500/30 font-bold">Flujo de Trabajo</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Paso 1 -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm relative space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold bg-amber-500/20 text-amber-700 dark:text-amber-300 px-2 py-0.5 rounded-md uppercase">Día 1 • Definición</span>
+                    <span class="text-lg">👑 🗄️</span>
+                </div>
+                <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100">PO + Especialista BD</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    El <strong>PO</strong> redacta la historia y los criterios de aceptación. El <strong>DBA</strong> crea las tablas relacionales en el esquema <code class="font-mono">modXX</code> de PostgreSQL Cloud y guarda el script en <code class="font-mono">scripts/modXX/</code>.
+                </p>
+            </div>
+
+            <!-- Paso 2 -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm relative space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold bg-cyan-500/20 text-cyan-700 dark:text-cyan-300 px-2 py-0.5 rounded-md uppercase">Día 2 • Construcción</span>
+                    <span class="text-lg">🏃 💻</span>
+                </div>
+                <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100">Scrum Master + Developers</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    El <strong>SM</strong> ayuda al dev a crear la rama con <code class="font-mono">./dev.sh</code>. El programador implementa el Controller en .NET 10 y maqueta la vista Razor con Tailwind Zen conectada al esquema del DBA.
+                </p>
+            </div>
+
+            <!-- Paso 3 -->
+            <div class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 shadow-sm relative space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-[10px] font-bold bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-md uppercase">Día 3 • QA & Demo</span>
+                    <span class="text-lg">✅ 📹</span>
+                </div>
+                <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100">Validación & Publicación</h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">
+                    El <strong>PO</strong> valida el funcionamiento en local. El <strong>SM</strong> revisa la compilación limpia y solicita el Merge a <code class="font-mono">main</code>. El equipo graba un video de 2 minutos y lo sube al Centro de Docs.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 🏢 SECCIÓN 6: DIRECTORIO OFICIAL DE LOS 10 MÓDULOS                        -->
+    <!-- ========================================================================= -->
+    <section id="modulos" class="scroll-mt-24 space-y-4">
+        <div class="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">🏢</span>
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">6. Directorio Oficial de Módulos & Esquemas</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Mapeo oficial de los 10 módulos institucionales, esquemas de BD y líderes asignados.</p>
+                </div>
+            </div>
+            <span class="badge badge-sm bg-purple-500/20 text-purple-700 dark:text-purple-300 border-purple-500/30 font-bold">10 Equipos</span>
+        </div>
+
+        <div class="overflow-x-auto bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <table class="table table-sm w-full text-xs">
+                <thead>
+                    <tr class="bg-slate-50 dark:bg-slate-900/60 text-slate-600 dark:text-slate-400 border-b border-slate-200 dark:border-slate-800">
+                        <th class="py-3 px-4">N°</th>
+                        <th>Módulo Institucional</th>
+                        <th>Esquema PostgreSQL</th>
+                        <th>Funcionalidad Principal</th>
+                        <th>Líder / PO</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800/60">
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">00</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Seguridad & Roles</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod00</code></td>
+                        <td>Autenticación, RBAC, auditoría y claims</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Toro</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">01</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Admisión & Matrícula</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod01</code></td>
+                        <td>Postulación, fichas y vacantes académicas</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Mendoza</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">02</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Asistencia & DPI</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod02</code></td>
+                        <td>Sábana 18 semanas, alertas automáticas >30% DPI</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Sheyla</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">03</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Calificaciones & Actas</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod03</code></td>
+                        <td>Registro vigesimal (0-20), actas oficiales y ponderados</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 03</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">04</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Horarios & Aulas</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod04</code></td>
+                        <td>Asignación de pabellones, laboratorios y turnos</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 04</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">05</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Docentes & Carga</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod05</code></td>
+                        <td>Horas lectivas, legajos y asignación de cursos</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 05</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">06</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Mesa de Partes & Trámites</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod06</code></td>
+                        <td>FUT digital, TUPA, expedientes y resoluciones</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 06</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">07</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Bolsa de Trabajo & EFSRT</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod07</code></td>
+                        <td>Prácticas pre-profesionales y convenios de empleo</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 07</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">08</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Encuestas & Tutoría</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod08</code></td>
+                        <td>Evaluación docente y seguimiento psicopedagógico</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Brayan</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
+                        <td class="font-bold py-2.5 px-4 text-cyan-600 dark:text-cyan-400">09</td>
+                        <td class="font-bold text-slate-900 dark:text-slate-100">Tesorería & Pagos</td>
+                        <td><code class="bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-mono text-xs">mod09</code></td>
+                        <td>Recaudación de pensiones, caja y constancias de pago</td>
+                        <td class="font-medium text-slate-600 dark:text-slate-300">Equipo 09</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- ========================================================================= -->
+    <!-- 📹 SECCIÓN 7: ACADEMIA MULTIMEDIA & VIDEOTUTORIALES                       -->
+    <!-- ========================================================================= -->
+    <section id="videos" class="scroll-mt-24 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 dark:border-slate-800 pb-3">
+            <div class="flex items-center gap-2">
+                <span class="text-xl">📹</span>
+                <div>
+                    <h2 class="text-lg font-black text-slate-900 dark:text-slate-100">7. Academia de Videotutoriales & Demos</h2>
+                    <p class="text-xs text-slate-500 dark:text-slate-400">Aprende con videos demostrativos y sube las capacitaciones de tu equipo.</p>
+                </div>
+            </div>
+            <button onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-xs rounded-xl text-xs font-bold gap-1 self-start sm:self-auto">
+                + Publicar Video
+            </button>
+        </div>
+
+        <!-- Filtros de Módulos & Buscador Rápido -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-            <!-- Filtros de Módulos (Scroll horizontal limpio) -->
+            <!-- Pestañas de Filtrado -->
             <div class="flex gap-1.5 overflow-x-auto pb-1 max-w-full">
                 @{
                     var modulosFiltro = new[]
@@ -65,7 +512,7 @@
                 }
             </div>
 
-            <!-- Búsqueda rápida -->
+            <!-- Búsqueda Rápida -->
             <form method="get" asp-action="Index" class="flex gap-1.5 w-full sm:w-64 shrink-0">
                 <input type="hidden" name="modulo" value="@moduloActual" />
                 <input type="text" name="buscar" value="@buscar" placeholder="Buscar video..." class="input input-xs input-bordered w-full rounded-xl bg-white dark:bg-[#111827] border-slate-200 dark:border-slate-800 text-xs h-8" />
@@ -80,7 +527,7 @@
                 <div class="text-3xl">📹</div>
                 <h3 class="text-sm font-bold text-slate-800 dark:text-slate-200">No hay videos en este filtro</h3>
                 <p class="text-xs text-slate-400 max-w-sm mx-auto">
-                    Sé el primero en subir un videotutorial para este módulo.
+                    Sé el primero en compartir un tutorial o demo de tu módulo.
                 </p>
                 <button onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-xs rounded-xl text-xs font-bold">
                     + Publicar Video
@@ -93,7 +540,7 @@
                 @foreach (var item in Model)
                 {
                     <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm hover:shadow-md transition overflow-hidden flex flex-col group">
-                        <!-- Thumbnail de YouTube con Botón Play Overlay -->
+                        <!-- Thumbnail con Overlay Play -->
                         <div class="relative aspect-video bg-slate-900 cursor-pointer overflow-hidden" onclick="reproducirVideo('@item.YoutubeVideoId', '@Html.Raw(Html.Encode(item.Titulo))', '@Html.Raw(Html.Encode(item.Autor))')">
                             <img src="https://img.youtube.com/vi/@item.YoutubeVideoId/hqdefault.jpg" alt="@item.Titulo" class="w-full h-full object-cover group-hover:scale-105 transition duration-300 opacity-90 group-hover:opacity-100" />
                             
@@ -108,7 +555,7 @@
                             </div>
                         </div>
 
-                        <!-- Detalle del Video -->
+                        <!-- Info del Video -->
                         <div class="p-4 flex-1 flex flex-col justify-between space-y-2">
                             <div>
                                 <div class="flex items-center justify-between text-[10px] text-slate-400 mb-1">
@@ -118,7 +565,7 @@
                                 <h3 class="font-bold text-xs text-slate-900 dark:text-slate-100 leading-snug group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition cursor-pointer" onclick="reproducirVideo('@item.YoutubeVideoId', '@Html.Raw(Html.Encode(item.Titulo))', '@Html.Raw(Html.Encode(item.Autor))')">
                                     @item.Titulo
                                 </h3>
-                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2">
+                                <p class="text-[11px] text-slate-500 dark:text-slate-400 mt-1 line-clamp-2 leading-relaxed">
                                     @item.Descripcion
                                 </p>
                             </div>
@@ -126,7 +573,7 @@
                             <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-[11px]">
                                 <span class="text-slate-400">Nivel: @item.Nivel</span>
                                 <button onclick="reproducirVideo('@item.YoutubeVideoId', '@Html.Raw(Html.Encode(item.Titulo))', '@Html.Raw(Html.Encode(item.Autor))')" class="text-blue-600 dark:text-cyan-400 font-semibold hover:underline">
-                                    Ver Tutorial →
+                                    Ver Video →
                                 </button>
                             </div>
                         </div>
@@ -134,67 +581,12 @@
                 }
             </div>
         }
-    </div>
-
-    <!-- GUÍAS RÁPIDAS DE DESARROLLO (3 Bloques Limpios) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-200 dark:border-slate-800">
-        <!-- 1. CLI -->
-        <div id="onboarding" class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 space-y-3">
-            <div class="flex items-center gap-2">
-                <span class="text-lg">🚀</span>
-                <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-                    1. Inicio Rápido & CLI
-                </h3>
-            </div>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                Ejecuta el asistente interactivo para crear tu rama y correr la intranet:
-            </p>
-            <div class="font-mono bg-slate-900 text-cyan-300 p-2.5 rounded-xl text-[11px] select-all space-y-1">
-                <div>./dev.sh <span class="text-slate-500"># Linux / Mac</span></div>
-                <div>.\dev.ps1 <span class="text-slate-500"># Windows</span></div>
-            </div>
-        </div>
-
-        <!-- 2. Base de Datos -->
-        <div id="database" class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 space-y-3">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                    <span class="text-lg">🗄️</span>
-                    <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-                        2. PostgreSQL Cloud
-                    </h3>
-                </div>
-                <a href="http://35.206.81.32:8080" target="_blank" class="text-[11px] text-blue-600 dark:text-cyan-400 font-semibold hover:underline">
-                    Adminer ↗
-                </a>
-            </div>
-            <p class="text-[11px] text-slate-500 dark:text-slate-400">
-                Cada equipo tiene su esquema propio (<code>mod00..09</code>) y lectura compartida de <code>core</code>.
-            </p>
-            <div class="text-[11px] text-slate-600 dark:text-slate-400 space-y-1">
-                <div>• Host: <code class="font-mono text-slate-800 dark:text-slate-200">35.206.81.32:5432</code></div>
-                <div>• BD: <code class="font-mono text-slate-800 dark:text-slate-200">db_intranet_iestp</code></div>
-            </div>
-        </div>
-
-        <!-- 3. Normativa MINEDU -->
-        <div id="minedu" class="p-5 rounded-2xl bg-white dark:bg-[#111827] border border-slate-200/80 dark:border-slate-800 space-y-3">
-            <div class="flex items-center gap-2">
-                <span class="text-lg">⚖️</span>
-                <h3 class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
-                    3. Normativa Oficial
-                </h3>
-            </div>
-            <ul class="text-[11px] text-slate-500 dark:text-slate-400 space-y-1">
-                <li>• <strong>18 Semanas:</strong> Duración del semestre académico.</li>
-                <li>• <strong>30% Inasistencias:</strong> Condición DPI automática (nota 00).</li>
-                <li>• <strong>Escala 0 a 20:</strong> Nota mínima aprobatoria 13.</li>
-            </ul>
-        </div>
-    </div>
+    </section>
 </div>
 
-<!-- Modal Reproductor de Video -->
+<!-- ========================================================================= -->
+<!-- 🎬 MODAL REPRODUCTOR HD DE YOUTUBE                                        -->
+<!-- ========================================================================= -->
 <dialog id="modal_reproductor" class="modal">
     <div class="modal-box max-w-3xl p-0 rounded-3xl bg-slate-950 border border-slate-800 text-white overflow-hidden shadow-2xl">
         <div class="p-3 bg-slate-900 flex justify-between items-center border-b border-slate-800">
@@ -213,11 +605,16 @@
     </form>
 </dialog>
 
-<!-- Modal Publicar Nuevo Tutorial -->
+<!-- ========================================================================= -->
+<!-- ✍️ MODAL PUBLICAR NUEVO VIDEO TUTORIAL                                     -->
+<!-- ========================================================================= -->
 <dialog id="modal_nuevo_tutorial" class="modal">
     <div class="modal-box rounded-3xl max-w-md bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-200 border border-slate-200/80 dark:border-slate-800 shadow-2xl">
         <div class="flex items-center justify-between mb-4">
-            <h3 class="font-bold text-sm">Publicar Video Tutorial</h3>
+            <div>
+                <h3 class="font-bold text-sm">Publicar Video Tutorial</h3>
+                <p class="text-[11px] text-slate-400">Comparte una demostración para los demás equipos.</p>
+            </div>
             <button type="button" onclick="modal_nuevo_tutorial.close()" class="btn btn-xs btn-circle btn-ghost">✕</button>
         </div>
 
@@ -226,7 +623,7 @@
             
             <div>
                 <label class="font-bold block mb-1 text-[11px]">Título del Video <span class="text-red-500">*</span></label>
-                <input type="text" name="titulo" required placeholder="Ej: Conexión del Módulo 03 con PostgreSQL" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
+                <input type="text" name="titulo" required placeholder="Ej: Demostración Módulo 02 en PostgreSQL" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -259,7 +656,7 @@
 
             <div>
                 <label class="font-bold block mb-1 text-[11px]">Enlace de YouTube <span class="text-red-500">*</span></label>
-                <input type="url" name="youtubeUrl" required placeholder="https://www.youtube.com/watch?v=..." class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
+                <input type="url" name="youtubeUrl" required placeholder="https://www.youtube.com/watch?v=... o https://youtu.be/..." class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
             </div>
 
             <div>
@@ -269,34 +666,66 @@
 
             <div>
                 <label class="font-bold block mb-1 text-[11px]">Descripción Breve</label>
-                <textarea name="descripcion" rows="2" placeholder="Resumen del tutorial..." class="textarea textarea-xs textarea-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700"></textarea>
+                <textarea name="descripcion" rows="2" placeholder="Resumen claro de lo que se enseña en este video..." class="textarea textarea-xs textarea-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700"></textarea>
             </div>
 
             <div class="modal-action pt-2">
                 <button type="button" onclick="modal_nuevo_tutorial.close()" class="btn btn-ghost btn-xs rounded-xl">Cancelar</button>
-                <button type="submit" class="btn btn-primary btn-xs rounded-xl font-bold">Publicar</button>
+                <button type="submit" class="btn btn-primary btn-xs rounded-xl font-bold">Publicar Video</button>
             </div>
         </form>
     </div>
 </dialog>
 
-<script>
-    function reproducirVideo(videoId, titulo, autor) {
-        const modal = document.getElementById('modal_reproductor');
-        const iframe = document.getElementById('video_iframe');
-        const tit = document.getElementById('video_titulo');
-        const aut = document.getElementById('video_autor');
+@section Scripts {
+    <script>
+        function reproducirVideo(videoId, titulo, autor) {
+            const modal = document.getElementById('modal_reproductor');
+            const iframe = document.getElementById('video_iframe');
+            const tit = document.getElementById('video_titulo');
+            const aut = document.getElementById('video_autor');
 
-        tit.innerText = titulo;
-        aut.innerText = autor ? 'Expositor: ' + autor : '';
-        iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
-        modal.showModal();
-    }
+            tit.innerText = titulo;
+            aut.innerText = autor ? 'Expositor: ' + autor : '';
+            iframe.src = 'https://www.youtube.com/embed/' + videoId + '?autoplay=1&rel=0';
+            modal.showModal();
+        }
 
-    function cerrarVideo() {
-        const modal = document.getElementById('modal_reproductor');
-        const iframe = document.getElementById('video_iframe');
-        iframe.src = '';
-        modal.close();
-    }
-</script>
+        function cerrarVideo() {
+            const modal = document.getElementById('modal_reproductor');
+            const iframe = document.getElementById('video_iframe');
+            iframe.src = '';
+            modal.close();
+        }
+
+        // ScrollSpy Inteligente para la Barra Lateral
+        document.addEventListener('DOMContentLoaded', function() {
+            const sections = document.querySelectorAll('section[id]');
+            const navLinks = document.querySelectorAll('.docs-nav-link');
+
+            function highlightNav() {
+                let scrollY = window.pageYOffset;
+                sections.forEach(current => {
+                    const sectionHeight = current.offsetHeight;
+                    const sectionTop = current.offsetTop - 120;
+                    const sectionId = current.getAttribute('id');
+
+                    if (scrollY > sectionTop && scrollY <= sectionTop + sectionHeight) {
+                        navLinks.forEach(link => {
+                            if (link.getAttribute('href') === '#' + sectionId) {
+                                link.classList.add('bg-cyan-50', 'dark:bg-cyan-950/40', 'text-cyan-600', 'dark:text-cyan-400', 'font-bold', 'border-l-2', 'border-cyan-500');
+                                link.classList.remove('text-slate-700', 'dark:text-slate-300');
+                            } else {
+                                link.classList.remove('bg-cyan-50', 'dark:bg-cyan-950/40', 'text-cyan-600', 'dark:text-cyan-400', 'font-bold', 'border-l-2', 'border-cyan-500');
+                                link.classList.add('text-slate-700', 'dark:text-slate-300');
+                            }
+                        });
+                    }
+                });
+            }
+
+            window.addEventListener('scroll', highlightNav);
+            highlightNav();
+        });
+    </script>
+}

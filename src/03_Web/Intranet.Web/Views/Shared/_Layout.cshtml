@@ -173,68 +173,85 @@
             </footer>
         </div>
 
-        <!-- Barra Lateral de Documentación -->
+        <!-- Barra Lateral de Documentación (Zen & Funcional) -->
         <div class="drawer-side z-40">
             <label for="main-drawer" aria-label="Cerrar menú" class="drawer-overlay"></label>
             <aside class="bg-white dark:bg-[#0f172a] w-64 min-h-full border-r border-slate-200 dark:border-slate-800 flex flex-col shadow-sm">
                 
                 <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex items-center justify-between">
-                    <span class="text-xs font-bold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Índice Guías</span>
-                    <a href="/" class="text-xs text-blue-600 dark:text-cyan-400 font-semibold hover:underline">← Salir</a>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-black text-slate-900 dark:text-slate-100 uppercase tracking-wider">📚 Manuales & Guías</span>
+                    </div>
+                    <a href="/" class="text-xs text-blue-600 dark:text-cyan-400 font-semibold hover:underline" title="Regresar al ERP">← Salir</a>
                 </div>
 
-                <nav class="flex-1 p-3 space-y-3 overflow-y-auto text-xs">
+                <nav class="flex-1 p-3 space-y-3 overflow-y-auto text-xs font-medium">
+                    <!-- 1. General & Onboarding -->
                     <div>
-                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">1. Primeros Pasos</span>
+                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">1. Arquitectura & Setup</span>
                         <div class="space-y-0.5 mt-1">
-                            <a href="#onboarding" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                • Inicio Rápido (.NET 10)
-                            </a>
-                            <a href="#git-cli" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                • Uso del CLI (<code>./dev.sh</code>)
+                            <a href="#onboarding" class="docs-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                                <span>⚡</span>
+                                <span>Inicio Rápido & CLI</span>
                             </a>
                         </div>
                     </div>
 
+                    <!-- 2. Manuales de Roles -->
                     <div>
-                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">2. Base de Datos</span>
+                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">2. Manuales por Rol</span>
                         <div class="space-y-0.5 mt-1">
-                            <a href="#database" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                • Esquemas (<code>mod00..09</code>)
+                            <a href="#scrum-master" class="docs-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                                <span>🏃</span>
+                                <span>Scrum Master (SM)</span>
                             </a>
-                            <a href="http://35.206.81.32:8080" target="_blank" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                • Panel Adminer Web ↗
+                            <a href="#product-owner" class="docs-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                                <span>👑</span>
+                                <span>Product Owner (PO)</span>
+                            </a>
+                            <a href="#database" class="docs-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                                <span>🗄️</span>
+                                <span>Especialista BD (DBA)</span>
                             </a>
                         </div>
                     </div>
 
+                    <!-- 3. Protocolo de Trabajo Conjunto -->
                     <div>
-                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">3. Videotutoriales</span>
+                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">3. Flujo en Equipo</span>
                         <div class="space-y-0.5 mt-1">
-                            <a href="/Docs?modulo=Todos" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                • Todos los Videos
+                            <a href="#sinergia" class="docs-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                                <span>🤝</span>
+                                <span>Sinergia Tripartita (PO+SM+DBA)</span>
                             </a>
-                            <a href="/Docs?modulo=Modulo02" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                • Módulo 02 (Asistencia)
+                            <a href="#modulos" class="docs-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                                <span>🏢</span>
+                                <span>Directorio 10 Módulos</span>
                             </a>
                         </div>
                     </div>
 
+                    <!-- 4. Videos & Demos -->
                     <div>
-                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">4. Normativa MINEDU</span>
+                        <span class="px-2.5 py-1 text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider block">4. Academia Multimedia</span>
                         <div class="space-y-0.5 mt-1">
-                            <a href="#minedu" class="block px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
-                                • 18 Semanas & 30% DPI
+                            <a href="#videos" class="docs-nav-link flex items-center gap-2 px-2.5 py-1.5 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800/60 transition">
+                                <span>📹</span>
+                                <span>Videotutoriales HD</span>
                             </a>
                         </div>
                     </div>
                 </nav>
 
-                <div class="p-3 border-t border-slate-100 dark:border-slate-800">
+                <div class="p-3 border-t border-slate-100 dark:border-slate-800 space-y-2">
                     <button type="button" onclick="modal_nuevo_tutorial.showModal()" class="btn btn-primary btn-sm w-full rounded-xl text-xs font-bold gap-1.5 shadow-sm">
                         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
                         + Publicar Video
                     </button>
+                    <a href="http://35.206.81.32:8080" target="_blank" class="btn btn-ghost btn-xs w-full text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 text-[11px] gap-1">
+                        <span>Adminer PostgreSQL</span>
+                        <span class="text-[10px]">↗</span>
+                    </a>
                 </div>
             </aside>
         </div>
