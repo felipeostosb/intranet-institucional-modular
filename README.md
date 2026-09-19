@@ -5,7 +5,8 @@ Bienvenido a **AQUILA A-ERP** (Intranet Institucional del **IESTP "Argentina"**)
 ---
 
 > 📖 **¿Primera vez configurando tu entorno?**  
-> Consulta el [**Manual Completo de Instalación y Onboarding (VS Code vs Visual Studio 2026)**](docs/GUIA_INSTALACION.md) para preparar tu PC en 5 minutos.
+> 1. Consulta el [**Manual Completo de Instalación y Onboarding (VS Code vs Visual Studio 2026)**](docs/GUIA_INSTALACION.md).  
+> 2. O inicia la aplicación y entra directamente al **[Centro de Documentación & Manuales Interactivos](http://localhost:5000/Docs)** con guías de rol, videotutoriales HD y prompts para IA.
 
 ---
 
@@ -75,6 +76,24 @@ El sistema opera sobre una **Base de Datos Unificada (`db_intranet_iestp`)** en 
 
 ---
 
+## 🤝 Sinergia de Roles & Ciclo de Vida de 4 Pasos
+
+Para que los 10 equipos avancen sin fricción y con roles bien delimitados:
+
+1. **👑 Product Owner (PO) + 🗄️ Especialista BD (DBA) [Día 1 - Definición]:**
+   * El **PO** escribe las historias de usuario en formato `Como... Quiero... Para...` y criterios de aceptación Gherkin. *(Nota: El PO NO hace de QA)*.
+   * El **DBA** modela las tablas dentro de su esquema `modXX`, enlaza Foreign Keys hacia `core.*` y guarda los scripts en `scripts/modXX/01_crear_tablas.sql`.
+2. **🏃 Scrum Master (SM) + 💻 Desarrolladores [Día 2 - Construcción]:**
+   * El **SM** asiste en la creación de la rama protegida `moduloXX/tarea` con `./dev.sh`.
+   * Los **Desarrolladores** implementan el Controller en .NET 10 y la vista Razor Zen con DaisyUI y Tailwind CSS.
+3. **🧪 Especialista QA (Tester) [Día 3 - Validación Técnica]:**
+   * El **QA** prueba validaciones de formulario, casos borde, persistencia en PostgreSQL (vía Adminer) y compatibilidad con **Modo Claro / Modo Oscuro**.
+4. **👑 Product Owner (UAT) + 🏃 Scrum Master [Día 4 - Entrega]:**
+   * El **PO** realiza la Aceptación Final de Usuario (UAT).
+   * El **SM** verifica que `dotnet build` compile con **0 Warnings y 0 Errors**, abre el Pull Request hacia `main` y el equipo graba un video demo de 2 minutos para `/Docs`.
+
+---
+
 ## 🏗️ Arquitectura & Comunicación Intermodular
 
 ### 1. 🔄 Bus de Eventos en Memoria (`InMemoryEventBus`)
@@ -98,11 +117,14 @@ Para comunicar módulos sin acoplar código ni dependencias circulares:
 ### 2. 🗄️ Acceso a Datos & Migraciones Automáticas
 * **Conexión:** Inyecta `IModuleDbConnectionFactory` para obtener la conexión SQL hacia PostgreSQL (`factory.CreateConnection("04")`).
 * **Search Path Automático:** Tu conexión viene preconfigurada con `search_path=modXX,core,public`, lo que te permite consultar tus tablas directamente como `SELECT * FROM horarios` o `SELECT * FROM core.personas`.
-* **Migraciones SQL Automáticas:** Todo archivo colocado en `src/02_Modulos/Intranet.ModuloXX/Sql/schema.sql` se ejecuta automáticamente al iniciar la aplicación (usa siempre `CREATE TABLE IF NOT EXISTS modXX.tabla (...)`).
-* **Relaciones Foráneas Seguras:** Puedes hacer `FOREIGN KEY` directa a `core.personas(id)`, `core.estudiantes(id)`, `core.carreras(id)` o `core.periodos_academicos(id)`.
+* **Migraciones SQL:** Guarda tus scripts versionados en `scripts/modXX/01_crear_tablas.sql`, `02_crear_indices.sql` y `03_datos_prueba.sql`.
+* **Relaciones Foráneas Seguras:** Puedes hacer `FOREIGN KEY` directa a `core.personas(id)`, `core.estudiantes(id)`, `core.docentes(id)`, `core.carreras(id)` o `core.periodos_academicos(id)`.
 
 ### 3. ⚙️ Inyección de Dependencias Modular (`IModuloStartup`)
 Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` implementando `IModuloStartup`. El sistema los descubre y registra automáticamente al arrancar.
+
+### 4. 🎭 Selector de Roles en Caliente (Party Model)
+Para personas con múltiples roles simultáneos (ej: Docente y Alumno, o Director y Docente), el Topbar incluye un selector inteligente (`[ 👨‍🏫 Modo Docente ▾ ]`) que permite alternar de sombrero en 1 clic sin cerrar sesión, adaptando el Dashboard dinámicamente.
 
 ---
 
@@ -110,16 +132,17 @@ Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` i
 
 1. **Aislamiento Estricto:** Programa **únicamente** dentro de tu carpeta `src/02_Modulos/Intranet.ModuloXX/`.
 2. **Esquemas PostgreSQL:** Toda tabla que crees debe pertenecer a tu esquema `modXX` (ej: `CREATE TABLE IF NOT EXISTS mod04.horarios (...)`).
-3. **Prohibido Push a `main`:** Todo cambio se entrega mediante **Pull Request** desde tu rama `moduloXX/tu-tarea`.
+3. **Prohibido Push directo a `main`:** Todo cambio se entrega mediante **Pull Request** desde tu rama `moduloXX/tu-tarea`.
 4. **Controladores con Seguridad:** Haz que tus controladores hereden de `ModuloBaseController` para tener acceso a `UsuarioActualRol`, `UsuarioActualRoles`, `UsuarioActualNombre`, `PersonaActualId` y métodos Toast (`MostrarAlertaExito`, `MostrarAlertaError`).
 5. **Validación Automática en CI/CD:** Si tu PR modifica solo tu módulo y compila con 0 errores, **GitHub Actions lo fusiona a producción en ~45 segundos**.
-6. **Cero JOINs entre Módulos:** Prohibido hacer `JOIN` SQL cruzado entre esquemas `mod01`..`mod09`. Para cruzar datos, haz `JOIN` con `core.*` o inyecta la interfaz `IModuloXxxService` (Consulta la [Guía de Comunicación Intermodular](docs/COMUNICACION_INTERMODULAR_Y_DATOS.md)).
+6. **Cero JOINs entre Módulos:** Prohibido hacer `JOIN` SQL cruzado entre esquemas `mod01`..`mod09`. Para cruzar datos, haz `JOIN` con `core.*` o solicita al DBA del módulo vecino que cree una **Vista (`VIEW`)** pública de solo lectura.
 
 ---
 
 ## 🌐 Enlaces de Producción & Base de Datos
 
 * 🚀 **Intranet en Vivo (.NET 10 en Docker):** [http://35.209.228.150](http://35.209.228.150)
+* 📚 **Centro de Documentación & Manuales:** [http://localhost:5000/Docs](http://localhost:5000/Docs)
 * 🗄️ **Adminer BD PostgreSQL 16 (GUI Web Ligera):** [http://35.206.81.32:8080](http://35.206.81.32:8080)
   * **Sistema:** `PostgreSQL`
   * **Servidor:** `postgres` *(o `35.206.81.32` desde tu cliente local)*
@@ -130,10 +153,11 @@ Cada módulo registra sus propios servicios en su archivo `ModuloXXStartup.cs` i
 
 ---
 
-## 🤖 Plantilla Maestra de Prompt para la IA (ChatGPT / Claude / DeepSeek / Cursor)
+## 🤖 Prompts Maestros para Asistentes de IA (ChatGPT / Claude / DeepSeek / Cursor)
 
-Si tú o tu equipo usan Inteligencia Artificial para programar o modelar su base de datos, **copia y pega esta plantilla exacta** al iniciar tu chat con la IA para que te genere código 100% compatible y sin errores:
+Para garantizar que la IA respete la arquitectura y no invente esquemas monolíticos ni rompa dependencias, consulta los **Prompts Maestros** con botón de copia en 1 clic disponibles en el portal: **[http://localhost:5000/Docs#prompts-ia](http://localhost:5000/Docs#prompts-ia)**.
 
+### Plantilla Rápida para Desarrolladores .NET:
 ```text
 Actúa como Desarrollador Senior .NET 10 y PostgreSQL 16.
 Estoy desarrollando el MÓDULO [XX] (del Equipo [XX]) de la Intranet Institucional del IESTP Argentina.
@@ -144,11 +168,11 @@ REGLAS DE ACERO ARQUITECTÓNICAS (Zero-Blast-Radius):
 3. Mi esquema exclusivo de base de datos es: mod[XX]
 4. Todas las tablas de mi módulo DEBEN crearse dentro de mi esquema: `mod[XX].mi_tabla` (ej: CREATE TABLE IF NOT EXISTS mod[XX].matriculas (id SERIAL PRIMARY KEY, ...)).
 5. Mis controladores C# deben heredar de `ModuloBaseController` (en `Intranet.Core.Controllers`) y usar la ruta `[Route("Modulo[XX]/[controller]")]`.
-6. Puedo hacer FOREIGN KEY y SELECT a tablas del esquema core como: core.personas(id), core.estudiantes(id), core.carreras(id), core.periodos_academicos(id).
-7. Tengo prohibido modificar o pedir modificar archivos fuera de mi carpeta (no tocar src/01_Core/, src/03_Web/Program.cs o appsettings.json).
+6. Puedo hacer FOREIGN KEY y SELECT a tablas del esquema core como: core.personas(id), core.estudiantes(id), core.docentes(id), core.carreras(id), core.semestres(id).
+7. Tengo prohibido modificar archivos fuera de mi carpeta (no tocar src/01_Core/, src/03_Web/ o appsettings.json).
 8. Si necesito inyectar servicios, hazlo dentro de mi archivo `Modulo[XX]Startup.cs` implementando `IModuloStartup`.
 9. Para acceso a datos rápido usa Dapper o Npgsql con `IModuleDbConnectionFactory`.
-10. Si necesito publicar o escuchar eventos de otros módulos, uso `IEventBus` y `IEventHandler<T>` de `Intranet.Core.Events`.
+10. La interfaz visual debe seguir el estándar Zen Minimalista con Tailwind CSS y DaisyUI, con soporte para Modo Oscuro nativo (dark:bg-[#111827]).
 
 Requerimiento de mi equipo para hoy:
 [Describe aquí lo que necesitas, ej: Crear tabla de items y vista con formulario y listado]
