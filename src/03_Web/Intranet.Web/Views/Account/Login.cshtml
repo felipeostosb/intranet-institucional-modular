@@ -3,10 +3,10 @@
     var returnUrl = ViewData["ReturnUrl"] as string;
 }
 
-<div class="max-w-lg mx-auto my-6 sm:my-10 space-y-6">
+<div class="max-w-lg mx-auto my-6 sm:my-10 space-y-6 transition-colors">
     <!-- Tarjeta Principal de Login -->
-    <div class="bg-white rounded-3xl p-7 sm:p-9 border border-slate-200/80 shadow-xl shadow-blue-900/5 space-y-6 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-800"></div>
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-7 sm:p-9 border border-slate-200/80 dark:border-slate-800 shadow-xl shadow-blue-900/5 dark:shadow-none space-y-6 relative overflow-hidden transition-colors">
+        <div class="absolute top-0 left-0 right-0 h-1.5 bg-gradient-to-r from-blue-600 via-indigo-600 to-blue-800 dark:from-cyan-500 dark:via-blue-600 dark:to-indigo-500"></div>
 
         <div class="text-center space-y-3">
             <div class="w-20 h-20 rounded-3xl bg-gradient-to-br from-slate-950 via-blue-950 to-indigo-950 border border-cyan-400/40 p-3.5 mx-auto shadow-xl shadow-cyan-500/20 flex items-center justify-center relative overflow-hidden group">
@@ -25,26 +25,26 @@
             </div>
             <div>
                 <div class="flex items-center justify-center gap-2">
-                    <h1 class="text-2xl font-black text-slate-900 tracking-tight">
+                    <h1 class="text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                         AQUILA
                     </h1>
-                    <span class="text-xs bg-blue-100 text-blue-800 font-extrabold px-2 py-0.5 rounded-md border border-blue-200">
+                    <span class="text-xs bg-blue-100 dark:bg-blue-950 text-blue-800 dark:text-cyan-300 font-extrabold px-2 py-0.5 rounded-md border border-blue-200 dark:border-blue-800">
                         A-ERP
                     </span>
                 </div>
-                <p class="text-xs font-bold text-blue-800 uppercase tracking-wider mt-0.5">
+                <p class="text-xs font-bold text-blue-800 dark:text-cyan-400 uppercase tracking-wider mt-0.5">
                     Intranet Institucional • IESTP "Argentina" 2026
                 </p>
             </div>
-            <p class="text-xs text-slate-500 max-w-sm mx-auto">
+            <p class="text-xs text-slate-500 dark:text-slate-400 max-w-sm mx-auto">
                 Acceso oficial a la Intranet para Estudiantes, Docentes y Personal Institucional. Ingresa con tu DNI.
             </p>
         </div>
 
         @if (ViewBag.Error != null)
         {
-            <div class="alert alert-error bg-rose-50 text-rose-800 border border-rose-200 rounded-2xl text-xs py-3 px-4 flex items-center gap-2.5 shadow-sm animate-shake">
-                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4 text-rose-600" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <div class="alert alert-error bg-rose-50 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border border-rose-200 dark:border-rose-800 rounded-2xl text-xs py-3 px-4 flex items-center gap-2.5 shadow-sm animate-shake">
+                <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-4 w-4 text-rose-600 dark:text-rose-400" fill="none" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <span class="font-medium">@ViewBag.Error</span>
             </div>
         }
@@ -53,29 +53,29 @@
             <input type="hidden" name="returnUrl" value="@returnUrl" />
 
             <div>
-                <label class="font-bold text-slate-700 block mb-1.5 uppercase text-[10px] tracking-wider">
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1.5 uppercase text-[10px] tracking-wider">
                     DNI / Identificador Institucional
                 </label>
                 <div class="relative">
-                    <input type="text" name="identificador" id="input_dni" required placeholder="Ej: 87654321, 12345678 o 10000001" class="input input-bordered w-full rounded-2xl bg-slate-50 focus:bg-white text-xs font-semibold text-slate-800 pl-10 border-slate-200 focus:border-blue-500 transition h-11" />
-                    <span class="absolute left-3.5 top-3 text-slate-400">👤</span>
+                    <input type="text" name="identificador" id="input_dni" required placeholder="Ej: 87654321, 12345678 o 10000001" class="input input-bordered w-full rounded-2xl bg-slate-50 dark:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-100 pl-10 border-slate-200 dark:border-slate-700 focus:border-blue-500 transition h-11" />
+                    <span class="absolute left-3.5 top-3 text-slate-400 dark:text-slate-500">👤</span>
                 </div>
             </div>
 
             <div>
                 <div class="flex items-center justify-between mb-1.5">
-                    <label class="font-bold text-slate-700 uppercase text-[10px] tracking-wider">
+                    <label class="font-bold text-slate-700 dark:text-slate-300 uppercase text-[10px] tracking-wider">
                         Contraseña
                     </label>
-                    <span class="text-[10px] text-slate-400">Por defecto: 123456</span>
+                    <span class="text-[10px] text-slate-400 dark:text-slate-500">Por defecto: 123456</span>
                 </div>
                 <div class="relative">
-                    <input type="password" name="password" id="input_pass" required placeholder="••••••" class="input input-bordered w-full rounded-2xl bg-slate-50 focus:bg-white text-xs font-semibold text-slate-800 pl-10 border-slate-200 focus:border-blue-500 transition h-11" />
-                    <span class="absolute left-3.5 top-3 text-slate-400">🔒</span>
+                    <input type="password" name="password" id="input_pass" required placeholder="••••••" class="input input-bordered w-full rounded-2xl bg-slate-50 dark:bg-slate-800/80 focus:bg-white dark:focus:bg-slate-800 text-xs font-semibold text-slate-800 dark:text-slate-100 pl-10 border-slate-200 dark:border-slate-700 focus:border-blue-500 transition h-11" />
+                    <span class="absolute left-3.5 top-3 text-slate-400 dark:text-slate-500">🔒</span>
                 </div>
             </div>
 
-            <button type="submit" class="btn bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 text-white w-full rounded-2xl font-bold text-xs h-12 border-0 shadow-lg shadow-blue-600/25 transition">
+            <button type="submit" class="btn bg-gradient-to-r from-blue-700 to-indigo-700 hover:from-blue-800 hover:to-indigo-800 dark:from-blue-600 dark:to-indigo-600 text-white w-full rounded-2xl font-bold text-xs h-12 border-0 shadow-lg shadow-blue-600/25 transition">
                 <span>Ingresar al Sistema</span>
                 <span class="ml-1">→</span>
             </button>
@@ -83,69 +83,69 @@
     </div>
 
     <!-- Panel de Accesos Rápidos de Prueba (Zero-Friction Testing) -->
-    <div class="bg-white rounded-3xl p-6 border border-slate-200/80 shadow-md shadow-slate-200/40 space-y-3.5">
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-md shadow-slate-200/40 dark:shadow-none space-y-3.5 transition-colors">
         <div class="flex items-center justify-between">
             <div class="flex items-center gap-2">
                 <span class="text-base">⚡</span>
-                <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                <h2 class="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                     Accesos Rápidos de Demostración (1 Clic)
                 </h2>
             </div>
-            <span class="text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 rounded-full">
+            <span class="text-[10px] font-semibold bg-emerald-50 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 px-2 py-0.5 rounded-full">
                 Auto-Login
             </span>
         </div>
-        <p class="text-[11px] text-slate-500">
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">
             Haz clic en cualquiera de los perfiles para iniciar sesión automáticamente y explorar el dashboard:
         </p>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
             <!-- Director -->
-            <button type="button" onclick="quickLogin('10000001', '123456')" class="p-3 rounded-2xl bg-blue-50/80 hover:bg-blue-100/90 text-blue-900 border border-blue-200/80 text-xs font-medium text-left transition flex items-center justify-between group shadow-sm">
+            <button type="button" onclick="quickLogin('10000001', '123456')" class="p-3 rounded-2xl bg-blue-50/80 dark:bg-blue-950/40 hover:bg-blue-100/90 dark:hover:bg-blue-900/50 text-blue-900 dark:text-blue-200 border border-blue-200/80 dark:border-blue-900/50 text-xs font-medium text-left transition flex items-center justify-between group shadow-sm">
                 <div class="flex items-center gap-2.5">
                     <span class="text-lg">🏛️</span>
                     <div>
-                        <p class="font-bold text-slate-900 group-hover:text-blue-900">Director</p>
-                        <p class="text-[10px] text-slate-500">Felipe (Control Total)</p>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 group-hover:text-blue-900 dark:group-hover:text-cyan-300">Director</p>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Felipe (Control Total)</p>
                     </div>
                 </div>
-                <span class="text-[10px] bg-blue-200/70 text-blue-800 font-bold px-2 py-0.5 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition">Entrar</span>
+                <span class="text-[10px] bg-blue-200/70 dark:bg-blue-900 text-blue-800 dark:text-blue-200 font-bold px-2 py-0.5 rounded-lg group-hover:bg-blue-600 group-hover:text-white transition">Entrar</span>
             </button>
 
             <!-- Docente Sheyla -->
-            <button type="button" onclick="quickLogin('12345678', '123456')" class="p-3 rounded-2xl bg-indigo-50/80 hover:bg-indigo-100/90 text-indigo-900 border border-indigo-200/80 text-xs font-medium text-left transition flex items-center justify-between group shadow-sm">
+            <button type="button" onclick="quickLogin('12345678', '123456')" class="p-3 rounded-2xl bg-indigo-50/80 dark:bg-indigo-950/40 hover:bg-indigo-100/90 dark:hover:bg-indigo-900/50 text-indigo-900 dark:text-indigo-200 border border-indigo-200/80 dark:border-indigo-900/50 text-xs font-medium text-left transition flex items-center justify-between group shadow-sm">
                 <div class="flex items-center gap-2.5">
                     <span class="text-lg">👩‍🏫</span>
                     <div>
-                        <p class="font-bold text-slate-900 group-hover:text-indigo-900">Docente</p>
-                        <p class="text-[10px] text-slate-500">Sheyla Quispe (Módulo 02)</p>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 group-hover:text-indigo-900 dark:group-hover:text-indigo-300">Docente</p>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Sheyla Quispe (Módulo 02)</p>
                     </div>
                 </div>
-                <span class="text-[10px] bg-indigo-200/70 text-indigo-800 font-bold px-2 py-0.5 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition">Entrar</span>
+                <span class="text-[10px] bg-indigo-200/70 dark:bg-indigo-900 text-indigo-800 dark:text-indigo-200 font-bold px-2 py-0.5 rounded-lg group-hover:bg-indigo-600 group-hover:text-white transition">Entrar</span>
             </button>
 
             <!-- Alumno Mendoza -->
-            <button type="button" onclick="quickLogin('87654321', '123456')" class="p-3 rounded-2xl bg-rose-50/80 hover:bg-rose-100/90 text-rose-900 border border-rose-200/80 text-xs font-medium text-left transition flex items-center justify-between group shadow-sm">
+            <button type="button" onclick="quickLogin('87654321', '123456')" class="p-3 rounded-2xl bg-rose-50/80 dark:bg-rose-950/40 hover:bg-rose-100/90 dark:hover:bg-rose-900/50 text-rose-900 dark:text-rose-200 border border-rose-200/80 dark:border-rose-900/50 text-xs font-medium text-left transition flex items-center justify-between group shadow-sm">
                 <div class="flex items-center gap-2.5">
                     <span class="text-lg">🎒</span>
                     <div>
-                        <p class="font-bold text-slate-900 group-hover:text-rose-900">Estudiante</p>
-                        <p class="text-[10px] text-slate-500">Carlos Mendoza (Regular)</p>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 group-hover:text-rose-900 dark:group-hover:text-rose-300">Estudiante</p>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Carlos Mendoza (Regular)</p>
                     </div>
                 </div>
-                <span class="text-[10px] bg-rose-200/70 text-rose-800 font-bold px-2 py-0.5 rounded-lg group-hover:bg-rose-600 group-hover:text-white transition">Entrar</span>
+                <span class="text-[10px] bg-rose-200/70 dark:bg-rose-900 text-rose-800 dark:text-rose-200 font-bold px-2 py-0.5 rounded-lg group-hover:bg-rose-600 group-hover:text-white transition">Entrar</span>
             </button>
 
             <!-- Coordinador -->
-            <button type="button" onclick="quickLogin('20000001', '123456')" class="p-3 rounded-2xl bg-emerald-50/80 hover:bg-emerald-100/90 text-emerald-900 border border-emerald-200/80 text-xs font-medium text-left transition flex items-center justify-between group shadow-sm">
+            <button type="button" onclick="quickLogin('20000001', '123456')" class="p-3 rounded-2xl bg-emerald-50/80 dark:bg-emerald-950/40 hover:bg-emerald-100/90 dark:hover:bg-emerald-900/50 text-emerald-900 dark:text-emerald-200 border border-emerald-200/80 dark:border-emerald-900/50 text-xs font-medium text-left transition flex items-center justify-between group shadow-sm">
                 <div class="flex items-center gap-2.5">
                     <span class="text-lg">📋</span>
                     <div>
-                        <p class="font-bold text-slate-900 group-hover:text-emerald-900">Coordinador</p>
-                        <p class="text-[10px] text-slate-500">Ing. Rodríguez</p>
+                        <p class="font-bold text-slate-900 dark:text-slate-100 group-hover:text-emerald-900 dark:group-hover:text-emerald-300">Coordinador</p>
+                        <p class="text-[10px] text-slate-500 dark:text-slate-400">Ing. Rodríguez</p>
                     </div>
                 </div>
-                <span class="text-[10px] bg-emerald-200/70 text-emerald-800 font-bold px-2 py-0.5 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition">Entrar</span>
+                <span class="text-[10px] bg-emerald-200/70 dark:bg-emerald-900 text-emerald-800 dark:text-emerald-200 font-bold px-2 py-0.5 rounded-lg group-hover:bg-emerald-600 group-hover:text-white transition">Entrar</span>
             </button>
         </div>
     </div>
