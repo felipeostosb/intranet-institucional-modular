@@ -1,103 +1,190 @@
 @{
     ViewData["Title"] = "Panel Principal";
+    var rolPrincipal = User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno";
+    var esDocenteODirector = User.IsInRole("Docente") || User.IsInRole("Director") || User.IsInRole("Admin") || User.IsInRole("Coordinador");
 }
 
 <div class="space-y-6">
-    <!-- Banner Principal Azul Institucional -->
-    <div class="bg-gradient-to-r from-blue-700 via-blue-600 to-indigo-700 rounded-3xl p-6 sm:p-8 text-white shadow-lg border border-blue-500/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
-        <div class="relative z-10 space-y-2">
+    <!-- Banner Principal Personalizado con Bienvenida según Rol -->
+    <div class="bg-gradient-to-r from-blue-800 via-blue-700 to-indigo-800 rounded-3xl p-6 sm:p-8 text-white shadow-xl shadow-blue-900/10 border border-blue-600/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 relative overflow-hidden">
+        <div class="relative z-10 space-y-2.5">
             <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/15 backdrop-blur-md text-xs font-semibold text-blue-100 border border-white/20">
                 <span>🏛️ Intranet Institucional IESTP Argentina</span>
                 <span>•</span>
-                <span>Periodo 2026</span>
+                <span>Periodo Académico 2026-II</span>
             </div>
-            <h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold tracking-tight text-white">
-                Panel de Control & Módulos
+            
+            <h1 class="text-2xl sm:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2.5">
+                <span>¡Hola, @User.Identity?.Name!</span>
+                <span class="text-2xl">👋</span>
             </h1>
-            <p class="text-sm text-blue-100/90 max-w-2xl font-normal leading-relaxed">
-                Sistema modular integrado para la comunidad educativa. 9 módulos independientes desarrollados con arquitectura <strong>Zero-Blast-Radius</strong> en <strong>.NET 10 LTS</strong>.
+
+            <p class="text-xs sm:text-sm text-blue-100/90 max-w-2xl font-normal leading-relaxed">
+                Bienvenido a tu panel de control unificado. Tienes acceso al ecosistema de <strong>10 módulos independientes</strong> desacoplados bajo arquitectura <strong>Zero-Blast-Radius</strong> en <strong>.NET 10 LTS</strong>.
             </p>
+
+            <div class="flex flex-wrap items-center gap-2 pt-1">
+                <span class="badge bg-white text-blue-900 font-extrabold text-[11px] px-3 py-2 border-0 shadow-sm">
+                    Rol: @rolPrincipal.ToUpper()
+                </span>
+                <span class="badge bg-white/20 text-white font-semibold text-[11px] px-3 py-2 border border-white/30">
+                    DNI: @(User.FindFirst("Dni")?.Value ?? "12345678")
+                </span>
+                <span class="badge bg-emerald-400/20 text-emerald-200 font-semibold text-[11px] px-3 py-2 border border-emerald-400/30 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                    PostgreSQL 16 Cloud Activo
+                </span>
+            </div>
         </div>
-        <div class="flex flex-wrap gap-2.5 relative z-10">
-            <a href="/Account/Login" class="btn bg-white hover:bg-blue-50 text-blue-800 font-bold border-0 rounded-2xl shadow-md px-5 text-xs h-11">
-                Iniciar Sesión
-            </a>
+
+        <div class="flex flex-wrap gap-2.5 relative z-10 shrink-0">
             <a href="http://35.206.81.32:8080" target="_blank" class="btn bg-white/15 hover:bg-white/25 text-white font-semibold border border-white/25 rounded-2xl backdrop-blur-md px-4 text-xs h-11">
                 🗄️ Adminer BD
             </a>
+            <a href="/Account/Logout" class="btn bg-rose-500/20 hover:bg-rose-500/30 text-rose-100 font-semibold border border-rose-400/30 rounded-2xl backdrop-blur-md px-4 text-xs h-11">
+                Cerrar Sesión
+            </a>
         </div>
+
         <!-- Efecto de Fondo -->
         <div class="absolute -right-12 -bottom-12 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none"></div>
     </div>
 
-    <!-- Indicadores de Estado del Sistema -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Módulos Activos</span>
-                <div class="w-9 h-9 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
-                    9
-                </div>
+    <!-- Barra de Acciones Rápidas según Rol (Fast-Track UX) -->
+    <div class="bg-white rounded-3xl p-5 sm:p-6 border border-slate-200/80 shadow-sm space-y-3">
+        <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <span class="text-lg">⚡</span>
+                <h2 class="text-xs font-bold text-slate-700 uppercase tracking-wider">
+                    Acciones Rápidas para @rolPrincipal
+                </h2>
             </div>
-            <div class="text-2xl font-extrabold text-slate-900 mt-2">100%</div>
-            <p class="text-xs text-emerald-600 font-semibold mt-1">✓ Todos en línea</p>
+            <span class="text-[11px] text-slate-400 font-medium">Accesos directos de alta frecuencia</span>
         </div>
 
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Desarrolladores</span>
-                <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold">
-                    👥
-                </div>
-            </div>
-            <div class="text-2xl font-extrabold text-slate-900 mt-2">36 Devs</div>
-            <p class="text-xs text-indigo-600 font-semibold mt-1">9 Equipos de 4</p>
-        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            @if (esDocenteODirector)
+            {
+                <a href="/Modulo02/TomarAsistencia" class="p-3.5 rounded-2xl bg-indigo-50/80 hover:bg-indigo-100 text-indigo-900 border border-indigo-200/80 transition group flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xl">📋</span>
+                        <span class="text-[9px] font-extrabold bg-indigo-200 text-indigo-900 px-1.5 py-0.5 rounded">M02</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-xs text-slate-900 group-hover:text-indigo-900">Tomar Asistencia</p>
+                        <p class="text-[10px] text-slate-500">Registro en 1-clic con semáforo</p>
+                    </div>
+                </a>
 
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Base de Datos</span>
-                <div class="w-9 h-9 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold">
-                    🗄️
-                </div>
-            </div>
-            <div class="text-2xl font-extrabold text-slate-900 mt-2">PostgreSQL 16</div>
-            <p class="text-xs text-purple-600 font-semibold mt-1">10 Esquemas Aislados</p>
-        </div>
+                <a href="/Modulo02/Matriz" class="p-3.5 rounded-2xl bg-blue-50/80 hover:bg-blue-100 text-blue-900 border border-blue-200/80 transition group flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xl">📊</span>
+                        <span class="text-[9px] font-extrabold bg-blue-200 text-blue-900 px-1.5 py-0.5 rounded">M02</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-xs text-slate-900 group-hover:text-blue-900">Matriz 18 Semanas</p>
+                        <p class="text-[10px] text-slate-500">Sábana completa de faltas</p>
+                    </div>
+                </a>
 
-        <div class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md transition">
-            <div class="flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Infraestructura</span>
-                <div class="w-9 h-9 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
-                    ⚡
-                </div>
-            </div>
-            <div class="text-2xl font-extrabold text-slate-900 mt-2">GCP Free</div>
-            <p class="text-xs text-emerald-600 font-semibold mt-1">$0.00 / S/. 0.00 Mensual</p>
+                <a href="/Modulo02/ReportesDpi" class="p-3.5 rounded-2xl bg-amber-50/80 hover:bg-amber-100 text-amber-900 border border-amber-200/80 transition group flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xl">⚠️</span>
+                        <span class="text-[9px] font-extrabold bg-amber-200 text-amber-900 px-1.5 py-0.5 rounded">M02</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-xs text-slate-900 group-hover:text-amber-900">Alerta DPI 30%</p>
+                        <p class="text-[10px] text-slate-500">Inhabilitaciones y prevención</p>
+                    </div>
+                </a>
+
+                <a href="/Modulo02/Justificaciones" class="p-3.5 rounded-2xl bg-emerald-50/80 hover:bg-emerald-100 text-emerald-900 border border-emerald-200/80 transition group flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xl">📝</span>
+                        <span class="text-[9px] font-extrabold bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded">M02</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-xs text-slate-900 group-hover:text-emerald-900">Justificaciones</p>
+                        <p class="text-[10px] text-slate-500">Bandeja de dictamen</p>
+                    </div>
+                </a>
+            }
+            else
+            {
+                <a href="/Modulo02/MiAsistencia" class="p-3.5 rounded-2xl bg-indigo-50/80 hover:bg-indigo-100 text-indigo-900 border border-indigo-200/80 transition group flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xl">🎓</span>
+                        <span class="text-[9px] font-extrabold bg-indigo-200 text-indigo-900 px-1.5 py-0.5 rounded">M02</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-xs text-slate-900 group-hover:text-indigo-900">Mi Asistencia</p>
+                        <p class="text-[10px] text-slate-500">Horas restantes antes de DPI</p>
+                    </div>
+                </a>
+
+                <a href="/Modulo01" class="p-3.5 rounded-2xl bg-sky-50/80 hover:bg-sky-100 text-sky-900 border border-sky-200/80 transition group flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xl">📚</span>
+                        <span class="text-[9px] font-extrabold bg-sky-200 text-sky-900 px-1.5 py-0.5 rounded">M01</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-xs text-slate-900 group-hover:text-sky-900">Mi Matrícula</p>
+                        <p class="text-[10px] text-slate-500">Cursos matriculados 2026</p>
+                    </div>
+                </a>
+
+                <a href="/Modulo08" class="p-3.5 rounded-2xl bg-orange-50/80 hover:bg-orange-100 text-orange-900 border border-orange-200/80 transition group flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xl">📝</span>
+                        <span class="text-[9px] font-extrabold bg-orange-200 text-orange-900 px-1.5 py-0.5 rounded">M08</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-xs text-slate-900 group-hover:text-orange-900">Encuestas Docentes</p>
+                        <p class="text-[10px] text-slate-500">Evaluación de fin de ciclo</p>
+                    </div>
+                </a>
+
+                <a href="/Modulo09" class="p-3.5 rounded-2xl bg-cyan-50/80 hover:bg-cyan-100 text-cyan-900 border border-cyan-200/80 transition group flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-xl">💳</span>
+                        <span class="text-[9px] font-extrabold bg-cyan-200 text-cyan-900 px-1.5 py-0.5 rounded">M09</span>
+                    </div>
+                    <div>
+                        <p class="font-bold text-xs text-slate-900 group-hover:text-cyan-900">Trámites TUPA</p>
+                        <p class="text-[10px] text-slate-500">Certificados y constancias</p>
+                    </div>
+                </a>
+            }
         </div>
     </div>
 
-    <!-- Catálogo de los 9 Módulos con Tonos Pasteles e Iconos Llamativos -->
-    <div>
-        <div class="flex items-center justify-between mb-4">
+    <!-- Catálogo Completo de los 10 Módulos de la Intranet -->
+    <div class="space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-                <h2 class="text-lg font-bold text-slate-900">Acceso a los Módulos de la Intranet</h2>
-                <p class="text-xs text-slate-500">Selecciona el módulo correspondiente para acceder a su espacio de trabajo.</p>
+                <h2 class="text-base font-extrabold text-slate-900 flex items-center gap-2">
+                    <span>Módulos del Sistema Institucional</span>
+                    <span class="badge badge-sm bg-blue-100 text-blue-800 font-bold border-0">10 Módulos</span>
+                </h2>
+                <p class="text-xs text-slate-500">Selecciona cualquier módulo para ingresar directamente a su espacio de trabajo.</p>
             </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             <!-- Módulo 00 (Slate) - Seguridad & Login (Toro) -->
-            <a href="/Modulo00" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-slate-400 transition group flex flex-col justify-between">
+            <a href="/Modulo00" class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-slate-400 transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-11 h-11 rounded-2xl bg-slate-100 text-slate-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full border border-slate-200">Equipo 00 (Toro)</span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] font-bold bg-slate-100 text-slate-800 px-2.5 py-1 rounded-full border border-slate-200">Toro</span>
+                            <span class="text-[10px] font-bold bg-slate-900 text-white px-2 py-0.5 rounded-md">CORE</span>
+                        </div>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-slate-700 transition">Módulo 00 — Login & Seguridad</h3>
-                    <p class="text-xs text-slate-500 mt-1">Gestión centralizada de cuentas, perfiles y seguridad institucional. Esquema: <code class="text-slate-700 font-mono">mod00</code>.</p>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-slate-700 transition">Módulo 00 — Login & Seguridad</h3>
+                    <p class="text-xs text-slate-500 mt-1">Gestión centralizada de credenciales, roles institucionales y auditoría. Esquema: <code class="text-slate-700 font-mono text-[11px]">mod00</code>.</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-slate-700">
                     <span>Ingresar al módulo</span>
@@ -106,16 +193,16 @@
             </a>
 
             <!-- Módulo 01 (Sky) - Matrícula (Ismael) -->
-            <a href="/Modulo01" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-sky-300 transition group flex flex-col justify-between">
+            <a href="/Modulo01" class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-sky-300 transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-11 h-11 rounded-2xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full border border-sky-200">Equipo 01 (Ismael)</span>
+                        <span class="text-[10px] font-bold bg-sky-100 text-sky-800 px-2.5 py-1 rounded-full border border-sky-200">Equipo 01 (Ismael)</span>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-sky-700 transition">Módulo 01 — Matrícula</h3>
-                    <p class="text-xs text-slate-500 mt-1">Gestión de matrícula regular, extemporánea y control de vacantes. Esquema: <code class="text-sky-700 font-mono">mod01</code>.</p>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-sky-700 transition">Módulo 01 — Matrícula</h3>
+                    <p class="text-xs text-slate-500 mt-1">Matrícula regular, extemporánea, convalidaciones y reserva de vacantes. Esquema: <code class="text-sky-700 font-mono text-[11px]">mod01</code>.</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-sky-700">
                     <span>Ingresar al módulo</span>
@@ -123,45 +210,45 @@
                 </div>
             </a>
 
-            <!-- Módulo 02 (Indigo) - Asistencia & Deserción (Felipe / Dylan) -->
-            <a href="/Modulo02" class="bg-white rounded-2xl p-5 border-2 border-indigo-500/40 shadow-md hover:shadow-lg hover:border-indigo-600 transition group flex flex-col justify-between relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-indigo-600 text-white text-[9px] font-extrabold uppercase px-2.5 py-0.5 rounded-bl-xl shadow-sm">
-                    ✨ 100% Funcional
+            <!-- Módulo 02 (Indigo) - Asistencia & Deserción (Sheyla) [PRO DESTACADO] -->
+            <a href="/Modulo02" class="bg-white rounded-3xl p-5 border-2 border-indigo-500/50 shadow-md hover:shadow-xl hover:border-indigo-600 transition group flex flex-col justify-between relative overflow-hidden ring-4 ring-indigo-50">
+                <div class="absolute top-0 right-0 bg-indigo-600 text-white text-[9px] font-extrabold uppercase px-3 py-1 rounded-bl-xl shadow-sm">
+                    ✨ 100% Funcional (PRO)
                 </div>
                 <div>
                     <div class="flex items-center justify-between mb-3 mt-1">
-                        <div class="w-11 h-11 rounded-2xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
+                        <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-md shadow-indigo-600/30">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-1 rounded-full border border-indigo-200">Equipo 02 (Sheyla)</span>
+                        <span class="text-[10px] font-bold bg-indigo-100 text-indigo-900 px-2.5 py-1 rounded-full border border-indigo-200">Equipo 02 (Sheyla)</span>
                     </div>
-                    <h3 class="text-base font-extrabold text-slate-900 group-hover:text-indigo-700 transition flex items-center gap-1.5">
+                    <h3 class="text-sm font-extrabold text-slate-900 group-hover:text-indigo-700 transition flex items-center gap-1.5">
                         <span>Módulo 02 — Asistencia & DPI</span>
                     </h3>
                     <p class="text-xs text-slate-500 mt-1">
-                        Toma de lista interactiva en 1-clic, semáforo preventivo, justificaciones y regla oficial de <strong>30% DPI (MINEDU)</strong>.
+                        Toma de lista en 1-clic, Matriz Sábana de 18 semanas, justificaciones y regla oficial de <strong>30% DPI (MINEDU)</strong>.
                     </p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-bold text-indigo-700">
-                    <div class="flex gap-1.5 text-[10px]">
+                    <div class="flex gap-1 text-[10px]">
                         <span class="bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-md font-semibold">Toma de Lista</span>
-                        <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md font-semibold">Semáforo DPI</span>
+                        <span class="bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-md font-semibold">Matriz 18 Sem</span>
                     </div>
-                    <span class="group-hover:translate-x-1 transition text-sm">→</span>
+                    <span class="group-hover:translate-x-1 transition text-sm font-extrabold">Entrar →</span>
                 </div>
             </a>
 
             <!-- Módulo 03 (Emerald) - Inventario (Brenda) -->
-            <a href="/Modulo03" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-emerald-300 transition group flex flex-col justify-between">
+            <a href="/Modulo03" class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-emerald-300 transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-200">Equipo 03 (Brenda)</span>
+                        <span class="text-[10px] font-bold bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full border border-emerald-200">Equipo 03 (Brenda)</span>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-emerald-700 transition">Módulo 03 — Inventario & Equipos</h3>
-                    <p class="text-xs text-slate-500 mt-1">Control de laboratorios, inventario físico y préstamos de hardware. Esquema: <code class="text-emerald-700 font-mono">mod03</code>.</p>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-emerald-700 transition">Módulo 03 — Inventario & Equipos</h3>
+                    <p class="text-xs text-slate-500 mt-1">Control de activos, inventario físico de cómputo y asignación de laboratorios. Esquema: <code class="text-emerald-700 font-mono text-[11px]">mod03</code>.</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-emerald-700">
                     <span>Ingresar al módulo</span>
@@ -170,16 +257,16 @@
             </a>
 
             <!-- Módulo 04 (Amber) - Horarios & Aulas -->
-            <a href="/Modulo04" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-amber-300 transition group flex flex-col justify-between">
+            <a href="/Modulo04" class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-amber-300 transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-11 h-11 rounded-2xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full border border-amber-200">Equipo 04</span>
+                        <span class="text-[10px] font-bold bg-amber-100 text-amber-800 px-2.5 py-1 rounded-full border border-amber-200">Equipo 04</span>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-amber-700 transition">Módulo 04 — Horarios & Aulas</h3>
-                    <p class="text-xs text-slate-500 mt-1">Gestión y distribución de horarios de clase, turnos, aulas y laboratorios. Esquema: <code class="text-amber-700 font-mono">mod04</code>.</p>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-amber-700 transition">Módulo 04 — Horarios & Aulas</h3>
+                    <p class="text-xs text-slate-500 mt-1">Distribución de carga lectiva, turnos académicos y disponibilidad de ambientes. Esquema: <code class="text-amber-700 font-mono text-[11px]">mod04</code>.</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-amber-700">
                     <span>Ingresar al módulo</span>
@@ -188,16 +275,16 @@
             </a>
 
             <!-- Módulo 05 (Purple) - Incidencias (Oliva) -->
-            <a href="/Modulo05" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-purple-300 transition group flex flex-col justify-between">
+            <a href="/Modulo05" class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-purple-300 transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-11 h-11 rounded-2xl bg-purple-100 text-purple-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full border border-purple-200">Equipo 05 (Oliva)</span>
+                        <span class="text-[10px] font-bold bg-purple-100 text-purple-800 px-2.5 py-1 rounded-full border border-purple-200">Equipo 05 (Oliva)</span>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-purple-700 transition">Módulo 05 — Incidencias & Soporte</h3>
-                    <p class="text-xs text-slate-500 mt-1">Mesa de ayuda técnica, tickets de soporte y requerimientos del instituto. Esquema: <code class="text-purple-700 font-mono">mod05</code>.</p>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-purple-700 transition">Módulo 05 — Incidencias & Soporte</h3>
+                    <p class="text-xs text-slate-500 mt-1">Mesa de ayuda institucional, tickets de soporte y mantenimiento técnico. Esquema: <code class="text-purple-700 font-mono text-[11px]">mod05</code>.</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-purple-700">
                     <span>Ingresar al módulo</span>
@@ -206,16 +293,16 @@
             </a>
 
             <!-- Módulo 06 (Rose) - Egresados (Sandra) -->
-            <a href="/Modulo06" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-rose-300 transition group flex flex-col justify-between">
+            <a href="/Modulo06" class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-rose-300 transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-11 h-11 rounded-2xl bg-rose-100 text-rose-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-rose-100 text-rose-800 px-2.5 py-1 rounded-full border border-rose-200">Equipo 06 (Sandra)</span>
+                        <span class="text-[10px] font-bold bg-rose-100 text-rose-800 px-2.5 py-1 rounded-full border border-rose-200">Equipo 06 (Sandra)</span>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-rose-700 transition">Módulo 06 — Egresados & Titulación</h3>
-                    <p class="text-xs text-slate-500 mt-1">Seguimiento laboral de egresados, expedientes de titulación y empleabilidad. Esquema: <code class="text-rose-700 font-mono">mod06</code>.</p>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-rose-700 transition">Módulo 06 — Egresados & Titulación</h3>
+                    <p class="text-xs text-slate-500 mt-1">Seguimiento a graduados, trámites de título profesional y bolsa de trabajo. Esquema: <code class="text-rose-700 font-mono text-[11px]">mod06</code>.</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-rose-700">
                     <span>Ingresar al módulo</span>
@@ -223,17 +310,17 @@
                 </div>
             </a>
 
-            <!-- Módulo 07 (Teal) - Pagos & Tesorería -->
-            <a href="/Modulo07" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-teal-300 transition group flex flex-col justify-between">
+            <!-- Módulo 07 (Teal) - Biblioteca Virtual -->
+            <a href="/Modulo07" class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-teal-300 transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-11 h-11 rounded-2xl bg-teal-100 text-teal-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-teal-100 text-teal-800 px-2.5 py-1 rounded-full border border-teal-200">Equipo 07</span>
+                        <span class="text-[10px] font-bold bg-teal-100 text-teal-800 px-2.5 py-1 rounded-full border border-teal-200">Equipo 07</span>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-teal-700 transition">Módulo 07 — Pagos & Tesorería</h3>
-                    <p class="text-xs text-slate-500 mt-1">Validación de vouchers de pago, aranceles TUPA y caja chica. Esquema: <code class="text-teal-700 font-mono">mod07</code>.</p>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-teal-700 transition">Módulo 07 — Biblioteca Virtual</h3>
+                    <p class="text-xs text-slate-500 mt-1">Catálogo bibliográfico, repositorio de proyectos de investigación y préstamos. Esquema: <code class="text-teal-700 font-mono text-[11px]">mod07</code>.</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-teal-700">
                     <span>Ingresar al módulo</span>
@@ -242,16 +329,16 @@
             </a>
 
             <!-- Módulo 08 (Orange) - Encuestas (Brayan) -->
-            <a href="/Modulo08" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-orange-300 transition group flex flex-col justify-between">
+            <a href="/Modulo08" class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-orange-300 transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-11 h-11 rounded-2xl bg-orange-100 text-orange-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-orange-100 text-orange-800 px-2.5 py-1 rounded-full border border-orange-200">Equipo 08 (Brayan)</span>
+                        <span class="text-[10px] font-bold bg-orange-100 text-orange-800 px-2.5 py-1 rounded-full border border-orange-200">Equipo 08 (Brayan)</span>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-orange-700 transition">Módulo 08 — Encuestas Docentes</h3>
-                    <p class="text-xs text-slate-500 mt-1">Evaluación del desempeño docente y encuestas de satisfacción estudiantil. Esquema: <code class="text-orange-700 font-mono">mod08</code>.</p>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-orange-700 transition">Módulo 08 — Encuestas Docentes</h3>
+                    <p class="text-xs text-slate-500 mt-1">Evaluación de desempeño docente y encuestas de satisfacción académica. Esquema: <code class="text-orange-700 font-mono text-[11px]">mod08</code>.</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-orange-700">
                     <span>Ingresar al módulo</span>
@@ -259,17 +346,17 @@
                 </div>
             </a>
 
-            <!-- Módulo 09 (Cyan) - Trámites TUPA -->
-            <a href="/Modulo09" class="bg-white rounded-2xl p-5 border border-slate-200/80 shadow-sm hover:shadow-md hover:border-cyan-300 transition group flex flex-col justify-between">
+            <!-- Módulo 09 (Cyan) - Tesorería & Trámites TUPA -->
+            <a href="/Modulo09" class="bg-white rounded-3xl p-5 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-cyan-300 transition group flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-3">
                         <div class="w-11 h-11 rounded-2xl bg-cyan-100 text-cyan-700 flex items-center justify-center font-bold text-xl group-hover:scale-105 transition shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                         </div>
-                        <span class="text-xs font-bold bg-cyan-100 text-cyan-800 px-2.5 py-1 rounded-full border border-cyan-200">Equipo 09</span>
+                        <span class="text-[10px] font-bold bg-cyan-100 text-cyan-800 px-2.5 py-1 rounded-full border border-cyan-200">Equipo 09</span>
                     </div>
-                    <h3 class="text-base font-bold text-slate-900 group-hover:text-cyan-700 transition">Módulo 09 — Trámites TUPA</h3>
-                    <p class="text-xs text-slate-500 mt-1">Mesa de partes virtual y seguimiento de expedientes académicos. Esquema: <code class="text-cyan-700 font-mono">mod09</code>.</p>
+                    <h3 class="text-sm font-bold text-slate-900 group-hover:text-cyan-700 transition">Módulo 09 — Trámites TUPA & Pagos</h3>
+                    <p class="text-xs text-slate-500 mt-1">Mesa de partes virtual, pagos de aranceles y seguimiento de expedientes. Esquema: <code class="text-cyan-700 font-mono text-[11px]">mod09</code>.</p>
                 </div>
                 <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs font-semibold text-cyan-700">
                     <span>Ingresar al módulo</span>

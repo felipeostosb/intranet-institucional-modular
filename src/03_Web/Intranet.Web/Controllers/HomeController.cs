@@ -1,8 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Intranet.Core.Controllers;
 
 namespace Intranet.Web.Controllers;
 
-public class HomeController : Controller
+[Authorize]
+public class HomeController : ModuloBaseController
 {
     public IActionResult Index()
     {
@@ -10,6 +13,7 @@ public class HomeController : Controller
         return View();
     }
 
+    [AllowAnonymous]
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error(int? statusCode = null)
     {
@@ -18,3 +22,4 @@ public class HomeController : Controller
         return View();
     }
 }
+
