@@ -63,7 +63,7 @@ El sistema opera sobre una **Base de Datos Unificada (`db_intranet_iestp`)** en 
 | :---: | :--- | :--- | :--- | :--- | :--- |
 | **00** | **00. Seguridad Core & Auditoría** | `src/02_Modulos/Intranet.Modulo00/` | `mod00` | `user_equipo00` | 🛡️ DevOps / Core |
 | **01** | **01. Matrícula Académica & Admisión** | `src/02_Modulos/Intranet.Modulo01/` | `mod01` | `user_equipo01` | 📝 Ismael |
-| **02** | **02. Asistencia 18 Semanas & DPI** | `src/02_Modulos/Intranet.Modulo02/` | `mod02` | `user_equipo02` | 📅 Sheyla / Felipe |
+| **02** | **02. Asistencia 18 Semanas & DPI** | `src/02_Modulos/Intranet.Modulo02/` | `mod02` | `user_equipo02` | 📅 Sheyla |
 | **03** | **03. Inventario & Equipos** | `src/02_Modulos/Intranet.Modulo03/` | `mod03` | `user_equipo03` | 📦 Brenda |
 | **04** | **04. Horarios, Aulas & Turnos** | `src/02_Modulos/Intranet.Modulo04/` | `mod04` | `user_equipo04` | ⏰ Equipo 04 (Morales) |
 | **05** | **05. Incidencias & Requerimientos TI** | `src/02_Modulos/Intranet.Modulo05/` | `mod05` | `user_equipo05` | 🛠️ Oliva |

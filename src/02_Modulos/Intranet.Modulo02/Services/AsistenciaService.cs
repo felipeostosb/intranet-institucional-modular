@@ -449,7 +449,7 @@ public class AsistenciaService : IAsistenciaService
             Turno = "Noche",
             Seccion = "A",
             DocenteId = 1,
-            DocenteNombreCompleto = "Sheyla Quispe / Felipe",
+            DocenteNombreCompleto = "Sheyla Quispe",
             PeriodoId = 1,
             PeriodoCodigo = "2026-I",
             AulaId = 1,
@@ -918,7 +918,7 @@ public class AsistenciaService : IAsistenciaService
                     Turno = "Noche",
                     Seccion = "A",
                     DocenteId = 1,
-                    DocenteNombreCompleto = "Sheyla Quispe / Felipe",
+                    DocenteNombreCompleto = "Sheyla Quispe",
                     PeriodoId = 1,
                     PeriodoCodigo = "2026-I",
                     AulaCodigo = "LAB-102",
@@ -967,7 +967,7 @@ public class AsistenciaService : IAsistenciaService
             Ciclo = "V",
             Turno = "Noche",
             Seccion = "A",
-            DocenteNombre = "Sheyla Quispe / Felipe",
+            DocenteNombre = "Sheyla Quispe",
             PeriodoId = 1,
             PeriodoCodigo = "2026-I"
         };
@@ -1102,7 +1102,7 @@ public class AsistenciaService : IAsistenciaService
                 Turno = "Noche",
                 Seccion = "A",
                 DocenteId = 1,
-                DocenteNombreCompleto = "Sheyla Quispe / Felipe",
+                DocenteNombreCompleto = "Sheyla Quispe",
                 PeriodoId = 1,
                 PeriodoCodigo = "2026-I",
                 AulaCodigo = "LAB-102",
@@ -1128,7 +1128,7 @@ public class AsistenciaService : IAsistenciaService
                 Turno = "Noche",
                 Seccion = "A",
                 DocenteId = 1,
-                DocenteNombreCompleto = "Sheyla Quispe / Felipe",
+                DocenteNombreCompleto = "Sheyla Quispe",
                 PeriodoId = 1,
                 PeriodoCodigo = "2026-I",
                 AulaCodigo = "LAB-104",
@@ -1154,7 +1154,7 @@ public class AsistenciaService : IAsistenciaService
                 Turno = "Noche",
                 Seccion = "B",
                 DocenteId = 1,
-                DocenteNombreCompleto = "Sheyla Quispe / Felipe",
+                DocenteNombreCompleto = "Sheyla Quispe",
                 PeriodoId = 1,
                 PeriodoCodigo = "2026-I",
                 AulaCodigo = "AULA-201",
@@ -1282,7 +1282,7 @@ public class AsistenciaService : IAsistenciaService
                 NumeroSesion = 1,
                 HorasPedagogicas = 4,
                 TemaDesarrollado = "Introducción a la Arquitectura Intramodular",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 Estado = "PRESENTE"
             },
             new()
@@ -1294,7 +1294,7 @@ public class AsistenciaService : IAsistenciaService
                 NumeroSesion = 1,
                 HorasPedagogicas = 4,
                 TemaDesarrollado = "Diseño de Schemas Soberanos y Dapper",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 Estado = "PRESENTE"
             },
             new()
@@ -1306,7 +1306,7 @@ public class AsistenciaService : IAsistenciaService
                 NumeroSesion = 1,
                 HorasPedagogicas = 4,
                 TemaDesarrollado = "Control de Concurrencia y Transacciones",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 Estado = "TARDANZA",
                 MinutosTardanza = 15,
                 Observacion = "Ingreso con retraso de transporte"
@@ -1320,7 +1320,7 @@ public class AsistenciaService : IAsistenciaService
                 NumeroSesion = 1,
                 HorasPedagogicas = 4,
                 TemaDesarrollado = "Regla DPI 30% según RVM 177-2021-MINEDU",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 Estado = "FALTA_JUSTIFICADA",
                 TieneJustificacion = true,
                 EstadoJustificacion = "APROBADA"
@@ -1334,7 +1334,7 @@ public class AsistenciaService : IAsistenciaService
                 NumeroSesion = 1,
                 HorasPedagogicas = 4,
                 TemaDesarrollado = "Construcción de Matrices y Vistas Razor",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 Estado = "PRESENTE"
             }
         };
@@ -1374,7 +1374,7 @@ public class AsistenciaService : IAsistenciaService
                 Descripcion = "Fallecimiento de familiar directo de primer grado.",
                 DocumentoSustentoUrl = "/uploads/justificaciones/acta_defuncion_castro.pdf",
                 Estado = "APROBADA",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 RespuestaObservacion = "Justificación procedente de acuerdo al reglamento académico.",
                 FechaSolicitud = DateTime.Today.AddDays(-9),
                 FechaResolucion = DateTime.Today.AddDays(-8)
@@ -1393,7 +1393,7 @@ public class AsistenciaService : IAsistenciaService
                 Descripcion = "Turno de guardia extendido en centro de labores.",
                 DocumentoSustentoUrl = "/uploads/justificaciones/constancia_laboral_luciana.pdf",
                 Estado = "RECHAZADA",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 RespuestaObservacion = "Solicitud extemporánea (presentada después de las 72 horas hábiles reglamentarias).",
                 FechaSolicitud = DateTime.Today.AddDays(-8),
                 FechaResolucion = DateTime.Today.AddDays(-7)
@@ -1414,7 +1414,7 @@ public class AsistenciaService : IAsistenciaService
                 Ciclo = "V",
                 Turno = "Noche",
                 UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 HorasFalta = 24,
                 TotalHoras = 72,
                 PorcentajeInasistencia = 33.33m,
@@ -1429,7 +1429,7 @@ public class AsistenciaService : IAsistenciaService
                 Ciclo = "V",
                 Turno = "Noche",
                 UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 HorasFalta = 22,
                 TotalHoras = 72,
                 PorcentajeInasistencia = 30.56m,
@@ -1444,7 +1444,7 @@ public class AsistenciaService : IAsistenciaService
                 Ciclo = "V",
                 Turno = "Noche",
                 UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 HorasFalta = 20,
                 TotalHoras = 72,
                 PorcentajeInasistencia = 27.78m,
@@ -1459,7 +1459,7 @@ public class AsistenciaService : IAsistenciaService
                 Ciclo = "V",
                 Turno = "Noche",
                 UnidadDidacticaNombre = "Administración y Modelado de Base de Datos",
-                DocenteNombre = "Sheyla Quispe / Felipe",
+                DocenteNombre = "Sheyla Quispe",
                 HorasFalta = 16,
                 TotalHoras = 72,
                 PorcentajeInasistencia = 22.22m,
