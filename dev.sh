@@ -6,6 +6,9 @@
 
 set -e
 
+# Añadir dotnet SDK al PATH (instalado en ~/.dotnet, no en PATH del sistema)
+export PATH="$HOME/.dotnet:$PATH"
+
 BLUE='\033[1;34m'
 CYAN='\033[1;36m'
 GREEN='\033[1;32m'
@@ -76,23 +79,58 @@ fi
 show_menu() {
     clear
     CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "desconocida")
-    echo -e "${BLUE}======================================================================${NC}"
-    echo -e "${CYAN}🦅 AQUILA A-ERP ${BLUE}— INTRANET INSTITUCIONAL IESTP ARGENTINA${NC}"
-    echo -e "${BLUE}======================================================================${NC}"
-    echo -e "  ${CYAN}Plataforma .NET 10 LTS • PostgreSQL 16 • 10 Módulos (00 - 09)${NC}"
-    echo -e "  🌿 Rama actual: ${YELLOW}${CURRENT_BRANCH}${NC}"
-    echo -e "${BLUE}----------------------------------------------------------------------${NC}\n"
-    echo -e "  ${GREEN}1)${NC} 🚀 ${CYAN}Iniciar Intranet${NC} (Ver cambios en vivo con Hot-Reload en http://localhost:5000)"
-    echo -e "  ${GREEN}2)${NC} 🌿 ${CYAN}Mi Rama de Equipo${NC} (Crear o cambiar a tu rama modulo00..modulo09)"
-    echo -e "  ${GREEN}3)${NC} 🔄 ${CYAN}Sincronizar con 'main'${NC} (Descarga cambios de producción sin perder tu trabajo)"
-    echo -e "  ${GREEN}4)${NC} 🧪 ${CYAN}Compilar y Validar${NC} (Verifica 0 errores en toda la solución .NET 10)"
-    echo -e "  ${GREEN}5)${NC} 📤 ${CYAN}Subir a GitHub${NC} (Guarda cambios, sincroniza y genera enlace de PR)"
-    echo -e "  ${GREEN}6)${NC} 🗄️  ${CYAN}Base de Datos PostgreSQL${NC} (Credenciales Adminer y Configuración Local)"
-    echo -e "  ${GREEN}7)${NC} 💾 ${CYAN}Backup / Restore de BD${NC} (Respaldar o restaurar tu esquema modXX)"
-    echo -e "  ${GREEN}8)${NC} 📊 ${CYAN}Estado del Proyecto${NC} (Dashboard: rama, cambios, servidor, configuración)"
-    echo -e "  ${GREEN}9)${NC} 📋 ${CYAN}Ver Mis Cambios${NC} (Lista legible de archivos modificados con diffstat)"
-    echo -e "  ${GREEN}10)${NC} 🔧 ${CYAN}Extras${NC} (Submenú: historial, esquema, PR, datos de prueba y más)"
-    echo -e "  ${GREEN}0)${NC} 🚪 ${YELLOW}Salir${NC}\n"
+    # Detectar equipo de appsettings.Local.json
+    LOCAL_CFG="src/03_Web/Intranet.Web/appsettings.Local.json"
+    TEAM="—"
+    if [ -f "$LOCAL_CFG" ]; then
+        TEAM=$(grep -o 'Modulo[0-9]\+Connection' "$LOCAL_CFG" | head -1 | grep -o '[0-9]\+' | head -1 || true)
+        [ -n "$TEAM" ] && TEAM="Equipo ${TEAM}"
+    fi
+
+    echo -e "${BLUE}"
+    cat << 'EAGLE'
+                 ▄████▄
+              ▄▀▀▀▀▀▀▀▀▀▀▄
+           ▄▀▀  ▄▄▄   ▄▄▄  ▀▀▄
+         ▄▀  ▄▀▀  ▀▀▀▀▀  ▀▄  ▀▄
+        █  ▄▀  ▄▄█     █▄▄  ▀▄  █
+        █ █  ▄▀ █▀ ▀▄▄▀ █▄▀  █  █
+        █ █ ▀▄▄▀ ▄█▀▀▀█▄ ▀▄▄ █  █
+        █  ▀▄  ▀▀▀▀   ▀▀▀▀  ▄▀  █
+         ▀▄  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀  ▄▀
+           ▀▀▄▄          ▄▄▀▀
+              ▀▀▀▀▀▀▀▀▀▀▀▀
+EAGLE
+    echo -e "${NC}"
+    echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+    echo -e "${BLUE}║${NC}  ${CYAN}AQUILA A-ERP${NC} — Intranet Institucional IESTP Argentina     ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}  ${YELLOW}.NET 10 LTS${NC} • ${YELLOW}PostgreSQL 16${NC} • ${YELLOW}10 Módulos (00 - 09)${NC}        ${BLUE}║${NC}"
+    echo -e "${BLUE}╠══════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${BLUE}║${NC}  🌿 Rama: ${YELLOW}${CURRENT_BRANCH}${NC}$(printf '%*s' $((53 - ${#CURRENT_BRANCH})) '')${BLUE}║${NC}"
+    [ "$TEAM" != "—" ] && echo -e "${BLUE}║${NC}  👤 ${GREEN}${TEAM}${NC}$(printf '%*s' $((52 - ${#TEAM})) '')${BLUE}║${NC}" || echo -e "${BLUE}║${NC}  👤 ${RED}Sin configurar${NC}$(printf '%*s' $((40)) '')${BLUE}║${NC}"
+    echo -e "${BLUE}╠══════════════════════════════════════════════════════════════╣${NC}"
+    echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}  ${CYAN}▸ DESARROLLO${NC}                                               ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN} 1)${NC} 🚀 Iniciar Intranet${NC}                                ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN} 4)${NC} 🧪 Compilar y Validar${NC}                              ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN} 5)${NC} 📤 Subir a GitHub${NC}                                  ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}  ${CYAN}▸ RAMAS Y SYNC${NC}                                             ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN} 2)${NC} 🌿 Mi Rama de Equipo${NC}                               ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN} 3)${NC} 🔄 Sincronizar con main${NC}                            ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN} 9)${NC} 📋 Ver Mis Cambios${NC}                                 ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}  ${CYAN}▸ BASE DE DATOS${NC}                                            ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN} 6)${NC} 🗄️  Info y Configuración${NC}                             ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN} 7)${NC} 💾 Backup / Restore${NC}                                 ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}  ${CYAN}▸ MONITOREO${NC}                                                 ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN} 8)${NC} 📊 Estado del Proyecto${NC}                              ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${GREEN}10)${NC} 🔧 Extras${NC}                                           ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}    ${YELLOW} 0)${NC} 🚪 Salir${NC}                                           ${BLUE}║${NC}"
+    echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+    echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
 }
 
 start_app() {
@@ -566,17 +604,24 @@ extras_menu() {
     set +e
     while true; do
         echo ""
-        echo -e "${BLUE}======================================================================${NC}"
-        echo -e "${BLUE}🔧 EXTRAS — HERRAMIENTAS AVANZADAS${NC}"
-        echo -e "${BLUE}======================================================================${NC}"
-        echo -e "  ${GREEN}1)${NC} 📜 ${CYAN}Historial de Mi Módulo${NC} (Últimos commits que tocaron tu módulo)"
-        echo -e "  ${GREEN}2)${NC} 🔗 ${CYAN}Generar Descripción de PR${NC} (Genera texto listo para copiar al PR)"
-        echo -e "  ${GREEN}3)${NC} 🗄️  ${CYAN}Verificar Mi Esquema SQL${NC} (Revisa tu schema.sql por errores comunes)"
-        echo -e "  ${GREEN}4)${NC} 🔌 ${CYAN}Diagnosticar Conexión BD${NC} (Prueba si tu conexión a PostgreSQL funciona)"
-        echo -e "  ${GREEN}5)${NC} 📊 ${CYAN}Ver Datos de Prueba${NC} (Muestra usuarios/DNI para hacer login)"
-        echo -e "  ${GREEN}0)${NC} 🔙 ${YELLOW}Volver al Menú Principal${NC}"
+        echo -e "${BLUE}╔══════════════════════════════════════════════════════════════╗${NC}"
+        echo -e "${BLUE}║${NC}  ${CYAN}🔧 EXTRAS${NC} — Herramientas Avanzadas                        ${BLUE}║${NC}"
+        echo -e "${BLUE}╠══════════════════════════════════════════════════════════════╣${NC}"
+        echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}  ${CYAN}▸ CÓDIGO${NC}                                                   ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}    ${GREEN}1)${NC} 📜 Historial de Mi Módulo${NC}                           ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}    ${GREEN}2)${NC} 🔗 Generar Descripción de PR${NC}                        ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}    ${GREEN}3)${NC} 🗄️  Verificar Mi Esquema SQL${NC}                          ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}  ${CYAN}▸ BASE DE DATOS${NC}                                            ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}    ${GREEN}4)${NC} 🔌 Diagnosticar Conexión${NC}                             ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}    ${GREEN}5)${NC} 📊 Ver Datos de Prueba${NC}                               ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}    ${YELLOW}0)${NC} 🔙 Volver al Menú Principal${NC}                          ${BLUE}║${NC}"
+        echo -e "${BLUE}║${NC}                                                              ${BLUE}║${NC}"
+        echo -e "${BLUE}╚══════════════════════════════════════════════════════════════╝${NC}"
         echo ""
-        read -p "👉 Elige una opción [0-5]: " extra_op
+        read -p "  👉 Selecciona una opción [0-5]: " extra_op
         case "$extra_op" in
             1) extras_module_history ;;
             2) extras_pr_description ;;
@@ -584,9 +629,10 @@ extras_menu() {
             4) extras_diag_connection ;;
             5) extras_test_data ;;
             0) break ;;
-            *) echo -e "${RED}Opción no válida.${NC}" ;;
+            *) echo -e "  ${RED}Opción no válida.${NC}" ;;
         esac
-        echo -e "\n${YELLOW}Presiona ENTER para volver al submenú...${NC}"
+        echo -e "
+${YELLOW}  Presiona ENTER para volver al submenú...${NC}"
         read -r
     done
     set -e

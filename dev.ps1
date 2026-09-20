@@ -5,6 +5,12 @@
 
 $ErrorActionPreference = "Stop"
 
+# Añadir dotnet SDK al PATH (instalado en ~/.dotnet, no en PATH del sistema)
+$dotnetPath = "$env:USERPROFILE\.dotnet"
+if (Test-Path $dotnetPath) {
+    $env:PATH = "$dotnetPath;$env:PATH"
+}
+
 # Instalar guardianes locales contra push directo a 'main' y aislamiento modular
 if (Test-Path .git) {
     $hookDir = ".git/hooks"
@@ -63,26 +69,63 @@ function Show-Menu {
     Clear-Host
     $currentBranch = $(git rev-parse --abbrev-ref HEAD 2>$null)
     if (-not $currentBranch) { $currentBranch = "desconocida" }
-    
-    Write-Host "======================================================================" -ForegroundColor Blue
-    Write-Host "🦅 AQUILA A-ERP — INTRANET INSTITUCIONAL IESTP ARGENTINA" -ForegroundColor Cyan
-    Write-Host "======================================================================" -ForegroundColor Blue
-    Write-Host "  Plataforma .NET 10 LTS • PostgreSQL 16 • 10 Módulos (00 - 09)" -ForegroundColor Cyan
-    Write-Host "  🌿 Rama actual: $currentBranch" -ForegroundColor Yellow
-    Write-Host "----------------------------------------------------------------------" -ForegroundColor Blue
+    $localCfg = "src/03_Web/Intranet.Web/appsettings.Local.json"
+    $team = "—"
+    if (Test-Path $localCfg) {
+        $json = Get-Content $localCfg -Raw | ConvertFrom-Json
+        $connProp = $json.ConnectionStrings.PSObject.Properties | Where-Object { $_.Name -match "Modulo\d+Connection" } | Select-Object -First 1
+        if ($connProp) { $team = "Equipo $([regex]::Match($connProp.Name, '\d+').Value)" }
+    }
+
     Write-Host ""
-    Write-Host "  1) 🚀 Iniciar Intranet (Ver cambios en vivo con Hot-Reload en http://localhost:5000)" -ForegroundColor Green
-    Write-Host "  2) 🌿 Mi Rama de Equipo (Crear o cambiar a tu rama modulo00..modulo09)" -ForegroundColor Green
-    Write-Host "  3) 🔄 Sincronizar con 'main' (Descarga cambios de producción sin perder tu trabajo)" -ForegroundColor Green
-    Write-Host "  4) 🧪 Compilar y Validar (Verifica 0 errores en toda la solución .NET 10)" -ForegroundColor Green
-    Write-Host "  5) 📤 Subir a GitHub (Guarda cambios, sincroniza y genera enlace de PR)" -ForegroundColor Green
-    Write-Host "  6) 🗄️  Base de Datos PostgreSQL (Credenciales Adminer y Configuración Local)" -ForegroundColor Green
-    Write-Host "  7) 💾 Backup / Restore de BD (Respaldar o restaurar tu esquema modXX)" -ForegroundColor Green
-    Write-Host "  8) 📊 Estado del Proyecto (Dashboard: rama, cambios, servidor, configuración)" -ForegroundColor Green
-    Write-Host "  9) 📋 Ver Mis Cambios (Lista legible de archivos modificados con diffstat)" -ForegroundColor Green
-    Write-Host "  10) 🔧 Extras (Submenú: historial, esquema, PR, datos de prueba y más)" -ForegroundColor Green
-    Write-Host "  0) 🚪 Salir" -ForegroundColor Red
+    Write-Host "                 ▄████▄" -ForegroundColor Blue
+    Write-Host "              ▄▀▀▀▀▀▀▀▀▀▀▄" -ForegroundColor Blue
+    Write-Host "           ▄▀▀  ▄▄▄   ▄▄▄  ▀▀▄" -ForegroundColor Blue
+    Write-Host "         ▄▀  ▄▀▀  ▀▀▀▀▀  ▀▄  ▀▄" -ForegroundColor Blue
+    Write-Host "        █  ▄▀  ▄▄█     █▄▄  ▀▄  █" -ForegroundColor Blue
+    Write-Host "        █ █  ▄▀ █▀ ▀▄▄▀ █▄▀  █  █" -ForegroundColor Blue
+    Write-Host "        █ █ ▀▄▄▀ ▄█▀▀▀█▄ ▀▄▄ █  █" -ForegroundColor Blue
+    Write-Host "        █  ▀▄  ▀▀▀▀   ▀▀▀▀  ▄▀  █" -ForegroundColor Blue
+    Write-Host "         ▀▄  ▀▀▀▀▀▀▀▀▀▀▀▀▀▀  ▄▀" -ForegroundColor Blue
+    Write-Host "           ▀▀▄▄          ▄▄▀▀" -ForegroundColor Blue
+    Write-Host "              ▀▀▀▀▀▀▀▀▀▀▀▀" -ForegroundColor Blue
     Write-Host ""
+    Write-Host "╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Blue
+    Write-Host "║  AQUILA A-ERP — Intranet Institucional IESTP Argentina     ║" -ForegroundColor Blue
+    Write-Host "║  .NET 10 LTS • PostgreSQL 16 • 10 Módulos (00 - 09)        ║" -ForegroundColor Blue
+    Write-Host "╠══════════════════════════════════════════════════════════════╣" -ForegroundColor Blue
+    Write-Host "║  🌿 Rama: $currentBranch" -ForegroundColor Yellow -NoNewline
+    Write-Host (" " * [Math]::Max(1, 53 - $currentBranch.Length) + "║") -ForegroundColor Blue
+    if ($team -ne "—") {
+        Write-Host "║  👤 $team" -ForegroundColor Green -NoNewline
+        Write-Host (" " * [Math]::Max(1, 52 - $team.Length) + "║") -ForegroundColor Blue
+    } else {
+        Write-Host "║  👤 Sin configurar" -ForegroundColor Red -NoNewline
+        Write-Host (" " * [Math]::Max(1, 40) + "║") -ForegroundColor Blue
+    }
+    Write-Host "╠══════════════════════════════════════════════════════════════╣" -ForegroundColor Blue
+    Write-Host "║                                                              ║" -ForegroundColor Blue
+    Write-Host "║  ▸ DESARROLLO                                               ║" -ForegroundColor Blue
+    Write-Host "║    1) 🚀 Iniciar Intranet                                ║" -ForegroundColor Blue
+    Write-Host "║    4) 🧪 Compilar y Validar                              ║" -ForegroundColor Blue
+    Write-Host "║    5) 📤 Subir a GitHub                                  ║" -ForegroundColor Blue
+    Write-Host "║                                                              ║" -ForegroundColor Blue
+    Write-Host "║  ▸ RAMAS Y SYNC                                             ║" -ForegroundColor Blue
+    Write-Host "║    2) 🌿 Mi Rama de Equipo                               ║" -ForegroundColor Blue
+    Write-Host "║    3) 🔄 Sincronizar con main                            ║" -ForegroundColor Blue
+    Write-Host "║    9) 📋 Ver Mis Cambios                                 ║" -ForegroundColor Blue
+    Write-Host "║                                                              ║" -ForegroundColor Blue
+    Write-Host "║  ▸ BASE DE DATOS                                            ║" -ForegroundColor Blue
+    Write-Host "║    6) 🗄️  Info y Configuración                             ║" -ForegroundColor Blue
+    Write-Host "║    7) 💾 Backup / Restore                                 ║" -ForegroundColor Blue
+    Write-Host "║                                                              ║" -ForegroundColor Blue
+    Write-Host "║  ▸ MONITOREO                                                 ║" -ForegroundColor Blue
+    Write-Host "║    8) 📊 Estado del Proyecto                              ║" -ForegroundColor Blue
+    Write-Host "║   10) 🔧 Extras                                           ║" -ForegroundColor Blue
+    Write-Host "║                                                              ║" -ForegroundColor Blue
+    Write-Host "║    0) 🚪 Salir                                            ║" -ForegroundColor Red
+    Write-Host "║                                                              ║" -ForegroundColor Blue
+    Write-Host "╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Blue
 }
 
 function Start-App {
@@ -481,17 +524,24 @@ function Show-Extras {
     try {
     while ($true) {
         Write-Host ""
-        Write-Host "======================================================================" -ForegroundColor Blue
-        Write-Host "🔧 EXTRAS — HERRAMIENTAS AVANZADAS" -ForegroundColor Blue
-        Write-Host "======================================================================" -ForegroundColor Blue
-        Write-Host "  1) 📜 Historial de Mi Módulo" -ForegroundColor Green
-        Write-Host "  2) 🔗 Generar Descripción de PR" -ForegroundColor Green
-        Write-Host "  3) 🗄️  Verificar Mi Esquema SQL" -ForegroundColor Green
-        Write-Host "  4) 🔌 Diagnosticar Conexión BD" -ForegroundColor Green
-        Write-Host "  5) 📊 Ver Datos de Prueba" -ForegroundColor Green
-        Write-Host "  0) 🔙 Volver al Menú Principal" -ForegroundColor Red
+        Write-Host "╔══════════════════════════════════════════════════════════════╗" -ForegroundColor Blue
+        Write-Host "║  🔧 EXTRAS — Herramientas Avanzadas                        ║" -ForegroundColor Blue
+        Write-Host "╠══════════════════════════════════════════════════════════════╣" -ForegroundColor Blue
+        Write-Host "║                                                              ║" -ForegroundColor Blue
+        Write-Host "║  ▸ CÓDIGO                                                   ║" -ForegroundColor Cyan
+        Write-Host "║    1) 📜 Historial de Mi Módulo                           ║" -ForegroundColor Green
+        Write-Host "║    2) 🔗 Generar Descripción de PR                        ║" -ForegroundColor Green
+        Write-Host "║    3) 🗄️  Verificar Mi Esquema SQL                          ║" -ForegroundColor Green
+        Write-Host "║                                                              ║" -ForegroundColor Blue
+        Write-Host "║  ▸ BASE DE DATOS                                            ║" -ForegroundColor Cyan
+        Write-Host "║    4) 🔌 Diagnosticar Conexión                             ║" -ForegroundColor Green
+        Write-Host "║    5) 📊 Ver Datos de Prueba                               ║" -ForegroundColor Green
+        Write-Host "║                                                              ║" -ForegroundColor Blue
+        Write-Host "║    0) 🔙 Volver al Menú Principal                          ║" -ForegroundColor Yellow
+        Write-Host "║                                                              ║" -ForegroundColor Blue
+        Write-Host "╚══════════════════════════════════════════════════════════════╝" -ForegroundColor Blue
         Write-Host ""
-        $extraOp = Read-Host "👉 Elige una opción [0-5]"
+        $extraOp = Read-Host "  👉 Selecciona una opción [0-5]"
         switch -Regex ($extraOp) {
             "^1$"  { Show-ExtraHistory }
             "^2$"  { Show-ExtraPRDescription }
@@ -499,9 +549,9 @@ function Show-Extras {
             "^4$"  { Show-ExtraDiagConnection }
             "^5$"  { Show-ExtraTestData }
             "^0$"  { break }
-            default { Write-Host "Opción no válida." -ForegroundColor Red }
+            default { Write-Host "  Opción no válida." -ForegroundColor Red }
         }
-        Write-Host "`nPresiona ENTER para volver al submenú..." -ForegroundColor Yellow
+        Write-Host "`n  Presiona ENTER para volver al submenú..." -ForegroundColor Yellow
         [void][System.Console]::ReadLine()
     }
     } finally { $ErrorActionPreference = $prevEAP }
