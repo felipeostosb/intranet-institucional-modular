@@ -1,18 +1,17 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Intranet.Core.Contracts;
+using Intranet.Modulo06.Repositories;
 
-namespace Intranet.Modulo06;
-
-/// <summary>
-/// Registrador de Servicios del Módulo 06.
-/// Agrega aquí tus servicios o repositorios propios. El sistema los cargará automáticamente.
-/// </summary>
-public class Modulo06Startup : IModuloStartup
+namespace Intranet.Modulo06
 {
-    public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+    public class Modulo06Startup : IModuloStartup
     {
-        // Ejemplo:
-        // services.AddScoped<IModulo06Service, Modulo06Service>();
+        // Esta es la firma exacta que espera la arquitectura del líder técnico
+        public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
+        {
+            // Registramos tu repositorio de Dapper
+            services.AddScoped<IExpedienteRepository, ExpedienteRepository>();
+        }
     }
 }
