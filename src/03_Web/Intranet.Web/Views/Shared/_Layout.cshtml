@@ -130,6 +130,12 @@
                 </div>
                 
                 <div class="flex-none items-center gap-2">
+                    <!-- Acceso Directo Ficha PO en Campo -->
+                    <a href="/PO" class="btn btn-sm bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs gap-1.5 shadow-sm border-0" title="Abrir Ficha de Requerimientos PO">
+                        <span>📋</span>
+                        <span class="hidden sm:inline">Ficha PO</span>
+                    </a>
+
                     <!-- Botón Modo Oscuro -->
                     <button type="button" onclick="toggleAquilaTheme()" class="btn btn-ghost btn-sm btn-circle text-amber-300 hover:bg-white/10 transition" title="Alternar Modo Oscuro">
                         <svg class="theme-icon-sun w-5 h-5 hidden text-amber-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
@@ -364,6 +370,12 @@ else if (isAuth)
                         </div>
                     }
 
+                    <!-- Enlace directo a Ficha PO (Uso en Campo) -->
+                    <a href="/PO" class="btn btn-sm bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs gap-1.5 shadow-sm border-0" title="Abrir Ficha de Requerimiento PO para campo">
+                        <span class="text-sm">📋</span>
+                        <span class="hidden sm:inline">Ficha PO</span>
+                    </a>
+
                     <!-- Enlace directo a Documentación & Tutoriales -->
                     <a href="/Docs" class="btn btn-ghost btn-sm text-slate-300 hover:text-white rounded-xl text-xs font-medium gap-1.5">
                         <svg class="w-4 h-4 text-cyan-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -460,6 +472,15 @@ else if (isAuth)
                     <a href="/Docs" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="text-slate-400">📚</span>
                         <span>Guías & Videos</span>
+                    </a>
+
+                    <!-- Acceso Directo: Ficha Rápida PO (Uso en Campo) -->
+                    <a href="/PO" class="flex items-center justify-between px-3 py-2 rounded-xl text-emerald-700 dark:text-emerald-300 bg-emerald-50/80 dark:bg-emerald-950/40 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 font-bold transition border border-emerald-200/80 dark:border-emerald-800/80">
+                        <span class="flex items-center gap-2">
+                            <span>📋</span>
+                            <span>Ficha Rápida PO</span>
+                        </span>
+                        <span class="text-[9px] bg-emerald-200 dark:bg-emerald-800 text-emerald-950 dark:text-emerald-100 font-black px-1.5 py-0.5 rounded">A4 PDF</span>
                     </a>
 
                     <div class="pt-3 pb-1 px-3 flex items-center justify-between">
@@ -600,6 +621,10 @@ else
             </div>
             
             <div class="flex-none items-center gap-2">
+                <a href="/PO" class="btn btn-sm bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs gap-1 shadow-sm border-0">
+                    📋 Ficha PO
+                </a>
+
                 <a href="/Docs" class="btn btn-ghost btn-sm text-slate-300 hover:text-white rounded-xl text-xs font-medium">
                     📚 Guías & Videos
                 </a>

@@ -101,6 +101,10 @@ public class DocsController : ModuloBaseController
     [HttpGet("ProductOwner")]
     [HttpGet("FichaPO")]
     [HttpGet("Requerimientos")]
+    [HttpGet("/PO")]
+    [HttpGet("/FichaPO")]
+    [HttpGet("/ProductOwner")]
+    [HttpGet("/Requerimientos")]
     public IActionResult ProductOwner()
     {
         ViewData["Title"] = "Ficha Rápida de Requerimiento PO & Generador A4";
