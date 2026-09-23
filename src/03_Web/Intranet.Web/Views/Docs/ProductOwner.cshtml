@@ -1,5 +1,5 @@
 @{
-    ViewData["Title"] = "Ficha Rápida de Requerimiento PO & Generador A4";
+    ViewData["Title"] = "Informe de Requerimiento PO & Generador A4";
 }
 
 @section Styles {
@@ -91,10 +91,10 @@
                 <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">⏱️ Llenado en 90 seg</span>
             </div>
             <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                📋 Ficha Rápida de Requerimiento PO
+                📋 Informe de Requerimiento PO
             </h1>
             <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 leading-relaxed">
-                Completa los 3 pasos esenciales para generar tu especificación técnica oficial, exportar a <strong>PDF A4 oficial para firmas físicas</strong>, crear el Issue en GitHub o enviar el prompt a Cursor.
+                Completa los 3 pasos esenciales para generar tu informe técnico oficial, exportar a <strong>PDF A4 oficial para firmas físicas</strong>, crear el Issue en GitHub o enviar el prompt a Cursor.
             </p>
         </div>
 
@@ -311,10 +311,10 @@
                 <td style="vertical-align: top; text-align: right; width: 32%;">
                     <div style="display: inline-block; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 3px 8px; text-align: right;">
                         <p style="font-size: 6.5pt; font-weight: 800; color: #1d4ed8; margin: 0; text-transform: uppercase;">
-                            FICHA DE REQUERIMIENTO
+                            INFORME DE REQUERIMIENTO
                         </p>
                         <p id="pdfDocCode" style="font-size: 7.8pt; font-family: monospace; font-weight: 900; color: #0f172a; margin: 1px 0 0 0;">
-                            DOC-REQ-MOD03-2026
+                            INF-REQ-MOD03-2026
                         </p>
                         <p id="pdfDocDate" style="font-size: 6.2pt; color: #64748b; margin: 1px 0 0 0;">
                             Fecha: 22/09/2026 • Versión 1.0
@@ -327,7 +327,7 @@
         <!-- Título del Documento -->
         <div style="text-align: center; margin-bottom: 9px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px;">
             <h1 style="font-size: 10.5pt; font-weight: 900; color: #1e3a8a; margin: 0; text-transform: uppercase; letter-spacing: 0.2px;">
-                FICHA DE REQUERIMIENTO & ESPECIFICACIÓN FUNCIONAL
+                INFORME DE REQUERIMIENTO & ESPECIFICACIÓN FUNCIONAL
             </h1>
             <p style="font-size: 7pt; color: #475569; margin: 1px 0 0 0; font-weight: 600;">
                 Mapeo de la Solución, Datos a Ingresar y Criterios de Aceptación
@@ -577,7 +577,7 @@
             const now = new Date();
             const fechaStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
 
-            document.getElementById('pdfDocCode').textContent = `DOC-REQ-${modTag.toUpperCase()}-2026`;
+            document.getElementById('pdfDocCode').textContent = `INF-REQ-${modTag.toUpperCase()}-2026`;
             document.getElementById('pdfDocDate').textContent = `Fecha: ${fechaStr} • Versión 1.0`;
             document.getElementById('pdfModulo').textContent = mod;
             document.getElementById('pdfSchema').textContent = modTag.toUpperCase();
