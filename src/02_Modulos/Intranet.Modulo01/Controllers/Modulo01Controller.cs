@@ -3,6 +3,12 @@ using Intranet.Core.Controllers;
 
 namespace Intranet.Modulo01.Controllers;
 
+/// <summary>
+/// Entrada del Módulo 01. El botón "01. Matrícula" del menú global
+/// aterriza aquí y redirige a la pantalla real del equipo:
+///   Alumno   → Mi Matrícula (proceso Cero Filas)
+///   Personal → Panel de trabajo (4 zonas)
+/// </summary>
 [Route("Modulo01")]
 public class Modulo01Controller : ModuloBaseController
 {
@@ -10,11 +16,6 @@ public class Modulo01Controller : ModuloBaseController
     [HttpGet("Index")]
     public IActionResult Index()
     {
-        ViewData["Title"] = "Módulo 01 - Panel Principal";
-        ViewData["TeamName"] = "Equipo 01";
-        ViewData["UsuarioNombre"] = UsuarioActualNombre;
-        ViewData["UsuarioRol"] = UsuarioActualRol;
-
-        return View();
+        return RedirectToAction("Index", "Matriculas");
     }
 }
