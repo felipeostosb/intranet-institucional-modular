@@ -1,0 +1,119 @@
+@model Intranet.Modulo09.Controllers.MisPagosViewModel
+@{
+    ViewData["Title"] = "Mis Pagos";
+}
+
+<div class="space-y-6">
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0">💳</div>
+            <div>
+                <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Mis pagos</h1>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Recibos de matrícula y trámites. El voucher lo valida Tesorería.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de recibos -->
+    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full text-xs">
+                <thead>
+                    <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
+                        <th>Recibo</th>
+                        <th>Concepto</th>
+                        <th class="text-right">Monto</th>
+                        <th>Fecha</th>
+                        <th>Periodo</th>
+                        <th>Voucher</th>
+                    </tr>
+                </thead>
+                <tbody class="text-slate-700 dark:text-slate-300">
+                    @if (!Model.Pagos.Any())
+                    {
+                        <tr><td colspan="6" class="text-center text-slate-400 italic py-6">Aún no tienes pagos registrados.</td></tr>
+                    }
+                    @foreach (var p in Model.Pagos)
+                    {
+                        <tr>
+                            <td class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@p.Codigo</td>
+                            <td>@p.ConceptoCodigo · @p.ConceptoNombre</td>
+                            <td class="text-right font-mono">S/ @p.Monto.ToString("0.00")</td>
+                            <td class="text-slate-400 font-mono">@p.FechaPago.ToString("dd/MM/yyyy")</td>
+                            <td class="text-slate-400 font-mono">@p.Periodo</td>
+                            <td>
+                                @if (p.VoucherEstado == "Validado")
+                                {
+                                    <span class="badge badge-success badge-xs font-semibold text-white">Aprobado</span>
+                                }
+                                else if (p.VoucherEstado == "Rechazado")
+                                {
+                                    <span class="badge badge-error badge-xs font-semibold text-white">Rechazado</span>
+                                    if (!string.IsNullOrEmpty(p.MotivoRechazo))
+                                    {
+                                        <span class="text-[10px] text-rose-500 block mt-0.5 italic">"@p.MotivoRechazo"</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning badge-xs font-semibold text-white">Pendiente</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Registrar pago con voucher -->
+    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-6">
+        <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-4">🧾 Registrar pago con voucher</h2>
+        <form method="post" asp-action="Registrar">
+            @Html.AntiForgeryToken()
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                    <label class="text-[11px] font-bold block mb-1">Concepto (TUPA) *</label>
+                    <select name="concepto" id="selConcepto" class="select select-sm select-bordered w-full rounded-xl dark:bg-slate-800 text-xs" required>
+                        <option value="">Selecciona…</option>
+                        @foreach (var c in Model.Conceptos)
+                        {
+                            <option value="@c.Codigo" data-monto="@c.Monto.ToString("0.00")">@c.Codigo · @c.Nombre (S/ @c.Monto.ToString("0.00"))</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold block mb-1">Medio de pago *</label>
+                    <select name="tipoPago" class="select select-sm select-bordered w-full rounded-xl dark:bg-slate-800 text-xs" required>
+                        @foreach (var t in Model.TiposPago)
+                        {
+                            <option value="@t.Codigo">@t.Nombre</option>
+                        }
+                    </select>
+                </div>
+                <div>
+                    <label class="text-[11px] font-bold block mb-1">Monto S/ *</label>
+                    <input type="number" step="0.01" min="0.01" name="monto" id="inpMonto" class="input input-sm input-bordered w-full rounded-xl dark:bg-slate-800 text-xs" required />
+                </div>
+            </div>
+            <div class="mt-3">
+                <label class="text-[11px] font-bold block mb-1">N° de operación del voucher (opcional)</label>
+                <input type="text" name="nota" class="input input-sm input-bordered w-full rounded-xl dark:bg-slate-800 text-xs" placeholder="Ej: voucher BCP 123456" />
+            </div>
+            <div class="flex justify-end gap-2 mt-4">
+                <button type="submit" class="btn btn-primary btn-sm rounded-xl font-bold">Enviar a validación</button>
+            </div>
+        </form>
+        <p class="text-[11px] text-slate-400 mt-3">Tu pago queda <strong>Pendiente</strong> hasta que Tesorería valide el voucher. Si es rechazado, verás el motivo aquí y en el trámite asociado.</p>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // el monto se autocompleta con el del concepto TUPA (editable)
+        document.getElementById('selConcepto').addEventListener('change', e => {
+            const opt = e.target.selectedOptions[0];
+            if (opt && opt.dataset.monto) document.getElementById('inpMonto').value = opt.dataset.monto;
+        });
+    </script>
+}

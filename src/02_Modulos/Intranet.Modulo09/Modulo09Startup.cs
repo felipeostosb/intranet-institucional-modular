@@ -15,5 +15,7 @@ public class Modulo09Startup : IModuloStartup
     {
         // Trámites TUPA (Equipo 09)
         services.AddScoped<ITramiteService, TramiteService>();
+        // Pagos y bandeja de vouchers (Equipo 09)
+        services.AddScoped<IPagoService, PagoService>();
     }
 }
