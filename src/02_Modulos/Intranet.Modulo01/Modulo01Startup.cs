@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Intranet.Core.Contracts;
+using Intranet.Modulo01.Services;
 
 namespace Intranet.Modulo01;
 
@@ -12,7 +13,7 @@ public class Modulo01Startup : IModuloStartup
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        // Ejemplo:
-        // services.AddScoped<IModulo01Service, Modulo01Service>();
+        // Matrícula Académica — proceso Cero Filas (Equipo 01)
+        services.AddScoped<IMatriculaService, MatriculaService>();
     }
 }
