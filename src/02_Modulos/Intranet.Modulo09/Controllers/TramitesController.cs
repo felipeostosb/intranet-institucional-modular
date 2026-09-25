@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.IO;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -95,6 +96,7 @@ public class TramitesController : ModuloBaseController
     // ------------------------------------------------------------------
     [HttpPost("Crear")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(10_485_760)] // 10 MB total: PDFs ≤2MB por requisito (regla del prototipo)
     public async Task<IActionResult> Crear(string tipoTramite, string? observaciones)
     {
         if (EsAlumno && !EsAdmin)
@@ -102,12 +104,28 @@ public class TramitesController : ModuloBaseController
             var estudianteId = await ObtenerEstudianteIdAsync();
             var periodoId = await ObtenerPeriodoActivoIdAsync();
 
+            // archivos por requisito: inputs file llamados req_<catalogoId> (PDF/JPG/PNG, máx 2MB)
+            var archivos = new Dictionary<int, (string Nombre, string Tipo, byte[] Contenido)>();
+            foreach (var file in Request.Form.Files)
+            {
+                if (file.Length == 0 || !file.Name.StartsWith("req_")) continue;
+                if (!int.TryParse(file.Name["req_".Length..], out var reqId)) continue;
+                if (file.Length > 2_097_152)
+                {
+                    MostrarAlertaError($"El archivo '{file.FileName}' supera los 2 MB permitidos.");
+                    return RedirectToAction(nameof(Index));
+                }
+                using var ms = new MemoryStream();
+                await file.CopyToAsync(ms);
+                archivos[reqId] = (file.FileName, file.ContentType, ms.ToArray());
+            }
+
             string? datos = null;
             if (!string.IsNullOrWhiteSpace(observaciones))
                 datos = JsonSerializer.Serialize(new { observaciones });
 
             var (ok, mensaje, codigo) = await _tramiteService.CrearTramiteAsync(
-                estudianteId, periodoId, tipoTramite, datos);
+                estudianteId, periodoId, tipoTramite, datos, archivos);
 
             if (ok) MostrarAlertaExito(mensaje);
             else MostrarAlertaError(mensaje);
@@ -120,9 +138,21 @@ public class TramitesController : ModuloBaseController
     // ------------------------------------------------------------------
     [HttpPost("Corregir/{id}")]
     [ValidateAntiForgeryToken]
+    [RequestSizeLimit(10_485_760)]
     public async Task<IActionResult> Corregir(int id, int requisitoId, string? nota)
     {
-        var (ok, mensaje) = await _tramiteService.CorregirRequisitoAsync(id, requisitoId, nota ?? "Corregido por el estudiante");
+        // el alumno re-sube el archivo del requisito observado (PDF obligatorio en el prototipo)
+        (string Nombre, string Tipo, byte[] Contenido)? archivo = null;
+        var file = Request.Form.Files.FirstOrDefault(f => f.Name == "req_" + requisitoId && f.Length > 0);
+        if (file != null)
+        {
+            using var ms = new MemoryStream();
+            await file.CopyToAsync(ms);
+            archivo = (file.FileName, file.ContentType, ms.ToArray());
+        }
+
+        var (ok, mensaje) = await _tramiteService.CorregirRequisitoAsync(
+            id, requisitoId, nota ?? "Corregido por el estudiante", archivo);
         if (ok) MostrarAlertaExito(mensaje);
         else MostrarAlertaError(mensaje);
         return RedirectToAction(nameof(Index));

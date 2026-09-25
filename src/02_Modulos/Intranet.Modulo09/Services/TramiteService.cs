@@ -26,9 +26,11 @@ public interface ITramiteService
     Task<TipoTramiteDto?> ObtenerTipoAsync(string codigo);
     Task<IEnumerable<RequisitoDto>> ListarRequisitosDeTipoAsync(string tipoCodigo);
     Task<(bool Ok, string Mensaje, string? Codigo)> CrearTramiteAsync(
-        int estudianteId, int periodoId, string tipoCodigo, string? datos);
+        int estudianteId, int periodoId, string tipoCodigo, string? datos,
+        IReadOnlyDictionary<int, (string Nombre, string Tipo, byte[] Contenido)>? archivos = null);
     Task<(bool Ok, string Mensaje)> CorregirRequisitoAsync(
-        int tramiteId, int requisitoCatalogoId, string observacion);
+        int tramiteId, int requisitoCatalogoId, string observacion,
+        (string Nombre, string Tipo, byte[] Contenido)? archivo = null);
     Task<(bool Ok, string Mensaje)> AvanzarEstadoAsync(
         int tramiteId, string nuevoEstado, string? resolucion, int usuarioId);
     Task<int> ContarPendientesAsync();
@@ -223,8 +225,9 @@ public class TramiteService : ITramiteService
     // sin archivos no se registra, regla del prototipo).
     // La fecha límite = fecha_solicitud + dias_habiles del TUPA.
     // ------------------------------------------------------------------
-    public async Task<(bool, string, string?)> CrearTramiteAsync(
-        int estudianteId, int periodoId, string tipoCodigo, string? datos)
+    public async Task<(bool Ok, string Mensaje, string? Codigo)> CrearTramiteAsync(
+        int estudianteId, int periodoId, string tipoCodigo, string? datos,
+        IReadOnlyDictionary<int, (string Nombre, string Tipo, byte[] Contenido)>? archivos = null)
     {
         using var db = CreateConnection();
         db.Open();
@@ -254,13 +257,24 @@ public class TramiteService : ITramiteService
                        PeriodoId = periodoId, DiasHabiles = tipo.DiasHabiles,
                        Datos = string.IsNullOrWhiteSpace(datos) ? null : datos }, tx);
 
-        // plantilla de requisitos: todos presentados (se adjuntaron al crear)
-        await db.ExecuteAsync("""
-            INSERT INTO tramite_requisitos (tramite_id, requisito_catalogo_id, presentado)
-            SELECT @Id, r.id, TRUE
+        // plantilla de requisitos: cada uno con SU archivo adjunto (obligatorio, regla del prototipo)
+        var requisitos = (await db.QueryAsync<(int Id, int Orden)>("""
+            SELECT r.id AS Id, r.orden AS Orden
             FROM requisitos_tipos_tramite r
-            WHERE r.tipo_tramite_id = @TipoId;
-            """, new { Id = nuevoId, TipoId = tipo.Id }, tx);
+            WHERE r.tipo_tramite_id = @TipoId
+            ORDER BY r.orden;
+            """, new { TipoId = tipo.Id }, tx)).ToList();
+        foreach (var req in requisitos)
+        {
+            var archivo = archivos != null && archivos.TryGetValue(req.Id, out var a) && a.Contenido is { Length: > 0 }
+                ? a : default;
+            await db.ExecuteAsync("""
+                INSERT INTO tramite_requisitos (tramite_id, requisito_catalogo_id, presentado,
+                                                archivo_nombre, archivo_tipo, archivo_contenido)
+                VALUES (@Id, @ReqId, @Presentado, @Nombre, @Tipo, @Contenido);
+                """, new { Id = nuevoId, ReqId = req.Id, Presentado = archivo.Contenido is { Length: > 0 },
+                           Nombre = archivo.Nombre, Tipo = archivo.Tipo, Contenido = archivo.Contenido }, tx);
+        }
 
         tx.Commit();
         return (true, $"Trámite {codigo} registrado. Secretaría lo evaluará en {tipo.DiasHabiles} días hábiles.", codigo);
@@ -270,16 +284,21 @@ public class TramiteService : ITramiteService
     // ALUMNO: corrección de trámite Observado/Rechazado — solo se
     // re-adjunta el requisito observado, NO se crea trámite nuevo.
     // ------------------------------------------------------------------
-    public async Task<(bool, string)> CorregirRequisitoAsync(
-        int tramiteId, int requisitoCatalogoId, string observacion)
+    public async Task<(bool Ok, string Mensaje)> CorregirRequisitoAsync(
+        int tramiteId, int requisitoCatalogoId, string observacion,
+        (string Nombre, string Tipo, byte[] Contenido)? archivo = null)
     {
         using var db = CreateConnection();
         var filas = await db.ExecuteAsync("""
             UPDATE tramite_requisitos
             SET presentado = TRUE,
-                observacion = @Observacion
+                observacion = @Observacion,
+                archivo_nombre = COALESCE(@Nombre, archivo_nombre),
+                archivo_tipo = COALESCE(@Tipo, archivo_tipo),
+                archivo_contenido = COALESCE(@Contenido, archivo_contenido)
             WHERE tramite_id = @Id AND requisito_catalogo_id = @ReqId;
-            """, new { Id = tramiteId, ReqId = requisitoCatalogoId, Observacion = observacion });
+            """, new { Id = tramiteId, ReqId = requisitoCatalogoId, Observacion = observacion,
+                       Nombre = archivo?.Nombre, Tipo = archivo?.Tipo, Contenido = archivo?.Contenido });
         if (filas == 0) return (false, "El requisito no pertenece a ese trámite.");
 
         // el trámite observado vuelve a evaluación (corrección del prototipo)

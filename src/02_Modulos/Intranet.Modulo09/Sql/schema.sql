@@ -77,6 +77,9 @@ CREATE TABLE IF NOT EXISTS mod09.tramite_requisitos (
     requisito_catalogo_id INT NOT NULL REFERENCES mod09.requisitos_tipos_tramite(id) ON DELETE RESTRICT,
     presentado BOOLEAN NOT NULL DEFAULT FALSE,
     observacion VARCHAR(300) NULL,
+    archivo_nombre VARCHAR(260) NULL,
+    archivo_tipo VARCHAR(100) NULL,
+    archivo_contenido BYTEA NULL,
     UNIQUE (tramite_id, requisito_catalogo_id)
 );
 
@@ -125,7 +128,7 @@ CREATE TABLE IF NOT EXISTS mod09.avisos_destinatarios (
 -- SEMILLA (TUPA real del instituto: tipos de pago, feriados, plantillas)
 -- ============================================================================
 INSERT INTO mod09.tipos_pago (codigo, nombre) VALUES
-  ('TP1','Efectivo'),('TP2','Yape'),('TP3','Plin'),('TP4','Transferencia'),('TP5','Tarjeta')
+  ('TP1','Agente Bancario'),('TP2','Banco de la Nación')
 ON CONFLICT (codigo) DO NOTHING;
 
 INSERT INTO mod09.feriados (fecha, descripcion) VALUES
