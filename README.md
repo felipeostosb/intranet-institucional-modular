@@ -178,3 +178,5 @@ REGLAS DE ACERO ARQUITECTÓNICAS (Zero-Blast-Radius):
 Requerimiento de mi equipo para hoy:
 [Describe aquí lo que necesitas, ej: Crear tabla de items y vista con formulario y listado]
 ```
+
+> Nota de sincronización 2026-09-25: módulos 01 y 09 mergeados vía PR #12 y #13.
