@@ -96,8 +96,10 @@
                             </td>
                             <td>
                                 <div class="flex gap-1 flex-wrap">
-                                    @if (t.Estado == "Recibido")
+                                    @if (User.IsInRole("Secretaria") || User.IsInRole("Admin") || User.IsInRole("Director"))
                                     {
+                                        if (t.Estado == "Recibido")
+                                        {
                                         <form method="post" asp-action="Avanzar" asp-route-id="@t.Id">
                                             @Html.AntiForgeryToken()
                                             <input type="hidden" name="nuevoEstado" value="En evaluación" />
@@ -132,9 +134,14 @@
                                     {
                                         <span class="text-slate-400 italic">Esperando corrección del alumno</span>
                                     }
+                                        else
+                                        {
+                                            <span class="text-slate-400">—</span>
+                                        }
+                                    }
                                     else
                                     {
-                                        <span class="text-slate-400">—</span>
+                                        <span class="text-[10px] text-slate-400 italic">Vista de consulta: la mesa es de Secretaría</span>
                                     }
                                 </div>
                             </td>
