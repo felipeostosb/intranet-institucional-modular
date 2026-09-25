@@ -56,6 +56,16 @@ public class MatriculasController : ModuloBaseController
         return View("Panel", model);
     }
 
+    /// <summary>Ruta explícita de "Mi Matrícula" (tab del alumno).</summary>
+    [HttpGet("MiMatricula")]
+    public async Task<IActionResult> MiMatricula()
+    {
+        ViewData["Title"] = "Mi Matrícula";
+        ViewData["UsuarioNombre"] = UsuarioActualNombre;
+        var activa = await _matriculaService.ObtenerMatriculaActivaAsync(UsuarioActualId ?? 0);
+        return View("MiMatricula", activa);
+    }
+
     // ------------------------------------------------------------------
     // Validaciones (Bandejas)
     // ------------------------------------------------------------------
@@ -63,7 +73,7 @@ public class MatriculasController : ModuloBaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ValidarVoucher(int id, bool aprobar = true)
     {
-        if (!EsTesoreria && !EsAdmin)
+        if (!EsTesoreria && !EsDirector)
             return Forbid();
 
         var ok = await _matriculaService.ValidarVoucherAsync(id, aprobar);
@@ -78,7 +88,7 @@ public class MatriculasController : ModuloBaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ValidarFoto(int id, bool aprobar = true)
     {
-        if (!EsSecretaria && !EsAdmin)
+        if (!EsSecretaria && !EsDirector)
             return Forbid();
 
         var ok = await _matriculaService.ValidarFotoAsync(id, aprobar);

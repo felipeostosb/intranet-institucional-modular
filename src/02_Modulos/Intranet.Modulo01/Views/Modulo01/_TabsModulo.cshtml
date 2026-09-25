@@ -24,7 +24,7 @@
                 if (rol) {
                     const rolesUsuario = (window.__ROLES_USUARIO || '').split(',').map(function (r) { return r.trim(); });
                     const esAdmin = rolesUsuario.includes('Admin');
-                    // el atributo admite varios roles separados por coma: data-solo-rol="Secretaria,Tesoreria"
+                    // el atributo admite varios roles separados por coma: data-solo-rol="Secretaria,Tesoreria,Director,Coordinador"
                     const permitidos = rol.split(',').map(function (r) { return r.trim(); });
                     a.style.display = (esAdmin || permitidos.some(function (r) { return rolesUsuario.includes(r); })) ? '' : 'none';
                 }
