@@ -91,6 +91,7 @@ CREATE TABLE IF NOT EXISTS mod09.pagos (
     concepto_pago_id INT NOT NULL REFERENCES mod09.conceptos_pago(id) ON DELETE RESTRICT,
     periodo_id INT NOT NULL REFERENCES core.periodos_academicos(id) ON DELETE RESTRICT,
     tipo_pago_id INT NOT NULL REFERENCES mod09.tipos_pago(id) ON DELETE RESTRICT,
+    tramite_id INT NULL REFERENCES mod09.tramites(id) ON DELETE SET NULL,
     monto NUMERIC(10,2) NOT NULL CHECK (monto > 0),
     fecha_pago DATE NOT NULL DEFAULT CURRENT_DATE,
     voucher_estado VARCHAR(20) NOT NULL DEFAULT 'Pendiente' CHECK (voucher_estado IN ('Pendiente','Validado','Rechazado')),
@@ -128,7 +129,7 @@ CREATE TABLE IF NOT EXISTS mod09.avisos_destinatarios (
 -- SEMILLA (TUPA real del instituto: tipos de pago, feriados, plantillas)
 -- ============================================================================
 INSERT INTO mod09.tipos_pago (codigo, nombre) VALUES
-  ('TP1','Agente Bancario'),('TP2','Banco de la Nación')
+  ('TPM','Matrícula'),('MEN','Mensual'),('TRA','Trámite'),('OTR','Otro')
 ON CONFLICT (codigo) DO NOTHING;
 
 INSERT INTO mod09.feriados (fecha, descripcion) VALUES
