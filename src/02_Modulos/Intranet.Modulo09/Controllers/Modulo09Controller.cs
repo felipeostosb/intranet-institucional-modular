@@ -29,6 +29,7 @@ public class Modulo09Controller : ModuloBaseController
         ViewData["Title"] = "09. Tesorería & Pagos";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;
+        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
 
         var resumenPagos = await _pagoService.ResumenAsync();
         var ultimosTramites = await _tramiteService.ListarMesaAsync(null);

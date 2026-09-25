@@ -4,12 +4,17 @@
 }
 
 <div class="space-y-6">
+    <!-- Tabs del módulo (rol-aware) -->
+    <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="09">
+        <a href="/Modulo09" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
+        <a href="/Modulo09/Tramites" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Trámites TUPA</a>
+        <a href="/Modulo09/Pagos" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Pagos & Vouchers</a>
+    </div>
     <!-- Ficha TUPA del trámite -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
         <div class="flex justify-between items-start flex-wrap gap-3">
             <div>
-                <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight font-mono">@Model.Codigo</h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                                <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
                     @Model.TipoCodigo · @Model.TipoNombre — @Model.Estudiante (@Model.CodigoEstudiante)
                 </p>
             </div>
@@ -91,3 +96,5 @@
         <a class="btn btn-ghost btn-sm rounded-xl" asp-controller="Tramites" asp-action="Index">← Volver</a>
     </div>
 </div>
+
+<partial name="~/Views/Modulo09/_TabsModulo.cshtml" />

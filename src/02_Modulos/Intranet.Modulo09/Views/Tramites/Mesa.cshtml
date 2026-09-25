@@ -4,13 +4,18 @@
 }
 
 <div class="space-y-6">
+    <!-- Tabs del módulo (rol-aware) -->
+    <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="09">
+        <a href="/Modulo09" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
+        <a href="/Modulo09/Tramites" data-solo-rol="Secretaria,Tesoreria" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Trámites TUPA</a>
+        <a href="/Modulo09/Pagos" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Pagos & Vouchers</a>
+    </div>
     <!-- Header -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
         <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0">🗂️</div>
             <div>
-                <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Mesa de trámites</h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Seguimiento de las solicitudes. Aquí no se crean trámites: se verifica y avanza el proceso.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Seguimiento de las solicitudes. Aquí no se crean trámites: se verifica y avanza el proceso.</p>
             </div>
             <div class="ml-auto text-center">
                 <span class="text-[10px] font-bold text-slate-400 uppercase block">Pendientes</span>
@@ -139,3 +144,5 @@
         </div>
     </div>
 </div>
+
+<partial name="~/Views/Modulo09/_TabsModulo.cshtml" />

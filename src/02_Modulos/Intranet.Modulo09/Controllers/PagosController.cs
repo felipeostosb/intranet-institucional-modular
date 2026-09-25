@@ -21,6 +21,7 @@ public class PagosController : ModuloBaseController
 
     public PagosController(IPagoService pagoService)
     {
+        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
         _pagoService = pagoService;
     }
 

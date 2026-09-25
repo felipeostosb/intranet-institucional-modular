@@ -21,6 +21,7 @@ public class TramitesController : ModuloBaseController
 
     public TramitesController(ITramiteService tramiteService)
     {
+        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
         _tramiteService = tramiteService;
     }
 
