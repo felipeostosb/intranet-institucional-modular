@@ -1,116 +1,204 @@
+@model Intranet.Modulo09.Controllers.Modulo09DashboardViewModel
 @{
     ViewData["Title"] = "09. Tesorería & Pagos";
 }
 
 <div class="space-y-6">
+    <!-- Tabs del módulo (rol-aware) -->
+    <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="09">
+        <a href="/Modulo09" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
+        <a href="/Modulo09/Tramites" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Trámites TUPA</a>
+        <a href="/Modulo09/Pagos" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Pagos & Vouchers</a>
+    </div>
+    <!-- Header Zen del Módulo (patrón del Módulo 02) -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-12 h-12 rounded-2xl bg-cyan-50 dark:bg-cyan-950/50 text-cyan-600 dark:text-cyan-400 flex items-center justify-center text-xl shrink-0">
-                💳
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0">
+                💰
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="text-[10px] font-mono font-bold bg-cyan-100 dark:bg-cyan-950 text-cyan-800 dark:text-cyan-300 px-2 py-0.5 rounded">09</span>
-                    <span class="text-xs font-bold text-cyan-700 dark:text-cyan-300 bg-cyan-50 dark:bg-cyan-900/40 px-2 py-0.5 rounded-md border border-cyan-200 dark:border-cyan-800">🗄️ Responsable BD: Equipo 09 (Vargas)</span>
+                    <span class="text-[10px] font-mono font-bold bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 px-2 py-0.5 rounded">09</span>
+                    <span class="text-xs font-bold text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-900/40 px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800">🗄️ Responsable BD: Ismael</span>
                 </div>
                 <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                    Tesorería, Tasas & Pagos TUPA
+                    Tesorería, Trámites TUPA & Pagos
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Recaudación de derechos de matrícula, constancias, certificados y estado de cuenta.
+                    @if (User.IsInRole("Tesoreria") && !User.IsInRole("Admin"))
+                    {
+                        <span>Tu puesto: <strong>validación de vouchers</strong> (cotejo DRELM) y emisión de recibos de caja.</span>
+                    }
+                    else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
+                    {
+                        <span>Tu puesto: <strong>mesa de trámites TUPA</strong> — evaluar, observar, aprobar y entregar expedientes.</span>
+                    }
+                    else
+                    {
+                        <span>Cero Filas: trámites con requisitos, validación de vouchers y recibos de caja.</span>
+                    }
                 </p>
             </div>
         </div>
-        <div class="flex gap-2">
-            <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo_09.showModal()">
-                + Registrar Pago
-            </button>
+        <div class="flex flex-wrap gap-2">
+            @if (Model.EsAlumno)
+            {
+                <a href="/Modulo09/Tramites" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">📄 Mis Trámites</a>
+                <a href="/Modulo09/Pagos" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">💳 Mis Pagos</a>
+            }
+            else if (User.IsInRole("Tesoreria") && !User.IsInRole("Admin"))
+            {
+                <a href="/Modulo09/Pagos" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">
+                    🧾 Tu Bandeja de Vouchers
+                    @if (Model.ResumenPagos.PorValidar > 0)
+                    {
+                        <span class="badge badge-error badge-xs text-white font-bold">@Model.ResumenPagos.PorValidar por validar</span>
+                    }
+                </a>
+                <a href="/Modulo09/Tramites" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🗂️ Mesa (consulta)</a>
+            }
+            else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
+            {
+                <a href="/Modulo09/Tramites" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">
+                    🗂️ Tu Mesa de Trámites
+                    @if (Model.TramitesPendientes > 0)
+                    {
+                        <span class="badge badge-error badge-xs text-white font-bold">@Model.TramitesPendientes en mesa</span>
+                    }
+                </a>
+                <a href="/Modulo09/Pagos" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🧾 Vouchers (consulta)</a>
+            }
+            else
+            {
+                <a href="/Modulo09/Tramites" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🗂️ Mesa de Trámites</a>
+                <a href="/Modulo09/Pagos" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🧾 Bandeja de Vouchers</a>
+            }
         </div>
     </div>
 
-    <!-- Indicadores -->
+    <!-- Indicadores (datos reales del esquema mod09) -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Recaudación Mes</span>
-            <div class="text-xl font-bold text-cyan-600 dark:text-cyan-400 mt-1 font-mono">S/ 12,450</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Tasas TUPA</p>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trámites en mesa</span>
+            <div class="text-xl font-bold text-amber-600 dark:text-amber-400 mt-1">@Model.TramitesPendientes</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Recibidos / en evaluación</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Comprobantes</span>
-            <div class="text-xl font-bold text-slate-900 dark:text-slate-100 mt-1">148</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Emitidos</p>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Vouchers por validar</span>
+            <div class="text-xl font-bold text-rose-600 dark:text-rose-400 mt-1">@Model.ResumenPagos.PorValidar</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">en la bandeja</p>
+        </div>
+        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Recaudación validada</span>
+            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 font-mono">S/ @Model.ResumenPagos.Recaudado.ToString("0.00")</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">@Model.ResumenPagos.Validados recibos validados</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema & DBA</span>
             <div class="text-xl font-bold text-slate-900 dark:text-slate-100 font-mono mt-1">mod09</div>
-            <p class="text-[10px] text-cyan-600 dark:text-cyan-400 font-semibold mt-0.5">DBA: Equipo 09</p>
-        </div>
-        <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Usuario</span>
-            <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 truncate">@ViewData["UsuarioNombre"]</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Rol: @ViewData["UsuarioRol"]</p>
+            <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">DBA: Ismael</p>
         </div>
     </div>
 
-    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                Pagos & Comprobantes Recientes
-            </h2>
+    @if (Model.EsAlumno)
+    {
+        <!-- Sección alumno -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📄 Mis últimos trámites</h2>
+                    <a href="/Modulo09/Tramites" class="link link-primary text-[11px]">Ver todos</a>
+                </div>
+                <div class="space-y-2">
+                    @if (!Model.UltimosTramites.Any())
+                    {
+                        <p class="text-xs text-slate-400 italic">Sin trámites aún. <a class="link link-primary" href="/Modulo09/Tramites">Solicita el primero</a>.</p>
+                    }
+                    @foreach (var t in Model.UltimosTramites)
+                    {
+                        <div class="flex items-center justify-between gap-2 text-xs">
+                            <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@t.Codigo</span>
+                            <span class="flex-1 truncate text-slate-600 dark:text-slate-300">@t.TipoCodigo · @t.TipoNombre</span>
+                            <span class="badge @(t.Estado == "Aprobado" || t.Estado == "Entregado" ? "badge-success" : t.Estado == "Rechazado" ? "badge-error" : "badge-warning") badge-xs font-semibold text-white">@t.Estado</span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">💳 Mis últimos pagos</h2>
+                    <a href="/Modulo09/Pagos" class="link link-primary text-[11px]">Ver todos</a>
+                </div>
+                <div class="space-y-2">
+                    @if (!Model.UltimosPagos.Any())
+                    {
+                        <p class="text-xs text-slate-400 italic">Sin pagos aún.</p>
+                    }
+                    @foreach (var p in Model.UltimosPagos)
+                    {
+                        <div class="flex items-center justify-between gap-2 text-xs">
+                            <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@p.Codigo</span>
+                            <span class="flex-1 truncate text-slate-600 dark:text-slate-300">@p.ConceptoNombre</span>
+                            <span class="font-mono">S/ @p.Monto.ToString("0.00")</span>
+                            <span class="badge @(p.VoucherEstado == "Validado" ? "badge-success" : p.VoucherEstado == "Rechazado" ? "badge-error" : "badge-warning") badge-xs font-semibold text-white">@p.VoucherEstado</span>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra w-full text-xs">
-                <thead>
-                    <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
-                        <th>#</th>
-                        <th>N° Operación</th>
-                        <th>Estudiante</th>
-                        <th>Concepto</th>
-                        <th>Monto</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody class="text-slate-700 dark:text-slate-300">
-                    <tr>
-                        <td class="text-slate-400 font-mono">1</td>
-                        <td><span class="font-mono font-bold text-cyan-600 dark:text-cyan-400">OP-89211</span></td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Carlos Mendoza</td>
-                        <td>Derecho de Matrícula 2026-II</td>
-                        <td class="font-mono font-bold">S/ 85.00</td>
-                        <td><span class="badge badge-success badge-xs font-semibold text-white">Validado</span></td>
-                    </tr>
-                    <tr>
-                        <td class="text-slate-400 font-mono">2</td>
-                        <td><span class="font-mono font-bold text-cyan-600 dark:text-cyan-400">OP-89212</span></td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Ana García</td>
-                        <td>Certificado Modular Oficial</td>
-                        <td class="font-mono font-bold">S/ 35.00</td>
-                        <td><span class="badge badge-success badge-xs font-semibold text-white">Validado</span></td>
-                    </tr>
-                </tbody>
-            </table>
+    }
+    else
+    {
+        <!-- Sección personal -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">🗂️ Últimos trámites recibidos</h2>
+                    <a href="/Modulo09/Tramites" class="link link-primary text-[11px]">Ir a la mesa</a>
+                </div>
+                <div class="space-y-2">
+                    @if (!Model.UltimosTramites.Any())
+                    {
+                        <p class="text-xs text-slate-400 italic">Sin trámites todavía.</p>
+                    }
+                    @foreach (var t in Model.UltimosTramites)
+                    {
+                        <div class="flex items-center justify-between gap-2 text-xs">
+                            <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@t.Codigo</span>
+                            <span class="flex-1 truncate text-slate-600 dark:text-slate-300">@t.Estudiante · @t.TipoCodigo</span>
+                            <span class="text-slate-400 font-mono text-[10px]">@t.FechaSolicitud.ToString("dd/MM")</span>
+                            <span class="badge @(t.Estado == "Aprobado" || t.Estado == "Entregado" ? "badge-success" : t.Estado == "Rechazado" ? "badge-error" : "badge-warning") badge-xs font-semibold text-white">@t.Estado</span>
+                        </div>
+                    }
+                </div>
+            </div>
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+                <div class="flex justify-between items-center mb-3">
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">🧾 Últimos vouchers</h2>
+                    <a href="/Modulo09/Pagos" class="link link-primary text-[11px]">Ir a la bandeja</a>
+                </div>
+                <div class="space-y-2">
+                    @if (!Model.UltimosPagos.Any())
+                    {
+                        <p class="text-xs text-slate-400 italic">Sin pagos registrados.</p>
+                    }
+                    @foreach (var p in Model.UltimosPagos)
+                    {
+                        <div class="flex items-center justify-between gap-2 text-xs">
+                            <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@p.Codigo</span>
+                            <span class="flex-1 truncate text-slate-600 dark:text-slate-300">@p.Estudiante · S/ @p.Monto.ToString("0.00")</span>
+                            <span class="badge @(p.VoucherEstado == "Validado" ? "badge-success" : p.VoucherEstado == "Rechazado" ? "badge-error" : "badge-warning") badge-xs font-semibold text-white">@p.VoucherEstado</span>
+                        </div>
+                    }
+                </div>
+            </div>
         </div>
-    </div>
+    }
+
+    <!-- Pie de módulo -->
+    <p class="text-[10px] text-slate-400 text-center">
+        Módulo 09 · Esquema PostgreSQL <span class="font-mono">mod09</span> · Aislamiento Zero-Blast-Radius
+    </p>
 </div>
 
-<dialog id="modal_nuevo_09" class="modal">
-    <div class="modal-box max-w-md bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-200 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xl">
-        <h3 class="text-sm font-bold mb-3">Registrar Pago TUPA</h3>
-        <div class="space-y-3 text-xs">
-            <div>
-                <label class="font-bold block mb-1 text-[11px]">N° Operación Banco de la Nación</label>
-                <input type="text" placeholder="0098421" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
-            </div>
-            <div>
-                <label class="font-bold block mb-1 text-[11px]">Monto (S/)</label>
-                <input type="number" step="0.50" placeholder="85.00" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
-            </div>
-        </div>
-        <div class="modal-action pt-2">
-            <form method="dialog">
-                <button class="btn btn-ghost btn-xs rounded-xl">Cancelar</button>
-                <button class="btn btn-primary btn-xs rounded-xl font-bold">Guardar</button>
-            </form>
-        </div>
-    </div>
-</dialog>
+<partial name="~/Views/Modulo09/_TabsModulo.cshtml" />

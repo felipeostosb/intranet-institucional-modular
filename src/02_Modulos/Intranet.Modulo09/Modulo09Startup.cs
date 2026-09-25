@@ -1,6 +1,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Intranet.Core.Contracts;
+using Intranet.Modulo09.Services;
 
 namespace Intranet.Modulo09;
 
@@ -12,7 +13,9 @@ public class Modulo09Startup : IModuloStartup
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        // Ejemplo:
-        // services.AddScoped<IModulo09Service, Modulo09Service>();
+        // Trámites TUPA (Equipo 09)
+        services.AddScoped<ITramiteService, TramiteService>();
+        // Pagos y bandeja de vouchers (Equipo 09)
+        services.AddScoped<IPagoService, PagoService>();
     }
 }

@@ -1,0 +1,88 @@
+@model Intranet.Modulo09.Controllers.MisPagosViewModel
+@{
+    ViewData["Title"] = "Mis Pagos";
+}
+
+<div class="space-y-6">
+    <!-- Tabs del módulo (rol-aware) -->
+    <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="09">
+        <a href="/Modulo09" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
+        <a href="/Modulo09/Tramites" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Trámites TUPA</a>
+        <a href="/Modulo09/Pagos" data-solo-rol="Alumno" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Pagos & Vouchers</a>
+    </div>
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div class="flex items-center gap-4">
+            <div class="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center text-xl shrink-0">💳</div>
+            <div>
+                <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Mis Pagos</h1>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Recibos de matrícula y trámites. El voucher lo valida Tesorería.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabla de recibos -->
+    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table table-zebra w-full text-xs">
+                <thead>
+                    <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
+                        <th>Recibo</th>
+                        <th>Concepto</th>
+                        <th class="text-right">Monto</th>
+                        <th>Fecha</th>
+                        <th>Periodo</th>
+                        <th>Voucher</th>
+                    </tr>
+                </thead>
+                <tbody class="text-slate-700 dark:text-slate-300">
+                    @if (!Model.Pagos.Any())
+                    {
+                        <tr><td colspan="6" class="text-center text-slate-400 italic py-6">Aún no tienes pagos registrados.</td></tr>
+                    }
+                    @foreach (var p in Model.Pagos)
+                    {
+                        <tr>
+                            <td class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@p.Codigo</td>
+                            <td>@p.ConceptoCodigo · @p.ConceptoNombre</td>
+                            <td class="text-right font-mono">S/ @p.Monto.ToString("0.00")</td>
+                            <td class="text-slate-400 font-mono">@p.FechaPago.ToString("dd/MM/yyyy")</td>
+                            <td class="text-slate-400 font-mono">@p.Periodo</td>
+                            <td>
+                                @if (p.VoucherEstado == "Validado")
+                                {
+                                    <span class="badge badge-success badge-xs font-semibold text-white">Aprobado</span>
+                                }
+                                else if (p.VoucherEstado == "Rechazado")
+                                {
+                                    <span class="badge badge-error badge-xs font-semibold text-white">Rechazado</span>
+                                    if (!string.IsNullOrEmpty(p.MotivoRechazo))
+                                    {
+                                        <span class="text-[10px] text-rose-500 block mt-0.5 italic">"@p.MotivoRechazo"</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span class="badge badge-warning badge-xs font-semibold text-white">Pendiente</span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Nota del prototipo: el voucher se adjunta al crear el trámite -->
+    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-6">
+        <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">📎 Vouchers (adjuntados en el trámite)</h2>
+        <p class="text-xs text-slate-500 dark:text-slate-400">
+            Los vouchers se adjuntan en <strong>PDF</strong> al crear el trámite correspondiente
+            (<a class="link link-primary" href="/Modulo09/Tramites">Mis trámites → Nuevo trámite</a>).
+            Si Tesorería rechaza tu voucher por ser ilegible, la corrección se hace desde
+            <strong>Mis trámites → Ver ficha → Re-adjuntar</strong> subiendo un nuevo PDF.
+        </p>
+    </div>
+</div>
+
+
+<partial name="~/Views/Modulo09/_TabsModulo.cshtml" />
