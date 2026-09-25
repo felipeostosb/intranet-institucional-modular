@@ -18,8 +18,14 @@ public class MatriculasController : ModuloBaseController
 
     public MatriculasController(IMatriculaService matriculaService)
     {
-        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
         _matriculaService = matriculaService;
+    }
+
+    /// <summary>Expone los roles del usuario a las vistas (tabs rol-aware).</summary>
+    public override void OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext context)
+    {
+        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
+        base.OnActionExecuting(context);
     }
 
     [HttpGet("")]
