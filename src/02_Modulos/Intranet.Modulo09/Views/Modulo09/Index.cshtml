@@ -25,11 +25,55 @@
                     Tesorería, Trámites TUPA & Pagos
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Cero Filas: trámites con requisitos, validación de vouchers y recibos de caja.
+                    @if (User.IsInRole("Tesoreria") && !User.IsInRole("Admin"))
+                    {
+                        <span>Tu puesto: <strong>validación de vouchers</strong> (cotejo DRELM) y emisión de recibos de caja.</span>
+                    }
+                    else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
+                    {
+                        <span>Tu puesto: <strong>mesa de trámites TUPA</strong> — evaluar, observar, aprobar y entregar expedientes.</span>
+                    }
+                    else
+                    {
+                        <span>Cero Filas: trámites con requisitos, validación de vouchers y recibos de caja.</span>
+                    }
                 </p>
             </div>
         </div>
-
+        <div class="flex flex-wrap gap-2">
+            @if (Model.EsAlumno)
+            {
+                <a href="/Modulo09/Tramites" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">📄 Mis Trámites</a>
+                <a href="/Modulo09/Pagos" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">💳 Mis Pagos</a>
+            }
+            else if (User.IsInRole("Tesoreria") && !User.IsInRole("Admin"))
+            {
+                <a href="/Modulo09/Pagos" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">
+                    🧾 Tu Bandeja de Vouchers
+                    @if (Model.ResumenPagos.PorValidar > 0)
+                    {
+                        <span class="badge badge-error badge-xs text-white font-bold">@Model.ResumenPagos.PorValidar por validar</span>
+                    }
+                </a>
+                <a href="/Modulo09/Tramites" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🗂️ Mesa (consulta)</a>
+            }
+            else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
+            {
+                <a href="/Modulo09/Tramites" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">
+                    🗂️ Tu Mesa de Trámites
+                    @if (Model.TramitesPendientes > 0)
+                    {
+                        <span class="badge badge-error badge-xs text-white font-bold">@Model.TramitesPendientes en mesa</span>
+                    }
+                </a>
+                <a href="/Modulo09/Pagos" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🧾 Vouchers (consulta)</a>
+            }
+            else
+            {
+                <a href="/Modulo09/Tramites" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🗂️ Mesa de Trámites</a>
+                <a href="/Modulo09/Pagos" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🧾 Bandeja de Vouchers</a>
+            }
+        </div>
     </div>
 
     <!-- Indicadores (datos reales del esquema mod09) -->
