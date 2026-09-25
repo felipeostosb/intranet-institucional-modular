@@ -1,0 +1,813 @@
+@{
+    ViewData["Title"] = "Informe de Requerimiento PO & Generador A4";
+}
+
+@section Styles {
+    <style>
+        /* MODO NORMAL EN PANTALLA: Ocultar el contenedor PDF para que solo se vea el formulario */
+        #pdfExportWrapper {
+            display: none;
+        }
+
+        /* MODO IMPRESIÓN (Ctrl+P / Imprimir navegador): Ocultar interfaz y mostrar SOLO el documento A4 centrado */
+        @@media print {
+            @@page {
+                size: A4 portrait;
+                margin: 8mm 10mm;
+            }
+            *, *::before, *::after {
+                box-sizing: border-box !important;
+            }
+            html, body {
+                background: #ffffff !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .drawer, .drawer-content, main, header, footer, aside, .navbar, .alert, .btn, #screenFormContainer, form, .no-print {
+                display: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                width: 0 !important;
+                height: 0 !important;
+            }
+            #pdfExportWrapper {
+                display: block !important;
+                position: static !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+            }
+            #officialPdfDocument {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                margin: 0 auto !important;
+                padding: 0 !important;
+                box-sizing: border-box !important;
+                color: #0f172a !important;
+                background: #ffffff !important;
+            }
+            table {
+                page-break-inside: avoid;
+            }
+        }
+    </style>
+}
+
+<div class="space-y-6 max-w-4xl mx-auto pb-12">
+    
+    <!-- Barra de Navegación Superior / Breadcrumbs -->
+    <div class="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-[#111827] p-4 rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div class="flex items-center gap-2 text-xs">
+            <a href="/Docs" class="text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium">📚 Documentación</a>
+            <span class="text-slate-400">/</span>
+            <a href="/Docs#product-owner" class="text-slate-500 hover:text-cyan-600 dark:hover:text-cyan-400 font-medium">Product Owner</a>
+            <span class="text-slate-400">/</span>
+            <span class="font-bold text-slate-800 dark:text-slate-100">Generador de Ficha & PDF A4</span>
+        </div>
+        <div class="flex items-center gap-2">
+            <a href="/Docs" class="btn btn-ghost btn-xs rounded-xl text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800">
+                ← Volver al Manual
+            </a>
+            <a href="https://github.com/felipeostosb/intranet-institucional-modular/issues/new" target="_blank" class="btn btn-xs bg-slate-900 text-white hover:bg-black dark:bg-slate-800 dark:hover:bg-slate-700 rounded-xl font-bold gap-1">
+                <span>GitHub Issues ↗</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- FORMULARIO ULTRA-LEAN (UX DE 3 PASOS: < 90 SEGUNDOS) -->
+    <div id="screenFormContainer" class="bg-white dark:bg-[#111827] rounded-3xl shadow-sm border border-slate-200/80 dark:border-slate-800 p-6 sm:p-8 no-print">
+      
+        <!-- Header Minimalista -->
+        <div class="border-b border-slate-100 dark:border-slate-800 pb-5 mb-6">
+            <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-xs font-bold bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200/60 dark:border-emerald-800">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 dark:bg-emerald-400 animate-pulse"></span>
+                    Herramienta Oficial Product Owner • IESTP Argentina 2026
+                </span>
+                <span class="text-xs text-slate-400 dark:text-slate-500 font-medium">⏱️ Llenado en 90 seg</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                📋 Informe de Requerimiento PO
+            </h1>
+            <p class="text-slate-500 dark:text-slate-400 text-xs mt-1 leading-relaxed">
+                Completa los 3 pasos esenciales para generar tu informe técnico oficial, exportar a <strong>PDF A4 oficial para firmas físicas</strong>, crear el Issue en GitHub o enviar el prompt a Cursor.
+            </p>
+        </div>
+
+        <form id="reqForm" class="space-y-6">
+        
+            <!-- PASO 1: ¿Quién eres y qué módulo es? -->
+            <div class="bg-slate-50/70 dark:bg-slate-900/50 p-4 sm:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800 space-y-3">
+                <div class="flex items-center gap-2 text-indigo-950 dark:text-indigo-300 font-bold text-xs uppercase tracking-wider">
+                    <span class="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-[10px] font-extrabold">1</span>
+                    Identificación & Módulo
+                </div>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tu Módulo Oficial *</label>
+                        <select id="modulo" required
+                            class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition font-semibold">
+                            <option value="" disabled selected>-- Selecciona tu módulo --</option>
+                            <option value="Módulo 01 - Matrícula & Admisión" data-dba="Ismael" data-tag="mod01">01. Matrícula & Admisión (DBA: Ismael)</option>
+                            <option value="Módulo 02 - Asistencia & Deserción (DPI)" data-dba="Sheyla" data-tag="mod02">02. Asistencia & Deserción DPI (DBA: Sheyla)</option>
+                            <option value="Módulo 03 - Inventario & Equipos" data-dba="Brenda" data-tag="mod03">03. Inventario & Equipos (DBA: Brenda)</option>
+                            <option value="Módulo 04 - Horarios & Aulas" data-dba="Equipo 04" data-tag="mod04">04. Horarios & Aulas (Equipo 04)</option>
+                            <option value="Módulo 05 - Incidencias & Requerimientos" data-dba="Oliva" data-tag="mod05">05. Incidencias & Requerimientos (DBA: Oliva)</option>
+                            <option value="Módulo 06 - Egresados & Titulación" data-dba="Sandra" data-tag="mod06">06. Egresados & Titulación (DBA: Sandra)</option>
+                            <option value="Módulo 07 - Encuestas & Calidad Docente" data-dba="Brayan" data-tag="mod07">07. Encuestas & Calidad Docente (DBA: Brayan)</option>
+                            <option value="Módulo 08 - Login, Seguridad & Roles" data-dba="Toro" data-tag="mod08">08. Login, Seguridad & Roles (DBA: Toro)</option>
+                            <option value="Módulo 09 - Tesorería & Pagos TUPA" data-dba="Equipo 09" data-tag="mod09">09. Tesorería & Pagos TUPA (Equipo 09)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Tu Nombre (Product Owner) *</label>
+                        <input type="text" id="po" placeholder="Ej. Juan Pérez" required
+                            class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Rol / Usuario que usará la pantalla *</label>
+                        <input type="text" id="area" placeholder="Ej. Encargado de Almacén / Secretaria / Docente" required
+                            class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">Nombre de la Funcionalidad *</label>
+                        <input type="text" id="objetivo" placeholder="Ej. Registro y asignación de equipos de cómputo" required
+                            class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition font-semibold text-indigo-950 dark:text-indigo-200">
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 2: La Historia en 2 Respuestas Claras -->
+            <div class="bg-slate-50/70 dark:bg-slate-900/50 p-4 sm:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800 space-y-3">
+                <div class="flex items-center gap-2 text-indigo-950 dark:text-indigo-300 font-bold text-xs uppercase tracking-wider">
+                    <span class="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-xs font-extrabold">2</span>
+                    El Problema vs. La Solución Digital
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">¿Qué problema o dolor hay hoy con el método manual? *</label>
+                    <textarea id="dolor" rows="2" required
+                        placeholder="Ej. Se anota en cuadernos físicos o Excel sueltos, se pierde el rastro de los bienes y toma 30 minutos encontrar un registro."
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"></textarea>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">¿Qué hará la pantalla en la Intranet y qué resultado entrega? *</label>
+                    <textarea id="solucion" rows="2" required
+                        placeholder="Ej. Formulario web para registrar/buscar por código único en 3 segundos, actualizar la grilla y descargar comprobante/reporte en PDF."
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition"></textarea>
+                </div>
+            </div>
+
+            <!-- PASO 3: Datos & Reglas Inteligentes (1 Clic) -->
+            <div class="bg-slate-50/70 dark:bg-slate-900/50 p-4 sm:p-5 rounded-2xl border border-slate-200/70 dark:border-slate-800 space-y-3">
+                <div class="flex items-center gap-2 text-indigo-950 dark:text-indigo-300 font-bold text-xs uppercase tracking-wider">
+                    <span class="flex items-center justify-center w-5 h-5 rounded-full bg-indigo-600 text-white text-xs font-extrabold">3</span>
+                    Datos de Entrada y Reglas de Integridad (1 Clic)
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Campos que llenará el usuario (Inputs): *</label>
+                    <input type="text" id="inputs" required
+                        value="Código / Serie, Nombre / Descripción, Categoría / Tipo, Estado / Ubicación, Observaciones"
+                        class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 text-xs font-mono bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition">
+                </div>
+
+                <!-- Smart Chips Universales (1 Clic) -->
+                <div>
+                    <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1.5">Reglas automáticas a activar en base de datos:</label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2 text-[11px]">
+                        <label class="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-700/60 transition">
+                            <input type="checkbox" id="chip_unicidad" checked class="checkbox checkbox-primary checkbox-xs rounded">
+                            <span class="font-medium text-slate-700 dark:text-slate-200">Código Único (Sin duplicados)</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-700/60 transition">
+                            <input type="checkbox" id="chip_core" checked class="checkbox checkbox-primary checkbox-xs rounded">
+                            <span class="font-medium text-slate-700 dark:text-slate-200">Vínculo con Core</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-700/60 transition">
+                            <input type="checkbox" id="chip_validacion" checked class="checkbox checkbox-primary checkbox-xs rounded">
+                            <span class="font-medium text-slate-700 dark:text-slate-200">Campos Obligatorios</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-700/60 transition">
+                            <input type="checkbox" id="chip_estados" checked class="checkbox checkbox-primary checkbox-xs rounded">
+                            <span class="font-medium text-slate-700 dark:text-slate-200">Control de Estados</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-700/60 transition">
+                            <input type="checkbox" id="chip_reporte" checked class="checkbox checkbox-primary checkbox-xs rounded">
+                            <span class="font-medium text-slate-700 dark:text-slate-200">Descarga PDF / Reporte</span>
+                        </label>
+                        <label class="flex items-center gap-2 p-2 bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 cursor-pointer hover:bg-indigo-50 dark:hover:bg-slate-700/60 transition">
+                            <input type="checkbox" id="chip_auditoria" checked class="checkbox checkbox-primary checkbox-xs rounded">
+                            <span class="font-medium text-slate-700 dark:text-slate-200">Auditoría (Fecha / User)</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROGRESSIVE DISCLOSURE: Opciones Avanzadas / IA (Colapsadas por defecto) -->
+            <details class="group bg-indigo-50/50 dark:bg-indigo-950/30 rounded-2xl border border-indigo-100 dark:border-indigo-900/50 p-4 transition">
+                <summary class="flex items-center justify-between font-bold text-xs text-indigo-950 dark:text-indigo-300 cursor-pointer select-none">
+                    <span class="flex items-center gap-2">
+                        <span>⚙️</span> Opciones Avanzadas: Manejo de Errores, Métrica KPI & IA (Opcional)
+                    </span>
+                    <span class="text-indigo-600 dark:text-indigo-400 text-xs group-open:rotate-180 transition-transform">▼</span>
+                </summary>
+              
+                <div class="pt-4 space-y-3 border-t border-indigo-100/80 dark:border-indigo-900/50 mt-3 text-xs">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Manejo de Errores / Unhappy Path:</label>
+                            <input type="text" id="unhappyPath" placeholder="Ej. Mostrar alerta amigable si el código ya existe"
+                                value="Mostrar alerta amigable en pantalla si el código ya existe o faltan campos obligatorios, sin errores 500."
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Métrica de Éxito / KPI:</label>
+                            <input type="text" id="kpi" placeholder="Ej. Reducir tiempo de 20 min a < 1 min"
+                                value="Reducir tiempo de atención/registro en un 90% y 100% de trazabilidad sin pérdidas ni duplicados."
+                                class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-700 dark:text-slate-300 mb-1">Automatización Inteligente / Asistente IA:</label>
+                        <input type="text" id="agenteIA" placeholder="Ej. Sugerencia de mantenimiento, categorización automática o lectura OCR"
+                            class="w-full px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 outline-none focus:ring-2 focus:ring-indigo-500">
+                    </div>
+                </div>
+            </details>
+
+            <!-- Botones de Acción (Grid Limpio) -->
+            <div class="pt-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-2">
+                <button type="button" onclick="generateOfficialPDF()"
+                    class="btn btn-error btn-sm rounded-xl text-white font-bold gap-1 shadow-sm text-xs py-2 h-auto">
+                    <span>📄 Descargar PDF A4</span>
+                </button>
+
+                <button type="button" onclick="printReport()"
+                    class="btn btn-neutral btn-sm rounded-xl text-white font-bold gap-1 shadow-sm text-xs py-2 h-auto">
+                    <span>🖨️ Imprimir / Vista</span>
+                </button>
+              
+                <button type="button" onclick="openInGitHub()"
+                    class="btn btn-success btn-sm rounded-xl text-white font-bold gap-1 shadow-sm text-xs py-2 h-auto">
+                    <span>🚀 Enviar a GitHub</span>
+                </button>
+
+                <button type="button" onclick="copyAIPrompt()"
+                    class="btn btn-secondary btn-sm rounded-xl text-white font-bold gap-1 shadow-sm text-xs py-2 h-auto">
+                    <span>🤖 Prompt Cursor</span>
+                </button>
+
+                <button type="button" onclick="copyMarkdown()"
+                    class="btn btn-primary btn-sm rounded-xl text-white font-bold gap-1 shadow-sm text-xs py-2 h-auto">
+                    <span>📋 Copiar WhatsApp</span>
+                </button>
+            </div>
+
+        </form>
+
+    </div>
+
+    <!-- Toast Flotante para Notificaciones -->
+    <div id="toast" class="hidden fixed bottom-6 right-6 z-50 bg-slate-900 dark:bg-slate-800 text-white px-5 py-3 rounded-2xl shadow-2xl border border-slate-700 text-xs font-semibold flex items-center gap-2 animate-bounce">
+        <span>✅ ¡Operación completada con éxito!</span>
+    </div>
+
+</div>
+
+<!-- ========================================================================= -->
+<!-- CONTENEDOR DE RENDERIZADO EXCLUSIVO PARA PDF A4 (1 Hoja Exacta)          -->
+<!-- ========================================================================= -->
+<div id="pdfExportWrapper">
+    <div id="officialPdfDocument" style="width: 794px; padding: 20px 28px 14px 28px; background: #ffffff; color: #0f172a; font-family: 'Plus Jakarta Sans', Arial, sans-serif; box-sizing: border-box; line-height: 1.35;">
+      
+        <!-- 1. Encabezado Institucional & Membrete Oficial -->
+        <table style="width: 100%; border-collapse: collapse; border-bottom: 2.5px solid #1e3a8a; padding-bottom: 6px; margin-bottom: 10px;">
+            <tr>
+                <td style="vertical-align: top; width: 68%;">
+                    <p style="font-size: 7pt; font-weight: 800; color: #1e3a8a; text-transform: uppercase; margin: 0; letter-spacing: 0.8px;">
+                        REPÚBLICA DEL PERÚ • MINISTERIO DE EDUCACIÓN • DRELM
+                    </p>
+                    <h2 style="font-size: 12.5pt; font-weight: 900; color: #0f172a; margin: 1px 0 0 0; letter-spacing: -0.3px;">
+                        IESTP "ARGENTINA" — LIMA CENTRO
+                    </h2>
+                    <p style="font-size: 7.2pt; color: #475569; margin: 1px 0 0 0; font-weight: 600;">
+                        Programa de Estudios: Computación e Informática / DSI • Periodo Lectivo 2026-II
+                    </p>
+                    <p style="font-size: 6.8pt; color: #64748b; margin: 1px 0 0 0;">
+                        Proyecto Institucional: Intranet & Sistema de Gestión Académica Modular
+                    </p>
+                </td>
+                <td style="vertical-align: top; text-align: right; width: 32%;">
+                    <div style="display: inline-block; background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 3px 8px; text-align: right;">
+                        <p style="font-size: 6.5pt; font-weight: 800; color: #1d4ed8; margin: 0; text-transform: uppercase;">
+                            INFORME DE REQUERIMIENTO
+                        </p>
+                        <p id="pdfDocCode" style="font-size: 7.8pt; font-family: monospace; font-weight: 900; color: #0f172a; margin: 1px 0 0 0;">
+                            INF-REQ-MOD03-2026
+                        </p>
+                        <p id="pdfDocDate" style="font-size: 6.2pt; color: #64748b; margin: 1px 0 0 0;">
+                            Fecha: 22/09/2026 • Versión 1.0
+                        </p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+
+        <!-- Título del Documento -->
+        <div style="text-align: center; margin-bottom: 9px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 8px;">
+            <h1 style="font-size: 10.5pt; font-weight: 900; color: #1e3a8a; margin: 0; text-transform: uppercase; letter-spacing: 0.2px;">
+                INFORME DE REQUERIMIENTO & ESPECIFICACIÓN FUNCIONAL
+            </h1>
+            <p style="font-size: 7pt; color: #475569; margin: 1px 0 0 0; font-weight: 600;">
+                Mapeo de la Solución, Datos a Ingresar y Criterios de Aceptación
+            </p>
+        </div>
+
+        <!-- 2. Tabla de Datos Generales & Responsables -->
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 7.2pt;">
+            <tr style="background: #f1f5f9;">
+                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 800; width: 22%; color: #1e293b;">Módulo Oficial:</td>
+                <td id="pdfModulo" style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 800; color: #1e3a8a; width: 44%;"></td>
+                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 800; width: 14%; color: #1e293b;">Código:</td>
+                <td id="pdfSchema" style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 900; font-family: monospace; color: #0369a1; width: 20%;"></td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 700; color: #334155;">Product Owner (PO):</td>
+                <td id="pdfPO" style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 700; color: #0f172a;"></td>
+                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 700; color: #334155;">Resp. Base Datos:</td>
+                <td id="pdfDBA" style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 700; color: #0369a1;"></td>
+            </tr>
+            <tr style="background: #f8fafc;">
+                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 700; color: #334155;">¿Quién usará la pantalla?:</td>
+                <td id="pdfArea" style="border: 1px solid #cbd5e1; padding: 3px 6px;"></td>
+                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 700; color: #334155;">Tipo de Acceso:</td>
+                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 600; color: #475569;">Web / Celular</td>
+            </tr>
+            <tr>
+                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 800; color: #1e3a8a;">Funcionalidad Central:</td>
+                <td id="pdfObjetivo" colspan="3" style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 800; color: #0f172a;"></td>
+            </tr>
+            <tr style="background: #f0fdf4;">
+                <td style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 800; color: #166534;">🎯 Beneficio Esperado:</td>
+                <td id="pdfKPI" colspan="3" style="border: 1px solid #cbd5e1; padding: 3px 6px; font-weight: 700; color: #14532d;"></td>
+            </tr>
+        </table>
+
+        <!-- 3. Diagnóstico: Situación Actual vs Solución Digital -->
+        <div style="margin-bottom: 8px;">
+            <div style="background: #1e3a8a; color: white; padding: 3px 7px; border-radius: 4px 4px 0 0; font-size: 7.2pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px;">
+                1. ¿Qué problema se resuelve y cómo funcionará?
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 7pt;">
+                <tr>
+                    <td style="width: 50%; vertical-align: top; border: 1px solid #cbd5e1; background: #fffbeb; padding: 5px 7px;">
+                        <p style="margin: 0 0 2px 0; font-weight: 800; color: #92400e; font-size: 7.2pt;">❌ ¿Cómo se hace hoy? (Situación Actual / Problema):</p>
+                        <p id="pdfDolor" style="margin: 0; color: #451a03; line-height: 1.3; text-align: justify;"></p>
+                    </td>
+                    <td style="width: 50%; vertical-align: top; border: 1px solid #cbd5e1; background: #f0fdf4; padding: 5px 7px;">
+                        <p style="margin: 0 0 2px 0; font-weight: 800; color: #166534; font-size: 7.2pt;">✅ ¿Cómo funcionará en el sistema? (Solución Propuesta):</p>
+                        <p id="pdfSolucion" style="margin: 0; color: #052e16; line-height: 1.3; text-align: justify;"></p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 4. Entradas y Reglas del Sistema -->
+        <div style="margin-bottom: 8px;">
+            <div style="background: #1e3a8a; color: white; padding: 3px 7px; border-radius: 4px 4px 0 0; font-size: 7.2pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px;">
+                2. Datos a ingresar y reglas para el correcto funcionamiento
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 7pt;">
+                <thead>
+                    <tr style="background: #e2e8f0; color: #1e293b;">
+                        <th style="border: 1px solid #cbd5e1; padding: 3px 5px; text-align: left; width: 44%;">📥 Datos que ingresará el usuario:</th>
+                        <th style="border: 1px solid #cbd5e1; padding: 3px 5px; text-align: left; width: 56%;">🔒 Reglas del Sistema (Para que funcione sin errores):</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="border: 1px solid #cbd5e1; padding: 5px; vertical-align: top; background: #ffffff;">
+                            <div id="pdfInputsList" style="color: #1e293b; line-height: 1.35;"></div>
+                            <div style="margin-top: 5px; padding: 3px 5px; background: #f8fafc; border-left: 3px solid #3b82f6; font-size: 6.5pt; color: #475569;">
+                                💡 <strong>Diseño:</strong> Interfaz limpia, ágil y fácil de usar desde cualquier navegador o celular.
+                            </div>
+                        </td>
+                        <td style="border: 1px solid #cbd5e1; padding: 5px; vertical-align: top; background: #ffffff;">
+                            <div id="pdfReglasList" style="color: #0f172a; line-height: 1.3;"></div>
+                            <div style="margin-top: 5px; padding: 3px 5px; background: #f8fafc; border-left: 3px solid #10b981; font-size: 6.5pt; color: #475569;">
+                                🛡️ <strong>Seguridad:</strong> La información se almacena de forma ordenada y protegida en el sistema.
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 5. Prevención de Errores y Ayuda al Usuario -->
+        <div style="margin-bottom: 8px;">
+            <div style="background: #1e3a8a; color: white; padding: 3px 7px; border-radius: 4px 4px 0 0; font-size: 7.2pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px;">
+                3. Prevención de Errores & Ayuda al Usuario
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 7pt;">
+                <tr>
+                    <td style="border: 1px solid #cbd5e1; background: #fff1f2; padding: 4px 6px; width: 60%; vertical-align: top;">
+                        <p style="margin: 0 0 2px 0; font-weight: 800; color: #881337;">🛡️ Si el usuario se equivoca o falta un dato:</p>
+                        <p id="pdfUnhappy" style="margin: 0; color: #4c0519; line-height: 1.25;"></p>
+                    </td>
+                    <td style="border: 1px solid #cbd5e1; background: #faf5ff; padding: 4px 6px; width: 40%; vertical-align: top;">
+                        <p style="margin: 0 0 2px 0; font-weight: 800; color: #6b21a8;">🤖 Asistencia o Automatización Inteligente:</p>
+                        <p id="pdfAgenteIA" style="margin: 0; color: #3b0764; line-height: 1.25; font-style: italic;"></p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 6. Criterios de Entrega (Definition of Done) -->
+        <div style="margin-bottom: 10px;">
+            <div style="background: #1e3a8a; color: white; padding: 3px 7px; border-radius: 4px 4px 0 0; font-size: 7.2pt; font-weight: 800; text-transform: uppercase; letter-spacing: 0.3px;">
+                4. ¿Cómo sabemos que la funcionalidad está lista? (Criterios de Entrega)
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 6.8pt; border: 1px solid #cbd5e1; background: #f8fafc;">
+                <tr>
+                    <td style="padding: 4px 6px; width: 50%; border-right: 1px solid #cbd5e1; vertical-align: top;">
+                        <p style="margin: 1px 0;">☑️ <strong>Base de Datos:</strong> Tablas creadas y listas para guardar los registros del módulo.</p>
+                        <p style="margin: 1px 0;">☑️ <strong>Pantalla Web:</strong> Interfaz visual rápida, intuitiva y adaptada a computadoras y móviles.</p>
+                    </td>
+                    <td style="padding: 4px 6px; width: 50%; vertical-align: top;">
+                        <p style="margin: 1px 0;">☑️ <strong>Pruebas Reales:</strong> Probado con datos reales y validado con los usuarios finales.</p>
+                        <p style="margin: 1px 0;">☑️ <strong>Estabilidad & Calidad:</strong> Mensajes claros y funcionamiento fluido sin colgarse.</p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <!-- 7. Bloque de Firmas Amplio con Espacio para Lapicero / Sello -->
+        <div style="margin-top: 6px;">
+            <p style="font-size: 7.2pt; font-weight: 800; color: #1e3a8a; text-transform: uppercase; margin: 0 0 5px 0; letter-spacing: 0.3px;">
+                5. Conformidad del Equipo de Desarrollo & Evaluación Docente
+            </p>
+
+            <!-- Fila 1: Equipo del Módulo (4 Cajas con Espacio Amplio para Firma) -->
+            <table style="width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 6.8pt; margin-bottom: 6px;">
+                <tr>
+                    <!-- PO -->
+                    <td style="width: 25%; border: 1px solid #cbd5e1; border-radius: 5px; background: #ffffff; padding: 4px 6px; text-align: center; vertical-align: top;">
+                        <p style="font-size: 6.5pt; font-weight: 800; color: #1e3a8a; margin: 0; text-transform: uppercase;">Product Owner (PO)</p>
+                        <p id="pdfSignPO" style="font-size: 7.2pt; font-weight: 800; color: #0f172a; margin: 1px 0 0 0;"></p>
+                        <p id="pdfSignModulo" style="font-size: 5.8pt; color: #64748b; margin: 0;"></p>
+                        <div style="height: 46px;"></div>
+                        <div style="border-top: 1px dashed #94a3b8; padding-top: 2px;">
+                            <span style="font-size: 5.8pt; color: #64748b; font-weight: 600;">Firma del PO</span>
+                        </div>
+                    </td>
+
+                    <!-- DBA -->
+                    <td style="width: 25%; border: 1px solid #cbd5e1; border-radius: 5px; background: #ffffff; padding: 4px 6px; text-align: center; vertical-align: top;">
+                        <p style="font-size: 6.5pt; font-weight: 800; color: #0369a1; margin: 0; text-transform: uppercase;">Resp. Base Datos (DBA)</p>
+                        <p id="pdfSignDBA" style="font-size: 7.2pt; font-weight: 800; color: #0f172a; margin: 1px 0 0 0;"></p>
+                        <p id="pdfSignSchema" style="font-size: 5.8pt; color: #64748b; margin: 0;">Esquema BD</p>
+                        <div style="height: 46px;"></div>
+                        <div style="border-top: 1px dashed #94a3b8; padding-top: 2px;">
+                            <span style="font-size: 5.8pt; color: #64748b; font-weight: 600;">Firma del DBA</span>
+                        </div>
+                    </td>
+
+                    <!-- Scrum Master -->
+                    <td style="width: 25%; border: 1px solid #cbd5e1; border-radius: 5px; background: #ffffff; padding: 4px 6px; text-align: center; vertical-align: top;">
+                        <p style="font-size: 6.5pt; font-weight: 800; color: #475569; margin: 0; text-transform: uppercase;">Scrum Master / Líder</p>
+                        <p style="font-size: 7pt; color: #64748b; margin: 1px 0 0 0;">Gestión de Entregas</p>
+                        <p style="font-size: 5.8pt; color: #94a3b8; margin: 0;">Compromiso Sprint</p>
+                        <div style="height: 46px;"></div>
+                        <div style="border-top: 1px dashed #94a3b8; padding-top: 2px;">
+                            <span style="font-size: 5.8pt; color: #64748b; font-weight: 600;">Firma Scrum Master</span>
+                        </div>
+                    </td>
+
+                    <!-- Devs -->
+                    <td style="width: 25%; border: 1px solid #cbd5e1; border-radius: 5px; background: #ffffff; padding: 4px 6px; text-align: center; vertical-align: top;">
+                        <p style="font-size: 6.5pt; font-weight: 800; color: #475569; margin: 0; text-transform: uppercase;">Equipo Programadores</p>
+                        <p style="font-size: 7pt; color: #64748b; margin: 1px 0 0 0;">Desarrollo .NET</p>
+                        <p style="font-size: 5.8pt; color: #94a3b8; margin: 0;">Construcción</p>
+                        <div style="height: 46px;"></div>
+                        <div style="border-top: 1px dashed #94a3b8; padding-top: 2px;">
+                            <span style="font-size: 5.8pt; color: #64748b; font-weight: 600;">Firma Desarrolladores</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <!-- Fila 2: Visto Bueno Docente / Asesor Académico -->
+            <table style="width: 100%; border-collapse: separate; border-spacing: 4px; font-size: 7.2pt;">
+                <tr>
+                    <td style="width: 100%; border: 1.2px solid #1e3a8a; border-radius: 5px; background: #f8fafc; padding: 5px 12px; text-align: center; vertical-align: top;">
+                        <p style="font-size: 7.5pt; font-weight: 900; color: #1e3a8a; margin: 0; text-transform: uppercase;">DOCENTE / ASESOR ACADÉMICO</p>
+                        <p style="font-size: 6.2pt; color: #475569; margin: 0;">V°B° Conformidad del Requerimiento • Programa de Estudios DSI</p>
+                        <div style="height: 44px;"></div>
+                        <div style="border-top: 1px solid #1e3a8a; padding-top: 2px; max-width: 320px; margin: 0 auto;">
+                            <span style="font-size: 6pt; color: #1e3a8a; font-weight: 700;">Firma y Sello del Docente</span>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+    </div>
+</div>
+
+@section Scripts {
+    <!-- Librería html2pdf.js para exportar PDF A4 de alta fidelidad -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <script>
+        function showToast(mensaje) {
+            const toast = document.getElementById('toast');
+            if (toast) {
+                toast.innerHTML = `<span>${mensaje}</span>`;
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 4000);
+            }
+        }
+
+        function getCompiledRulesArray() {
+            const rules = [];
+            if (document.getElementById('chip_unicidad').checked) rules.push('• <strong>Sin Duplicados:</strong> No permitir registrar dos veces el mismo código o nombre.');
+            if (document.getElementById('chip_core').checked) rules.push('• <strong>Conectado al Sistema:</strong> Vinculado con la lista oficial de usuarios y docentes.');
+            if (document.getElementById('chip_validacion').checked) rules.push('• <strong>Campos Obligatorios:</strong> Validar que no falten datos importantes.');
+            if (document.getElementById('chip_estados').checked) rules.push('• <strong>Control de Estados:</strong> Saber si está Pendiente, Aprobado o Finalizado.');
+            if (document.getElementById('chip_reporte').checked) rules.push('• <strong>Reportes y Descargas:</strong> Opción para imprimir o descargar en PDF/Excel.');
+            if (document.getElementById('chip_auditoria').checked) rules.push('• <strong>Historial de Registro:</strong> Guarda quién guardó la información, fecha y hora.');
+            return rules;
+        }
+
+        function getCompiledRules() {
+            return getCompiledRulesArray().map(r => '- [ ] ' + r.replace(/<[^>]*>/g, '').replace('• ', '')).join('\n');
+        }
+
+        function populateOfficialDocument() {
+            const select = document.getElementById('modulo');
+            const opt = select.options[select.selectedIndex];
+            const mod = select.value || 'Módulo No Seleccionado';
+            const dba = opt ? opt.getAttribute('data-dba') : 'Por Asignar';
+            const modTag = opt ? opt.getAttribute('data-tag') : 'modXX';
+
+            const po = document.getElementById('po').value || 'Sin Nombre';
+            const area = document.getElementById('area').value || 'Sin Rol Asignado';
+            const obj = document.getElementById('objetivo').value || 'Sin Funcionalidad Especificada';
+            const dolor = document.getElementById('dolor').value || 'No se detalló el problema manual.';
+            const sol = document.getElementById('solucion').value || 'No se detalló la solución digital.';
+            const rawInputs = document.getElementById('inputs').value || 'Código, Nombre, Categoría, Estado';
+            const unhappy = document.getElementById('unhappyPath').value || 'Validación en interfaz y alerta amigable ante registros duplicados sin provocar excepciones HTTP 500.';
+            const kpi = document.getElementById('kpi').value || 'Reducción del tiempo de atención en un 90% y 100% de trazabilidad operativa.';
+            const agenteIA = document.getElementById('agenteIA').value.trim() || 'No requiere agente IA en la primera iteración.';
+          
+            const now = new Date();
+            const fechaStr = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${now.getFullYear()}`;
+
+            document.getElementById('pdfDocCode').textContent = `INF-REQ-${modTag.toUpperCase()}-2026`;
+            document.getElementById('pdfDocDate').textContent = `Fecha: ${fechaStr} • Versión 1.0`;
+            document.getElementById('pdfModulo').textContent = mod;
+            document.getElementById('pdfSchema').textContent = modTag.toUpperCase();
+            document.getElementById('pdfPO').textContent = po;
+            document.getElementById('pdfDBA').textContent = dba;
+            document.getElementById('pdfArea').textContent = area;
+            document.getElementById('pdfObjetivo').textContent = obj;
+            document.getElementById('pdfKPI').textContent = kpi;
+            document.getElementById('pdfDolor').textContent = dolor;
+            document.getElementById('pdfSolucion').textContent = sol;
+            document.getElementById('pdfUnhappy').textContent = unhappy;
+            document.getElementById('pdfAgenteIA').textContent = agenteIA;
+            document.getElementById('pdfSignPO').textContent = po;
+            document.getElementById('pdfSignModulo').textContent = mod;
+            document.getElementById('pdfSignDBA').textContent = dba;
+            document.getElementById('pdfSignSchema').textContent = `Módulo: ${modTag.toUpperCase()}`;
+
+            // Inputs formateados con viñetas
+            const inputsArray = rawInputs.split(',').map(s => s.trim()).filter(Boolean);
+            const inputsHtml = inputsArray.map(item => `<div>• <span style="font-weight:700;">${item}</span></div>`).join('');
+            document.getElementById('pdfInputsList').innerHTML = inputsHtml || '• Campos estándar';
+
+            // Reglas formateadas
+            const rulesArray = getCompiledRulesArray();
+            const rulesHtml = rulesArray.map(r => `<div style="margin-bottom: 2px;">${r}</div>`).join('');
+            document.getElementById('pdfReglasList').innerHTML = rulesHtml;
+        }
+
+        async function generateOfficialPDF() {
+            const form = document.getElementById('reqForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            populateOfficialDocument();
+          
+            const select = document.getElementById('modulo');
+            const opt = select.options[select.selectedIndex];
+            const modTag = opt ? opt.getAttribute('data-tag') : 'requerimiento';
+
+            const wrapper = document.getElementById('pdfExportWrapper');
+            const element = document.getElementById('officialPdfDocument');
+
+            // Posicionamiento absoluto seguro para evitar offsets negativos en html2canvas
+            wrapper.style.display = 'block';
+            wrapper.style.position = 'fixed';
+            wrapper.style.top = '0';
+            wrapper.style.left = '0';
+            wrapper.style.zIndex = '999999';
+            wrapper.style.width = '794px';
+            wrapper.style.background = '#ffffff';
+            element.style.width = '794px';
+            element.style.margin = '0';
+            element.style.padding = '22px 28px 16px 28px';
+
+            await new Promise(resolve => setTimeout(resolve, 150));
+
+            const optConfig = {
+                margin: [4, 4, 4, 4],
+                filename: `Informe_Tecnico_${modTag.toUpperCase()}_IESTP_Argentina.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale: 2,
+                    useCORS: true,
+                    logging: false,
+                    letterRendering: true,
+                    scrollX: 0,
+                    scrollY: 0,
+                    x: 0,
+                    y: 0,
+                    width: 794,
+                    windowWidth: 794
+                },
+                jsPDF: {
+                    unit: 'mm',
+                    format: 'a4',
+                    orientation: 'portrait'
+                },
+                pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+            };
+
+            try {
+                showToast('⏳ Generando Informe Oficial en PDF A4...');
+                await html2pdf().set(optConfig).from(element).save();
+                showToast('📄 ¡Informe PDF A4 descargado con éxito!');
+            } catch (err) {
+                console.error('Error generando PDF:', err);
+                alert('Hubo un inconveniente al generar el PDF. Puedes usar la opción Imprimir con Ctrl+P.');
+            } finally {
+                wrapper.style.display = 'none';
+                wrapper.style.position = 'static';
+                wrapper.style.zIndex = 'auto';
+            }
+        }
+
+        function printReport() {
+            const form = document.getElementById('reqForm');
+            if (!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+            populateOfficialDocument();
+            window.print();
+        }
+
+        function getAIPrompt() {
+            const select = document.getElementById('modulo');
+            const opt = select.options[select.selectedIndex];
+            const mod = select.value || '[Módulo XX]';
+            const dba = opt ? opt.getAttribute('data-dba') : 'Por Asignar';
+            const modTag = opt ? opt.getAttribute('data-tag') : 'modXX';
+
+            const po = document.getElementById('po').value || '[PO]';
+            const area = document.getElementById('area').value || '[Rol Usuario]';
+            const obj = document.getElementById('objetivo').value || '[Funcionalidad]';
+            const dolor = document.getElementById('dolor').value || '[Dolor Actual]';
+            const sol = document.getElementById('solucion').value || '[Solución]';
+            const inputs = document.getElementById('inputs').value || '';
+            const unhappy = document.getElementById('unhappyPath').value || 'Alerta amigable sin errores 500';
+            const kpi = document.getElementById('kpi').value || 'Trazabilidad 100%';
+            const agenteIA = document.getElementById('agenteIA').value.trim();
+            const reglas = getCompiledRules();
+
+            return `Actúa como un Lead Software Architect & Senior .NET 10 Engineer.
+Implementa la siguiente funcionalidad oficial para el ${mod} en la Intranet Modular del IESTP "Argentina".
+
+🎯 ESPECIFICACIÓN FUNCIONAL:
+* Módulo: ${mod} (PO: ${po} | Rol: ${area})
+* Funcionalidad: ${obj}
+* KPI: ${kpi}
+* Dolor Actual: ${dolor}
+* Solución Digital: ${sol}
+* Manejo de Errores (Unhappy Path): ${unhappy}
+${agenteIA ? `* Automatización con IA: ${agenteIA}` : ''}
+
+🗄️ BASE DE DATOS (PostgreSQL 16 - Esquema '${modTag}' - DBA: ${dba}):
+* Ubicación de Script SQL: src/02_Modulos/Intranet.${modTag.charAt(0).toUpperCase() + modTag.slice(1)}/Sql/schema.sql
+* Reglas:
+${reglas}
+* Prohibido hacer JOIN directo a otros esquemas. Usar v_public_* o core.*.
+
+💻 FRONTEND & BACKEND (C# .NET 10 + Razor + DaisyUI):
+* Ubicación: src/02_Modulos/Intranet.${modTag.charAt(0).toUpperCase() + modTag.slice(1)}/
+* Inputs de Pantalla: ${inputs}
+* Estilo: Tailwind CSS + DaisyUI.
+
+Genera el Controlador C#, Vista Razor .cshtml y script SQL idempotente (CREATE TABLE IF NOT EXISTS).`;
+        }
+
+        function copyAIPrompt() {
+            const text = getAIPrompt();
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('🤖 ¡Prompt Maestro para Cursor copiado al portapapeles!');
+            });
+        }
+
+        function getDevFormattedMarkdown() {
+            const select = document.getElementById('modulo');
+            const opt = select.options[select.selectedIndex];
+            const mod = select.value || '[Módulo XX]';
+            const dba = opt ? opt.getAttribute('data-dba') : 'Por Asignar';
+            const modTag = opt ? opt.getAttribute('data-tag') : 'modXX';
+
+            const po = document.getElementById('po').value || '[Nombre PO]';
+            const area = document.getElementById('area').value || '[Rol Usuario]';
+            const obj = document.getElementById('objetivo').value || '[Funcionalidad]';
+            const dolor = document.getElementById('dolor').value || '[Dolor Actual]';
+            const sol = document.getElementById('solucion').value || '[Solución]';
+            const inputs = document.getElementById('inputs').value || '';
+            const unhappy = document.getElementById('unhappyPath').value || '';
+            const kpi = document.getElementById('kpi').value || '';
+            const agenteIA = document.getElementById('agenteIA').value.trim();
+            const reglas = getCompiledRules();
+
+            return `## 🎯 [REQUERIMIENTO] ${mod}
+
+> 📌 **Funcionalidad:** ${obj}  
+> 📊 **Métrica (KPI):** ${kpi}  
+> 👤 **PO:** ${po} | 🏢 **Rol Usuario:** ${area} | 🗄️ **DBA:** **${dba}** (\`${modTag}\`)
+
+---
+
+### 🧠 1. Diagnóstico del Dolor vs Solución
+* **❌ Proceso Manual Actual:** ${dolor}
+* **✅ Flujo Digital en la Intranet:** ${sol}
+* **🛡️ Manejo de Error (Unhappy Path):** ${unhappy}
+${agenteIA ? `\n* **🤖 Automatización IA:** ${agenteIA}` : ''}
+
+---
+
+### 💻 2. Instrucciones para el Dev (AI-Ready)
+* **📥 Inputs de Pantalla:** ${inputs}
+
+---
+
+### 🗄️ 3. Instrucciones para el DBA (${dba} - \`${modTag}\`)
+* **Esquema Privado:** \`${modTag}.tabla_nombre\` (\`CREATE TABLE IF NOT EXISTS\`).
+* **🔒 Reglas de Integridad:**
+${reglas}
+* **Contrato Público:** Vista \`${modTag}.v_public_...\`.
+
+---
+
+### ✅ 4. Definition of Done
+- [ ] 🗄️ Base de Datos: Esquema \`${modTag}\` creado sin JOINs cruzados.
+- [ ] 💻 UI & Backend: Vista Razor funcionando en \`localhost:5000/${modTag}\`.
+- [ ] 📄 Output E2E: Respuesta HTTP 200 en \`mili3\` y reporte operativo.
+- [ ] 🚀 PR hacia \`main\` verificado.
+`;
+        }
+
+        function openInGitHub() {
+            const select = document.getElementById('modulo');
+            const opt = select.options[select.selectedIndex];
+            const mod = select.value || 'Módulo XX';
+            const obj = document.getElementById('objetivo').value || 'Nuevo Requerimiento';
+            const modTag = opt ? opt.getAttribute('data-tag').toUpperCase() : 'MOD-XX';
+          
+            const title = encodeURIComponent(`[${modTag}] ${obj}`);
+            const body = encodeURIComponent(getDevFormattedMarkdown());
+            const url = `https://github.com/felipeostosb/intranet-institucional-modular/issues/new?title=${title}&body=${body}&labels=requerimiento,taller-web`;
+            window.open(url, '_blank');
+        }
+
+        function copyMarkdown() {
+            const text = getDevFormattedMarkdown();
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('📋 ¡Texto copiado para WhatsApp / Telegram!');
+            });
+        }
+    </script>
+}

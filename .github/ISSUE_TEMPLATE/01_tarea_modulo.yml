@@ -1,54 +1,157 @@
-name: 📋 Nueva Tarea de Módulo
-description: Plantilla estándar para que un Product Owner cree una tarea para su equipo.
-title: "[MOD-XX] Título conciso de la funcionalidad o tarea"
-labels: ["taller-web"]
+name: 📋 Ficha Universal de Especificación de Módulo
+description: Formulario estándar universal aplicable a cualquier módulo para definir requerimientos y directivas de desarrollo con IA.
+title: "[MOD-XX] Requerimiento: Nombre de la Funcionalidad"
+labels: ["requerimiento", "taller-web"]
 body:
+  - type: markdown
+    attributes:
+      value: |
+        ### 📋 Ficha Universal de Especificación de Módulo
+        Estructura estándar aplicable a cualquier módulo (Inventario, Horarios, Caja, Soporte, Matrícula, etc.).
+
   - type: dropdown
     id: modulo
     attributes:
-      label: 🏢 Módulo Perteneciente
-      description: Selecciona el módulo al que corresponde esta tarea.
+      label: 🏢 1. Módulo Oficial
+      description: Selecciona el módulo y equipo oficial.
       options:
-        - "Módulo 01"
-        - "Módulo 02 (Asistencia)"
-        - "Módulo 03"
-        - "Módulo 04"
-        - "Módulo 05"
-        - "Módulo 06"
-        - "Módulo 07"
-        - "Módulo 08"
-        - "Módulo 09"
-    validations:
-      required: true
-
-  - type: textarea
-    id: descripcion
-    attributes:
-      label: 📝 Descripción del Requerimiento / User Story
-      description: Explica claramente qué debe hacer la funcionalidad (Como [rol], quiero [acción] para [beneficio]).
-      placeholder: "Ejemplo: Como docente, quiero registrar la asistencia diaria para calcular el 30% de faltas automáticamente..."
-    validations:
-      required: true
-
-  - type: textarea
-    id: criterios_aceptacion
-    attributes:
-      label: ✅ Criterios de Aceptación (Definition of Done)
-      description: ¿Qué condiciones debe cumplir el código para que el PO apruebe la tarea?
-      value: |
-        - [ ] 1. Base de Datos: Solo interactúa con su esquema propio (`modXX.*`) y lectura a `core.*`.
-        - [ ] 2. Backend: Compila en .NET 10 sin errores ni warnings críticos (`dotnet build`).
-        - [ ] 3. Frontend: Vistas Razor ergonómicas con Tailwind CSS / DaisyUI (siguiendo Módulo 02).
-        - [ ] 4. Rama Git: Desarrollado en rama `moduloXX/nombre-tarea`.
-        - [ ] 5. Smoke Test: Verificado con HTTP 200 en navegador local.
+        - "01. Matrícula & Admisión (DBA: Ismael)"
+        - "02. Asistencia & Deserción DPI (DBA: Sheyla)"
+        - "03. Inventario & Equipos (DBA: Brenda)"
+        - "04. Horarios & Aulas (Equipo 04)"
+        - "05. Incidencias & Requerimientos (DBA: Oliva)"
+        - "06. Egresados & Titulación (DBA: Sandra)"
+        - "07. Encuestas & Calidad Docente (DBA: Brayan)"
+        - "08. Login, Seguridad & Roles (DBA: Toro)"
+        - "09. Tesorería & Pagos TUPA (Equipo 09)"
     validations:
       required: true
 
   - type: input
-    id: desarrollador
+    id: po_nombre
     attributes:
-      label: 👤 Desarrollador(es) Asignado(s)
-      description: Usuario de GitHub o nombre del compañero que programará esta tarea.
-      placeholder: "@usuario_github"
+      label: 👤 2. Product Owner / Responsable
+      description: Tu nombre o usuario de GitHub.
+      placeholder: "Ej. Juan Pérez / @juanperez"
     validations:
       required: true
+
+  - type: input
+    id: rol_usuario
+    attributes:
+      label: 🏢 3. Rol o Usuario que usará la pantalla
+      description: ¿Quién usará esta pantalla en su día a día?
+      placeholder: "Ej. Encargado de Almacén / Técnico de Soporte / Cajero / Docente"
+    validations:
+      required: true
+
+  - type: input
+    id: funcionalidad_nombre
+    attributes:
+      label: 🎯 4. Nombre de la Funcionalidad & Propósito
+      description: ¿Qué proceso central resuelve esta pantalla en 1 frase?
+      placeholder: "Ej. Registro, control patrimonial y asignación de equipos de cómputo"
+    validations:
+      required: true
+
+  - type: textarea
+    id: dolor_actual
+    attributes:
+      label: ⏱️ 5. Proceso Manual Actual (¿Por qué es ineficiente hoy?)
+      description: Describe cómo se hace hoy (papel, Excel suelto, cuadernos) y qué problemas genera.
+      placeholder: "Describe el proceso manual actual, el desorden, la lentitud o los errores que ocurren hoy."
+    validations:
+      required: true
+
+  - type: textarea
+    id: solucion_digital
+    attributes:
+      label: 💡 6. Flujo Digital en la Intranet (El "Happy Path" exitoso)
+      description: Describe paso a paso qué hace el usuario en la pantalla y qué resultado inmediato recibe.
+      placeholder: "Describe qué campos digita o busca el usuario, qué botón presiona y qué confirmación o reporte recibe."
+    validations:
+      required: true
+
+  - type: textarea
+    id: unhappy_path
+    attributes:
+      label: 🛡️ 7. Manejo de Errores & Excepciones (Unhappy Path)
+      description: ¿Qué mensaje amigable debe mostrar la pantalla si faltan datos o no se cumplen las condiciones?
+      placeholder: "Ej. Si el código ya existe o faltan campos obligatorios, mostrar alerta amigable en pantalla sin errores 500."
+    validations:
+      required: true
+
+  - type: input
+    id: kpi_impacto
+    attributes:
+      label: 📊 8. Métrica de Éxito / KPI de Impacto
+      description: ¿Cómo sabremos que esta funcionalidad resolvió el problema?
+      placeholder: "Ej. Reducir tiempo de registro de 20 min a < 1 min / 100% de trazabilidad sin pérdidas ni duplicados."
+    validations:
+      required: true
+
+  - type: textarea
+    id: agente_ia
+    attributes:
+      label: 🤖 9. Automatización Inteligente / Asistente IA (Opcional)
+      description: Si este módulo se beneficia de automatización inteligente o IA en background, descríbelo:
+      placeholder: "Ej. Sugerencia automática de mantenimiento, categorización inteligente de tickets o lectura OCR."
+    validations:
+      false
+
+  - type: checkboxes
+    id: reglas_integridad
+    attributes:
+      label: ⚡ 10. Reglas de Integridad Estándar
+      options:
+        - label: "Anti-Duplicados: Código, identificador o serie único en base de datos."
+        - label: "Integridad con Core: Validar existencia de usuario/persona o catálogo base en `core.*`."
+        - label: "Validación de Campos Obligatorios y formato correcto."
+        - label: "Control de Estados / Trazabilidad (Activo/Inactivo, Pendiente/Listo)."
+        - label: "Generación de Reporte / Comprobante / PDF Oficial."
+        - label: "Trazabilidad de Auditoría: Guardar fecha, hora y usuario que creó/modificó."
+
+  - type: textarea
+    id: inputs_pantalla
+    attributes:
+      label: 💻 11. Datos de Entrada (Campos de la Pantalla / Formulario)
+      description: Lista las casillas o campos que el Dev debe programar en el formulario web.
+      value: |
+        - Código / Identificador
+        - Nombre / Descripción
+        - Categoría / Tipo
+        - Estado / Fechas
+    validations:
+      required: true
+
+  - type: textarea
+    id: reglas_especificas
+    attributes:
+      label: 🔒 12. Reglas de Validación Específicas de tu Módulo
+      description: Condiciones lógicas o validaciones propias de tu proceso de negocio.
+      placeholder: "- [ ] El código no debe repetirse en la base de datos.\n- [ ] No permitir registros con campos obligatorios vacíos.\n- [ ] Validar restricciones de fechas o cantidades."
+    validations:
+      required: true
+
+  - type: textarea
+    id: output_entregable
+    attributes:
+      label: 📤 13. Salida / Entregable Oficial del Sistema (Output)
+      description: ¿Qué confirmación, reporte o cambio visual ve el usuario al finalizar?
+      placeholder: "Ej. Mensaje de confirmación en pantalla + Actualización en la grilla + Descarga de comprobante/reporte."
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: definition_of_done
+    attributes:
+      label: ✅ 14. Criterios de Aceptación (Definition of Done)
+      options:
+        - label: "🗄️ Base de Datos: Tabla creada en su esquema privado `modXX.tabla` sin JOINs a otros esquemas."
+          required: true
+        - label: "💻 Backend & UI: Vista Razor operativa en `localhost:5000` con DaisyUI y manejo amigable de excepciones."
+          required: true
+        - label: "📄 Entregable E2E: Respuesta HTTP 200 con datos reales en `mili3`."
+          required: true
+        - label: "🚀 Pull Request: PR abierto hacia `main` con captura adjunta."
+          required: true

@@ -98,6 +98,19 @@ public class DocsController : ModuloBaseController
         return View(query.OrderByDescending(t => t.FechaPublicacion).ToList());
     }
 
+    [HttpGet("ProductOwner")]
+    [HttpGet("FichaPO")]
+    [HttpGet("Requerimientos")]
+    [HttpGet("/PO")]
+    [HttpGet("/FichaPO")]
+    [HttpGet("/ProductOwner")]
+    [HttpGet("/Requerimientos")]
+    public IActionResult ProductOwner()
+    {
+        ViewData["Title"] = "Ficha Rápida de Requerimiento PO & Generador A4";
+        return View();
+    }
+
     [HttpPost("Agregar")]
     [ValidateAntiForgeryToken]
     public IActionResult Agregar(string titulo, string descripcion, string youtubeUrl, string moduloCodigo, string autor, string nivel)
