@@ -21,8 +21,14 @@ public class TramitesController : ModuloBaseController
 
     public TramitesController(ITramiteService tramiteService)
     {
-        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
         _tramiteService = tramiteService;
+    }
+
+    /// <summary>Expone los roles del usuario a las vistas (tabs rol-aware).</summary>
+    public override void OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext context)
+    {
+        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
+        base.OnActionExecuting(context);
     }
 
     // ------------------------------------------------------------------
