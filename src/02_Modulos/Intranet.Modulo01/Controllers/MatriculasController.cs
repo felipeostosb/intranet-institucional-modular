@@ -1,4 +1,6 @@
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Intranet.Core.Controllers;
 using Intranet.Modulo01.Models;
 using Intranet.Modulo01.Services;
@@ -39,7 +41,7 @@ public class MatriculasController : ModuloBaseController
 
         if (EsAlumno && !EsAdmin)
         {
-            var activa = await _matriculaService.ObtenerMatriculaActivaAsync(UsuarioActualId ?? 0);
+            var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
             return View("MiMatricula", activa);
         }
 
@@ -62,7 +64,7 @@ public class MatriculasController : ModuloBaseController
     {
         ViewData["Title"] = "Mi Matrícula";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
-        var activa = await _matriculaService.ObtenerMatriculaActivaAsync(UsuarioActualId ?? 0);
+        var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
         return View("MiMatricula", activa);
     }
 
@@ -124,6 +126,20 @@ public class MatriculasController : ModuloBaseController
         ViewData["Title"] = "01. Vacantes por Carrera";
         var vacantes = await _matriculaService.ListarVacantesAsync();
         return View(vacantes);
+    }
+
+    // ------------------------------------------------------------------
+    // Helpers de contexto
+    // ------------------------------------------------------------------
+    private async Task<int> ObtenerEstudianteIdAsync()
+    {
+        // claim PersonaId → core.estudiantes (UsuarioActualId es id de USUARIO, no de estudiante)
+        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = factory.CreateConnection("01");
+        var id = await conn.ExecuteScalarAsync<int?>(
+            "SELECT e.id FROM core.estudiantes e WHERE e.persona_id = @PersonaId;",
+            new { PersonaId = PersonaActualId ?? 0 });
+        return id ?? 0;
     }
 }
 
