@@ -79,7 +79,8 @@
                     @Model.CreadoEn.ToString("dd/MM/yyyy") · Trámite iniciado (Cero Filas)
                     @if (Model.FechaMatricula.HasValue)
                     {
-                        <text><br />@Model.FechaMatricula.Value.ToString("dd/MM/yyyy") · Conformidad registrada</text>
+                        var fechaConf = Model.FechaMatricula.Value.ToString("dd/MM/yyyy");
+                        <span>@fechaConf · Conformidad registrada</span>
                     }
                 </div>
             </details>
