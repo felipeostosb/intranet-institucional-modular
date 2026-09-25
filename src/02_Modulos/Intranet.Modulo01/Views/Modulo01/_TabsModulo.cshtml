@@ -1,0 +1,35 @@
+@{
+    // Roles del usuario actual (inyectados por el controller vía ViewData)
+    var rolesUsuario = ViewData["RolesUsuario"] as string ?? "";
+}
+<script>
+    window.__ROLES_USUARIO = "@Html.Raw(System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(rolesUsuario))";
+    // Tabs rol-aware del Módulo (Equipo de Ismael): marca el activo según URL
+    // y oculta los tabs cuyo data-solo-rol no coincide con el rol del usuario.
+    window.__renderTabsModulo = function () {
+        const url = window.location.pathname;
+        document.querySelectorAll('.tabs-modulo').forEach(function (bar) {
+            bar.querySelectorAll('.tab-link').forEach(function (a) {
+                const href = a.getAttribute('href');
+                const activo = href === url || (href !== '/Modulo01' && href !== '/Modulo09' && url.startsWith(href));
+                a.classList.toggle('bg-white', activo);
+                a.classList.toggle('dark:bg-slate-700', activo);
+                a.classList.toggle('text-sky-600', activo);
+                a.classList.toggle('dark:text-sky-300', activo);
+                a.classList.toggle('shadow-sm', activo);
+                a.classList.toggle('text-slate-600', !activo);
+                a.classList.toggle('dark:text-slate-400', !activo);
+                a.classList.toggle('hover:text-slate-900', !activo);
+                const rol = a.dataset.soloRol;
+                if (rol) {
+                    const rolesUsuario = (window.__ROLES_USUARIO || '').split(',').map(function (r) { return r.trim(); });
+                    const esAdmin = rolesUsuario.includes('Admin');
+                    // el atributo admite varios roles separados por coma: data-solo-rol="Secretaria,Tesoreria"
+                    const permitidos = rol.split(',').map(function (r) { return r.trim(); });
+                    a.style.display = (esAdmin || permitidos.some(function (r) { return rolesUsuario.includes(r); })) ? '' : 'none';
+                }
+            });
+        });
+    };
+    document.addEventListener('DOMContentLoaded', window.__renderTabsModulo);
+</script>

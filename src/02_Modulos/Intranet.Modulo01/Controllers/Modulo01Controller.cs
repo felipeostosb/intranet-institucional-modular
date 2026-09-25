@@ -27,6 +27,7 @@ public class Modulo01Controller : ModuloBaseController
         ViewData["Title"] = "01. Matrícula Académica";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;
+        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
 
         var esAlumno = EsAlumno && !EsAdmin;
 

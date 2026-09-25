@@ -18,6 +18,7 @@ public class MatriculasController : ModuloBaseController
 
     public MatriculasController(IMatriculaService matriculaService)
     {
+        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
         _matriculaService = matriculaService;
     }
 

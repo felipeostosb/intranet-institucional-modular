@@ -4,6 +4,13 @@
 }
 
 <div class="space-y-6">
+    <!-- Tabs del módulo (rol-aware) -->
+    <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="01">
+        <a href="/Modulo01" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
+        <a href="/Modulo01/Matriculas" data-solo-rol="Secretaria" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Panel de Trabajo</a>
+        <a href="/Modulo01/Matriculas/Vacantes" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Vacantes</a>
+        <a href="/Modulo01/Matriculas/MiMatricula" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Mi Matrícula</a>
+    </div>
     <!-- Header Zen -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
@@ -13,8 +20,7 @@
                     <span class="text-[10px] font-mono font-bold bg-sky-100 dark:bg-sky-950 text-sky-800 dark:text-sky-300 px-2 py-0.5 rounded">01</span>
                     <span class="text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/40 px-2 py-0.5 rounded-md border border-sky-200 dark:border-sky-800">Puesto de trabajo</span>
                 </div>
-                <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Matrículas 2026-II</h1>
-                <p class="text-xs text-slate-500 dark:text-slate-400">Seguimiento del proceso Cero Filas: validaciones → conformidad → registro.</p>
+                                <p class="text-xs text-slate-500 dark:text-slate-400">Seguimiento del proceso Cero Filas: validaciones → conformidad → registro.</p>
             </div>
         </div>
         <a class="btn btn-outline btn-sm rounded-xl text-xs" asp-action="Vacantes">📊 Vacantes</a>
@@ -222,3 +228,7 @@
         </div>
     </div>
 </div>
+
+@if (false) { }
+
+<partial name="~/Views/Modulo01/_TabsModulo.cshtml" />
