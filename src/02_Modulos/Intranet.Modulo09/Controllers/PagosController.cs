@@ -100,7 +100,7 @@ public class PagosController : ModuloBaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EmitirRecibo(int estudianteId, string concepto, string tipoPago, decimal monto)
     {
-        if (!EsTesoreria && !EsAdmin)
+        if (!EsTesoreria && !EsDirector)
             return Forbid();
 
         var periodoId = await ObtenerPeriodoActivoIdAsync();

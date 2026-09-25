@@ -135,7 +135,7 @@ public class TramitesController : ModuloBaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Avanzar(int id, string nuevoEstado, string? resolucion)
     {
-        if (!EsSecretaria && !EsAdmin)
+        if (!EsSecretaria && !EsDirector)
             return Forbid();
 
         var (ok, mensaje) = await _tramiteService.AvanzarEstadoAsync(
