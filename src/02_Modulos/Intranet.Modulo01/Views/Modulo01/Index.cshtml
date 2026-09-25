@@ -1,13 +1,21 @@
+@model Intranet.Modulo01.Controllers.Modulo01DashboardViewModel
 @{
     ViewData["Title"] = "01. Matrícula Académica";
 }
 
 <div class="space-y-6">
-    <!-- Header Zen del Módulo -->
+    <!-- Tabs del módulo (rol-aware) -->
+    <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="01">
+        <a href="/Modulo01" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
+        <a href="/Modulo01/Matriculas" data-solo-rol="Secretaria,Tesoreria,Director,Coordinador" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Panel de Trabajo</a>
+        <a href="/Modulo01/Matriculas/Vacantes" data-solo-rol="Secretaria,Tesoreria,Director,Coordinador" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Vacantes</a>
+        <a href="/Modulo01/Matriculas/MiMatricula" data-solo-rol="Alumno" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Mi Matrícula</a>
+    </div>
+    <!-- Header Zen del Módulo (patrón del Módulo 02) -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
             <div class="w-12 h-12 rounded-2xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 dark:text-sky-400 flex items-center justify-center text-xl shrink-0">
-                📝
+                🎓
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-1">
@@ -15,105 +23,141 @@
                     <span class="text-xs font-bold text-sky-700 dark:text-sky-300 bg-sky-50 dark:bg-sky-900/40 px-2 py-0.5 rounded-md border border-sky-200 dark:border-sky-800">🗄️ Responsable BD: Ismael</span>
                 </div>
                 <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                    Matrícula Académica & Admisión
+                    Matrícula Académica — Proceso Cero Filas
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
-                    Procesamiento de matrículas regulares, extemporáneas y convalidaciones.
+                    @if (User.IsInRole("Tesoreria") && !User.IsInRole("Admin"))
+                    {
+                        <span>Tu puesto: <strong>validar vouchers de matrícula</strong> (cotejo DRELM). Sin tu validación no hay conformidad.</span>
+                    }
+                    else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
+                    {
+                        <span>Tu puesto: <strong>validar fotos y dar la conformidad</strong> que consume la vacante.</span>
+                    }
+                    else
+                    {
+                        <span>Trámite → doble validación (voucher + foto) → conformidad → registro con consumo de vacante.</span>
+                    }
                 </p>
             </div>
         </div>
-        <div class="flex gap-2">
-            <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo_01.showModal()">
-                + Nueva Matrícula
-            </button>
+        <div class="flex flex-wrap gap-2">
+            @if (Model.EsAlumno)
+            {
+                <a href="/Modulo01/Matriculas/MiMatricula" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">🎓 Mi Matrícula</a>
+            }
+            else if (User.IsInRole("Tesoreria") && !User.IsInRole("Admin"))
+            {
+                <a href="/Modulo01/Matriculas" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">
+                    💳 Tu Bandeja de Vouchers
+                    @if (Model.Resumen.EnEspera > 0)
+                    {
+                        <span class="badge badge-error badge-xs text-white font-bold">@Model.Resumen.EnEspera en espera</span>
+                    }
+                </a>
+                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">📊 Vacantes</a>
+            }
+            else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
+            {
+                <a href="/Modulo01/Matriculas" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">
+                    📷 Tu Panel: Fotos + Conformidad
+                    @if (Model.Resumen.ListasParaRegistrar > 0)
+                    {
+                        <span class="badge badge-error badge-xs text-white font-bold">@Model.Resumen.ListasParaRegistrar listas</span>
+                    }
+                </a>
+                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">📊 Vacantes</a>
+            }
+            else
+            {
+                <a href="/Modulo01/Matriculas" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">📋 Panel de Trabajo</a>
+                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">📊 Vacantes</a>
+            }
         </div>
     </div>
 
-    <!-- Indicadores -->
+    <!-- Indicadores (datos reales del esquema mod01) -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Matriculados</span>
-            <div class="text-xl font-bold text-sky-600 dark:text-sky-400 mt-1">128</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Periodo 2026-II</p>
+            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">@Model.Resumen.Matriculados</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">con conformidad</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema & DBA</span>
-            <div class="text-xl font-bold text-slate-900 dark:text-slate-100 font-mono mt-1">mod01</div>
-            <p class="text-[10px] text-sky-600 dark:text-sky-400 font-semibold mt-0.5">DBA: Ismael</p>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Listas para registrar</span>
+            <div class="text-xl font-bold text-sky-600 dark:text-sky-400 mt-1">@Model.Resumen.ListasParaRegistrar</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">doble validación completa</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Estado</span>
-            <div class="text-base font-bold text-emerald-600 dark:text-emerald-400 mt-1 flex items-center gap-1.5">
-                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                <span>En Línea</span>
-            </div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Aislamiento Zero-Blast</p>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">En espera</span>
+            <div class="text-xl font-bold text-amber-600 dark:text-amber-400 mt-1">@Model.Resumen.EnEspera</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">falta voucher o foto</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Usuario</span>
-            <div class="text-sm font-bold text-slate-800 dark:text-slate-200 mt-1 truncate">@ViewData["UsuarioNombre"]</div>
-            <p class="text-[10px] text-slate-400 mt-0.5">Rol: @ViewData["UsuarioRol"]</p>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Reservadas</span>
+            <div class="text-xl font-bold text-slate-700 dark:text-slate-300 mt-1">@Model.Resumen.Reservadas</div>
+            <p class="text-[10px] text-slate-400 mt-0.5">Art. 24 RI</p>
         </div>
     </div>
 
-    <!-- Listado Zen -->
-    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                Registros de Matrícula
-            </h2>
+    @if (!Model.EsAlumno)
+    {
+        <!-- Últimas matrículas -->
+        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📋 Últimas matrículas</h2>
+                <a href="/Modulo01/Matriculas" class="link link-primary text-[11px]">Ver el panel completo</a>
+            </div>
+            <div class="space-y-2">
+                @if (!Model.Ultimas.Any())
+                {
+                    <p class="text-xs text-slate-400 italic">Sin matrículas todavía.</p>
+                }
+                @foreach (var m in Model.Ultimas)
+                {
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                        <span class="font-mono font-bold text-sky-600 dark:text-sky-400">@m.Codigo</span>
+                        <span class="flex-1 truncate text-slate-600 dark:text-slate-300">@m.Estudiante · @m.CarreraCodigo @m.Ciclo @m.Turno</span>
+                        <span class="badge @(m.Estado == "Matriculado" ? "badge-success" : m.Estado == "En trámite" ? "badge-warning" : "badge-ghost") badge-xs font-semibold text-white">@m.Estado</span>
+                    </div>
+                }
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra w-full text-xs">
-                <thead>
-                    <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
-                        <th>#</th>
-                        <th>Código</th>
-                        <th>Estudiante</th>
-                        <th>Fecha</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody class="text-slate-700 dark:text-slate-300">
-                    <tr>
-                        <td class="text-slate-400 font-mono">1</td>
-                        <td><span class="font-mono font-bold text-sky-600 dark:text-sky-400">MAT-2026-001</span></td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Carlos Mendoza</td>
-                        <td class="text-slate-400 font-mono">@DateTime.Now.ToString("dd/MM/yyyy")</td>
-                        <td><span class="badge badge-success badge-xs font-semibold text-white">Regular</span></td>
-                    </tr>
-                    <tr>
-                        <td class="text-slate-400 font-mono">2</td>
-                        <td><span class="font-mono font-bold text-sky-600 dark:text-sky-400">MAT-2026-002</span></td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Ana García</td>
-                        <td class="text-slate-400 font-mono">@DateTime.Now.ToString("dd/MM/yyyy")</td>
-                        <td><span class="badge badge-success badge-xs font-semibold text-white">Regular</span></td>
-                    </tr>
-                </tbody>
-            </table>
+
+        <!-- Carriles de vacantes más apretados -->
+        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📊 Vacantes: carriles con menos cupos</h2>
+                <a href="/Modulo01/Matriculas/Vacantes" class="link link-primary text-[11px]">Tablero completo</a>
+            </div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                @foreach (var v in Model.VacantesCriticas)
+                {
+                    <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3">
+                        <p class="text-[11px] font-bold text-slate-800 dark:text-slate-200 font-mono">@v.CarreraCodigo-@v.Turno @v.Ciclo</p>
+                        <p class="text-lg font-bold @(v.Disponibles == 0 ? "text-rose-500" : "text-emerald-600 dark:text-emerald-400") font-mono mt-0.5">@v.Disponibles<span class="text-[10px] text-slate-400 font-sans"> / @(v.Ocupadas + v.Disponibles)</span></p>
+                        <p class="text-[10px] text-slate-400">@v.Ocupadas ocupadas</p>
+                    </div>
+                }
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <!-- Accesos del alumno -->
+        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-3">⚡ Accesos rápidos</h2>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <a href="/Modulo01/Matriculas" class="btn btn-outline btn-sm rounded-xl justify-start text-xs">🎓 Ver el avance de mi matrícula</a>
+                <a href="/Modulo09/Tramites" class="btn btn-outline btn-sm rounded-xl justify-start text-xs">📄 Solicitar reserva / trámite TUPA</a>
+            </div>
+        </div>
+    }
+
+    <!-- Pie de módulo -->
+    <p class="text-[10px] text-slate-400 text-center">
+        Módulo 01 · Esquema PostgreSQL <span class="font-mono">mod01</span> · Aislamiento Zero-Blast-Radius
+    </p>
 </div>
 
-<!-- Modal Formulario -->
-<dialog id="modal_nuevo_01" class="modal">
-    <div class="modal-box max-w-md bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-200 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xl">
-        <h3 class="text-sm font-bold mb-3">Nueva Matrícula</h3>
-        <div class="space-y-3 text-xs">
-            <div>
-                <label class="font-bold block mb-1 text-[11px]">DNI del Estudiante</label>
-                <input type="text" placeholder="87654321" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
-            </div>
-            <div>
-                <label class="font-bold block mb-1 text-[11px]">Carrera & Ciclo</label>
-                <input type="text" placeholder="Desarrollo de Sistemas de Información - VI" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
-            </div>
-        </div>
-        <div class="modal-action pt-2">
-            <form method="dialog">
-                <button class="btn btn-ghost btn-xs rounded-xl">Cancelar</button>
-                <button class="btn btn-primary btn-xs rounded-xl font-bold">Guardar</button>
-            </form>
-        </div>
-    </div>
-</dialog>
+<partial name="~/Views/Modulo01/_TabsModulo.cshtml" />
