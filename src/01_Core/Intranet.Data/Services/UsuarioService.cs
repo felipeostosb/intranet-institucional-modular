@@ -166,6 +166,8 @@ public class UsuarioService : IUsuarioService
     {
         var clean = dniOCodigo.Trim();
         if (clean.Equals("admin", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[0];
+        if (clean.Equals("secretaria", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[2];
+        if (clean.Equals("tesoreria", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[3];
         if (clean.Equals("docente", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[4];
         if (clean.Equals("alumno", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[5];
 
