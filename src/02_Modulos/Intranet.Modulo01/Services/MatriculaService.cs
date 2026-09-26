@@ -39,12 +39,37 @@ public class MatriculaService : IMatriculaService
     private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("01");
 
     // ------------------------------------------------------------------
+    // Resolución del nombre real de la tabla de matrículas.
+    // En producción el nombre oficial "matriculas" está ocupado por una
+    // tabla legacy de otro dueño (estructura antigua, sin voucher_ok).
+    // Si detectamos ese caso usamos "matriculas_v2" (nuestra tabla real);
+    // cuando el DBA renombre las tablas al esquema oficial, el código
+    // vuelve a usar el nombre canónico automáticamente.
+    // ------------------------------------------------------------------
+    private static string? _tablaMatriculas;
+    private static string TablaMatriculas(IDbConnection db)
+    {
+        if (_tablaMatriculas != null) return _tablaMatriculas;
+        try
+        {
+            var tieneColumnaNueva = db.ExecuteScalar<int?>(
+                "SELECT 1 FROM information_schema.columns WHERE table_schema = 'mod01' AND table_name = 'matriculas' AND column_name = 'voucher_ok';");
+            _tablaMatriculas = tieneColumnaNueva == 1 ? "matriculas" : "matriculas_v2";
+        }
+        catch
+        {
+            _tablaMatriculas = "matriculas";
+        }
+        return _tablaMatriculas;
+    }
+
+    // ------------------------------------------------------------------
     // Vista ALUMNO: su matrícula vigente con el avance del proceso
     // ------------------------------------------------------------------
     public async Task<MatriculaActivaDto?> ObtenerMatriculaActivaAsync(int estudianteId)
     {
         using var db = CreateConnection();
-        const string sql = """
+        var sql = """
             SELECT m.id,
                    m.codigo_matricula AS Codigo,
                    m.estado, m.etapa,
@@ -61,7 +86,7 @@ public class MatriculaService : IMatriculaService
                    tm.nombre AS TipoMatricula,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
                    e.codigo_estudiante AS CodigoEstudiante
-            FROM matriculas m
+            FROM {TABLA} m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
             JOIN carreras c ON c.id = m.carrera_id
@@ -73,7 +98,7 @@ public class MatriculaService : IMatriculaService
             ORDER BY m.creado_en DESC
             LIMIT 1;
             """;
-        return await db.QueryFirstOrDefaultAsync<MatriculaActivaDto>(sql, new { EstudianteId = estudianteId });
+        return await db.QueryFirstOrDefaultAsync<MatriculaActivaDto>(sql.Replace("{TABLA}", TablaMatriculas(db)), new { EstudianteId = estudianteId });
     }
 
     // ------------------------------------------------------------------
@@ -82,7 +107,7 @@ public class MatriculaService : IMatriculaService
     public async Task<IEnumerable<MatriculaListaDto>> ListarPorPeriodoAsync(string? filtroEstado)
     {
         using var db = CreateConnection();
-        const string sql = """
+        var sql = """
             SELECT m.id,
                    m.codigo_matricula AS Codigo,
                    m.estado, m.etapa,
@@ -97,7 +122,7 @@ public class MatriculaService : IMatriculaService
                    tm.codigo AS TipoMatricula,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
                    e.codigo_estudiante AS CodigoEstudiante
-            FROM matriculas m
+            FROM {TABLA} m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
             JOIN carreras c ON c.id = m.carrera_id
@@ -107,7 +132,7 @@ public class MatriculaService : IMatriculaService
             WHERE (@Estado IS NULL OR m.estado = @Estado)
             ORDER BY m.creado_en DESC;
             """;
-        return await db.QueryAsync<MatriculaListaDto>(sql,
+        return await db.QueryAsync<MatriculaListaDto>(sql.Replace("{TABLA}", TablaMatriculas(db)),
             new { Estado = string.IsNullOrWhiteSpace(filtroEstado) ? null : filtroEstado });
     }
 
@@ -117,7 +142,7 @@ public class MatriculaService : IMatriculaService
     public async Task<IEnumerable<MatriculaListaDto>> ListarListasParaRegistrarAsync()
     {
         using var db = CreateConnection();
-        const string sql = """
+        var sql = """
             SELECT m.id,
                    m.codigo_matricula AS Codigo,
                    m.estado, m.etapa,
@@ -132,7 +157,7 @@ public class MatriculaService : IMatriculaService
                    tm.codigo AS TipoMatricula,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
                    e.codigo_estudiante AS CodigoEstudiante
-            FROM matriculas m
+            FROM {TABLA} m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
             JOIN carreras c ON c.id = m.carrera_id
@@ -144,7 +169,7 @@ public class MatriculaService : IMatriculaService
               AND m.foto_ok = TRUE
             ORDER BY m.creado_en;
             """;
-        return await db.QueryAsync<MatriculaListaDto>(sql);
+        return await db.QueryAsync<MatriculaListaDto>(sql.Replace("{TABLA}", TablaMatriculas(db)));
     }
 
     // ------------------------------------------------------------------
@@ -153,7 +178,7 @@ public class MatriculaService : IMatriculaService
     public async Task<IEnumerable<MatriculaListaDto>> ListarEnEsperaAsync()
     {
         using var db = CreateConnection();
-        const string sql = """
+        var sql = """
             SELECT m.id,
                    m.codigo_matricula AS Codigo,
                    m.estado, m.etapa,
@@ -168,7 +193,7 @@ public class MatriculaService : IMatriculaService
                    tm.codigo AS TipoMatricula,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
                    e.codigo_estudiante AS CodigoEstudiante
-            FROM matriculas m
+            FROM {TABLA} m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
             JOIN carreras c ON c.id = m.carrera_id
@@ -179,7 +204,7 @@ public class MatriculaService : IMatriculaService
               AND (m.voucher_ok = FALSE OR m.foto_ok = FALSE)
             ORDER BY m.creado_en;
             """;
-        return await db.QueryAsync<MatriculaListaDto>(sql);
+        return await db.QueryAsync<MatriculaListaDto>(sql.Replace("{TABLA}", TablaMatriculas(db)));
     }
 
     // ------------------------------------------------------------------
@@ -190,7 +215,7 @@ public class MatriculaService : IMatriculaService
     public async Task<IEnumerable<MatriculaPorLiberarDto>> ListarVacantesPorLiberarAsync(int diasLimite = 20)
     {
         using var db = CreateConnection();
-        const string sql = """
+        var sql = """
             SELECT m.id,
                    m.codigo_matricula AS Codigo,
                    m.creado_en AS CreadoEn,
@@ -199,7 +224,7 @@ public class MatriculaService : IMatriculaService
                    ci.codigo AS Ciclo,
                    t.codigo AS Turno,
                    p.nombres || ' ' || p.apellidos AS Estudiante
-            FROM matriculas m
+            FROM {TABLA} m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
             JOIN carreras c ON c.id = m.carrera_id
@@ -209,7 +234,7 @@ public class MatriculaService : IMatriculaService
               AND m.creado_en::date < CURRENT_DATE - @DiasLimite
             ORDER BY m.creado_en;
             """;
-        return await db.QueryAsync<MatriculaPorLiberarDto>(sql, new { DiasLimite = diasLimite });
+        return await db.QueryAsync<MatriculaPorLiberarDto>(sql.Replace("{TABLA}", TablaMatriculas(db)), new { DiasLimite = diasLimite });
     }
 
     // ------------------------------------------------------------------
@@ -218,7 +243,7 @@ public class MatriculaService : IMatriculaService
     public async Task<ResumenMatriculaDto> ObtenerResumenAsync()
     {
         using var db = CreateConnection();
-        const string sql = """
+        var sql = """
             SELECT count(*) FILTER (WHERE estado = 'Matriculado')                AS Matriculados,
                    count(*) FILTER (WHERE estado = 'En trámite')                 AS EnTramite,
                    count(*) FILTER (WHERE estado = 'En trámite'
@@ -226,9 +251,9 @@ public class MatriculaService : IMatriculaService
                    count(*) FILTER (WHERE estado = 'En trámite'
                                      AND (NOT voucher_ok OR NOT foto_ok))        AS EnEspera,
                    count(*) FILTER (WHERE estado = 'Reservada')                  AS Reservadas
-            FROM matriculas;
+            FROM {TABLA};
             """;
-        return await db.QueryFirstOrDefaultAsync<ResumenMatriculaDto>(sql)
+        return await db.QueryFirstOrDefaultAsync<ResumenMatriculaDto>(sql.Replace("{TABLA}", TablaMatriculas(db)))
                ?? new ResumenMatriculaDto();
     }
 
@@ -242,27 +267,27 @@ public class MatriculaService : IMatriculaService
     public async Task<bool> ValidarVoucherAsync(int matriculaId, bool aprobar)
     {
         using var db = CreateConnection();
-        const string sql = """
-            UPDATE matriculas
+        var sql = """
+            UPDATE {TABLA}
             SET voucher_ok = @Aprobar,
                 etapa = CASE WHEN @Aprobar AND foto_ok THEN 'Conformidad' ELSE etapa END,
                 actualizado_en = CURRENT_TIMESTAMP
             WHERE id = @Id AND estado = 'En trámite';
             """;
-        return await db.ExecuteAsync(sql, new { Id = matriculaId, Aprobar = aprobar }) > 0;
+        return await db.ExecuteAsync(sql.Replace("{TABLA}", TablaMatriculas(db)), new { Id = matriculaId, Aprobar = aprobar }) > 0;
     }
 
     public async Task<bool> ValidarFotoAsync(int matriculaId, bool aprobar)
     {
         using var db = CreateConnection();
-        const string sql = """
-            UPDATE matriculas
+        var sql = """
+            UPDATE {TABLA}
             SET foto_ok = @Aprobar,
                 etapa = CASE WHEN @Aprobar AND voucher_ok THEN 'Conformidad' ELSE etapa END,
                 actualizado_en = CURRENT_TIMESTAMP
             WHERE id = @Id AND estado = 'En trámite';
             """;
-        return await db.ExecuteAsync(sql, new { Id = matriculaId, Aprobar = aprobar }) > 0;
+        return await db.ExecuteAsync(sql.Replace("{TABLA}", TablaMatriculas(db)), new { Id = matriculaId, Aprobar = aprobar }) > 0;
     }
 
     // ------------------------------------------------------------------
@@ -277,7 +302,7 @@ public class MatriculaService : IMatriculaService
 
         // 1) Conformidad solo si la doble validación está completa
         const string upd = """
-            UPDATE matriculas
+            UPDATE {TABLA}
             SET estado = 'Matriculado',
                 etapa = 'Cerrada',
                 fecha_matricula = CURRENT_DATE,
@@ -290,7 +315,7 @@ public class MatriculaService : IMatriculaService
             RETURNING carrera_id AS CarreraId, ciclo_id AS CicloId,
                       turno_id AS TurnoId, periodo_id AS PeriodoId;
             """;
-        var fila = await db.QueryFirstOrDefaultAsync<VacanteConsumoDto>(upd,
+        var fila = await db.QueryFirstOrDefaultAsync<VacanteConsumoDto>(upd.Replace("{TABLA}", TablaMatriculas(db)),
             new { Id = matriculaId, UsuarioId = usuarioId }, tx);
 
         if (fila == null || fila.CarreraId == 0)
@@ -328,13 +353,13 @@ public class MatriculaService : IMatriculaService
     public async Task<IEnumerable<VacanteDto>> ListarVacantesAsync()
     {
         using var db = CreateConnection();
-        const string sql = """
+        var sql = """
             SELECT c.codigo AS CarreraCodigo,
                    c.nombre AS Carrera,
                    t.codigo AS Turno,
                    ci.codigo AS Ciclo,
                    v.vacantes AS Disponibles,
-                   (SELECT count(*) FROM matriculas m
+                   (SELECT count(*) FROM {TABLA} m
                      WHERE m.carrera_id = v.carrera_id
                        AND m.turno_id = v.turno_id
                        AND m.ciclo_id = v.ciclo_id
@@ -346,6 +371,6 @@ public class MatriculaService : IMatriculaService
             JOIN ciclos ci ON ci.id = v.ciclo_id
             ORDER BY c.codigo, t.codigo, ci.codigo;
             """;
-        return await db.QueryAsync<VacanteDto>(sql);
+        return await db.QueryAsync<VacanteDto>(sql.Replace("{TABLA}", TablaMatriculas(db)));
     }
 }
