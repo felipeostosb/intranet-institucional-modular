@@ -22,6 +22,8 @@
                         "Docente" => "Estás en Modo Docente. Gestiona tus clases, asistencia de 18 semanas y actas.",
                         "Director" or "Admin" => "Estás en Modo Dirección General. Supervisión integral del ecosistema institucional.",
                         "Coordinador" => "Estás en Modo Coordinación. Gestión de aulas, horarios y carga docente.",
+                        "Secretaria" => "Estás en Modo Secretaría. Validación de matrículas, expedientes, actas oficiales y trámites.",
+                        "Tesoreria" => "Estás en Modo Tesorería. Conciliación de pagos, validación de vouchers y tasas TUPA.",
                         _ => "Estás en Modo Estudiante. Consulta tu récord de asistencia, matrícula y trámites."
                     })
                 </p>
@@ -125,6 +127,58 @@
                     <div class="text-2xl mb-2">⚠️</div>
                     <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Alertas DPI</p>
                     <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Deserción temprana</p>
+                </a>
+            }
+            else if (activeRole.Equals("Secretaria", StringComparison.OrdinalIgnoreCase))
+            {
+                <a href="/Modulo01/Matriculas" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">📋</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Panel Matrícula</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Validación de fichas</p>
+                </a>
+
+                <a href="/Modulo06" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">🎓</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Egresados & Grados</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Carpetas de titulación</p>
+                </a>
+
+                <a href="/Modulo09/Tramites" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">📬</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Mesa de Trámites</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Atención TUPA y FUT</p>
+                </a>
+
+                <a href="/Modulo04" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">📑</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Actas Oficiales</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Certificados de estudio</p>
+                </a>
+            }
+            else if (activeRole.Equals("Tesoreria", StringComparison.OrdinalIgnoreCase))
+            {
+                <a href="/Modulo09/Pagos" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">💳</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Bandeja Vouchers</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Validación de pagos</p>
+                </a>
+
+                <a href="/Modulo09/Tramites" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">🏛️</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Tasas TUPA</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Cobros de conceptos</p>
+                </a>
+
+                <a href="/Modulo01/Matriculas" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">💰</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Pagos Matrícula</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Filtro de vouchers M01</p>
+                </a>
+
+                <a href="/Modulo09" class="p-4 rounded-2xl bg-white dark:bg-[#111827] hover:bg-slate-50 dark:hover:bg-slate-800/80 border border-slate-200/80 dark:border-slate-800 shadow-sm transition group">
+                    <div class="text-2xl mb-2">📊</div>
+                    <p class="font-bold text-xs text-slate-900 dark:text-slate-100 group-hover:text-blue-600 dark:group-hover:text-cyan-400 transition">Caja & Recaudación</p>
+                    <p class="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">Resumen financiero</p>
                 </a>
             }
             else

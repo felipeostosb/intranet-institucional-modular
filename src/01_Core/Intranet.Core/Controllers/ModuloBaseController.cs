@@ -28,21 +28,21 @@ public abstract class ModuloBaseController : Controller
     public string UsuarioActualDni => User.FindFirst("Dni")?.Value ?? string.Empty;
     public string UsuarioActualCodigo => User.FindFirst("CodigoInstitucional")?.Value ?? string.Empty;
     public string UsuarioActualNombre => User.FindFirst(ClaimTypes.Name)?.Value ?? "Invitado";
-    public string UsuarioActualRol => User.FindFirst(ClaimTypes.Role)?.Value ?? "Alumno";
+    public string UsuarioActualRol => User.FindFirst("ActiveRole")?.Value ?? User.FindFirst(ClaimTypes.Role)?.Value ?? "Alumno";
     public IEnumerable<string> UsuarioActualRoles => User.FindAll(ClaimTypes.Role).Select(c => c.Value);
 
     public bool EstaAutenticado => User.Identity?.IsAuthenticated ?? false;
     
     // Roles Institucionales IESTP Argentina
     public bool EsAdmin => User.IsInRole("Admin");
-    public bool EsDirector => User.IsInRole("Director") || EsAdmin;
-    public bool EsCoordinador => User.IsInRole("Coordinador") || EsAdmin;
-    public bool EsSecretaria => User.IsInRole("Secretaria") || EsAdmin;
-    public bool EsTesoreria => User.IsInRole("Tesoreria") || EsAdmin;
-    public bool EsDocente => User.IsInRole("Docente") || EsCoordinador || EsAdmin;
-    public bool EsAlumno => User.IsInRole("Alumno");
+    public bool EsDirector => User.IsInRole("Director") || UsuarioActualRol.Equals("Director", StringComparison.OrdinalIgnoreCase) || EsAdmin;
+    public bool EsCoordinador => User.IsInRole("Coordinador") || UsuarioActualRol.Equals("Coordinador", StringComparison.OrdinalIgnoreCase) || EsAdmin;
+    public bool EsSecretaria => User.IsInRole("Secretaria") || UsuarioActualRol.Equals("Secretaria", StringComparison.OrdinalIgnoreCase) || EsAdmin;
+    public bool EsTesoreria => User.IsInRole("Tesoreria") || UsuarioActualRol.Equals("Tesoreria", StringComparison.OrdinalIgnoreCase) || EsAdmin;
+    public bool EsDocente => User.IsInRole("Docente") || UsuarioActualRol.Equals("Docente", StringComparison.OrdinalIgnoreCase) || EsCoordinador || EsAdmin;
+    public bool EsAlumno => User.IsInRole("Alumno") || UsuarioActualRol.Equals("Alumno", StringComparison.OrdinalIgnoreCase);
 
-    public bool TieneRol(string rol) => User.IsInRole(rol);
+    public bool TieneRol(string rol) => User.IsInRole(rol) || UsuarioActualRol.Equals(rol, StringComparison.OrdinalIgnoreCase);
 
     protected void MostrarAlertaExito(string mensaje)
     {

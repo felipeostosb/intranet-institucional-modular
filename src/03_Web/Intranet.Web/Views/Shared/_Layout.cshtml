@@ -87,7 +87,7 @@
     var userRoles = User.FindAll(System.Security.Claims.ClaimTypes.Role).Select(r => r.Value).Distinct().ToList();
     if (User.IsInRole("Director") || User.IsInRole("Admin"))
     {
-        userRoles = new List<string> { "Director", "Docente", "Alumno", "Coordinador" };
+        userRoles = new List<string> { "Director", "Docente", "Alumno", "Coordinador", "Secretaria", "Tesoreria" };
     }
 }
 
@@ -336,6 +336,8 @@ else if (isAuth)
                                         "Docente" => "👨‍🏫",
                                         "Alumno" or "Estudiante" => "🎓",
                                         "Coordinador" => "📋",
+                                        "Secretaria" => "📂",
+                                        "Tesoreria" => "💳",
                                         _ => "🎭"
                                     })
                                 </span>
@@ -356,6 +358,8 @@ else if (isAuth)
                                                     "Docente" => "👨‍🏫 Docente",
                                                     "Alumno" or "Estudiante" => "🎓 Estudiante",
                                                     "Coordinador" => "📋 Coordinador",
+                                                    "Secretaria" => "📂 Secretaría",
+                                                    "Tesoreria" => "💳 Tesorería",
                                                     _ => r
                                                 })
                                             </span>
