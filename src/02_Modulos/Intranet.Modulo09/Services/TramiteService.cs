@@ -47,6 +47,28 @@ public class TramiteService : ITramiteService
 
     private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("09");
 
+    // ------------------------------------------------------------------
+    // Resolución del nombre real de la tabla de pagos (legacy en
+    // producción: "pagos" es una tabla antigua de otro dueño; la
+    // nuestra es pagos_v2 hasta que el DBA restaure el nombre oficial).
+    // ------------------------------------------------------------------
+    private static string? _tablaPagos;
+    private static string TablaPagos(IDbConnection db)
+    {
+        if (_tablaPagos != null) return _tablaPagos;
+        try
+        {
+            var tieneColumnaNueva = db.ExecuteScalar<int?>(
+                "SELECT 1 FROM information_schema.columns WHERE table_schema = 'mod09' AND table_name = 'pagos' AND column_name = 'voucher_estado';");
+            _tablaPagos = tieneColumnaNueva == 1 ? "pagos" : "pagos_v2";
+        }
+        catch
+        {
+            _tablaPagos = "pagos";
+        }
+        return _tablaPagos;
+    }
+
     // número correlativo de trámite: T0001, T0002... según el diseño del prototipo
     private const string SqlNuevoCodigo = "SELECT 'T' || lpad((count(*) + 1)::text, 4, '0') FROM tramites;";
 
@@ -100,7 +122,7 @@ public class TramiteService : ITramiteService
                    e.codigo_estudiante AS CodigoEstudiante,
                    t.resolucion,
                    (SELECT b.voucher_estado
-                      FROM pagos b
+                      FROM {TABLA} b
                      WHERE b.estudiante_id = t.estudiante_id
                        AND b.concepto_pago_id = tt.concepto_pago_id
                        AND b.periodo_id = t.periodo_id
@@ -112,7 +134,7 @@ public class TramiteService : ITramiteService
             WHERE (@Estado IS NULL OR t.estado = @Estado)
             ORDER BY t.fecha_solicitud;
             """;
-        return await db.QueryAsync<TramiteMesaDto>(sql,
+        return await db.QueryAsync<TramiteMesaDto>(sql.Replace("{TABLA}", TablaPagos(db)),
             new { Estado = string.IsNullOrWhiteSpace(estado) ? null : estado });
     }
 
@@ -329,7 +351,7 @@ public class TramiteService : ITramiteService
         {
             const string checkPago = """
                 SELECT count(*)
-                FROM pagos b
+                FROM {TABLA} b
                 JOIN tramites t ON t.id = @Id
                 JOIN tipos_tramite tt ON tt.id = t.tipo_tramite_id
                 WHERE b.estudiante_id = t.estudiante_id
@@ -337,7 +359,7 @@ public class TramiteService : ITramiteService
                   AND b.periodo_id = t.periodo_id
                   AND b.voucher_estado = 'Validado';
                 """;
-            var pagado = await db.ExecuteScalarAsync<int>(checkPago, new { Id = tramiteId });
+            var pagado = await db.ExecuteScalarAsync<int>(checkPago.Replace("{TABLA}", TablaPagos(db)), new { Id = tramiteId });
             if (pagado == 0)
                 return (false, "Tesorería aún no validó el voucher de pago de este trámite.");
         }
