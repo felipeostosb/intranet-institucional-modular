@@ -51,6 +51,7 @@ public class TipoTramiteDto
     public string Codigo { get; set; } = "";
     public string Nombre { get; set; } = "";
     public int DiasHabiles { get; set; }
+    public int? ConceptoPagoId { get; set; }
     public string PagoCodigo { get; set; } = "";
     public string PagoNombre { get; set; } = "";
     public decimal PagoMonto { get; set; }

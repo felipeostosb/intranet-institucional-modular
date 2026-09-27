@@ -1,3 +1,4 @@
+using System.IO;
 using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -129,6 +130,51 @@ public class PagosController : ModuloBaseController
         if (ok) MostrarAlertaExito(mensaje);
         else MostrarAlertaError(mensaje);
         return RedirectToAction(nameof(Index));
+    }
+
+    // ------------------------------------------------------------------
+    // ALUMNO: subir el voucher PDF de SU pago (recibo generado por un
+    // trámite o registrado a mano). Sin esto Tesorería validaba "a ciegas".
+    // ------------------------------------------------------------------
+    [HttpPost("SubirVoucher/{id}")]
+    [ValidateAntiForgeryToken]
+    [RequestSizeLimit(10_485_760)]
+    public async Task<IActionResult> SubirVoucher(int id)
+    {
+        if (!EsAlumno) return Forbid();
+        var estudianteId = await ObtenerEstudianteIdAsync();
+
+        var file = Request.Form.Files.FirstOrDefault(f => f.Name == "voucher" && f.Length > 0);
+        if (file == null)
+        {
+            MostrarAlertaError("Adjunta el voucher en PDF.");
+            return RedirectToAction(nameof(Index));
+        }
+        if (file.Length > 2_097_152)
+        {
+            MostrarAlertaError("El voucher supera los 2 MB permitidos.");
+            return RedirectToAction(nameof(Index));
+        }
+
+        using var ms = new MemoryStream();
+        await file.CopyToAsync(ms);
+        var (ok, mensaje) = await _pagoService.SubirVoucherAsync(
+            id, estudianteId, file.FileName, file.ContentType, ms.ToArray());
+        if (ok) MostrarAlertaExito(mensaje);
+        else MostrarAlertaError(mensaje);
+        return RedirectToAction(nameof(Index));
+    }
+
+    // ------------------------------------------------------------------
+    // PERSONAL (Tesorería/Secretaría): ver el voucher PDF del pago
+    // ------------------------------------------------------------------
+    [HttpGet("Voucher/{id}")]
+    public async Task<IActionResult> Voucher(int id)
+    {
+        if (EsAlumno) return Forbid();
+        var v = await _pagoService.ObtenerVoucherAsync(id);
+        if (v == null) return NotFound();
+        return File(v.Contenido, v.Tipo, v.Nombre);
     }
 
     // ------------------------------------------------------------------
