@@ -15,4 +15,11 @@
   <ItemGroup>
     <ProjectReference Include="../../01_Core/Intranet.Core/Intranet.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <!-- Ficha de matrícula PDF (QuestPDF, licencia Community) y envío al correo
+         institucional del estudiante (MailKit 4.16, sin vulnerabilidades) -->
+    <PackageReference Include="QuestPDF" Version="2024.12.3" />
+    <PackageReference Include="MailKit" Version="4.16.0" />
+  </ItemGroup>
 </Project>

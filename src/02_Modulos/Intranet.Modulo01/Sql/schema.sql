@@ -133,3 +133,55 @@ CROSS JOIN mod01.turnos t
 CROSS JOIN mod01.ciclos ci
 WHERE t.codigo IN ('M','N') AND ci.codigo IN ('I','II','III')
 ON CONFLICT (periodo_id, carrera_id, turno_id, ciclo_id) DO NOTHING;
+
+-- ============================================================================
+-- FLUJO DE MATRICULATURA DE SECRETARÍA (Reserva de Matrícula TM05 / CT13)
+-- Cierre: expediente por DNI → UDs del nuevo ciclo → ficha PDF al correo.
+-- En producción "matriculas" es legacy (owner postgres); la tabla viva del
+-- equipo es matriculas_v2. El service detecta cuál usar; aquí se declara la
+-- estructura completa por si el schema se aplica en un entorno limpio.
+-- ============================================================================
+
+-- 1) Historial académico del estudiante (aprobados/desaprobados por UD)
+CREATE TABLE IF NOT EXISTS mod01.historial_academico (
+    id           SERIAL PRIMARY KEY,
+    estudiante_id INT NOT NULL REFERENCES core.estudiantes(id) ON DELETE CASCADE,
+    periodo_id   INT NOT NULL REFERENCES core.periodos_academicos(id),
+    unidad_didactica_id INT NOT NULL REFERENCES core.unidades_didacticas(id),
+    nota         NUMERIC(4,1) NOT NULL CHECK (nota BETWEEN 0 AND 20),
+    estado       VARCHAR(12) NOT NULL CHECK (estado IN ('Aprobado','Desaprobado','Retirado')),
+    creado_en    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (estudiante_id, periodo_id, unidad_didactica_id)
+);
+
+-- 2) Oferta del próximo ciclo (espejo del plan cuando core aún no lo tiene)
+CREATE TABLE IF NOT EXISTS mod01.oferta_ciclo (
+    id           SERIAL PRIMARY KEY,
+    carrera_id   INT NOT NULL REFERENCES core.carreras(id),
+    ciclo        VARCHAR(5) NOT NULL CHECK (ciclo IN ('I','II','III','IV','V','VI')),
+    unidad_didactica_id INT REFERENCES core.unidades_didacticas(id),  -- NULL si core no la tiene
+    codigo       VARCHAR(20) NOT NULL,
+    nombre       VARCHAR(150) NOT NULL,
+    creditos     INT NOT NULL DEFAULT 3,
+    tipo         VARCHAR(30) NOT NULL DEFAULT 'Formativa',
+    obligatoria  BOOLEAN NOT NULL DEFAULT TRUE,
+    UNIQUE (carrera_id, ciclo, codigo)
+);
+
+-- 3) Bitácora de envío de la ficha de matrícula por correo
+--    (en producción referencia matriculas_v2; en el espejo local, matriculas)
+CREATE TABLE IF NOT EXISTS mod01.matriculas_v2 (LIKE mod01.matriculas INCLUDING ALL);
+ALTER TABLE mod01.matriculas_v2 ADD COLUMN IF NOT EXISTS tramite_reserva_id INT;
+
+-- 4) El detalle admite UDs del espejo oferta_ciclo mientras core.unidades_didacticas
+--    no tenga el ciclo (seed de ciclos IV–VI pendiente de merge PR #34)
+ALTER TABLE mod01.detalles_matricula ADD COLUMN IF NOT EXISTS oferta_ciclo_id INT REFERENCES mod01.oferta_ciclo(id);
+ALTER TABLE mod01.detalles_matricula ALTER COLUMN unidad_didactica_id DROP NOT NULL;
+
+CREATE TABLE IF NOT EXISTS mod01.fichas_enviadas (
+    id           SERIAL PRIMARY KEY,
+    matricula_id INT NOT NULL REFERENCES mod01.matriculas_v2(id) ON DELETE CASCADE,
+    enviado_a    VARCHAR(150) NOT NULL,
+    enviado_por  INT REFERENCES core.usuarios(id),
+    enviado_en   TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
