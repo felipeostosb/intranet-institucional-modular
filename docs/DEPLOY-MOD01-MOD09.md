@@ -10,3 +10,4 @@ Este PR acompaña la sincronización del despliegue en mili3.
 ## Registro de despliegues
 
 - 2026-09-27: PRs #22 y #23 (tabs por rol activo) auto-mergeadas por CI. Este commit de usuario dispara el pipeline (auto-merge con GITHUB_TOKEN no lo hace).
+- 2026-09-27 (c): disparo de deploy con merge de usuario tras PRs #22/#23.
