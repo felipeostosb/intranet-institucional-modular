@@ -13,3 +13,4 @@ Este PR acompaña la sincronización del despliegue en mili3.
 - 2026-09-27 (c): disparo de deploy con merge de usuario tras PRs #22/#23.
 - 2026-09-27 (e): deploy del fix de tabs por rol activo (PRs #22/#23).
 - 2026-09-27 (e): deploy del fix de tabs por rol activo (PRs #22/#23).
+- 2026-09-27 (f): deploy del fix portada por rol (PR #29).
