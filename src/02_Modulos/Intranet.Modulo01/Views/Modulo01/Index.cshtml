@@ -4,12 +4,18 @@
 }
 
 <div class="space-y-6">
-    <!-- Tabs del módulo (rol-aware) -->
+    <!-- Tabs del módulo (flujo por rol) -->
     <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="01">
         <a href="/Modulo01" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
-        <a href="/Modulo01/Matriculas" data-solo-rol="Secretaria,Tesoreria,Director,Coordinador" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Panel de Trabajo</a>
-        <a href="/Modulo01/Matriculas/Vacantes" data-solo-rol="Secretaria,Tesoreria,Director,Coordinador" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Vacantes</a>
-        <a href="/Modulo01/Matriculas/MiMatricula" data-solo-rol="Alumno" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Mi Matrícula</a>
+        @if (Model.EsAlumno)
+        {
+            <a href="/Modulo01/Matriculas/MiMatricula" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Mi matrícula</a>
+        }
+        else
+        {
+            <a href="/Modulo01/Matriculas" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Panel de trabajo</a>
+            <a href="/Modulo01/Matriculas/Vacantes" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Vacantes</a>
+        }
     </div>
     <!-- Header Zen del Módulo (patrón del Módulo 02) -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -76,7 +82,9 @@
         </div>
     </div>
 
-    <!-- Indicadores (datos reales del esquema mod01) -->
+    @if (!Model.EsAlumno)
+    {
+    <!-- Indicadores operativos (personal) -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Matriculados</span>
@@ -99,6 +107,8 @@
             <p class="text-[10px] text-slate-400 mt-0.5">Art. 24 RI</p>
         </div>
     </div>
+
+    }
 
     @if (!Model.EsAlumno)
     {
@@ -144,12 +154,13 @@
     }
     else
     {
-        <!-- Accesos del alumno -->
+        <!-- Tu flujo (estudiante) -->
         <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
-            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-3">⚡ Accesos rápidos</h2>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <a href="/Modulo01/Matriculas" class="btn btn-outline btn-sm rounded-xl justify-start text-xs">🎓 Ver el avance de mi matrícula</a>
-                <a href="/Modulo09/Tramites" class="btn btn-outline btn-sm rounded-xl justify-start text-xs">📄 Solicitar reserva / trámite TUPA</a>
+            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-3">📄 Tu matrícula</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">El seguimiento de tu trámite y los documentos están en <strong>Mi matrícula</strong>. Si aún no la iniciaste, hazlo desde Trámites TUPA.</p>
+            <div class="flex flex-wrap gap-2">
+                <a href="/Modulo01/Matriculas/MiMatricula" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">Ver mi matrícula</a>
+                <a href="/Modulo09/Tramites#nuevoTramite" class="btn btn-outline btn-sm rounded-xl text-xs">Solicitar reserva / trámite TUPA</a>
             </div>
         </div>
     }

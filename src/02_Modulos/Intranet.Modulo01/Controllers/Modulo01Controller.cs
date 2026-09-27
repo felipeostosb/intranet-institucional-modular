@@ -32,7 +32,7 @@ public class Modulo01Controller : ModuloBaseController
         // multi-rol (p. ej. Director+Alumno) ve pestañas de staff estando en Modo Alumno.
         ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
 
-        var esAlumno = EsAlumno && !EsAdmin;
+        var esAlumno = EsAlumno; // ActiveRole-aware: demo 87654321 multi-rol en Modo Alumno
 
         var vm = new Modulo01DashboardViewModel
         {

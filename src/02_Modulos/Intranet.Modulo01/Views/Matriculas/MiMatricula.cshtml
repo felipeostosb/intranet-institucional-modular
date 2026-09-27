@@ -4,12 +4,10 @@
 }
 
 <div class="space-y-6">
-    <!-- Tabs del módulo (rol-aware) -->
+    <!-- Tabs del módulo (estudiante) -->
     <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="01">
         <a href="/Modulo01" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
-        <a href="/Modulo01/Matriculas" data-solo-rol="Secretaria,Tesoreria,Director,Coordinador" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Panel de Trabajo</a>
-        <a href="/Modulo01/Matriculas/Vacantes" data-solo-rol="Secretaria,Tesoreria,Director,Coordinador" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Vacantes</a>
-        <a href="/Modulo01/Matriculas/MiMatricula" data-solo-rol="Alumno" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Mi Matrícula</a>
+        <a href="/Modulo01/Matriculas/MiMatricula" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Mi matrícula</a>
     </div>
     <!-- Header Zen del módulo -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm">
@@ -30,11 +28,13 @@
     {
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-10 border border-slate-200/80 dark:border-slate-800 shadow-sm text-center">
             <div class="text-4xl mb-3">📭</div>
-            <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">No tienes una matrícula activa</h2>
+            <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">Todavía no tienes una matrícula registrada</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                Cuando Secretaría abra el proceso, inicia tu trámite de matrícula desde
-                <a class="link link-primary" asp-controller="Tramites" asp-action="Index">Mis trámites</a>.
+                Tu matrícula nace del trámite TUPA: lo inicias en <a class="link link-primary" href="/Modulo09/Tramites#nuevoTramite">Mis trámites → Nuevo trámite</a>
+                adjuntando tu voucher de pago y la foto del carné. Tesorería valida el voucher, Secretaría
+                valida la foto y recién ahí se registra tu matrícula aquí.
             </p>
+            <a href="/Modulo09/Tramites#nuevoTramite" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm mt-4">Iniciar mi trámite</a>
         </div>
     }
     else
@@ -87,7 +87,7 @@
             </details>
 
             <div class="mt-4 flex flex-wrap gap-2">
-                <a class="btn btn-outline btn-xs rounded-xl" asp-controller="Tramites" asp-action="Index">Solicitar reserva de matrícula (TUPA 4.8)</a>
+                <a class="btn btn-outline btn-xs rounded-xl" href="/Modulo09/Tramites#nuevoTramite">Solicitar reserva de matrícula (TUPA 4.8)</a>
             </div>
         </div>
 
@@ -126,11 +126,9 @@
                     </p>
                 </div>
             </div>
-            <p class="text-[11px] text-slate-400 mt-3">Si un documento fue observado, se corrige desde <strong>Mis trámites → Corregir</strong>.</p>
+            <p class="text-[11px] text-slate-400 mt-3">Si un documento fue observado, se corrige desde <a class="link link-primary" href="/Modulo09/Tramites">Mis trámites → Corregir</a>.</p>
         </div>
     }
 </div>
-
-@if (false) { }
 
 <partial name="~/Views/Modulo01/_TabsModulo.cshtml" />
