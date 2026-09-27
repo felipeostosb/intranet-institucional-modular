@@ -13,6 +13,7 @@ public class PagoListaDto
     public string ConceptoNombre { get; set; } = "";
     public string TipoPago { get; set; } = "";
     public string Periodo { get; set; } = "";
+    public bool TieneVoucher { get; set; }
 }
 
 /// <summary>Fila de la bandeja de vouchers de Tesorería.</summary>
@@ -31,6 +32,15 @@ public class PagoBandejaDto
     public string TipoPago { get; set; } = "";
     public string CodigoEstudiante { get; set; } = "";
     public string Estudiante { get; set; } = "";
+    public bool TieneVoucher { get; set; }
+}
+
+/// <summary>Voucher PDF adjunto a un pago (evidencia para Tesorería).</summary>
+public class ArchivoVoucherDto
+{
+    public string Nombre { get; set; } = "";
+    public string Tipo { get; set; } = "";
+    public byte[] Contenido { get; set; } = [];
 }
 
 /// <summary>Métricas de pagos del módulo.</summary>

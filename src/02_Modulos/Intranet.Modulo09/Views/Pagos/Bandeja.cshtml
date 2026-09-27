@@ -93,6 +93,11 @@
                         @if (p.VoucherEstado == "Pendiente" && (User.IsInRole("Tesoreria") || User.IsInRole("Admin")))
                         {
                             <div class="flex gap-1">
+                                @if (p.TieneVoucher)
+                                {
+                                    <a href="/Modulo09/Pagos/Voucher/@p.Id" target="_blank"
+                                       class="btn btn-ghost btn-xs rounded-xl font-bold" title="Ver el voucher PDF subido por el estudiante">📄</a>
+                                }
                                 <form method="post" asp-action="Validar" asp-route-id="@p.Id">
                                     @Html.AntiForgeryToken()
                                     <input type="hidden" name="aprobar" value="true" />

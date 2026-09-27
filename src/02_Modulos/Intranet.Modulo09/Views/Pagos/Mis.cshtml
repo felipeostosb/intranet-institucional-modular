@@ -64,6 +64,19 @@
                                 {
                                     <span class="badge badge-warning badge-xs font-semibold text-white">Pendiente</span>
                                 }
+                                @if (p.VoucherEstado != "Validado")
+                                {
+                                    <form method="post" action="/Modulo09/Pagos/SubirVoucher/@p.Id" enctype="multipart/form-data" class="mt-1 flex items-center gap-1">
+                                        @Html.AntiForgeryToken()
+                                        <input type="file" name="voucher" accept="application/pdf" required
+                                               class="file-input file-input-bordered file-input-xs w-full max-w-[180px] text-[10px]" />
+                                        <button type="submit" class="btn btn-xs bg-slate-900 dark:bg-emerald-600 text-white border-0">Adjuntar PDF</button>
+                                    </form>
+                                }
+                                else if (p.TieneVoucher)
+                                {
+                                    <a href="/Modulo09/Pagos/Voucher/@p.Id" target="_blank" class="link link-primary text-[10px] block mt-1">Ver mi voucher</a>
+                                }
                             </td>
                         </tr>
                     }
@@ -72,14 +85,13 @@
         </div>
     </div>
 
-    <!-- Nota del prototipo: el voucher se adjunta al crear el trámite -->
+    <!-- Cómo funciona el voucher según el flujo real -->
     <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-6">
-        <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">📎 Vouchers (adjuntados en el trámite)</h2>
+        <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-2">📎 ¿Cómo funciona el voucher?</h2>
         <p class="text-xs text-slate-500 dark:text-slate-400">
-            Los vouchers se adjuntan en <strong>PDF</strong> al crear el trámite correspondiente
-            (<a class="link link-primary" href="/Modulo09/Tramites">Mis trámites → Nuevo trámite</a>).
-            Si Tesorería rechaza tu voucher por ser ilegible, la corrección se hace desde
-            <strong>Mis trámites → Ver ficha → Re-adjuntar</strong> subiendo un nuevo PDF.
+            Los trámites con costo (p. ej. <strong>Reserva de Matrícula</strong>) generan aquí su recibo automáticamente.
+            Págalo en el banco/Yape, adjunta el <strong>voucher en PDF</strong> con el botón de la fila y
+            <strong>Tesorería</strong> lo validará. Si lo rechaza, verás el motivo en esta lista: corrígelo adjuntando uno nuevo.
         </p>
     </div>
 </div>
