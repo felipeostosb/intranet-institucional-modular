@@ -43,7 +43,7 @@ public class PagosController : ModuloBaseController
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;
 
-        if (EsAlumno && !EsAdmin)
+        if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
             return View("Mis", new MisPagosViewModel
@@ -75,7 +75,7 @@ public class PagosController : ModuloBaseController
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Registrar(string concepto, string tipoPago, string? monto, string? nota)
     {
-        if (EsAlumno && !EsAdmin)
+        if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
             var periodoId = await ObtenerPeriodoActivoIdAsync();
