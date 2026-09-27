@@ -29,7 +29,10 @@ public class Modulo09Controller : ModuloBaseController
         ViewData["Title"] = "09. Tesorería & Pagos";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;
-        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
+        // Fix multi-rol: el filtro de tabs usa el ROL ACTIVO (el modo elegido con el selector
+        // se guarda en el claim "ActiveRole"), no la lista completa de roles — si no, un
+        // multi-rol (p. ej. Director+Alumno) ve pestañas de staff estando en Modo Alumno.
+        ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
 
         var resumenPagos = await _pagoService.ResumenAsync();
         var ultimosTramites = await _tramiteService.ListarMesaAsync(null);
