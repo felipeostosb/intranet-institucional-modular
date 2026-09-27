@@ -42,7 +42,7 @@ public class MatriculasController : ModuloBaseController
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;
 
-        if (EsAlumno && !EsAdmin)
+        if (EsAlumno)
         {
             var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
             return View("MiMatricula", activa);
@@ -65,6 +65,10 @@ public class MatriculasController : ModuloBaseController
     [HttpGet("MiMatricula")]
     public async Task<IActionResult> MiMatricula()
     {
+        // Ruta del alumno: el personal no tiene una "mi matrícula" propia. Antes cualquier
+        // rol autenticado caía aquí y veía el registro de un estudiante arbitrario.
+        if (!EsAlumno) return NotFound();
+
         ViewData["Title"] = "Mi Matrícula";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
