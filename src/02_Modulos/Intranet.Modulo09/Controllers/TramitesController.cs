@@ -48,7 +48,7 @@ public class TramitesController : ModuloBaseController
         ViewData["UsuarioRol"] = UsuarioActualRol;
 
         // el alumno es un estudiante: obtener su id vía persona → estudiantes
-        if (EsAlumno && !EsAdmin)
+        if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
             var mios = await _tramiteService.ListarPorEstudianteAsync(estudianteId, estado);
@@ -102,7 +102,7 @@ public class TramitesController : ModuloBaseController
     [RequestSizeLimit(10_485_760)] // 10 MB total: PDFs ≤2MB por requisito (regla del prototipo)
     public async Task<IActionResult> Crear(string tipoTramite, string? observaciones)
     {
-        if (EsAlumno && !EsAdmin)
+        if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
             var periodoId = await ObtenerPeriodoActivoIdAsync();
