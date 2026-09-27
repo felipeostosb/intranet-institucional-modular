@@ -69,9 +69,6 @@
             }
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            @{
-                var etapa = e.Reserva?.Estado == "Matriculado" ? "Cerrada" : "En trámite";
-            }
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">Estado de la matrícula</span>
             @if (e.Reserva == null)
             {
@@ -80,7 +77,15 @@
             else
             {
                 <span class="text-sm font-bold">@e.Reserva.Estado</span>
-                <p class="text-xs text-slate-500 mt-1">Etapa: @etapa</p>
+                var etapa = e.Reserva.Estado == "Matriculado" ? "Cerrada" : "En trámite";
+                if (!e.Reserva.PeriodoHabilitado)
+                {
+                    <p class="text-xs text-amber-600 mt-1">⚠️ El período de la reserva aún no está habilitado para matrícula.</p>
+                }
+                else
+                {
+                    <p class="text-xs text-slate-500 mt-1">Etapa: @etapa</p>
+                }
             }
         </div>
     </div>
@@ -207,10 +212,16 @@
                 {
                     <span>El alumno no tiene trámite de Reserva de Matrícula (TM05) en el período activo.</span>
                 }
-                else
+                else if (e.Reserva.VoucherEstado != "Validado")
                 {
                     <span>El voucher de la reserva está <strong>@e.Reserva.VoucherEstado</strong>. Tesorería debe validarlo
                     (o rechazarlo para que el alumno suba otro) antes de cerrar la matrícula.</span>
+                }
+                else
+                {
+                    <span>El voucher ya está validado, pero el período de la reserva (<strong>@e.Reserva.CodigoMatricula</strong>)
+                    aún no está habilitado para matrícula. El administrador del sistema debe habilitarlo
+                    (<code>permite_matricula</code>).</span>
                 }
             </p>
         </div>

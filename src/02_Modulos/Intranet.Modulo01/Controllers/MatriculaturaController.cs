@@ -88,16 +88,16 @@ public class MatriculaturaController : ModuloBaseController
             return RedirectToAction(nameof(Expediente), new { dni = form.Dni });
         }
 
-        // El período activo para matrícula lo fija la BD (periodos_academicos.permite_matricula)
-        var periodoId = await ObtenerPeriodoMatriculaAsync();
-        if (periodoId == 0)
+        // La reserva debe pertenecer al estudiante buscado (anti-suplantación)
+        var expedienteChk = await _matriculatura.BuscarPorDniAsync(form.Dni);
+        if (expedienteChk?.Reserva == null || expedienteChk.Reserva.MatriculaId != form.MatriculaId)
         {
-            MostrarAlertaError("No hay período académico habilitado para matrícula.");
+            MostrarAlertaError("La reserva indicada no corresponde al estudiante.");
             return RedirectToAction(nameof(Expediente), new { dni = form.Dni });
         }
 
         var cmd = new MatricularCommand(
-            form.Dni, form.MatriculaId, periodoId, form.TurnoId, form.TipoMatriculaId,
+            form.Dni, form.MatriculaId, form.TurnoId, form.TipoMatriculaId,
             form.Condicion ?? "", form.CursosDesaprobadosNombres ?? "",
             form.UnidadesDidacticasIds);
         var (ok, mensaje, matriculaId) = await _matriculatura.MatricularAsync(cmd, UsuarioActualId ?? 0);
@@ -164,14 +164,6 @@ public class MatriculaturaController : ModuloBaseController
         var tipos = await conn.QueryAsync<TipoMatriculaDto>(
             "SELECT id AS Id, nombre AS Nombre FROM tipos_matricula ORDER BY id;");
         return (turnos, tipos);
-    }
-
-    private async Task<int> ObtenerPeriodoMatriculaAsync()
-    {
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("01");
-        return await conn.ExecuteScalarAsync<int>(
-            "SELECT id FROM periodos_academicos WHERE permite_matricula ORDER BY id DESC LIMIT 1;");
     }
 
     private async Task<(string? Inst, string? Pers)> ObtenerCorreosAsync(string codigoEstudiante)

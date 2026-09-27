@@ -169,6 +169,8 @@ public class ReservaDto
     public string TramiteEstado { get; set; } = "";
     public string VoucherEstado { get; set; } = "";   // Pendiente | Validado | Rechazado
     public decimal VoucherMonto { get; set; }
+    /// <summary>El período de la reserva tiene permite_matricula (lo habilita el dueño).</summary>
+    public bool PeriodoHabilitado { get; set; } = true;
 }
 
 /// <summary>RETURNING interno al cerrar la matrícula (consumo de vacante).</summary>
