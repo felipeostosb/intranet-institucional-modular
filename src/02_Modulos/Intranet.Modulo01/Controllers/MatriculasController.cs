@@ -26,7 +26,10 @@ public class MatriculasController : ModuloBaseController
     /// <summary>Expone los roles del usuario a las vistas (tabs rol-aware).</summary>
     public override void OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext context)
     {
-        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
+        // Fix multi-rol: el filtro de tabs usa el ROL ACTIVO (el modo elegido con el selector
+        // se guarda en el claim "ActiveRole"), no la lista completa de roles — si no, un
+        // multi-rol (p. ej. Director+Alumno) ve pestañas de staff estando en Modo Alumno.
+        ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
         base.OnActionExecuting(context);
     }
 
