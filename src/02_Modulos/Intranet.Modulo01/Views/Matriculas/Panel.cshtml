@@ -7,6 +7,7 @@
     <!-- Tabs del módulo (personal) -->
     <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="01">
         <a href="/Modulo01" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
+        <a href="/Modulo01/Matriculatura" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Secretaria,Director,Coordinador,Admin">Matriculatura</a>
         <a href="/Modulo01/Matriculas" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Panel de trabajo</a>
         <a href="/Modulo01/Matriculas/Vacantes" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Vacantes</a>
     </div>
@@ -123,7 +124,15 @@
         <p class="text-[11px] text-slate-400 mb-3">Voucher validado por Tesorería y foto validada por Secretaría. Registrar consume 1 vacante. La conformidad la da Secretaría Académica.</p>
         @if (!Model.ListasParaRegistrar.Any())
         {
-            <p class="text-xs text-slate-400 italic">Sin matrículas listas por ahora.</p>
+            <div class="text-xs text-slate-400 italic space-y-2">
+                <p>Sin matrículas listas por ahora.</p>
+                <p class="not-italic">
+                    ℹ️ Esta bandeja corresponde al flujo de validación interna (voucher + foto subidos aquí).
+                    En el flujo real de <strong>Reserva de Matrícula (TM05/CT13)</strong>, el alumno paga y sube su voucher
+                    en el módulo 09, Tesorería lo valida allí, y el cierre de la matrícula se hace desde
+                    <a href="/Modulo01/Matriculatura" class="link link-primary font-bold">🗂️ Matriculatura</a> buscando al alumno por DNI.
+                </p>
+            </div>
         }
         else
         {
