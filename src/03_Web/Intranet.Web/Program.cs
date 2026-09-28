@@ -3,6 +3,9 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Metrics;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using Intranet.Core.Contracts;
 using Intranet.Core.Events;
 using Intranet.Data;
@@ -45,6 +48,51 @@ if (!string.IsNullOrEmpty(connectionString))
     builder.Services.AddDbContext<ApplicationDbContext>(options =>
         options.UseNpgsql(connectionString, npgsqlOptions =>
             npgsqlOptions.MigrationsHistoryTable("__EFMigrationsHistory", "core")));
+}
+
+// 2.5. Telemetría y Observabilidad Distribuida (OpenTelemetry / Grafana Cloud OTLP)
+var otlpEndpoint = builder.Configuration["OTEL_EXPORTER_OTLP_ENDPOINT"] 
+                   ?? Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_ENDPOINT");
+var otlpHeaders = builder.Configuration["OTEL_EXPORTER_OTLP_HEADERS"] 
+                  ?? Environment.GetEnvironmentVariable("OTEL_EXPORTER_OTLP_HEADERS");
+
+if (!string.IsNullOrEmpty(otlpEndpoint))
+{
+    builder.Services.AddOpenTelemetry()
+        .ConfigureResource(resource => resource
+            .AddService(serviceName: "aquila-erp", serviceVersion: "1.0.0"))
+        .WithTracing(tracing =>
+        {
+            tracing
+                .AddAspNetCoreInstrumentation(opts =>
+                {
+                    opts.RecordException = true;
+                })
+                .AddHttpClientInstrumentation()
+                .AddOtlpExporter(opts =>
+                {
+                    opts.Endpoint = new Uri(otlpEndpoint);
+                    if (!string.IsNullOrEmpty(otlpHeaders))
+                    {
+                        opts.Headers = otlpHeaders;
+                    }
+                });
+        })
+        .WithMetrics(metrics =>
+        {
+            metrics
+                .AddAspNetCoreInstrumentation()
+                .AddHttpClientInstrumentation()
+                .AddOtlpExporter(opts =>
+                {
+                    opts.Endpoint = new Uri(otlpEndpoint);
+                    if (!string.IsNullOrEmpty(otlpHeaders))
+                    {
+                        opts.Headers = otlpHeaders;
+                    }
+                });
+        });
+    Console.WriteLine($"[OpenTelemetry] ✓ Conectado a Grafana Cloud OTLP ({otlpEndpoint})");
 }
 
 // 3. Inyección de Dependencias Core, Fábrica de Conexiones y EventBus Desacoplado

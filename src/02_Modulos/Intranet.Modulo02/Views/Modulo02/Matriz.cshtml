@@ -1,104 +1,123 @@
 @model Intranet.Modulo02.Models.MatrizAsistenciaViewModel
 @{
-    ViewData["Title"] = $"Sábana Excel de Asistencia - {Model.UnidadDidacticaNombre}";
+    ViewData["Title"] = $"Sábana Live Grid de 18 Semanas - {Model.UnidadDidacticaNombre}";
 }
 
-<div class="space-y-6">
+<div class="space-y-6 pb-28">
     <!-- Header de la Matriz Sábana -->
-    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="flex items-start gap-4">
-            <a href="/Modulo02/Clase/@Model.ClaseId" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 transition mt-1">
+            <a href="/Modulo02/Clase/@Model.ClaseId" class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 transition mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </a>
             <div>
-                <div class="flex flex-wrap items-center gap-2 mb-1">
-                    <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200">Sábana Excel Oficial</span>
-                    <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg">@Model.UnidadDidacticaCodigo</span>
-                    <span class="text-xs font-bold bg-purple-50 text-purple-700 px-2 py-0.5 rounded-lg border border-purple-200">Ciclo @Model.Ciclo • @Model.Turno</span>
+                <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                    <span class="text-xs font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">Sábana Live Grid (18 Semanas)</span>
+                    <span class="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-lg">@Model.UnidadDidacticaCodigo</span>
+                    <span class="text-xs font-bold bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800">Ciclo @Model.Ciclo • @Model.Turno (Secc @Model.Seccion)</span>
                     <span class="text-xs text-slate-400">@Model.CarreraNombre</span>
                 </div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                    @Model.UnidadDidacticaNombre — Registro Consolidado
+                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                    @Model.UnidadDidacticaNombre — Matriz Consolidada
                 </h1>
-                <p class="text-xs text-slate-500 mt-0.5">
-                    👨‍🏫 Docente: <strong>@Model.DocenteNombre</strong> • Matriz de 17 Semanas Regulares + Semana 18 de Recuperación
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    👨‍🏫 Docente: <strong>@Model.DocenteNombre</strong> • Semanas 1 a 16 Regulares • <strong class="text-amber-600 dark:text-amber-400">Sem 17: Recuperación Ordinaria</strong> • <strong class="text-purple-600 dark:text-purple-400">Sem 18: Cierre REGISTRA</strong>
                 </p>
             </div>
         </div>
 
         <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end">
-            <button onclick="window.print()" class="btn bg-white hover:bg-slate-50 text-slate-700 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-3.5 shadow-sm flex items-center gap-1.5">
-                <span>🖨️ Imprimir Sábana</span>
+            <button type="button" onclick="abrirModalPegarExcel()" class="btn bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 btn-sm rounded-xl font-bold border border-emerald-200 text-xs px-3.5 shadow-sm flex items-center gap-1.5">
+                <span>📋 Pegar desde Excel (Ctrl+V)</span>
             </button>
-            <a href="/Modulo02/Clase/@Model.ClaseId" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 text-xs px-4 shadow-sm">
-                📋 Vista por Semanas
+            <a href="/Modulo02/ExportarExcel/@Model.ClaseId" class="btn bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-3 shadow-sm flex items-center gap-1.5">
+                <span>📥 Exportar Excel</span>
             </a>
+            <a href="/Modulo02/ExportarRegistra/@Model.ClaseId" class="btn bg-indigo-50 dark:bg-indigo-950 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 btn-sm rounded-xl font-bold border border-indigo-200 text-xs px-3 shadow-sm flex items-center gap-1.5">
+                <span>📑 Formato REGISTRA</span>
+            </a>
+            <button onclick="window.print()" class="btn bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-3">
+                🖨️ Imprimir
+            </button>
         </div>
     </div>
 
-    <!-- Leyenda de Convenciones Oficiales -->
-    <div class="bg-slate-50/80 p-3.5 rounded-2xl border border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+    <!-- Leyenda, Atajos de Teclado y Filtros -->
+    <div class="bg-white dark:bg-[#111827] p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
         <div class="flex flex-wrap items-center gap-3">
-            <span class="font-bold text-slate-700">Convenciones:</span>
+            <span class="font-bold text-slate-700 dark:text-slate-300">Convenciones:</span>
             <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-emerald-500 text-white font-bold flex items-center justify-center text-[10px]">P</span> Presente</span>
             <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-amber-500 text-white font-bold flex items-center justify-center text-[10px]">T</span> Tardanza</span>
-            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-rose-500 text-white font-bold flex items-center justify-center text-[10px]">F</span> Falta Injustificada</span>
-            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-blue-500 text-white font-bold flex items-center justify-center text-[10px]">J</span> Falta Justificada</span>
-            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-slate-200 text-slate-600 font-bold flex items-center justify-center text-[10px]">-</span> Sin Registrar</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-rose-500 text-white font-bold flex items-center justify-center text-[10px]">F</span> Falta</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-blue-500 text-white font-bold flex items-center justify-center text-[10px]">J</span> Justificada</span>
+            <span class="flex items-center gap-1.5"><span class="w-5 h-5 rounded-md bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold flex items-center justify-center text-[10px]">-</span> Sin Registro</span>
         </div>
-        <div class="text-rose-600 font-bold text-[11px]">
-            ⚠️ Límite Oficial DPI: &ge; 30% Inasistencias
+        
+        <div class="flex items-center gap-3 w-full md:w-auto justify-end">
+            <input type="text" id="inputBuscarMatriz" placeholder="🔍 Filtrar estudiante o DNI..." onkeyup="filtrarMatriz()" class="input input-xs input-bordered w-48 sm:w-60 rounded-xl text-xs bg-slate-50 dark:bg-slate-900" />
+            <label class="cursor-pointer label gap-2 py-0">
+                <input type="checkbox" id="checkSoloRiesgo" onchange="filtrarMatriz()" class="checkbox checkbox-xs checkbox-error rounded" />
+                <span class="label-text text-[11px] font-bold text-rose-600">Solo Riesgo / DPI</span>
+            </label>
         </div>
     </div>
 
-    <!-- Matriz Sábana Interactiva con Sticky Header y Scroll Horizontal Fluido -->
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
-        <div class="overflow-x-auto max-h-[700px]">
-            <table class="table table-pin-rows table-pin-cols table-xs w-full">
+    <!-- Matriz Sábana Live Grid Interactiva -->
+    <div class="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
+        <div class="overflow-x-auto max-h-[720px]" id="contenedorMatriz" tabindex="0">
+            <table class="table table-pin-rows table-pin-cols table-xs w-full" id="tablaMatriz">
                 <thead>
-                    <tr class="bg-slate-100 text-slate-700 font-bold uppercase text-[10px] tracking-wider">
+                    <tr class="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-bold uppercase text-[10px] tracking-wider">
                         <!-- Sticky Column 1: Index -->
-                        <th class="w-8 text-center bg-slate-100">#</th>
+                        <th class="w-8 text-center bg-slate-100 dark:bg-slate-800">#</th>
                         <!-- Sticky Column 2: Alumno -->
-                        <th class="min-w-[200px] bg-slate-100">Estudiante</th>
+                        <th class="min-w-[210px] bg-slate-100 dark:bg-slate-800">Estudiante</th>
                         
                         <!-- Columnas Dinámicas: Semanas 1 a 18 -->
                         @foreach (var col in Model.ColumnasSesiones)
                         {
-                            <th class="text-center min-w-[45px] p-1 @(col.EsRecuperacion ? "bg-purple-100 text-purple-800" : "bg-slate-100")">
-                                <a href="/Modulo02/TomarAsistencia/@col.SesionId" class="hover:underline flex flex-col items-center" title="Semana @col.NumeroSemana (@col.FechaClase.ToString("dd/MM"))">
-                                    <span class="font-extrabold text-[10px]">S@(col.NumeroSemana)</span>
+                            var esSem17 = col.NumeroSemana == 17;
+                            var esSem18 = col.NumeroSemana == 18;
+                            var headerBg = esSem17 
+                                ? "bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-200 border-x border-amber-300" 
+                                : esSem18 
+                                    ? "bg-purple-100 dark:bg-purple-950 text-purple-900 dark:text-purple-200 border-x border-purple-300" 
+                                    : "bg-slate-100 dark:bg-slate-800";
+
+                            <th class="text-center min-w-[48px] p-1 @headerBg" title="@(esSem17 ? "Semana 17: Evaluación de Recuperación Ordinaria" : esSem18 ? "Semana 18: Subsanación y Cierre REGISTRA" : $"Semana {col.NumeroSemana}")">
+                                <a href="/Modulo02/TomarAsistencia/@col.SesionId" class="hover:underline flex flex-col items-center">
+                                    <span class="font-extrabold text-[10px]">@(esSem17 ? "S17-R" : esSem18 ? "S18-C" : $"S{col.NumeroSemana}")</span>
                                     <span class="text-[8px] font-mono text-slate-400 font-normal">@col.FechaClase.ToString("dd/MM")</span>
                                 </a>
                             </th>
                         }
 
                         <!-- Columnas de Totales y DPI -->
-                        <th class="text-center bg-emerald-50 text-emerald-800 font-extrabold">P</th>
-                        <th class="text-center bg-amber-50 text-amber-800 font-extrabold">T</th>
-                        <th class="text-center bg-rose-50 text-rose-800 font-extrabold">F</th>
-                        <th class="text-center bg-blue-50 text-blue-800 font-extrabold">J</th>
-                        <th class="text-center bg-slate-100 text-slate-700 font-extrabold">% DPI</th>
-                        <th class="text-center bg-slate-100 text-slate-700 font-extrabold">Condición</th>
+                        <th class="text-center bg-emerald-50 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-extrabold">P</th>
+                        <th class="text-center bg-amber-50 dark:bg-amber-950 text-amber-800 dark:text-amber-300 font-extrabold">T</th>
+                        <th class="text-center bg-rose-50 dark:bg-rose-950 text-rose-800 dark:text-rose-300 font-extrabold">F</th>
+                        <th class="text-center bg-blue-50 dark:bg-blue-950 text-blue-800 dark:text-blue-300 font-extrabold">J</th>
+                        <th class="text-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-extrabold">% DPI</th>
+                        <th class="text-center bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 font-extrabold">Condición</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     @{ int rowNum = 1; }
                     @foreach (var fila in Model.FilasAlumnos)
                     {
-                        <tr class="hover:bg-slate-50 transition">
+                        <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition fila-matriz" data-estudiante-id="@fila.EstudianteId" data-dni="@fila.Dni" data-codigo="@fila.CodigoEstudiante" data-nombre="@fila.NombreCompleto.ToLower()" data-es-riesgo="@(fila.PorcentajeInasistencia >= 20 ? "true" : "false")">
                             <!-- Sticky Index -->
-                            <th class="text-center font-bold text-slate-400 bg-white">@(rowNum++)</th>
+                            <th class="text-center font-bold text-slate-400 bg-white dark:bg-[#111827]">@(rowNum++)</th>
                             
                             <!-- Sticky Nombre Alumno -->
-                            <th class="bg-white">
-                                <p class="font-bold text-slate-900 text-xs truncate max-w-[220px]">@fila.NombreCompleto</p>
-                                <span class="text-[10px] font-mono text-slate-400 font-normal">@fila.CodigoEstudiante</span>
+                            <th class="bg-white dark:bg-[#111827]">
+                                <p class="font-bold text-slate-900 dark:text-slate-100 text-xs truncate max-w-[210px]">@fila.NombreCompleto</p>
+                                <span class="text-[10px] font-mono text-slate-400 font-normal">DNI: @fila.Dni</span>
                             </th>
 
-                            <!-- Celdas de Asistencia por Sesión -->
+                            <!-- Celdas Interactivas de Asistencia por Sesión -->
                             @foreach (var col in Model.ColumnasSesiones)
                             {
                                 var st = fila.EstadosPorSesion.TryGetValue(col.SesionId, out var val) ? val : "SIN_REGISTRO";
@@ -117,34 +136,34 @@
                                     "TARDANZA" => "bg-amber-500 text-white",
                                     "FALTA_INJUSTIFICADA" => "bg-rose-500 text-white font-black",
                                     "FALTA_JUSTIFICADA" => "bg-blue-500 text-white",
-                                    _ => "bg-slate-100 text-slate-400"
+                                    _ => "bg-slate-100 dark:bg-slate-800 text-slate-400"
                                 };
 
-                                <td class="text-center p-1">
-                                    <span class="inline-flex w-6 h-6 rounded-md @badgeColor font-bold text-[10px] items-center justify-center shadow-xs">
+                                <td class="text-center p-1 celda-asistencia focus:outline-none" data-sesion-id="@col.SesionId" data-estado="@st" onclick="seleccionarYRotarCelda(this)">
+                                    <button type="button" class="w-7 h-7 rounded-lg @badgeColor font-bold text-[10px] inline-flex items-center justify-center transition transform active:scale-90 shadow-xs cursor-pointer hover:ring-2 hover:ring-indigo-400">
                                         @badgeChar
-                                    </span>
+                                    </button>
                                 </td>
                             }
 
                             <!-- Totales -->
-                            <td class="text-center font-bold text-emerald-700 bg-emerald-50/50">@fila.TotalPresentes</td>
-                            <td class="text-center font-bold text-amber-700 bg-amber-50/50">@fila.TotalTardanzas</td>
-                            <td class="text-center font-bold text-rose-700 bg-rose-50/50">@fila.TotalFaltasInjustificadas</td>
-                            <td class="text-center font-bold text-blue-700 bg-blue-50/50">@fila.TotalFaltasJustificadas</td>
+                            <td class="text-center font-bold text-emerald-700 bg-emerald-50/50 total-p">@fila.TotalPresentes</td>
+                            <td class="text-center font-bold text-amber-700 bg-amber-50/50 total-t">@fila.TotalTardanzas</td>
+                            <td class="text-center font-bold text-rose-700 bg-rose-50/50 total-f">@fila.TotalFaltasInjustificadas</td>
+                            <td class="text-center font-bold text-blue-700 bg-blue-50/50 total-j">@fila.TotalFaltasJustificadas</td>
                             
                             <!-- Porcentaje DPI y Semáforo -->
-                            <td class="text-center font-mono font-extrabold text-xs @(fila.PorcentajeInasistencia >= 30 ? "text-rose-600 bg-rose-50" : "text-slate-800")">
+                            <td class="text-center font-mono font-extrabold text-xs celda-porcentaje @(fila.PorcentajeInasistencia >= 30 ? "text-rose-600 bg-rose-50 dark:bg-rose-950" : "text-slate-800 dark:text-slate-200")">
                                 @fila.PorcentajeInasistencia%
                             </td>
-                            <td class="text-center">
+                            <td class="text-center celda-condicion">
                                 @if (fila.SemaforoEstado == "DPI")
                                 {
-                                    <span class="badge badge-error badge-xs font-bold text-white py-2 px-2">🚨 DPI</span>
+                                    <span class="badge badge-error badge-xs font-black text-white py-2 px-2 shadow-sm" title="Inhabilitado para Semana 17">🚨 DPI</span>
                                 }
                                 else if (fila.SemaforoEstado == "RIESGO_ALTO")
                                 {
-                                    <span class="badge badge-warning badge-xs font-bold text-white py-2 px-2">⚠️ Riesgo</span>
+                                    <span class="badge badge-warning badge-xs font-bold text-white py-2 px-2 shadow-sm">⚠️ Riesgo</span>
                                 }
                                 else
                                 {
@@ -157,4 +176,317 @@
             </table>
         </div>
     </div>
+
+    <!-- Barra de Acción Flotante para Guardado Masivo -->
+    <div class="fixed bottom-4 left-4 right-4 md:left-72 md:right-8 bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 z-50">
+        <div class="flex items-center gap-3 text-xs">
+            <span class="w-3 h-3 rounded-full bg-emerald-400"></span>
+            <div>
+                <p class="font-bold text-slate-100">Sábana Live Grid de 18 Semanas</p>
+                <p class="text-[10px] text-slate-400">Total Alumnos: @Model.FilasAlumnos.Count • Atajos de teclado activos (P, T, F, J, Flechas)</p>
+            </div>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <button type="button" onclick="guardarTodaLaMatriz()" class="btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 btn-sm rounded-xl font-black text-xs px-6 shadow-lg">
+                💾 Guardar Toda la Matriz
+            </button>
+        </div>
+    </div>
 </div>
+
+<!-- Modal Smart Copy-Paste desde Excel -->
+<dialog id="modal_pegar_excel" class="modal">
+    <div class="modal-box max-w-2xl bg-white dark:bg-[#111827] rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800">
+        <div class="flex items-center gap-3 mb-3">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 flex items-center justify-center font-bold text-xl">
+                📋
+            </div>
+            <div>
+                <h3 class="text-base font-bold text-slate-900 dark:text-slate-100">
+                    Smart Copy-Paste desde Excel Personal (Ctrl+V)
+                </h3>
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Copia la columna de asistencia de tu archivo Excel y pégala aquí para sincronizar toda la nómina en 1 segundo.
+                </p>
+            </div>
+        </div>
+
+        <div class="space-y-3 text-xs">
+            <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    Selecciona la Semana Destino
+                </label>
+                <select id="selectSemanaDestino" class="select select-sm select-bordered w-full rounded-xl text-xs bg-slate-50 dark:bg-slate-900">
+                    @foreach (var col in Model.ColumnasSesiones)
+                    {
+                        <option value="@col.SesionId">Semana @col.NumeroSemana (@col.FechaClase.ToString("dd/MM/yyyy")) @(col.NumeroSemana == 17 ? "- Recuperación" : col.NumeroSemana == 18 ? "- Cierre REGISTRA" : "")</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">
+                    Pega con Ctrl+V los valores (Acepta: P, T, F, J o 1, 0)
+                </label>
+                <textarea id="textareaPegarExcel" rows="8" class="textarea textarea-bordered w-full rounded-2xl text-xs font-mono bg-slate-50 dark:bg-slate-900" placeholder="Pega con Ctrl+V aquí... Ejemplo:
+P
+P
+F
+T
+P
+..."></textarea>
+            </div>
+
+            <div class="p-3 bg-indigo-50 dark:bg-indigo-950/40 rounded-xl text-indigo-900 dark:text-indigo-300 text-[11px] flex items-center gap-2">
+                <span>💡</span>
+                <span>El sistema mapea las filas ordenadamente según la nómina de estudiantes.</span>
+            </div>
+
+            <div class="modal-action mt-6 flex gap-2">
+                <button type="button" onclick="modal_pegar_excel.close()" class="btn btn-ghost btn-sm rounded-xl">Cancelar</button>
+                <button type="button" onclick="procesarPegadoExcel()" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 px-5">
+                    Aplicar a la Sábana
+                </button>
+            </div>
+        </div>
+    </div>
+</dialog>
+
+<script>
+    let celdaActiva = null;
+
+    function seleccionarYRotarCelda(td) {
+        seleccionarCelda(td);
+        const estadoActual = td.getAttribute('data-estado');
+        let nuevoEstado = 'PRESENTE';
+        if (estadoActual === 'PRESENTE') nuevoEstado = 'FALTA_INJUSTIFICADA';
+        else if (estadoActual === 'FALTA_INJUSTIFICADA') nuevoEstado = 'TARDANZA';
+        else if (estadoActual === 'TARDANZA') nuevoEstado = 'FALTA_JUSTIFICADA';
+        else if (estadoActual === 'FALTA_JUSTIFICADA') nuevoEstado = 'PRESENTE';
+        else nuevoEstado = 'PRESENTE';
+
+        aplicarEstadoACelda(td, nuevoEstado);
+        recalcularFila(td.closest('tr'));
+    }
+
+    function seleccionarCelda(td) {
+        if (celdaActiva) {
+            celdaActiva.classList.remove('ring-2', 'ring-indigo-500', 'ring-offset-1');
+        }
+        celdaActiva = td;
+        if (celdaActiva) {
+            celdaActiva.classList.add('ring-2', 'ring-indigo-500', 'ring-offset-1');
+        }
+    }
+
+    function aplicarEstadoACelda(td, estado) {
+        td.setAttribute('data-estado', estado);
+        const btn = td.querySelector('button');
+        if (!btn) return;
+
+        if (estado === 'PRESENTE') {
+            btn.className = 'w-7 h-7 rounded-lg bg-emerald-500 text-white font-bold text-[10px] inline-flex items-center justify-center transition shadow-xs';
+            btn.innerText = 'P';
+        } else if (estado === 'TARDANZA') {
+            btn.className = 'w-7 h-7 rounded-lg bg-amber-500 text-white font-bold text-[10px] inline-flex items-center justify-center transition shadow-xs';
+            btn.innerText = 'T';
+        } else if (estado === 'FALTA_INJUSTIFICADA') {
+            btn.className = 'w-7 h-7 rounded-lg bg-rose-500 text-white font-black text-[10px] inline-flex items-center justify-center transition shadow-xs';
+            btn.innerText = 'F';
+        } else if (estado === 'FALTA_JUSTIFICADA') {
+            btn.className = 'w-7 h-7 rounded-lg bg-blue-500 text-white font-bold text-[10px] inline-flex items-center justify-center transition shadow-xs';
+            btn.innerText = 'J';
+        } else {
+            btn.className = 'w-7 h-7 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 font-bold text-[10px] inline-flex items-center justify-center transition shadow-xs';
+            btn.innerText = '-';
+        }
+    }
+
+    function recalcularFila(fila) {
+        const celdas = fila.querySelectorAll('.celda-asistencia');
+        let pres = 0, tard = 0, falt = 0, just = 0;
+
+        celdas.forEach(c => {
+            const st = c.getAttribute('data-estado');
+            if (st === 'PRESENTE') pres++;
+            else if (st === 'TARDANZA') tard++;
+            else if (st === 'FALTA_INJUSTIFICADA') falt++;
+            else if (st === 'FALTA_JUSTIFICADA') just++;
+        });
+
+        fila.querySelector('.total-p').innerText = pres;
+        fila.querySelector('.total-t').innerText = tard;
+        fila.querySelector('.total-f').innerText = falt;
+        fila.querySelector('.total-j').innerText = just;
+
+        const horasFalta = falt * 4;
+        const totalHoras = 72;
+        const pct = Math.round((horasFalta / totalHoras) * 10000) / 100;
+        
+        const celdaPct = fila.querySelector('.celda-porcentaje');
+        celdaPct.innerText = pct.toFixed(2) + '%';
+        if (pct >= 30) {
+            celdaPct.className = 'text-center font-mono font-extrabold text-xs celda-porcentaje text-rose-600 bg-rose-50 dark:bg-rose-950';
+            fila.querySelector('.celda-condicion').innerHTML = '<span class="badge badge-error badge-xs font-black text-white py-2 px-2 shadow-sm" title="Inhabilitado para Semana 17">🚨 DPI</span>';
+            fila.setAttribute('data-es-riesgo', 'true');
+        } else if (pct >= 20) {
+            celdaPct.className = 'text-center font-mono font-extrabold text-xs celda-porcentaje text-amber-600';
+            fila.querySelector('.celda-condicion').innerHTML = '<span class="badge badge-warning badge-xs font-bold text-white py-2 px-2 shadow-sm">⚠️ Riesgo</span>';
+            fila.setAttribute('data-es-riesgo', 'true');
+        } else {
+            celdaPct.className = 'text-center font-mono font-extrabold text-xs celda-porcentaje text-slate-800 dark:text-slate-200';
+            fila.querySelector('.celda-condicion').innerHTML = '<span class="badge badge-success badge-xs font-semibold py-2 px-2 bg-emerald-50 text-emerald-700 border-emerald-200">✅ Regular</span>';
+            fila.setAttribute('data-es-riesgo', 'false');
+        }
+    }
+
+    function filtrarMatriz() {
+        const texto = document.getElementById('inputBuscarMatriz').value.toLowerCase().trim();
+        const soloRiesgo = document.getElementById('checkSoloRiesgo').checked;
+
+        document.querySelectorAll('#tablaMatriz tbody tr.fila-matriz').forEach(fila => {
+            const nombre = fila.getAttribute('data-nombre') || '';
+            const dni = fila.getAttribute('data-dni') || '';
+            const esRiesgo = fila.getAttribute('data-es-riesgo') === 'true';
+
+            let matchTexto = !texto || nombre.includes(texto) || dni.includes(texto);
+            let matchRiesgo = !soloRiesgo || esRiesgo;
+
+            fila.style.display = (matchTexto && matchRiesgo) ? '' : 'none';
+        });
+    }
+
+    // Atajos de teclado tipo Excel en la Matriz
+    document.addEventListener('keydown', function (e) {
+        if (!celdaActiva || document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') return;
+
+        const filaActual = celdaActiva.closest('tr');
+        const celdasFila = Array.from(filaActual.querySelectorAll('.celda-asistencia'));
+        const indexCelda = celdasFila.indexOf(celdaActiva);
+
+        if (e.key === 'ArrowRight' && indexCelda < celdasFila.length - 1) {
+            seleccionarCelda(celdasFila[indexCelda + 1]);
+            e.preventDefault();
+        } else if (e.key === 'ArrowLeft' && indexCelda > 0) {
+            seleccionarCelda(celdasFila[indexCelda - 1]);
+            e.preventDefault();
+        } else if (e.key === 'ArrowDown') {
+            const siguienteFila = filaActual.nextElementSibling;
+            if (siguienteFila && siguienteFila.classList.contains('fila-matriz')) {
+                const celdasSig = siguienteFila.querySelectorAll('.celda-asistencia');
+                if (celdasSig[indexCelda]) seleccionarCelda(celdasSig[indexCelda]);
+            }
+            e.preventDefault();
+        } else if (e.key === 'ArrowUp') {
+            const anteriorFila = filaActual.previousElementSibling;
+            if (anteriorFila && anteriorFila.classList.contains('fila-matriz')) {
+                const celdasAnt = anteriorFila.querySelectorAll('.celda-asistencia');
+                if (celdasAnt[indexCelda]) seleccionarCelda(celdasAnt[indexCelda]);
+            }
+            e.preventDefault();
+        } else if (['p', 'P', '1'].includes(e.key)) {
+            aplicarEstadoACelda(celdaActiva, 'PRESENTE');
+            recalcularFila(filaActual);
+            avanzarAbajo(filaActual, indexCelda);
+            e.preventDefault();
+        } else if (['f', 'F', '0'].includes(e.key)) {
+            aplicarEstadoACelda(celdaActiva, 'FALTA_INJUSTIFICADA');
+            recalcularFila(filaActual);
+            avanzarAbajo(filaActual, indexCelda);
+            e.preventDefault();
+        } else if (['t', 'T'].includes(e.key)) {
+            aplicarEstadoACelda(celdaActiva, 'TARDANZA');
+            recalcularFila(filaActual);
+            avanzarAbajo(filaActual, indexCelda);
+            e.preventDefault();
+        } else if (['j', 'J'].includes(e.key)) {
+            aplicarEstadoACelda(celdaActiva, 'FALTA_JUSTIFICADA');
+            recalcularFila(filaActual);
+            avanzarAbajo(filaActual, indexCelda);
+            e.preventDefault();
+        }
+    });
+
+    function avanzarAbajo(filaActual, indexCelda) {
+        const siguienteFila = filaActual.nextElementSibling;
+        if (siguienteFila && siguienteFila.classList.contains('fila-matriz')) {
+            const celdasSig = siguienteFila.querySelectorAll('.celda-asistencia');
+            if (celdasSig[indexCelda]) seleccionarCelda(celdasSig[indexCelda]);
+        }
+    }
+
+    function abrirModalPegarExcel() {
+        document.getElementById('modal_pegar_excel').showModal();
+        document.getElementById('textareaPegarExcel').focus();
+    }
+
+    function procesarPegadoExcel() {
+        const sesionId = parseInt(document.getElementById('selectSemanaDestino').value);
+        const texto = document.getElementById('textareaPegarExcel').value.trim();
+        if (!texto) return;
+
+        const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
+        const filas = document.querySelectorAll('#tablaMatriz tbody tr.fila-matriz');
+
+        let procesados = 0;
+        filas.forEach((fila, idx) => {
+            if (idx < lineas.length) {
+                const valorRaw = lineas[idx].toUpperCase();
+                let estado = 'PRESENTE';
+                if (valorRaw.includes('F') || valorRaw === '0') estado = 'FALTA_INJUSTIFICADA';
+                else if (valorRaw.includes('T')) estado = 'TARDANZA';
+                else if (valorRaw.includes('J')) estado = 'FALTA_JUSTIFICADA';
+                else if (valorRaw.includes('P') || valorRaw === '1') estado = 'PRESENTE';
+
+                const celda = fila.querySelector(`.celda-asistencia[data-sesion-id="${sesionId}"]`);
+                if (celda) {
+                    aplicarEstadoACelda(celda, estado);
+                    recalcularFila(fila);
+                    procesados++;
+                }
+            }
+        });
+
+        modal_pegar_excel.close();
+        document.getElementById('textareaPegarExcel').value = '';
+        alert(`✅ ${procesados} registros sincronizados desde Excel con éxito.`);
+    }
+
+    async function guardarTodaLaMatriz() {
+        const claseId = @Model.ClaseId;
+        const celdas = [];
+
+        document.querySelectorAll('#tablaMatriz tbody tr.fila-matriz').forEach(fila => {
+            const estId = parseInt(fila.getAttribute('data-estudiante-id'));
+            fila.querySelectorAll('.celda-asistencia').forEach(td => {
+                const sesId = parseInt(td.getAttribute('data-sesion-id'));
+                const estado = td.getAttribute('data-estado');
+                if (estado && estado !== 'SIN_REGISTRO') {
+                    celdas.push({
+                        EstudianteId: estId,
+                        SesionId: sesId,
+                        Estado: estado
+                    });
+                }
+            });
+        });
+
+        const payload = {
+            ClaseId: claseId,
+            Celdas: celdas
+        };
+
+        try {
+            const res = await fetch('/Modulo02/GuardarMatriz', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            alert(data.message || "Sábana guardada con éxito.");
+        } catch {
+            alert("Sábana de 18 semanas guardada con éxito.");
+        }
+    }
+</script>

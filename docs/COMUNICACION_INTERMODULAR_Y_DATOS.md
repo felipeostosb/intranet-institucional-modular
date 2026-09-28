@@ -39,7 +39,7 @@ El esquema `core` almacena los datos institucionales centrales de **solo lectura
 * `core.carreras`: Programas de estudio y total de semestres.
 * `core.periodos_academicos`: Ciclos lectivos (ej: `2026-I`, `2026-II`).
 
-#### 💡 Ejemplo en tu código SQL (Módulo 04 - Horarios):
+#### 💡 Ejemplo en tu código SQL (Módulo 04):
 ```sql
 -- Consulta con JOIN seguro hacia el núcleo central
 SELECT 

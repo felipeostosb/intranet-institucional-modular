@@ -134,7 +134,7 @@ public class DocsController : ModuloBaseController
             "Modulo01" => "Módulo 01 (Admisión & Matrícula)",
             "Modulo02" => "Módulo 02 (Asistencia 18 Semanas)",
             "Modulo03" => "Módulo 03 (Calificaciones & Actas)",
-            "Modulo04" => "Módulo 04 (Horarios & Aulas)",
+            "Modulo04" => "Módulo 04",
             "Modulo05" => "Módulo 05 (Docentes & Carga)",
             "Modulo06" => "Módulo 06 (Trámites & Mesa de Partes)",
             "Modulo07" => "Módulo 07 (Bolsa de Trabajo & Prácticas)",

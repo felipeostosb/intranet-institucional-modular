@@ -79,7 +79,7 @@ public static class DatabaseInitializer
         var baseDir = AppContext.BaseDirectory;
         var currentDir = Directory.GetCurrentDirectory();
 
-        for (int i = 1; i <= 9; i++)
+        for (int i = 0; i <= 9; i++)
         {
             var num = i.ToString("D2");
             var modName = $"Intranet.Modulo{num}";

@@ -77,6 +77,7 @@ function Show-Menu {
     Write-Host "  4) 🧪 Compilar y Validar (Verifica 0 errores en toda la solución .NET 10)" -ForegroundColor Green
     Write-Host "  5) 📤 Subir a GitHub (Guarda cambios, sincroniza y genera enlace de PR)" -ForegroundColor Green
     Write-Host "  6) 🗄️  Base de Datos PostgreSQL (Credenciales Adminer y Configuración Local)" -ForegroundColor Green
+    Write-Host "  7) 🛡️  Auditoría & Telemetría Grafana Cloud (Radar de equipos y OTLP)" -ForegroundColor Green
     Write-Host "  0) 🚪 Salir" -ForegroundColor Red
     Write-Host ""
 }
@@ -278,7 +279,7 @@ function Manage-Db {
 
 while ($true) {
     Show-Menu
-    $op = Read-Host "👉 Elige una opción [0-6]"
+    $op = Read-Host "👉 Elige una opción [0-7]"
     switch ($op) {
         "1" { Start-App }
         "2" { Create-Branch }
@@ -286,8 +287,9 @@ while ($true) {
         "4" { Validate-Code }
         "5" { Push-Work }
         "6" { Manage-Db }
+        "7" { python3 scripts/audit_teams.py }
         "0" { Write-Host "`n¡Buen trabajo! Hasta la próxima sesión.`n" -ForegroundColor Green; exit }
-        Default { Write-Host "`nOpción no válida. Ingresa un número del 0 al 6." -ForegroundColor Red }
+        Default { Write-Host "`nOpción no válida. Ingresa un número del 0 al 7." -ForegroundColor Red }
     }
     Write-Host "`nPresiona ENTER para volver al menú..." -ForegroundColor Yellow
     [void][System.Console]::ReadLine()

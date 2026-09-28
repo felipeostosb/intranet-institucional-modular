@@ -65,7 +65,7 @@ El sistema opera sobre una **Base de Datos Unificada (`db_intranet_iestp`)** en 
 | **01** | **01. Matrícula Académica & Admisión** | `src/02_Modulos/Intranet.Modulo01/` | `mod01` | `user_equipo01` | 📝 Ismael |
 | **02** | **02. Asistencia 18 Semanas & DPI** | `src/02_Modulos/Intranet.Modulo02/` | `mod02` | `user_equipo02` | 📅 Sheyla |
 | **03** | **03. Inventario & Equipos** | `src/02_Modulos/Intranet.Modulo03/` | `mod03` | `user_equipo03` | 📦 Brenda |
-| **04** | **04. Horarios, Aulas & Turnos** | `src/02_Modulos/Intranet.Modulo04/` | `mod04` | `user_equipo04` | ⏰ Equipo 04 (Morales) |
+| **04** | **04. Módulo 04** | `src/02_Modulos/Intranet.Modulo04/` | `mod04` | `user_equipo04` | 📦 Equipo 04 (Morales) |
 | **05** | **05. Incidencias & Requerimientos TI** | `src/02_Modulos/Intranet.Modulo05/` | `mod05` | `user_equipo05` | 🛠️ Oliva |
 | **06** | **06. Egresados & Titulación** | `src/02_Modulos/Intranet.Modulo06/` | `mod06` | `user_equipo06` | 🎓 Sandra |
 | **07** | **07. Encuestas & Calidad Docente** | `src/02_Modulos/Intranet.Modulo07/` | `mod07` | `user_equipo07` | 📊 Brayan |

@@ -10,37 +10,40 @@
     var docente = sesionEjemplo?.DocenteNombreCompleto ?? "Docente";
 }
 
-<div class="space-y-6">
+<div class="space-y-6 pb-20">
     <!-- Header de la Clase -->
-    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="flex items-start gap-4">
-            <a href="/Modulo02" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 transition mt-1">
+            <a href="/Modulo02" class="w-10 h-10 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 transition mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </a>
             <div>
                 <div class="flex flex-wrap items-center gap-2 mb-1">
-                    <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200">17 Semanas + Semana 18</span>
-                    <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg">@codigoCurso</span>
-                    <span class="text-xs font-bold bg-purple-50 text-purple-700 px-2 py-0.5 rounded-lg border border-purple-200">Ciclo @ciclo • @turno</span>
+                    <span class="text-xs font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">18 Semanas Académicas</span>
+                    <span class="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-lg">@codigoCurso</span>
+                    <span class="text-xs font-bold bg-purple-50 dark:bg-purple-950 text-purple-700 dark:text-purple-300 px-2 py-0.5 rounded-lg border border-purple-200 dark:border-purple-800">Ciclo @ciclo • @turno</span>
                     <span class="text-xs text-slate-400">@carrera</span>
                 </div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                     @nombreCurso
                 </h1>
-                <p class="text-xs text-slate-500 mt-0.5">
-                    👨‍🏫 Docente: <strong>@docente</strong> • 📅 Periodo Lectivo 2026-I
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    👨‍🏫 Docente: <strong>@docente</strong> • Semanas 1..16 Regular • <strong class="text-amber-600">Sem 17 Recuperación</strong> • <strong class="text-purple-600">Sem 18 Cierre REGISTRA</strong>
                 </p>
             </div>
         </div>
 
-        <!-- Alternador de Vista (Semanas vs Sábana Excel) -->
+        <!-- Acciones Rápidas -->
         <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end">
-            <a href="/Modulo02/Matriz/@claseId" class="btn bg-white hover:bg-slate-50 text-slate-700 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-4 shadow-sm flex items-center gap-2">
-                <span>📊 Ver Sábana Excel (18 Sem)</span>
+            <button type="button" onclick="modal_reprogramar.showModal()" class="btn bg-amber-50 hover:bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 btn-sm rounded-xl font-bold border border-amber-200 text-xs px-3 shadow-sm flex items-center gap-1.5">
+                <span>🔄 Reprogramar Horarios</span>
+            </button>
+            <a href="/Modulo02/Matriz/@claseId" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 text-xs px-4 shadow-sm flex items-center gap-2">
+                <span>📊 Sábana Live Grid (18 Sem)</span>
             </a>
-            <a href="/Modulo02" class="btn bg-slate-100 hover:bg-slate-200 text-slate-700 btn-sm rounded-xl font-bold border-0 text-xs px-3">
+            <a href="/Modulo02" class="btn bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 btn-sm rounded-xl font-bold border-0 text-xs px-3">
                 Volver
             </a>
         </div>
@@ -50,19 +53,21 @@
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         @foreach (var sem in Model)
         {
-            var esRecup = sem.EsRecuperacion;
+            var esSem17 = sem.NumeroSemana == 17;
+            var esSem18 = sem.NumeroSemana == 18;
+
             var tarjetaBorder = sem.EstadoSemana switch
             {
-                "CERRADA" => "border-emerald-200/80 bg-white hover:border-emerald-300",
-                "ABIERTA" => "border-indigo-400 bg-indigo-50/20 shadow-md",
-                _ => esRecup ? "border-purple-200 bg-purple-50/10" : "border-slate-200 bg-white"
+                "CERRADA" => "border-emerald-200/80 dark:border-emerald-900 bg-white dark:bg-[#111827] hover:border-emerald-300",
+                "ABIERTA" => "border-indigo-400 bg-indigo-50/20 dark:bg-indigo-950/20 shadow-md",
+                _ => esSem17 ? "border-amber-200 dark:border-amber-900 bg-amber-50/10" : esSem18 ? "border-purple-200 dark:border-purple-900 bg-purple-50/10" : "border-slate-200 dark:border-slate-800 bg-white dark:bg-[#111827]"
             };
 
             var badgeSemana = sem.EstadoSemana switch
             {
                 "CERRADA" => "badge-success text-white font-bold",
                 "ABIERTA" => "badge-warning text-white font-bold animate-pulse",
-                _ => esRecup ? "badge-secondary text-white font-bold" : "badge-ghost text-slate-500"
+                _ => esSem17 ? "bg-amber-100 text-amber-900 font-bold border-amber-300" : esSem18 ? "bg-purple-100 text-purple-900 font-bold border-purple-300" : "badge-ghost text-slate-500"
             };
 
             <div class="rounded-3xl p-5 border @tarjetaBorder shadow-sm transition flex flex-col justify-between group">
@@ -70,20 +75,20 @@
                     <!-- Header de Semana -->
                     <div class="flex justify-between items-start mb-3">
                         <div class="flex items-center gap-2.5">
-                            <div class="w-10 h-10 rounded-2xl @(esRecup ? "bg-purple-100 text-purple-700" : (sem.EstadoSemana == "CERRADA" ? "bg-emerald-100 text-emerald-700" : "bg-indigo-100 text-indigo-700")) flex items-center justify-center font-extrabold text-sm shadow-inner">
+                            <div class="w-10 h-10 rounded-2xl @(esSem17 ? "bg-amber-100 text-amber-800" : esSem18 ? "bg-purple-100 text-purple-800" : (sem.EstadoSemana == "CERRADA" ? "bg-emerald-100 text-emerald-700" : "bg-indigo-100 text-indigo-700")) flex items-center justify-center font-extrabold text-sm shadow-inner">
                                 @sem.NumeroSemana
                             </div>
                             <div>
-                                <h3 class="font-extrabold text-sm text-slate-900 leading-tight">
-                                    @(esRecup ? "Semana 18: Recuperación" : $"Semana {sem.NumeroSemana}")
+                                <h3 class="font-extrabold text-sm text-slate-900 dark:text-slate-100 leading-tight">
+                                    @(esSem17 ? "Semana 17: Recuperación" : esSem18 ? "Semana 18: Cierre REGISTRA" : $"Semana {sem.NumeroSemana}")
                                 </h3>
                                 <span class="text-[11px] text-slate-400 font-medium">
-                                    @(esRecup ? "Evaluación Extraordinaria (MPA 8.8.4)" : $"{sem.Sesiones.Count} sesión(es) programada(s)")
+                                    @(esSem17 ? "Evaluación Ordinaria (Notas 10-12)" : esSem18 ? "Subsanación y Actas Oficiales" : $"{sem.Sesiones.Count} sesión lectiva")
                                 </span>
                             </div>
                         </div>
                         <span class="badge @badgeSemana badge-xs py-2 px-2.5">
-                            @(esRecup && sem.EstadoSemana == "PROGRAMADA" ? "Recuperación" : sem.EstadoSemana)
+                            @sem.EstadoSemana
                         </span>
                     </div>
 
@@ -93,45 +98,39 @@
                         {
                             @foreach (var s in sem.Sesiones)
                             {
-                                <div class="bg-slate-50/80 hover:bg-slate-100/80 p-3 rounded-2xl border border-slate-100 transition flex flex-col gap-1.5 text-xs">
-                                    <div class="flex justify-between items-center font-semibold text-slate-700">
+                                <div class="bg-slate-50/80 dark:bg-slate-900/60 hover:bg-slate-100 dark:hover:bg-slate-800 p-3 rounded-2xl border border-slate-100 dark:border-slate-800 transition flex flex-col gap-1.5 text-xs">
+                                    <div class="flex justify-between items-center font-semibold text-slate-700 dark:text-slate-300">
                                         <span class="flex items-center gap-1.5">
                                             <span>📅 @s.FechaClase.ToString("dd/MM/yyyy")</span>
-                                            <span class="text-[10px] text-slate-400 font-normal">(@s.HoraInicio.ToString(@"hh\:mm") - @s.HoraFin.ToString(@"hh\:mm"))</span>
+                                            <span class="text-[10px] text-slate-400 font-normal">(@s.HoraInicio.ToString(@"hh\:mm") – @s.HoraFin.ToString(@"hh\:mm"))</span>
                                         </span>
-                                        <span class="font-mono text-[11px] bg-slate-200/60 px-1.5 py-0.5 rounded text-slate-600">@s.HorasPedagogicas hrs</span>
+                                        <span class="font-mono text-[11px] bg-slate-200/60 dark:bg-slate-800 px-1.5 py-0.5 rounded text-slate-600 dark:text-slate-300">@s.HorasPedagogicas hrs</span>
                                     </div>
 
                                     @if (!string.IsNullOrEmpty(s.TemaDesarrollado))
                                     {
-                                        <p class="text-[11px] text-slate-600 line-clamp-1 italic">
+                                        <p class="text-[11px] text-slate-600 dark:text-slate-400 line-clamp-1 italic">
                                             📝 @s.TemaDesarrollado
                                         </p>
                                     }
 
-                                    <!-- Métricas rápidas si está cerrada -->
+                                    <!-- Métricas si está cerrada -->
                                     @if (s.Estado == "CERRADA")
                                     {
-                                        <div class="flex items-center gap-2 text-[10px] font-bold pt-1 border-t border-slate-200/60">
-                                            <span class="text-emerald-700">✓ @s.TotalPresentes Presentes</span>
-                                            <span class="text-amber-700">⏱️ @s.TotalTardanzas Tardanzas</span>
-                                            <span class="text-rose-700">❌ @s.TotalFaltas Faltas</span>
+                                        <div class="flex items-center gap-2 text-[10px] font-bold pt-1 border-t border-slate-200/60 dark:border-slate-800">
+                                            <span class="text-emerald-700 dark:text-emerald-400">✓ @s.TotalPresentes Presentes</span>
+                                            <span class="text-amber-700 dark:text-amber-400">⏱️ @s.TotalTardanzas Tardanzas</span>
+                                            <span class="text-rose-700 dark:text-rose-400">❌ @s.TotalFaltas Faltas</span>
                                         </div>
                                     }
 
                                     <div class="pt-1 flex justify-end">
-                                        <a href="/Modulo02/TomarAsistencia/@s.Id" class="btn @(s.Estado == "CERRADA" ? "btn-ghost text-indigo-700 hover:bg-indigo-50" : "bg-indigo-600 hover:bg-indigo-700 text-white") btn-xs rounded-lg font-bold border-0 px-3">
-                                            @(s.Estado == "CERRADA" ? "Ver / Modificar Asistencia" : "⚡ Tomar Lista Ahora")
+                                        <a href="/Modulo02/TomarAsistencia/@s.Id" class="btn @(s.Estado == "CERRADA" ? "btn-ghost text-indigo-700 dark:text-indigo-300 hover:bg-indigo-50" : "bg-indigo-600 hover:bg-indigo-700 text-white") btn-xs rounded-lg font-bold border-0 px-3">
+                                            @(s.Estado == "CERRADA" ? "Ver Asistencia" : "⚡ Tomar Lista Ahora")
                                         </a>
                                     </div>
                                 </div>
                             }
-                        }
-                        else
-                        {
-                            <div class="p-3 bg-slate-50/50 rounded-2xl text-center text-slate-400 text-[11px] italic">
-                                Sesión programada según silabo.
-                            </div>
                         }
                     </div>
                 </div>
@@ -139,3 +138,70 @@
         }
     </div>
 </div>
+
+<!-- Modal de Reprogramación Elástica de Horarios Futuros -->
+<dialog id="modal_reprogramar" class="modal">
+    <div class="modal-box max-w-lg bg-white dark:bg-[#111827] rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800">
+        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
+            Reprogramación Elástica de Horarios Futuros
+        </h3>
+        <p class="text-xs text-slate-400 mb-4">
+            Modifica el día, hora o aula a partir de una semana $N$. Las sesiones de semanas anteriores cerradas quedan blindadas e intactas.
+        </p>
+        
+        <form action="/Modulo02/ReprogramarHorario" method="post" class="space-y-3 text-xs">
+            <input type="hidden" name="ClaseDocenteId" value="@claseId" />
+            
+            <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Aplicar a partir de la Semana</label>
+                <select name="DesdeSemana" class="select select-sm select-bordered w-full rounded-xl text-xs">
+                    @for (int w = 1; w <= 18; w++)
+                    {
+                        <option value="@w">A partir de la Semana @w @(w == 4 ? "(Semana Actual)" : "")</option>
+                    }
+                </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Nuevo Día</label>
+                    <select name="NuevoDiaSemana" class="select select-sm select-bordered w-full rounded-xl text-xs">
+                        <option value="1">Lunes</option>
+                        <option value="2">Martes</option>
+                        <option value="3">Miércoles</option>
+                        <option value="4">Jueves</option>
+                        <option value="5">Viernes</option>
+                        <option value="6">Sábado</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Nueva Aula / Lab</label>
+                    <input type="text" name="NuevoAulaCodigo" placeholder="LAB-402" class="input input-sm input-bordered w-full rounded-xl text-xs" />
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+                <div>
+                    <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Hora Inicio</label>
+                    <input type="time" name="NuevaHoraInicio" value="18:35" class="input input-sm input-bordered w-full rounded-xl text-xs" />
+                </div>
+                <div>
+                    <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Hora Fin</label>
+                    <input type="time" name="NuevaHoraFin" value="21:45" class="input input-sm input-bordered w-full rounded-xl text-xs" />
+                </div>
+            </div>
+
+            <div>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Motivo Institucional</label>
+                <input type="text" name="MotivoReprogramacion" placeholder="Ej: Adecuación de disponibilidad de laboratorio..." required class="input input-sm input-bordered w-full rounded-xl text-xs" />
+            </div>
+
+            <div class="modal-action mt-6 flex gap-2">
+                <button type="button" onclick="modal_reprogramar.close()" class="btn btn-ghost btn-sm rounded-xl">Cancelar</button>
+                <button type="submit" class="btn bg-amber-500 hover:bg-amber-600 text-slate-950 btn-sm rounded-xl font-bold border-0 px-4">
+                    Aplicar Reprogramación
+                </button>
+            </div>
+        </form>
+    </div>
+</dialog>

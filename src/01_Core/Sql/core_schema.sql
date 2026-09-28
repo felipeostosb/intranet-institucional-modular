@@ -119,17 +119,176 @@ CREATE TABLE IF NOT EXISTS core.administrativos (
     area VARCHAR(100) NOT NULL
 );
 
--- 7. AUDITORÍA GLOBAL
+-- 7. AUDITORÍA GLOBAL Y TELEMETRÍA CDC (Change Data Capture)
 CREATE TABLE IF NOT EXISTS core.auditoria_logs (
-    id SERIAL PRIMARY KEY,
+    id BIGSERIAL PRIMARY KEY,
     usuario_id INT NULL REFERENCES core.usuarios(id) ON DELETE SET NULL,
-    modulo VARCHAR(50) NOT NULL,
-    accion VARCHAR(50) NOT NULL,
-    entidad VARCHAR(50) NOT NULL,
-    detalle_json JSONB NULL,
-    ip VARCHAR(45) NULL,
+    db_user VARCHAR(60) NOT NULL DEFAULT SESSION_USER,
+    modulo VARCHAR(50) NOT NULL,          -- mod00..mod09, core
+    entidad VARCHAR(80) NOT NULL,         -- tabla afectada
+    accion VARCHAR(20) NOT NULL,          -- INSERT, UPDATE, DELETE, TRUNCATE
+    registro_id VARCHAR(50) NULL,         -- ID de la fila afectada
+    datos_anteriores JSONB NULL,          -- Estado antes del cambio (UPDATE/DELETE)
+    datos_nuevos JSONB NULL,              -- Estado nuevo (INSERT/UPDATE)
+    campos_modificados JSONB NULL,        -- Diff exacto campo por campo
+    ip_origen VARCHAR(45) NULL,
     fecha TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
+
+CREATE INDEX IF NOT EXISTS idx_audit_modulo_fecha ON core.auditoria_logs (modulo, fecha DESC);
+CREATE INDEX IF NOT EXISTS idx_audit_entidad ON core.auditoria_logs (entidad);
+CREATE INDEX IF NOT EXISTS idx_audit_db_user ON core.auditoria_logs (db_user);
+
+-- Función Trigger Universal CDC
+CREATE OR REPLACE FUNCTION core.fn_audit_trigger()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_old_data JSONB := NULL;
+    v_new_data JSONB := NULL;
+    v_diff_data JSONB := '{}'::JSONB;
+    v_record_id VARCHAR(50) := NULL;
+    v_key TEXT;
+BEGIN
+    IF (TG_OP = 'DELETE') THEN
+        v_old_data := to_jsonb(OLD);
+        IF (v_old_data ? 'id') THEN
+            v_record_id := v_old_data->>'id';
+        END IF;
+    ELSIF (TG_OP = 'INSERT') THEN
+        v_new_data := to_jsonb(NEW);
+        IF (v_new_data ? 'id') THEN
+            v_record_id := v_new_data->>'id';
+        END IF;
+    ELSIF (TG_OP = 'UPDATE') THEN
+        v_old_data := to_jsonb(OLD);
+        v_new_data := to_jsonb(NEW);
+        IF (v_new_data ? 'id') THEN
+            v_record_id := v_new_data->>'id';
+        END IF;
+        
+        -- Calcular DIFF
+        FOR v_key IN SELECT jsonb_object_keys(v_new_data) LOOP
+            IF (v_old_data->v_key IS DISTINCT FROM v_new_data->v_key) THEN
+                v_diff_data := v_diff_data || jsonb_build_object(
+                    v_key, jsonb_build_object('antes', v_old_data->v_key, 'despues', v_new_data->v_key)
+                );
+            END IF;
+        END LOOP;
+    END IF;
+
+    INSERT INTO core.auditoria_logs (
+        db_user,
+        modulo,
+        entidad,
+        accion,
+        registro_id,
+        datos_anteriores,
+        datos_nuevos,
+        campos_modificados,
+        ip_origen
+    ) VALUES (
+        SESSION_USER,
+        TG_TABLE_SCHEMA,
+        TG_TABLE_NAME,
+        TG_OP,
+        v_record_id,
+        v_old_data,
+        v_new_data,
+        CASE WHEN TG_OP = 'UPDATE' THEN v_diff_data ELSE NULL END,
+        inet_client_addr()::TEXT
+    );
+
+    IF (TG_OP = 'DELETE') THEN
+        RETURN OLD;
+    ELSE
+        RETURN NEW;
+    END IF;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- Procedimiento para activar auditoría automática en un esquema
+CREATE OR REPLACE FUNCTION core.fn_activar_auditoria_esquema(p_schema_name TEXT)
+RETURNS VOID AS $$
+DECLARE
+    r RECORD;
+BEGIN
+    FOR r IN (
+        SELECT table_name 
+        FROM information_schema.tables 
+        WHERE table_schema = p_schema_name 
+          AND table_type = 'BASE TABLE'
+          AND table_name != 'auditoria_logs'
+    ) LOOP
+        EXECUTE format('DROP TRIGGER IF EXISTS trg_audit_%I ON %I.%I;', r.table_name, p_schema_name, r.table_name);
+        EXECUTE format('CREATE TRIGGER trg_audit_%I AFTER INSERT OR UPDATE OR DELETE ON %I.%I FOR EACH ROW EXECUTE FUNCTION core.fn_audit_trigger();', 
+                       r.table_name, p_schema_name, r.table_name);
+    END LOOP;
+END;
+$$ LANGUAGE plpgsql;
+
+-- 8. VISTAS DE TELEMETRÍA Y OBSERVABILIDAD
+CREATE OR REPLACE VIEW core.v_telemetria_equipos AS
+SELECT 
+    t.schemaname AS esquema,
+    CASE t.schemaname
+        WHEN 'core'  THEN '🌐 Core: Arquitectura Central & SSO'
+        WHEN 'mod00' THEN '🛡️ Equipo 00: Seguridad & Login (Toro/Felipe)'
+        WHEN 'mod01' THEN '📝 Equipo 01: Matrícula & Admisión (Ismael)'
+        WHEN 'mod02' THEN '📅 Equipo 02: Asistencia & DPI (Sheyla)'
+        WHEN 'mod03' THEN '📦 Equipo 03: Inventario & Equipos (Brenda)'
+        WHEN 'mod04' THEN '📦 Equipo 04: Módulo 04 (Morales)'
+        WHEN 'mod05' THEN '🛠️ Equipo 05: Incidencias TI (Oliva)'
+        WHEN 'mod06' THEN '🎓 Equipo 06: Egresados & Titulación (Sandra/Max)'
+        WHEN 'mod07' THEN '📊 Equipo 07: Calidad Docente & Encuestas (Brayan)'
+        WHEN 'mod08' THEN '🔐 Equipo 08: Roles & Seguridad Extendida (Toro)'
+        WHEN 'mod09' THEN '💳 Equipo 09: Tesorería & Pagos TUPA (Vargas/Ismael)'
+        ELSE t.schemaname
+    END AS equipo_asignado,
+    COUNT(t.relname) AS total_tablas,
+    COALESCE(SUM(t.n_live_tup), 0) AS registros_actuales,
+    COALESCE(SUM(t.n_tup_ins), 0) AS total_inserts_historicos,
+    COALESCE(SUM(t.n_tup_upd), 0) AS total_updates_historicos,
+    COALESCE(SUM(t.n_tup_del), 0) AS total_deletes_historicos,
+    pg_size_pretty(SUM(pg_total_relation_size(quote_ident(t.schemaname) || '.' || quote_ident(t.relname)))) AS peso_en_disco,
+    CASE 
+        WHEN SUM(t.n_tup_ins) > 50 THEN '🟢 ALTA ACTIVIDAD'
+        WHEN SUM(t.n_tup_ins) > 0  THEN '🟡 ACTIVIDAD INICIAL'
+        ELSE '⚪ SIN ACTIVIDAD REGISTRADA'
+    END AS semaforo_avance
+FROM pg_stat_user_tables t
+WHERE t.schemaname LIKE 'mod%' OR t.schemaname = 'core'
+GROUP BY t.schemaname
+ORDER BY t.schemaname;
+
+CREATE OR REPLACE VIEW core.v_telemetria_tablas_detalle AS
+SELECT 
+    t.schemaname AS esquema,
+    t.relname AS tabla,
+    t.n_live_tup AS filas_estimadas,
+    t.n_tup_ins AS inserciones,
+    t.n_tup_upd AS modificaciones,
+    t.n_tup_del AS eliminaciones,
+    pg_size_pretty(pg_total_relation_size(t.relid)) AS tamano_tabla,
+    t.seq_scan AS lecturas_completas,
+    t.idx_scan AS lecturas_por_indice
+FROM pg_stat_user_tables t
+WHERE t.schemaname LIKE 'mod%' OR t.schemaname = 'core'
+ORDER BY t.schemaname, t.n_tup_ins DESC;
+
+CREATE OR REPLACE VIEW core.v_conexiones_en_vivo AS
+SELECT 
+    pid,
+    usename AS usuario_db,
+    client_addr AS ip_origen,
+    application_name AS cliente_app,
+    backend_start AS conexion_iniciada,
+    state AS estado,
+    query AS ultima_consulta_ejecutada,
+    query_start AS hora_consulta
+FROM pg_stat_activity
+WHERE datname = current_database()
+  AND pid != pg_backend_pid()
+ORDER BY query_start DESC NULLS LAST;
 
 -- ==============================================================================
 -- 🚀 DATOS SEMILLA OFICIALES - IESTP "ARGENTINA"

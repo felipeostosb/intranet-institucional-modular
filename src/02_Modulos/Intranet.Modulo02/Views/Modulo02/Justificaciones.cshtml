@@ -2,32 +2,31 @@
 @{
     ViewData["Title"] = "Bandeja de Justificaciones de Inasistencia";
     var estadoActual = ViewBag.EstadoActual as string ?? "TODAS";
+    var esSoloAlumno = ViewBag.EsSoloAlumno is bool b && b;
 }
 
 <div class="space-y-6">
     <!-- Header -->
-    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center justify-center shrink-0 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
+            <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center shrink-0 shadow-sm font-bold text-2xl">
+                📄
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200">Trámites de Asistencia</span>
-                    <span class="text-xs text-slate-400 font-medium">Plazo 72h Hábiles</span>
+                    <span class="text-xs font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">Trámites de Asistencia</span>
+                    <span class="text-xs text-slate-400 font-medium">Ventana de 72h Hábiles (Art. 8.8.1 MPA)</span>
                 </div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                    Bandeja de Justificaciones
+                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                    Bandeja de Justificaciones de Inasistencia
                 </h1>
-                <p class="text-xs text-slate-500">
-                    Revisión de sustentos médicos, laborales y de fuerza mayor. Al aprobar, la falta se reclasifica a justificada.
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    @(esSoloAlumno ? "Seguimiento de tus solicitudes de justificación médica y laboral ingresadas." : "Revisión y dictamen docente de descansos médicos y constancias laborales.")
                 </p>
             </div>
         </div>
         <div class="flex gap-2">
-            <a href="/Modulo02" class="btn bg-slate-100 hover:bg-slate-200 text-slate-700 btn-sm rounded-xl font-bold border-0 text-xs px-3.5">
+            <a href="@(esSoloAlumno ? "/Modulo02/MiAsistencia" : "/Modulo02")" class="btn bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 btn-sm rounded-xl font-bold border-0 text-xs px-3.5">
                 Volver
             </a>
         </div>
@@ -35,26 +34,26 @@
 
     <!-- Filtros de Estado -->
     <div class="flex flex-wrap gap-2 text-xs">
-        <a href="/Modulo02/Justificaciones" class="btn btn-sm rounded-xl font-bold @(estadoActual == "TODAS" ? "bg-indigo-600 text-white border-0" : "bg-white text-slate-600 border-slate-200")">
+        <a href="/Modulo02/Justificaciones" class="btn btn-sm rounded-xl font-bold @(estadoActual == "TODAS" ? "bg-indigo-600 text-white border-0" : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700")">
             Todas (@Model.Count())
         </a>
-        <a href="/Modulo02/Justificaciones?estado=PENDIENTE" class="btn btn-sm rounded-xl font-bold @(estadoActual == "PENDIENTE" ? "bg-indigo-600 text-white border-0" : "bg-white text-slate-600 border-slate-200")">
+        <a href="/Modulo02/Justificaciones?estado=PENDIENTE" class="btn btn-sm rounded-xl font-bold @(estadoActual == "PENDIENTE" ? "bg-indigo-600 text-white border-0" : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700")">
             Pendientes (@Model.Count(x => x.Estado == "PENDIENTE"))
         </a>
-        <a href="/Modulo02/Justificaciones?estado=APROBADA" class="btn btn-sm rounded-xl font-bold @(estadoActual == "APROBADA" ? "bg-indigo-600 text-white border-0" : "bg-white text-slate-600 border-slate-200")">
+        <a href="/Modulo02/Justificaciones?estado=APROBADA" class="btn btn-sm rounded-xl font-bold @(estadoActual == "APROBADA" ? "bg-indigo-600 text-white border-0" : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700")">
             Aprobadas (@Model.Count(x => x.Estado == "APROBADA"))
         </a>
-        <a href="/Modulo02/Justificaciones?estado=RECHAZADA" class="btn btn-sm rounded-xl font-bold @(estadoActual == "RECHAZADA" ? "bg-indigo-600 text-white border-0" : "bg-white text-slate-600 border-slate-200")">
+        <a href="/Modulo02/Justificaciones?estado=RECHAZADA" class="btn btn-sm rounded-xl font-bold @(estadoActual == "RECHAZADA" ? "bg-indigo-600 text-white border-0" : "bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-700")">
             Rechazadas (@Model.Count(x => x.Estado == "RECHAZADA"))
         </a>
     </div>
 
     <!-- Tabla de Justificaciones -->
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <div class="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="table w-full text-xs">
                 <thead>
-                    <tr class="bg-slate-100/80 text-slate-600 font-bold uppercase text-[10px]">
+                    <tr class="bg-slate-100/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
                         <th>Estudiante</th>
                         <th>Unidad Didáctica / Fecha</th>
                         <th>Motivo & Explicación</th>
@@ -63,29 +62,29 @@
                         <th class="text-right">Acción</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     @if (Model.Any())
                     {
                         @foreach (var j in Model)
                         {
-                            <tr class="hover:bg-slate-50 transition">
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/50 transition">
                                 <td>
-                                    <p class="font-bold text-slate-900 leading-tight">@j.EstudianteNombre</p>
+                                    <p class="font-bold text-slate-900 dark:text-slate-100 leading-tight">@j.EstudianteNombre</p>
                                     <span class="text-[10px] font-mono text-slate-400">@j.EstudianteCodigo</span>
                                 </td>
                                 <td>
-                                    <p class="font-semibold text-slate-800">@j.UnidadDidacticaNombre</p>
-                                    <span class="text-[10px] text-slate-400 font-mono">📅 @j.FechaClase.ToString("dd/MM/yyyy")</span>
+                                    <p class="font-semibold text-slate-800 dark:text-slate-200">@j.UnidadDidacticaNombre</p>
+                                    <span class="text-[10px] text-slate-400 font-mono">📅 @j.FechaClase.ToString("dd/MM/yyyy") (Sem @j.NumeroSemana)</span>
                                 </td>
                                 <td class="max-w-xs">
-                                    <span class="badge badge-ghost badge-xs font-bold text-indigo-700 mb-1">@j.Motivo</span>
-                                    <p class="text-[11px] text-slate-600 truncate">@j.Descripcion</p>
+                                    <span class="badge badge-ghost badge-xs font-bold text-indigo-700 dark:text-indigo-300 mb-1">@j.Motivo</span>
+                                    <p class="text-[11px] text-slate-600 dark:text-slate-400 truncate">@j.Descripcion</p>
                                 </td>
                                 <td>
                                     @if (!string.IsNullOrEmpty(j.DocumentoSustentoUrl))
                                     {
-                                        <a href="@j.DocumentoSustentoUrl" target="_blank" class="text-indigo-600 hover:underline font-semibold flex items-center gap-1 text-[11px]">
-                                            <span>📎 Ver Documento</span>
+                                        <a href="@j.DocumentoSustentoUrl" target="_blank" class="text-indigo-600 dark:text-indigo-400 hover:underline font-semibold flex items-center gap-1 text-[11px]">
+                                            <span>📎 Ver Certificado</span>
                                         </a>
                                     }
                                     else
@@ -108,15 +107,24 @@
                                     }
                                 </td>
                                 <td class="text-right">
-                                    @if (j.Estado == "PENDIENTE")
+                                    @if (esSoloAlumno)
                                     {
-                                        <button type="button" onclick="abrirModalResolucion(@j.Id, '@j.EstudianteNombre', '@j.Motivo')" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-xs rounded-lg font-bold border-0 px-3">
-                                            Revisar
-                                        </button>
+                                        <span class="text-[11px] text-slate-400 font-medium">
+                                            @(j.Estado == "PENDIENTE" ? "⏳ En evaluación" : j.Estado == "APROBADA" ? "✅ Reclasificada" : "❌ No procede")
+                                        </span>
                                     }
                                     else
                                     {
-                                        <span class="text-[10px] text-slate-400">Evaluado</span>
+                                        @if (j.Estado == "PENDIENTE")
+                                        {
+                                            <button type="button" onclick="abrirModalResolucion(@j.Id, '@j.EstudianteNombre', '@j.Motivo')" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-xs rounded-xl font-bold border-0 px-3">
+                                                Evaluar
+                                            </button>
+                                        }
+                                        else
+                                        {
+                                            <span class="text-[10px] text-slate-400">Dictaminado</span>
+                                        }
                                     }
                                 </td>
                             </tr>
@@ -138,8 +146,8 @@
 
 <!-- Modal Resolución de Justificación para Docente/Admin -->
 <dialog id="modal_resolver" class="modal">
-    <div class="modal-box max-w-md bg-white rounded-3xl p-6 shadow-2xl border border-slate-200">
-        <h3 class="text-base font-bold text-slate-900 mb-1">
+    <div class="modal-box max-w-md bg-white dark:bg-[#111827] rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800">
+        <h3 class="text-base font-bold text-slate-900 dark:text-slate-100 mb-1">
             Dictamen de Justificación
         </h3>
         <p class="text-xs text-slate-400 mb-4" id="modalResolverEstudiante">Estudiante...</p>
@@ -148,7 +156,7 @@
             <input type="hidden" id="inputJustificacionId" name="JustificacionId" />
             
             <div>
-                <label class="font-bold text-slate-700 block mb-1">Resolución</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Resolución Docente</label>
                 <select name="Aprobada" class="select select-sm select-bordered w-full rounded-xl text-xs font-bold">
                     <option value="true">✅ Aprobar Justificación (Reclasificar a Falta Justificada)</option>
                     <option value="false">❌ Rechazar Justificación (Mantener Falta Injustificada)</option>
@@ -156,24 +164,24 @@
             </div>
 
             <div>
-                <label class="font-bold text-slate-700 block mb-1">Observación / Sustento del Dictamen</label>
+                <label class="font-bold text-slate-700 dark:text-slate-300 block mb-1">Observación / Sustento del Dictamen</label>
                 <textarea name="Observacion" required rows="3" class="textarea textarea-bordered w-full rounded-xl text-xs" placeholder="Ingresa el motivo de aprobación o rechazo..."></textarea>
             </div>
 
             <div class="modal-action mt-6 flex gap-2">
                 <button type="button" onclick="modal_resolver.close()" class="btn btn-ghost btn-sm rounded-xl">Cancelar</button>
-                <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 px-4">Guardar Dictamen</button>
+                <button type="submit" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 px-4">
+                    Emitir Dictamen
+                </button>
             </div>
         </form>
     </div>
 </dialog>
 
-@section Scripts {
 <script>
     function abrirModalResolucion(id, nombre, motivo) {
         document.getElementById('inputJustificacionId').value = id;
-        document.getElementById('modalResolverEstudiante').innerText = 'Estudiante: ' + nombre + ' (' + motivo + ')';
-        modal_resolver.showModal();
+        document.getElementById('modalResolverEstudiante').innerText = `${nombre} (${motivo})`;
+        document.getElementById('modal_resolver').showModal();
     }
 </script>
-}

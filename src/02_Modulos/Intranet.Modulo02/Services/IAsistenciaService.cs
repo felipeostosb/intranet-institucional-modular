@@ -5,6 +5,7 @@ namespace Intranet.Modulo02.Services;
 public interface IAsistenciaService
 {
     Task<DashboardAsistenciaViewModel> GetDashboardAsync(int? personaId, string rol);
+    Task<ClaseActivaDocenteDto?> GetClaseActivaHoyAsync(int docenteId);
     Task<IEnumerable<ClaseDocenteCardDto>> GetClasesDocenteAsync(int docenteId, int? periodoId = null);
     Task<IEnumerable<SemanaSelectorDto>> GetSemanasDeClaseAsync(int claseId);
     Task<MatrizAsistenciaViewModel?> GetMatrizAsistenciaClaseAsync(int claseId);
@@ -13,12 +14,16 @@ public interface IAsistenciaService
     Task<SesionClaseDto?> GetSesionPorIdAsync(int sesionId);
     Task<IEnumerable<AlumnoAsistenciaItemDto>> GetAlumnosParaSesionAsync(int sesionId, int unidadDidacticaId);
     Task<bool> GuardarAsistenciaSesionAsync(GuardarAsistenciaRequestDto request, int? usuarioId);
+    Task<bool> GuardarMatrizAsistenciaAsync(GuardarMatrizRequestDto request, int? usuarioId);
+    Task<bool> ReprogramarSesionesFuturasAsync(ReprogramarHorarioDto dto);
     Task<IEnumerable<ResumenAsistenciaEstudianteDto>> GetResumenEstudianteAsync(int estudianteId, int? periodoId = null);
     Task<IEnumerable<AsistenciaHistorialItemDto>> GetHistorialDetalladoEstudianteAsync(int estudianteId, int unidadDidacticaId);
     Task<IEnumerable<JustificacionDto>> GetJustificacionesAsync(int? estudianteId = null, string? estado = null);
     Task<bool> SolicitarJustificacionAsync(CrearJustificacionDto dto, int estudianteId);
     Task<bool> ResolverJustificacionAsync(ResolverJustificacionDto dto, int docenteId);
     Task<IEnumerable<AlertaDpiDto>> GetAlertasDpiAsync(int? carreraId = null, int? periodoId = null);
+    Task<byte[]> ExportarSabanaExcelAsync(int claseDocenteId);
+    Task<byte[]> GenerarActaRegistraAsync(int claseDocenteId);
     Task<int?> GetDocenteIdPorPersonaAsync(int personaId);
     Task<int?> GetEstudianteIdPorPersonaAsync(int personaId);
 }

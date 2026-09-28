@@ -88,6 +88,7 @@ show_menu() {
     echo -e "  ${GREEN}4)${NC} 🧪 ${CYAN}Compilar y Validar${NC} (Verifica 0 errores en toda la solución .NET 10)"
     echo -e "  ${GREEN}5)${NC} 📤 ${CYAN}Subir a GitHub${NC} (Guarda cambios, sincroniza y genera enlace de PR)"
     echo -e "  ${GREEN}6)${NC} 🗄️  ${CYAN}Base de Datos PostgreSQL${NC} (Credenciales Adminer y Configuración Local)"
+    echo -e "  ${GREEN}7)${NC} 🛡️  ${CYAN}Auditoría & Telemetría Grafana Cloud${NC} (Radar de equipos, logs y OTLP)"
     echo -e "  ${GREEN}0)${NC} 🚪 ${YELLOW}Salir${NC}\n"
 }
 
@@ -363,9 +364,14 @@ JSON_EOF
     fi
 }
 
+audit_telemetry() {
+    echo -e "\n${BLUE}🛡️  Ejecutando Auditoría Integral y Sincronización OTLP con Grafana Cloud...${NC}\n"
+    python3 scripts/audit_teams.py
+}
+
 while true; do
     show_menu
-    read -p "👉 Elige una opción [0-6]: " op
+    read -p "👉 Elige una opción [0-7]: " op
     case $op in
         1) start_app ;;
         2) create_branch ;;
@@ -373,8 +379,9 @@ while true; do
         4) validate_code ;;
         5) push_work ;;
         6) manage_db ;;
+        7) audit_telemetry ;;
         0) echo -e "\n${GREEN}¡Buen trabajo! Hasta la próxima sesión.${NC}\n"; exit 0 ;;
-        *) echo -e "\n${RED}Opción no válida. Ingresa un número del 0 al 6.${NC}" ;;
+        *) echo -e "\n${RED}Opción no válida. Ingresa un número del 0 al 7.${NC}" ;;
     esac
     echo -e "\n${YELLOW}Presiona ENTER para volver al menú...${NC}"
     read -r

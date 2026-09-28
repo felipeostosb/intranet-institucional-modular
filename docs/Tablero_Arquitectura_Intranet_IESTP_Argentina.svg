@@ -1,0 +1,403 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2800 1850" width="2800" height="1850">
+  <defs>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&amp;display=swap');
+      text { font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+      .title { font-weight: 600; font-size: 26px; fill: #0f172a; }
+      .subtitle { font-weight: 400; font-size: 14px; fill: #64748b; }
+      .header-title { font-weight: 700; font-size: 36px; fill: #0f172a; }
+      .header-desc { font-weight: 400; font-size: 16px; fill: #475569; }
+      .badge-text { font-weight: 600; font-size: 12px; }
+      .card-title { font-weight: 600; font-size: 18px; fill: #0f172a; }
+      .card-body { font-weight: 400; font-size: 13px; fill: #475569; line-height: 1.5; }
+      .metric-value { font-weight: 300; font-size: 34px; fill: #0f172a; }
+      .metric-label { font-weight: 500; font-size: 12px; fill: #64748b; text-transform: uppercase; letter-spacing: 0.5px; }
+      .code-text { font-family: 'JetBrains Mono', 'Fira Code', monospace; font-size: 12px; fill: #0f172a; }
+    </style>
+    
+    <filter id="card-shadow" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="4" stdDeviation="12" flood-color="#0f172a" flood-opacity="0.04" />
+    </filter>
+    <filter id="soft-glow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="8" stdDeviation="16" flood-color="#0284c7" flood-opacity="0.08" />
+    </filter>
+  </defs>
+
+  <!-- Background Base Apple Minimalist -->
+  <rect width="2800" height="1850" fill="#f8fafc" />
+
+  <!-- ========================================== -->
+  <!-- HEADER BAR MAESTRO -->
+  <!-- ========================================== -->
+  <g id="Header-Bar" transform="translate(80, 60)">
+    <rect width="2640" height="140" rx="28" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#card-shadow)" />
+    
+    <rect x="30" y="30" width="80" height="80" rx="22" fill="#0f172a" />
+    <text x="70" y="80" text-anchor="middle" fill="#ffffff" font-size="28" font-weight="700">AR</text>
+    
+    <text x="135" y="68" class="header-title">IESTP "Argentina" • Arquitectura Integral de Intranet &amp; ERP Modular</text>
+    <text x="135" y="98" class="header-desc">36 Desarrolladores (9 Equipos de 4) • .NET 10 LTS • MariaDB 10.11 • Despliegue en GCP Free Tier ($0.00 / S/. 0.00)</text>
+
+    <!-- Header Badges -->
+    <rect x="2150" y="50" width="130" height="38" rx="19" fill="#e0f2fe" stroke="#bae6fd" />
+    <text x="2215" y="74" text-anchor="middle" fill="#0369a1" class="badge-text">2026-II LIMA</text>
+
+    <rect x="2295" y="50" width="160" height="38" rx="19" fill="#dcfce7" stroke="#bbf7d0" />
+    <text x="2375" y="74" text-anchor="middle" fill="#15803d" class="badge-text">2,450 ALUMNOS</text>
+
+    <rect x="2470" y="50" width="135" height="38" rx="19" fill="#f1f5f9" stroke="#cbd5e1" />
+    <text x="2537" y="74" text-anchor="middle" fill="#475569" class="badge-text">$0.00 COSTO</text>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- FRAME 1: TOPOLOGÍA CLOUD EDGE DISTRIBUIDA -->
+  <!-- ========================================== -->
+  <g id="Frame-1-Topologia" transform="translate(80, 240)">
+    <rect width="1280" height="490" rx="28" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#card-shadow)" />
+    
+    <text x="40" y="55" class="title">🌐 1. Topología de Servidores en la Nube (GCP Free Tier)</text>
+    <text x="40" y="85" class="subtitle">Dos instancias e2-micro comunicadas por red privada interna VPC de Google Cloud a costo $0.00</text>
+
+    <!-- VM 1: Web mili3 -->
+    <g transform="translate(40, 120)">
+      <rect width="560" height="320" rx="22" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" />
+      
+      <rect x="24" y="24" width="48" height="48" rx="14" fill="#e0f2fe" />
+      <text x="48" y="55" text-anchor="middle" fill="#0284c7" font-size="22">⚡</text>
+      
+      <text x="85" y="46" font-size="18" font-weight="600" fill="#0f172a">Servidor Web: mili3</text>
+      <text x="85" y="66" class="code-text" fill="#64748b">IP Pública: 35.209.228.150 (Puerto 80)</text>
+
+      <rect x="24" y="90" width="512" height="1" fill="#e2e8f0" />
+
+      <!-- Specs -->
+      <g transform="translate(24, 110)">
+        <text x="0" y="20" font-size="13" font-weight="600" fill="#334155">Componentes Activos:</text>
+        <text x="0" y="45" font-size="13" fill="#475569">• Nginx Ultra-Lean Reverse Proxy (RAM: 2.87 MiB)</text>
+        <text x="0" y="70" font-size="13" fill="#475569">• .NET 10 LTS Web App en Alpine (RAM: 73.0 MiB)</text>
+        <text x="0" y="95" font-size="13" fill="#475569">• Claims-Based Cookie Authentication (Zero RAM Session)</text>
+        <text x="0" y="120" font-size="13" fill="#475569">• Despliegue Automatizado con GitHub Actions (<45s)</text>
+        
+        <rect x="0" y="150" width="512" height="40" rx="10" fill="#dcfce7" stroke="#86efac" />
+        <text x="256" y="175" text-anchor="middle" fill="#15803d" font-size="12" font-weight="600">Telemetría: 0.01% CPU | 646 MiB RAM Disponible</text>
+      </g>
+    </g>
+
+    <!-- Enlace VPC -->
+    <g transform="translate(605, 255)">
+      <line x1="0" y1="0" x2="70" y2="0" stroke="#0284c7" stroke-width="3" stroke-dasharray="6,4" />
+      <polygon points="70,0 60,-6 60,6" fill="#0284c7" />
+      <rect x="-25" y="-30" width="120" height="24" rx="12" fill="#e0f2fe" stroke="#bae6fd" />
+      <text x="35" y="-14" text-anchor="middle" fill="#0369a1" font-size="10" font-weight="700">VPC &lt; 0.2ms</text>
+    </g>
+
+    <!-- VM 2: Database mili2 -->
+    <g transform="translate(680, 120)">
+      <rect width="560" height="320" rx="22" fill="#f8fafc" stroke="#cbd5e1" stroke-width="1.5" />
+      
+      <rect x="24" y="24" width="48" height="48" rx="14" fill="#ede9fe" />
+      <text x="48" y="55" text-anchor="middle" fill="#7c3aed" font-size="22">🗄️</text>
+      
+      <text x="85" y="46" font-size="18" font-weight="600" fill="#0f172a">Servidor Base de Datos: mili2</text>
+      <text x="85" y="66" class="code-text" fill="#64748b">IP Privada: 10.128.0.3:3306</text>
+
+      <rect x="24" y="90" width="512" height="1" fill="#e2e8f0" />
+
+      <!-- Specs -->
+      <g transform="translate(24, 110)">
+        <text x="0" y="20" font-size="13" font-weight="600" fill="#334155">Componentes Activos:</text>
+        <text x="0" y="45" font-size="13" fill="#475569">• MariaDB 10.11 Server (RAM: 136.0 MiB)</text>
+        <text x="0" y="70" font-size="13" fill="#475569">• 10 Bases de Datos Aisladas (db_core + db_modulo01..09)</text>
+        <text x="0" y="95" font-size="13" fill="#475569">• phpMyAdmin en Puerto 8080 para Gestión de Equipos</text>
+        <text x="0" y="120" font-size="13" fill="#475569">• Connection Pooling con Pomelo MySQL (Max: 100)</text>
+        
+        <rect x="0" y="150" width="512" height="40" rx="10" fill="#ede9fe" stroke="#c4b5fd" />
+        <text x="256" y="175" text-anchor="middle" fill="#6d28d9" font-size="12" font-weight="600">Telemetría: 0.03% CPU | 541 MiB RAM Disponible</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- FRAME 2: MATRIZ DE AISLAMIENTO ZERO-BLAST-RADIUS (36 DEVS) -->
+  <!-- ========================================== -->
+  <g id="Frame-2-Aislamiento" transform="translate(1400, 240)">
+    <rect width="1320" height="490" rx="28" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#card-shadow)" />
+    
+    <text x="40" y="55" class="title">🛡️ 2. Aislamiento Estricto de 36 Devs (Zero-Blast-Radius)</text>
+    <text x="40" y="85" class="subtitle">9 Equipos de 4 desarrolladores con permisos aislados en base de datos y código</text>
+
+    <!-- Grilla 3x3 de los 9 Módulos -->
+    <g transform="translate(40, 110)">
+      
+      <!-- M01: Admisión (Sky) -->
+      <g transform="translate(0, 0)">
+        <rect width="395" height="100" rx="16" fill="#f0f9ff" stroke="#bae6fd" />
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="#e0f2fe" />
+        <text x="32" y="38" text-anchor="middle" fill="#0284c7" font-size="16">📘</text>
+        <text x="60" y="32" font-size="14" font-weight="600" fill="#0f172a">M01: Admisión &amp; Postulantes</text>
+        <text x="60" y="50" font-size="11" fill="#0369a1" font-weight="500">Equipo 01 (4 devs) • user_equipo01</text>
+        <text x="60" y="80" class="code-text" fill="#64748b">DB: db_modulo01 | ALL PRIVILEGES</text>
+      </g>
+
+      <!-- M02: Matrícula (Indigo) -->
+      <g transform="translate(420, 0)">
+        <rect width="395" height="100" rx="16" fill="#eef2ff" stroke="#c7d2fe" />
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="#e0e7ff" />
+        <text x="32" y="38" text-anchor="middle" fill="#4f46e5" font-size="16">🎓</text>
+        <text x="60" y="32" font-size="14" font-weight="600" fill="#0f172a">M02: Matrícula &amp; Cursos</text>
+        <text x="60" y="50" font-size="11" fill="#4338ca" font-weight="500">Equipo 02 (4 devs) • user_equipo02</text>
+        <text x="60" y="80" class="code-text" fill="#64748b">DB: db_modulo02 | ALL PRIVILEGES</text>
+      </g>
+
+      <!-- M03: Gestión Docente (Emerald) -->
+      <g transform="translate(840, 0)">
+        <rect width="395" height="100" rx="16" fill="#ecfdf5" stroke="#a7f3d0" />
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="#d1fae5" />
+        <text x="32" y="38" text-anchor="middle" fill="#059669" font-size="16">💼</text>
+        <text x="60" y="32" font-size="14" font-weight="600" fill="#0f172a">M03: Gestión Docente</text>
+        <text x="60" y="50" font-size="11" fill="#047857" font-weight="500">Equipo 03 (4 devs) • user_equipo03</text>
+        <text x="60" y="80" class="code-text" fill="#64748b">DB: db_modulo03 | ALL PRIVILEGES</text>
+      </g>
+
+      <!-- M04: Calificaciones (Amber) -->
+      <g transform="translate(0, 115)">
+        <rect width="395" height="100" rx="16" fill="#fffbeb" stroke="#fde68a" />
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="#fef3c7" />
+        <text x="32" y="38" text-anchor="middle" fill="#d97706" font-size="16">📋</text>
+        <text x="60" y="32" font-size="14" font-weight="600" fill="#0f172a">M04: Calificaciones &amp; Actas</text>
+        <text x="60" y="50" font-size="11" fill="#b45309" font-weight="500">Equipo 04 (4 devs) • user_equipo04</text>
+        <text x="60" y="80" class="code-text" fill="#64748b">DB: db_modulo04 | ALL PRIVILEGES</text>
+      </g>
+
+      <!-- M05: Tesorería (Purple) -->
+      <g transform="translate(420, 115)">
+        <rect width="395" height="100" rx="16" fill="#faf5ff" stroke="#e9d5ff" />
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="#f3e8ff" />
+        <text x="32" y="38" text-anchor="middle" fill="#9333ea" font-size="16">💳</text>
+        <text x="60" y="32" font-size="14" font-weight="600" fill="#0f172a">M05: Tesorería &amp; Pagos</text>
+        <text x="60" y="50" font-size="11" fill="#7e22ce" font-weight="500">Equipo 05 (4 devs) • user_equipo05</text>
+        <text x="60" y="80" class="code-text" fill="#64748b">DB: db_modulo05 | ALL PRIVILEGES</text>
+      </g>
+
+      <!-- M06: Biblioteca (Rose) -->
+      <g transform="translate(840, 115)">
+        <rect width="395" height="100" rx="16" fill="#fff1f2" stroke="#fecdd3" />
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="#ffe4e6" />
+        <text x="32" y="38" text-anchor="middle" fill="#e11d48" font-size="16">📖</text>
+        <text x="60" y="32" font-size="14" font-weight="600" fill="#0f172a">M06: Biblioteca Virtual</text>
+        <text x="60" y="50" font-size="11" fill="#be123c" font-weight="500">Equipo 06 (4 devs) • user_equipo06</text>
+        <text x="60" y="80" class="code-text" fill="#64748b">DB: db_modulo06 | ALL PRIVILEGES</text>
+      </g>
+
+      <!-- M07: Mesa de Partes (Teal) -->
+      <g transform="translate(0, 230)">
+        <rect width="395" height="100" rx="16" fill="#f0fdfa" stroke="#99f6e4" />
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="#ccfbf1" />
+        <text x="32" y="38" text-anchor="middle" fill="#0d9488" font-size="16">📨</text>
+        <text x="60" y="32" font-size="14" font-weight="600" fill="#0f172a">M07: Mesa de Partes (FUT)</text>
+        <text x="60" y="50" font-size="11" fill="#0f766e" font-weight="500">Equipo 07 (4 devs) • user_equipo07</text>
+        <text x="60" y="80" class="code-text" fill="#64748b">DB: db_modulo07 | ALL PRIVILEGES</text>
+      </g>
+
+      <!-- M08: Prácticas EFSRT (Orange) -->
+      <g transform="translate(420, 230)">
+        <rect width="395" height="100" rx="16" fill="#fff7ed" stroke="#fed7aa" />
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="#ffedd5" />
+        <text x="32" y="38" text-anchor="middle" fill="#ea580c" font-size="16">🏢</text>
+        <text x="60" y="32" font-size="14" font-weight="600" fill="#0f172a">M08: Prácticas EFSRT</text>
+        <text x="60" y="50" font-size="11" fill="#c2410c" font-weight="500">Equipo 08 (4 devs) • user_equipo08</text>
+        <text x="60" y="80" class="code-text" fill="#64748b">DB: db_modulo08 | ALL PRIVILEGES</text>
+      </g>
+
+      <!-- M09: Mesa de Ayuda TI (Cyan) -->
+      <g transform="translate(840, 230)">
+        <rect width="395" height="100" rx="16" fill="#ecfeff" stroke="#a5f3fc" />
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="#cffafe" />
+        <text x="32" y="38" text-anchor="middle" fill="#0891b2" font-size="16">⚡</text>
+        <text x="60" y="32" font-size="14" font-weight="600" fill="#0f172a">M09: Mesa de Ayuda TI</text>
+        <text x="60" y="50" font-size="11" fill="#0e7490" font-weight="500">Equipo 09 (4 devs) • user_equipo09</text>
+        <text x="60" y="80" class="code-text" fill="#64748b">DB: db_modulo09 | ALL PRIVILEGES</text>
+      </g>
+
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- FRAME 3: FLUJO GIT & CI/CD AUTÓNOMO -->
+  <!-- ========================================== -->
+  <g id="Frame-3-GitWorkflow" transform="translate(80, 760)">
+    <rect width="860" height="520" rx="28" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#card-shadow)" />
+    
+    <text x="40" y="55" class="title">🔄 3. Flujo Git &amp; CI/CD Autónomo</text>
+    <text x="40" y="85" class="subtitle">Validación de límites de carpetas y auto-merge sin bloqueos humanos</text>
+
+    <!-- Steps -->
+    <g transform="translate(40, 120)">
+      
+      <!-- Paso 1 -->
+      <g transform="translate(0, 0)">
+        <circle cx="24" cy="24" r="24" fill="#f1f5f9" />
+        <text x="24" y="31" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">1</text>
+        <text x="65" y="20" font-size="15" font-weight="600" fill="#0f172a">Desarrollo Local en Ramas Aisladas</text>
+        <text x="65" y="42" font-size="12" fill="#64748b">El equipo crea su rama: <tspan class="code-text" fill="#0284c7">modulo01/feature-admision</tspan></text>
+      </g>
+
+      <line x1="24" y1="52" x2="24" y2="80" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,3" />
+
+      <!-- Paso 2 -->
+      <g transform="translate(0, 85)">
+        <circle cx="24" cy="24" r="24" fill="#f1f5f9" />
+        <text x="24" y="31" text-anchor="middle" font-size="16" font-weight="700" fill="#0f172a">2</text>
+        <text x="65" y="20" font-size="15" font-weight="600" fill="#0f172a">Apertura de Pull Request (PR) a main</text>
+        <text x="65" y="42" font-size="12" fill="#64748b">GitHub Actions dispara el workflow <tspan class="code-text" fill="#0284c7">validate-pr.yml</tspan></text>
+      </g>
+
+      <line x1="24" y1="137" x2="24" y2="165" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,3" />
+
+      <!-- Paso 3 -->
+      <g transform="translate(0, 170)">
+        <circle cx="24" cy="24" r="24" fill="#e0f2fe" />
+        <text x="24" y="31" text-anchor="middle" font-size="16" font-weight="700" fill="#0284c7">3</text>
+        <text x="65" y="20" font-size="15" font-weight="600" fill="#0f172a">Auditoría de Aislamiento &amp; Build .NET 10</text>
+        <text x="65" y="42" font-size="12" fill="#64748b">Verifica que NO tocó carpetas de otros equipos y compila con 0 errores.</text>
+      </g>
+
+      <line x1="24" y1="222" x2="24" y2="250" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4,3" />
+
+      <!-- Paso 4 -->
+      <g transform="translate(0, 255)">
+        <circle cx="24" cy="24" r="24" fill="#dcfce7" />
+        <text x="24" y="31" text-anchor="middle" font-size="16" font-weight="700" fill="#16a34a">4</text>
+        <text x="65" y="20" font-size="15" font-weight="600" fill="#0f172a">Auto-Merge Automático &amp; Despliegue en mili3</text>
+        <text x="65" y="42" font-size="12" fill="#64748b">Se fusiona a <tspan class="code-text" fill="#16a34a">main</tspan> y se actualiza el contenedor Docker en &lt; 45 seg.</text>
+      </g>
+
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- FRAME 4: ARQUITECTURA DE SOFTWARE & SSO -->
+  <!-- ========================================== -->
+  <g id="Frame-4-SoftwareArch" transform="translate(970, 760)">
+    <rect width="860" height="520" rx="28" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#card-shadow)" />
+    
+    <text x="40" y="55" class="title">⚡ 4. Arquitectura de Software &amp; Single Sign-On</text>
+    <text x="40" y="85" class="subtitle">Estructura de capas en C# 13 y Claims Cookies en .NET 10</text>
+
+    <!-- Layers -->
+    <g transform="translate(40, 115)">
+      
+      <!-- Capa 1: Web -->
+      <rect width="780" height="95" rx="16" fill="#f8fafc" stroke="#cbd5e1" />
+      <text x="25" y="32" font-size="15" font-weight="600" fill="#0f172a">Capas Web &amp; Presentación (src/03_Web/Intranet.Web)</text>
+      <text x="25" y="55" font-size="12" fill="#64748b">• Layout Apple Glass, TailwindCSS, Montserrat font y PWA Service Workers</text>
+      <text x="25" y="75" font-size="12" fill="#64748b">• AccountController: Autenticación por Cookies firmadas con HMAC-SHA256</text>
+
+      <!-- Capa 2: Core -->
+      <g transform="translate(0, 110)">
+        <rect width="780" height="115" rx="16" fill="#f0f9ff" stroke="#bae6fd" />
+        <text x="25" y="32" font-size="15" font-weight="600" fill="#0369a1">Núcleo Central Compartido (src/01_Core/Intranet.Core)</text>
+        <text x="25" y="55" font-size="12" fill="#0284c7">• ModuloBaseController: UsuarioActualId, Rol, EsDirector, EsDocente, etc.</text>
+        <text x="25" y="75" font-size="12" fill="#0284c7">• Contratos &amp; DTOs: IUsuarioService, UsuarioDto, PagedResult&lt;T&gt;</text>
+        <text x="25" y="95" font-size="12" fill="#0284c7">• Prevención de Cross-Database JOINs mediante contratos desacoplados</text>
+      </g>
+
+      <!-- Capa 3: 9 Modules -->
+      <g transform="translate(0, 240)">
+        <rect width="780" height="115" rx="16" fill="#faf5ff" stroke="#e9d5ff" />
+        <text x="25" y="32" font-size="15" font-weight="600" fill="#7e22ce">Librerías de Módulos Independientes (src/02_Modulos/*)</text>
+        <text x="25" y="55" font-size="12" fill="#6b21a8">• 9 Proyectos DLL independientes (Intranet.Modulo01 a Modulo09)</text>
+        <text x="25" y="75" font-size="12" fill="#6b21a8">• Cada módulo hereda de ModuloBaseController y gestiona sus propias vistas</text>
+        <text x="25" y="95" font-size="12" fill="#6b21a8">• Compilación estática centralizada en Directory.Build.props (net10.0)</text>
+      </g>
+
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- FRAME 5: CAPACIDAD, TELEMETRÍA & FACTURA $0.00 -->
+  <!-- ========================================== -->
+  <g id="Frame-5-Telemetria" transform="translate(1860, 760)">
+    <rect width="860" height="520" rx="28" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" filter="url(#card-shadow)" />
+    
+    <text x="40" y="55" class="title">📊 5. Telemetría Real &amp; Sizing de Capacidad</text>
+    <text x="40" y="85" class="subtitle">Auditoría empírica de recursos y soporte para 2,450 alumnos a $0.00</text>
+
+    <!-- Metric Cards -->
+    <g transform="translate(40, 115)">
+      
+      <g transform="translate(0, 0)">
+        <rect width="375" height="150" rx="18" fill="#f8fafc" stroke="#e2e8f0" />
+        <text x="25" y="35" class="metric-label">RAM Servidor Web (mili3)</text>
+        <text x="25" y="85" class="metric-value">73 MiB</text>
+        <text x="25" y="120" font-size="12" fill="#16a34a" font-weight="600">646 MiB Libres (84% Disponible)</text>
+      </g>
+
+      <g transform="translate(405, 0)">
+        <rect width="375" height="150" rx="18" fill="#f8fafc" stroke="#e2e8f0" />
+        <text x="25" y="35" class="metric-label">RAM Servidor BD (mili2)</text>
+        <text x="25" y="85" class="metric-value">136 MiB</text>
+        <text x="25" y="120" font-size="12" fill="#16a34a" font-weight="600">541 MiB Libres (80% Disponible)</text>
+      </g>
+
+      <g transform="translate(0, 175)">
+        <rect width="375" height="175" rx="18" fill="#f0fdf4" stroke="#bbf7d0" />
+        <text x="25" y="35" class="metric-label" fill="#15803d">Concurrencia Medida</text>
+        <text x="25" y="85" class="metric-value" fill="#15803d">150 - 250</text>
+        <text x="25" y="115" font-size="13" font-weight="600" fill="#166534">Peticiones / Segundo (RPS)</text>
+        <text x="25" y="145" font-size="12" fill="#15803d">Soporta a 2,450 alumnos navegando.</text>
+      </g>
+
+      <g transform="translate(405, 175)">
+        <rect width="375" height="175" rx="18" fill="#eff6ff" stroke="#bfdbfe" />
+        <text x="25" y="35" class="metric-label" fill="#1d4ed8">Factura Mensual GCP</text>
+        <text x="25" y="85" class="metric-value" fill="#1e40af">$0.00</text>
+        <text x="25" y="115" font-size="13" font-weight="600" fill="#1e3a8a">GCP Always Free Tier</text>
+        <text x="25" y="145" font-size="12" fill="#1d4ed8">Cero costo para el Instituto.</text>
+      </g>
+
+    </g>
+  </g>
+
+  <!-- ========================================== -->
+  <!-- FOOTER BAR -->
+  <!-- ========================================== -->
+  <g id="Footer-Bar" transform="translate(80, 1310)">
+    <rect width="2640" height="470" rx="28" fill="#0f172a" />
+    
+    <text x="60" y="60" fill="#ffffff" font-size="22" font-weight="600">🎯 Resumen para la Exposición y Compromisos de Entrega</text>
+    <text x="60" y="90" fill="#94a3b8" font-size="14">IESTP "Argentina" • Especialidad: Desarrollo de Sistemas de Información • Arquitectura Senior</text>
+
+    <g transform="translate(60, 130)">
+      <rect width="810" height="280" rx="18" fill="#1e293b" />
+      <text x="30" y="45" fill="#38bdf8" font-size="16" font-weight="600">1. Para los 36 Desarrolladores</text>
+      <text x="30" y="80" fill="#e2e8f0" font-size="13">• Cada equipo programa solo en su carpeta asignada (Intranet.Modulo01 a 09).</text>
+      <text x="30" y="110" fill="#e2e8f0" font-size="13">• Conexión a su propia base de datos sin tocar la de otros equipos.</text>
+      <text x="30" y="140" fill="#e2e8f0" font-size="13">• Pull Request a main se valida y despliega en menos de 45 segundos.</text>
+      <text x="30" y="170" fill="#e2e8f0" font-size="13">• Cero conflictos de ramas y cero sobreescritura de trabajo ajeno.</text>
+      <text x="30" y="210" fill="#94a3b8" font-size="12">Comando local: dotnet run --project src/03_Web/Intranet.Web</text>
+    </g>
+
+    <g transform="translate(915, 130)">
+      <rect width="810" height="280" rx="18" fill="#1e293b" />
+      <text x="30" y="45" fill="#a78bfa" font-size="16" font-weight="600">2. Para el Docente y Dirección</text>
+      <text x="30" y="80" fill="#e2e8f0" font-size="13">• Sistema 100% modular y desacoplado en .NET 10 LTS de última generación.</text>
+      <text x="30" y="110" fill="#e2e8f0" font-size="13">• 10 Bases de datos aisladas con seguridad estricta a nivel de motor SQL.</text>
+      <text x="30" y="140" fill="#e2e8f0" font-size="13">• Single Sign-On (SSO) centralizado con roles de Director a Alumno.</text>
+      <text x="30" y="170" fill="#e2e8f0" font-size="13">• Diseño minimalista Apple macOS / iOS con tipografía delgada Montserrat.</text>
+      <text x="30" y="210" fill="#94a3b8" font-size="12">URL Producción: http://35.209.228.150</text>
+    </g>
+
+    <g transform="translate(1770, 130)">
+      <rect width="810" height="280" rx="18" fill="#1e293b" />
+      <text x="30" y="45" fill="#4ade80" font-size="16" font-weight="600">3. Sostenibilidad &amp; Costo $0.00</text>
+      <text x="30" y="80" fill="#e2e8f0" font-size="13">• Capacidad de atender a los 2,450 alumnos en periodos pico de matrícula.</text>
+      <text x="30" y="110" fill="#e2e8f0" font-size="13">• Consumo ultra-ligero de memoria (&lt; 210 MB en total entre web y BD).</text>
+      <text x="30" y="140" fill="#e2e8f0" font-size="13">• Opera en la capa gratuita Always Free de GCP sin generar costos.</text>
+      <text x="30" y="170" fill="#e2e8f0" font-size="13">• Puede quedar en producción indefinidamente al terminar el ciclo.</text>
+      <text x="30" y="210" fill="#94a3b8" font-size="12">phpMyAdmin: http://35.208.213.59:8080</text>
+    </g>
+
+  </g>
+
+</svg>

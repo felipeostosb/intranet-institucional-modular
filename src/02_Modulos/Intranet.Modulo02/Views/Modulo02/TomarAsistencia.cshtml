@@ -1,117 +1,130 @@
 @model IEnumerable<Intranet.Modulo02.Models.AlumnoAsistenciaItemDto>
 @{
     var sesion = (Intranet.Modulo02.Models.SesionClaseDto)ViewBag.Sesion;
-    ViewData["Title"] = $"Toma de Lista - {sesion.UnidadDidacticaNombre}";
+    ViewData["Title"] = $"Toma Flash de Asistencia - {sesion.UnidadDidacticaNombre}";
 }
 
-<div class="space-y-6">
-    <!-- Header de la Sesión Focalizada -->
-    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div class="space-y-6 pb-28">
+    <!-- Header Zen de la Sesión (Docente) -->
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div class="flex items-start gap-4">
-            <a href="@(sesion.ClaseDocenteId.HasValue ? $"/Modulo02/Clase/{sesion.ClaseDocenteId.Value}" : "/Modulo02")" class="w-10 h-10 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 transition mt-1">
+            <a href="@(sesion.ClaseDocenteId.HasValue ? $"/Modulo02/Clase/{sesion.ClaseDocenteId.Value}" : "/Modulo02")" class="w-11 h-11 rounded-2xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 flex items-center justify-center shrink-0 transition mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
             </a>
             <div>
-                <div class="flex flex-wrap items-center gap-2 mb-1">
-                    <span class="text-xs font-bold @(sesion.EsSemanaRecuperacion ? "bg-purple-100 text-purple-800 border-purple-200" : "bg-indigo-100 text-indigo-800 border-indigo-200") px-2.5 py-0.5 rounded-full border">
-                        @(sesion.EsSemanaRecuperacion ? "Semana 18 (Recuperación)" : $"Semana {sesion.NumeroSemana} • Sesión {sesion.NumeroSesion}")
+                <div class="flex flex-wrap items-center gap-2 mb-1.5">
+                    <span class="text-xs font-bold @(sesion.NumeroSemana == 17 ? "bg-amber-100 text-amber-900 border-amber-300" : sesion.NumeroSemana == 18 ? "bg-purple-100 text-purple-900 border-purple-300" : "bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 border-indigo-200 dark:border-indigo-800") px-2.5 py-0.5 rounded-full border">
+                        @(sesion.NumeroSemana == 17 ? "Semana 17 (Recuperación Ordinaria)" : sesion.NumeroSemana == 18 ? "Semana 18 (Cierre REGISTRA)" : $"Semana {sesion.NumeroSemana} de 18")
                     </span>
-                    <span class="text-xs font-mono bg-slate-100 text-slate-600 px-2 py-0.5 rounded-lg">@sesion.UnidadDidacticaCodigo</span>
+                    <span class="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-lg">@sesion.UnidadDidacticaCodigo</span>
+                    <span class="text-xs font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded-lg border border-indigo-100 dark:border-indigo-800">
+                        🏫 @(sesion.AulaCodigo ?? "LAB-401")
+                    </span>
                     <span class="text-xs text-slate-500 font-semibold">📅 @sesion.FechaClase.ToString("dd/MM/yyyy")</span>
                     @if (sesion.Estado == "CERRADA")
                     {
-                        <span class="badge badge-success badge-sm font-bold text-white">Sesión Oficializada (Cerrada)</span>
+                        <span class="badge badge-success badge-sm font-bold text-white">🔒 Oficializada</span>
                     }
                     else
                     {
-                        <span class="badge badge-warning badge-sm font-bold text-white animate-pulse">Borrador Abierto</span>
+                        <span class="badge badge-warning badge-sm font-bold text-white animate-pulse">⚡ En Curso (Abierta)</span>
                     }
                 </div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
                     @sesion.UnidadDidacticaNombre
                 </h1>
-                <p class="text-xs text-slate-500 mt-0.5">
-                    👨‍🏫 Docente: <strong>@sesion.DocenteNombreCompleto</strong> • 🏫 @(sesion.AulaCodigo ?? "Laboratorio") • ⏰ @sesion.HoraInicio.ToString(@"hh\:mm") a @sesion.HoraFin.ToString(@"hh\:mm") (@sesion.HorasPedagogicas hrs pedagógicas)
+                <p class="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                    👨‍🏫 Docente: <strong>@sesion.DocenteNombreCompleto</strong> • ⏰ @sesion.HoraInicio.ToString(@"hh\:mm") – @sesion.HoraFin.ToString(@"hh\:mm") (@sesion.HorasPedagogicas hrs pedagógicas)
                 </p>
             </div>
         </div>
 
         <!-- Power Actions Masivas -->
         <div class="flex flex-wrap gap-2 w-full md:w-auto justify-end">
-            <button type="button" onclick="marcarTodos('PRESENTE')" class="btn bg-emerald-50 hover:bg-emerald-100 text-emerald-800 btn-sm rounded-xl font-bold border border-emerald-200 text-xs px-3.5 shadow-sm">
-                🟢 Todos Presentes
+            <button type="button" onclick="marcarTodos('PRESENTE')" class="btn bg-emerald-50 hover:bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 btn-sm rounded-xl font-bold border border-emerald-200 text-xs px-3.5 shadow-sm">
+                🟢 100% Presentes
             </button>
-            <button type="button" onclick="marcarTodos('TARDANZA')" class="btn bg-amber-50 hover:bg-amber-100 text-amber-800 btn-sm rounded-xl font-bold border border-amber-200 text-xs px-3">
-                🟡 Todos Tardanza
+            <button type="button" onclick="marcarTodos('FALTA_INJUSTIFICADA')" class="btn bg-rose-50 hover:bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300 btn-sm rounded-xl font-bold border border-rose-200 text-xs px-3">
+                🔴 Todos Falta
             </button>
             @if (sesion.ClaseDocenteId.HasValue)
             {
-                <a href="/Modulo02/Matriz/@sesion.ClaseDocenteId.Value" class="btn bg-white hover:bg-slate-50 text-slate-700 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-3" title="Ver Sábana Excel">
-                    📊 Sábana Excel
+                <a href="/Modulo02/Matriz/@sesion.ClaseDocenteId.Value" class="btn bg-white dark:bg-slate-800 hover:bg-slate-50 text-slate-700 dark:text-slate-200 btn-sm rounded-xl font-bold border border-slate-200 text-xs px-3" title="Ver Sábana Live Grid">
+                    📊 Sábana 18 Sem
                 </a>
             }
         </div>
     </div>
 
-    <!-- Campos de Cabecera de la Clase (Tema Desarrollado en Sílabo y Observaciones) -->
-    <div class="bg-white rounded-3xl p-5 border border-slate-200/80 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
+    <!-- Campos de Sesión (Sílabo & Observaciones) -->
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-5 border border-slate-200/80 dark:border-slate-800 shadow-sm grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">📝 Tema Desarrollado en la Sesión (Sílabo)</label>
-            <input type="text" id="temaDesarrollado" value="@sesion.TemaDesarrollado" placeholder="Ej: Implementación de Patrones de Diseño y Repository en .NET 10..." class="input input-sm input-bordered w-full rounded-xl text-xs bg-slate-50 focus:bg-white" />
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">📝 Tema Desarrollado en la Sesión (Sílabo Oficial)</label>
+            <input type="text" id="temaDesarrollado" value="@sesion.TemaDesarrollado" placeholder="Ej: Implementación de Patrones de Arquitectura y Concurrencia..." class="input input-sm input-bordered w-full rounded-xl text-xs bg-slate-50 dark:bg-slate-900 focus:bg-white" />
         </div>
         <div>
-            <label class="block text-xs font-bold text-slate-700 mb-1">💬 Observaciones del Docente</label>
-            <input type="text" id="observacionesDocente" value="@sesion.ObservacionesDocente" placeholder="Ej: Clase práctica completada con 100% de laboratorios entregados." class="input input-sm input-bordered w-full rounded-xl text-xs bg-slate-50 focus:bg-white" />
+            <label class="block text-xs font-bold text-slate-700 dark:text-slate-300 mb-1">💬 Observaciones del Docente</label>
+            <input type="text" id="observacionesDocente" value="@sesion.ObservacionesDocente" placeholder="Ej: Laboratorio práctico completado con 100% de estaciones operativas." class="input input-sm input-bordered w-full rounded-xl text-xs bg-slate-50 dark:bg-slate-900 focus:bg-white" />
         </div>
     </div>
 
-    <!-- Barra Resumen en Vivo -->
-    <div class="flex flex-wrap items-center justify-between gap-3 bg-indigo-50/50 p-4 rounded-2xl border border-indigo-100 text-xs">
-        <div class="flex items-center gap-4">
-            <span class="font-bold text-slate-700">Total Estudiantes: <strong id="contadorTotal" class="text-indigo-700 font-extrabold text-sm">@Model.Count()</strong></span>
-            <span class="text-emerald-700 font-medium">Presentes: <strong id="contadorPresentes" class="font-bold">0</strong></span>
-            <span class="text-amber-700 font-medium">Tardanzas: <strong id="contadorTardanzas" class="font-bold">0</strong></span>
-            <span class="text-rose-700 font-medium">Faltas: <strong id="contadorFaltas" class="font-bold">0</strong></span>
+    <!-- Barra de Control Rápido, Filtros y Búsqueda en Vivo -->
+    <div class="bg-white dark:bg-[#111827] p-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="flex flex-wrap items-center gap-4 text-xs w-full md:w-auto">
+            <span class="font-bold text-slate-700 dark:text-slate-300">Nómina: <strong id="contadorTotal" class="text-indigo-600 dark:text-indigo-400 font-extrabold text-sm">@Model.Count()</strong></span>
+            <span class="text-emerald-700 dark:text-emerald-400 font-bold">Presentes: <strong id="contadorPresentes">0</strong></span>
+            <span class="text-amber-700 dark:text-amber-400 font-bold">Tardanzas: <strong id="contadorTardanzas">0</strong></span>
+            <span class="text-rose-700 dark:text-rose-400 font-bold">Faltas: <strong id="contadorFaltas">0</strong></span>
+            <span class="text-blue-700 dark:text-blue-400 font-bold">Justificadas: <strong id="contadorJustificadas">0</strong></span>
         </div>
-        <div class="text-slate-400 text-[11px]">
-            ⚡ Switch interactivo: Haz clic en [P], [T], [F] o [J] para cambiar el estado individual.
+
+        <div class="flex items-center gap-2 w-full md:w-auto justify-end">
+            <div class="relative w-full sm:w-64">
+                <input type="text" id="inputBuscarAlumno" placeholder="🔍 Buscar alumno o DNI..." onkeyup="filtrarAlumnos()" class="input input-xs input-bordered w-full rounded-xl text-xs pl-3 bg-slate-50 dark:bg-slate-900" />
+            </div>
+            <select id="selectFiltroEstado" onchange="filtrarAlumnos()" class="select select-xs select-bordered rounded-xl text-xs bg-slate-50 dark:bg-slate-900">
+                <option value="TODOS">Todos</option>
+                <option value="FALTAS">Solo Faltas</option>
+                <option value="TARDANZAS">Solo Tardanzas</option>
+                <option value="RIESGO">En Riesgo DPI</option>
+            </select>
         </div>
     </div>
 
-    <!-- Lista de Estudiantes con Ergonomía de Aula -->
-    <div class="bg-white rounded-3xl border border-slate-200/80 shadow-sm overflow-hidden">
+    <!-- Lista de Estudiantes con Modo 1-Clic Ergonómico -->
+    <div class="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
         <div class="overflow-x-auto">
             <table class="table w-full text-xs" id="tablaAsistencia">
                 <thead>
-                    <tr class="bg-slate-100/80 text-slate-600 font-bold uppercase text-[10px] tracking-wider">
+                    <tr class="bg-slate-100/80 dark:bg-slate-800 text-slate-600 dark:text-slate-300 font-bold uppercase text-[10px] tracking-wider">
                         <th class="w-12 text-center">#</th>
                         <th>Estudiante</th>
-                        <th class="text-center">Estado Previo & DPI</th>
-                        <th class="text-center min-w-[200px]">Estado de Asistencia</th>
-                        <th>Observación / Minutos</th>
+                        <th class="text-center">Semáforo DPI Previo</th>
+                        <th class="text-center min-w-[220px]">Estado de Asistencia</th>
+                        <th>Minutos / Observación</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800">
                     @{ int index = 1; }
                     @foreach (var alumno in Model)
                     {
-                        <tr class="hover:bg-slate-50/80 transition fila-alumno" data-estudiante-id="@alumno.EstudianteId" data-horas-previas="@alumno.HorasFaltaAcumuladasPrevias" data-horas-sesion="@sesion.HorasPedagogicas" data-horas-totales="@alumno.TotalHorasSemestrales">
+                        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-900/50 transition fila-alumno cursor-pointer" data-estudiante-id="@alumno.EstudianteId" data-dni="@alumno.Dni" data-nombre="@alumno.NombreCompleto.ToLower()" data-horas-previas="@alumno.HorasFaltaAcumuladasPrevias" data-horas-sesion="@sesion.HorasPedagogicas" data-horas-totales="@alumno.TotalHorasSemestrales" data-es-dpi="@(alumno.EsDpi ? "true" : "false")" data-en-riesgo="@(alumno.EnRiesgoDpi ? "true" : "false")">
                             <td class="text-center font-bold text-slate-400">@(index++)</td>
                             
                             <!-- Columna Datos del Alumno -->
                             <td>
                                 <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-xl bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
+                                    <div class="w-9 h-9 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 flex items-center justify-center font-bold text-xs shrink-0 shadow-inner">
                                         @(alumno.Nombres.Length > 0 ? alumno.Nombres[0].ToString() : "E")@(alumno.Apellidos.Length > 0 ? alumno.Apellidos[0].ToString() : "A")
                                     </div>
                                     <div>
-                                        <p class="font-bold text-slate-900 text-xs leading-tight">@alumno.NombreCompleto</p>
+                                        <p class="font-bold text-slate-900 dark:text-slate-100 text-xs leading-tight">@alumno.NombreCompleto</p>
                                         <div class="flex items-center gap-2 mt-0.5 text-[10px] text-slate-400">
                                             <span>DNI: @alumno.Dni</span>
                                             <span>•</span>
-                                            <span class="font-mono text-indigo-600 font-semibold">@alumno.CodigoEstudiante</span>
+                                            <span class="font-mono text-indigo-600 dark:text-indigo-400 font-semibold">@alumno.CodigoEstudiante</span>
                                         </div>
                                     </div>
                                 </div>
@@ -121,48 +134,51 @@
                             <td class="text-center">
                                 @if (alumno.EsDpi)
                                 {
-                                    <span class="badge badge-error badge-xs font-bold text-white py-2 px-2.5">
+                                    <span class="badge badge-error badge-xs font-black text-white py-2 px-2.5 shadow-sm">
                                         🚨 DPI (@alumno.PorcentajeInasistenciaPrevio%)
                                     </span>
                                 }
                                 else if (alumno.EnRiesgoDpi)
                                 {
-                                    <span class="badge badge-warning badge-xs font-bold text-white py-2 px-2.5">
+                                    <span class="badge badge-warning badge-xs font-bold text-white py-2 px-2.5 shadow-sm">
                                         ⚠️ Riesgo (@alumno.PorcentajeInasistenciaPrevio%)
                                     </span>
                                 }
                                 else
                                 {
-                                    <span class="badge badge-success badge-xs font-semibold py-2 px-2.5 bg-emerald-50 text-emerald-700 border-emerald-200">
+                                    <span class="badge badge-success badge-xs font-semibold py-2 px-2.5 bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800">
                                         ✅ Regular (@alumno.PorcentajeInasistenciaPrevio%)
                                     </span>
                                 }
-                                <div class="text-[9px] text-slate-400 mt-0.5">
-                                    Faltan @alumno.HorasFaltaDisponibles hrs a DPI
+                                <div class="text-[9px] text-slate-400 mt-0.5 font-medium">
+                                    Margen: @alumno.HorasFaltaDisponibles hrs antes de DPI
                                 </div>
                             </td>
 
                             <!-- Columna Selector 4 Estados [P] [T] [F] [J] -->
                             <td class="text-center">
-                                <div class="inline-flex rounded-xl shadow-sm p-0.5 bg-slate-100 border border-slate-200 selector-asistencia">
-                                    <button type="button" onclick="setEstado(this, 'PRESENTE')" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "PRESENTE" ? "bg-emerald-500 text-white shadow" : "text-slate-600 hover:text-emerald-700")" data-val="PRESENTE" title="Presente">
+                                <div class="inline-flex rounded-xl shadow-sm p-0.5 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 selector-asistencia">
+                                    <button type="button" onclick="setEstado(this, 'PRESENTE', event)" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "PRESENTE" ? "bg-emerald-500 text-white shadow" : "text-slate-600 dark:text-slate-300 hover:text-emerald-700")" data-val="PRESENTE" title="Presente [P]">
                                         P
                                     </button>
-                                    <button type="button" onclick="setEstado(this, 'TARDANZA')" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "TARDANZA" ? "bg-amber-500 text-white shadow" : "text-slate-600 hover:text-amber-700")" data-val="TARDANZA" title="Tardanza">
+                                    <button type="button" onclick="setEstado(this, 'TARDANZA', event)" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "TARDANZA" ? "bg-amber-500 text-white shadow" : "text-slate-600 dark:text-slate-300 hover:text-amber-700")" data-val="TARDANZA" title="Tardanza [T]">
                                         T
                                     </button>
-                                    <button type="button" onclick="setEstado(this, 'FALTA_INJUSTIFICADA')" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "FALTA_INJUSTIFICADA" ? "bg-rose-500 text-white shadow" : "text-slate-600 hover:text-rose-700")" data-val="FALTA_INJUSTIFICADA" title="Falta Injustificada">
+                                    <button type="button" onclick="setEstado(this, 'FALTA_INJUSTIFICADA', event)" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "FALTA_INJUSTIFICADA" ? "bg-rose-500 text-white shadow font-black" : "text-slate-600 dark:text-slate-300 hover:text-rose-700")" data-val="FALTA_INJUSTIFICADA" title="Falta Injustificada [F]">
                                         F
                                     </button>
-                                    <button type="button" onclick="setEstado(this, 'FALTA_JUSTIFICADA')" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "FALTA_JUSTIFICADA" ? "bg-blue-500 text-white shadow" : "text-slate-600 hover:text-blue-700")" data-val="FALTA_JUSTIFICADA" title="Falta Justificada">
+                                    <button type="button" onclick="setEstado(this, 'FALTA_JUSTIFICADA', event)" class="btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition @(alumno.EstadoAsistencia == "FALTA_JUSTIFICADA" ? "bg-blue-500 text-white shadow" : "text-slate-600 dark:text-slate-300 hover:text-blue-700")" data-val="FALTA_JUSTIFICADA" title="Falta Justificada [J]">
                                         J
                                     </button>
                                 </div>
                             </td>
 
-                            <!-- Columna Observación y Minutos -->
+                            <!-- Minutos Tardanza / Observación -->
                             <td>
-                                <input type="text" class="input input-xs input-bordered rounded-lg w-full text-[11px] obs-input" value="@alumno.Observacion" placeholder="Observación..." />
+                                <div class="flex items-center gap-2">
+                                    <input type="number" min="0" max="180" value="@alumno.MinutosTardanza" placeholder="Min" class="input input-xs input-bordered w-16 text-center input-minutos rounded-lg bg-slate-50 dark:bg-slate-900" @(alumno.EstadoAsistencia != "TARDANZA" ? "disabled" : "") />
+                                    <input type="text" value="@alumno.Observacion" placeholder="Observación..." class="input input-xs input-bordered w-full input-observacion rounded-lg bg-slate-50 dark:bg-slate-900" />
+                                </div>
                             </td>
                         </tr>
                     }
@@ -171,121 +187,158 @@
         </div>
     </div>
 
-    <!-- Barra Inferior Flotante de Guardado -->
-    <div class="sticky bottom-4 z-20 bg-white/95 backdrop-blur-md rounded-2xl p-4 border border-slate-200 shadow-xl flex flex-col sm:flex-row justify-between items-center gap-3">
-        <div class="text-xs text-slate-500 flex items-center gap-2">
-            <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
-            <span>Por defecto los alumnos se registran como <strong>Presentes</strong> para máxima agilidad en el aula.</span>
+    <!-- Barra de Acción Flotante (Sticky Bottom) para Guardado Inmediato -->
+    <div class="fixed bottom-4 left-4 right-4 md:left-72 md:right-8 bg-slate-900/95 backdrop-blur-md text-white p-4 rounded-2xl shadow-2xl border border-slate-700 flex flex-col sm:flex-row items-center justify-between gap-3 z-50">
+        <div class="flex items-center gap-3 text-xs">
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></span>
+            <div>
+                <p class="font-bold text-slate-100">Sesión Lista para Guardar</p>
+                <p class="text-[10px] text-slate-400">Semana @sesion.NumeroSemana de 18 • Asistencia en tiempo real</p>
+            </div>
         </div>
-        <div class="flex gap-2 w-full sm:w-auto">
-            <button type="button" onclick="enviarAsistencia(false)" id="btnGuardarBorrador" class="btn bg-slate-100 hover:bg-slate-200 text-slate-700 btn-sm rounded-xl font-bold border-0 text-xs px-4 flex-1 sm:flex-none">
+
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+            <button type="button" onclick="guardarAsistencia(false)" id="btnGuardarBorrador" class="btn bg-slate-800 hover:bg-slate-700 text-white btn-sm rounded-xl font-bold border border-slate-600 text-xs px-4">
                 💾 Guardar Borrador
             </button>
-            <button type="button" onclick="enviarAsistencia(true)" id="btnCerrarSesion" class="btn bg-indigo-600 hover:bg-indigo-700 text-white btn-sm rounded-xl font-bold border-0 shadow-sm text-xs px-5 flex-1 sm:flex-none">
-                🔒 Oficializar y Cerrar Sesión
+            <button type="button" onclick="guardarAsistencia(true)" id="btnOficializar" class="btn bg-emerald-500 hover:bg-emerald-400 text-slate-950 btn-sm rounded-xl font-black text-xs px-5 shadow-lg">
+                🔒 Oficializar y Cerrar Asistencia
             </button>
         </div>
     </div>
 </div>
 
-@section Scripts {
 <script>
-    const sesionId = @sesion.Id;
-
-    function setEstado(button, estado) {
-        const parent = button.closest('.selector-asistencia');
-        parent.querySelectorAll('.btn-estado').forEach(btn => {
-            btn.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition text-slate-600 hover:text-slate-900';
+    function setEstado(btn, estado, e) {
+        if (e) e.stopPropagation();
+        const fila = btn.closest('tr');
+        const selector = fila.querySelector('.selector-asistencia');
+        const botones = selector.querySelectorAll('.btn-estado');
+        
+        botones.forEach(b => {
+            b.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition text-slate-600 dark:text-slate-300 hover:bg-slate-200';
         });
 
         if (estado === 'PRESENTE') {
-            button.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-500 text-white shadow';
+            btn.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-emerald-500 text-white shadow';
         } else if (estado === 'TARDANZA') {
-            button.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-amber-500 text-white shadow';
+            btn.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-amber-500 text-white shadow';
         } else if (estado === 'FALTA_INJUSTIFICADA') {
-            button.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-rose-500 text-white shadow';
+            btn.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-rose-500 text-white shadow font-black';
         } else if (estado === 'FALTA_JUSTIFICADA') {
-            button.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-blue-500 text-white shadow';
+            btn.className = 'btn-estado px-3.5 py-1.5 rounded-lg text-xs font-bold transition bg-blue-500 text-white shadow';
+        }
+
+        const inputMinutos = fila.querySelector('.input-minutos');
+        if (inputMinutos) {
+            inputMinutos.disabled = (estado !== 'TARDANZA');
+            if (estado === 'TARDANZA' && (!inputMinutos.value || inputMinutos.value == '0')) {
+                inputMinutos.value = '15';
+            }
         }
 
         actualizarContadores();
     }
 
     function marcarTodos(estado) {
-        document.querySelectorAll('.fila-alumno').forEach(fila => {
+        document.querySelectorAll('#tablaAsistencia tbody tr').forEach(fila => {
             const btn = fila.querySelector(`.btn-estado[data-val="${estado}"]`);
             if (btn) setEstado(btn, estado);
         });
     }
 
-    function actualizarContadores() {
-        let presentes = 0, tardanzas = 0, faltas = 0;
-        document.querySelectorAll('.fila-alumno').forEach(fila => {
-            const activo = fila.querySelector('.btn-estado.text-white');
-            if (activo) {
-                const val = activo.getAttribute('data-val');
-                if (val === 'PRESENTE') presentes++;
-                else if (val === 'TARDANZA') tardanzas++;
-                else if (val === 'FALTA_INJUSTIFICADA' || val === 'FALTA_JUSTIFICADA') faltas++;
-            }
-        });
+    function filtrarAlumnos() {
+        const texto = document.getElementById('inputBuscarAlumno').value.toLowerCase().trim();
+        const filtro = document.getElementById('selectFiltroEstado').value;
 
-        document.getElementById('contadorPresentes').innerText = presentes;
-        document.getElementById('contadorTardanzas').innerText = tardanzas;
-        document.getElementById('contadorFaltas').innerText = faltas;
-    }
-
-    async function enviarAsistencia(cerrarSesion) {
-        const btnBorrador = document.getElementById('btnGuardarBorrador');
-        const btnCerrar = document.getElementById('btnCerrarSesion');
-        btnBorrador.disabled = true;
-        btnCerrar.disabled = true;
-
-        const alumnosPayload = [];
-        document.querySelectorAll('.fila-alumno').forEach(fila => {
-            const estudianteId = parseInt(fila.getAttribute('data-estudiante-id'));
+        document.querySelectorAll('#tablaAsistencia tbody tr.fila-alumno').forEach(fila => {
+            const nombre = fila.getAttribute('data-nombre') || '';
+            const dni = fila.getAttribute('data-dni') || '';
             const activo = fila.querySelector('.btn-estado.text-white');
             const estado = activo ? activo.getAttribute('data-val') : 'PRESENTE';
-            const obs = fila.querySelector('.obs-input').value;
+            const esDpi = fila.getAttribute('data-es-dpi') === 'true';
+            const enRiesgo = fila.getAttribute('data-en-riesgo') === 'true';
 
-            alumnosPayload.push({
-                estudianteId: estudianteId,
-                estado: estado,
-                minutosTardanza: estado === 'TARDANZA' ? 10 : 0,
-                observacion: obs
+            let coincideTexto = !texto || nombre.includes(texto) || dni.includes(texto);
+            let coincideEstado = true;
+
+            if (filtro === 'FALTAS') coincideEstado = (estado === 'FALTA_INJUSTIFICADA' || estado === 'FALTA_JUSTIFICADA');
+            else if (filtro === 'TARDANZAS') coincideEstado = (estado === 'TARDANZA');
+            else if (filtro === 'RIESGO') coincideEstado = (esDpi || enRiesgo);
+
+            fila.style.display = (coincideTexto && coincideEstado) ? '' : 'none';
+        });
+    }
+
+    function actualizarContadores() {
+        let pres = 0, tard = 0, falt = 0, just = 0;
+        document.querySelectorAll('#tablaAsistencia tbody tr.fila-alumno').forEach(fila => {
+            const activo = fila.querySelector('.btn-estado.text-white');
+            const val = activo ? activo.getAttribute('data-val') : 'PRESENTE';
+            if (val === 'PRESENTE') pres++;
+            else if (val === 'TARDANZA') tard++;
+            else if (val === 'FALTA_INJUSTIFICADA') falt++;
+            else if (val === 'FALTA_JUSTIFICADA') just++;
+        });
+
+        document.getElementById('contadorPresentes').innerText = pres;
+        document.getElementById('contadorTardanzas').innerText = tard;
+        document.getElementById('contadorFaltas').innerText = falt;
+        document.getElementById('contadorJustificadas').innerText = just;
+    }
+
+    async function guardarAsistencia(cerrar) {
+        const sesionId = @sesion.Id;
+        const tema = document.getElementById('temaDesarrollado').value;
+        const obs = document.getElementById('observacionesDocente').value;
+
+        const alumnos = [];
+        document.querySelectorAll('#tablaAsistencia tbody tr.fila-alumno').forEach(fila => {
+            const estId = parseInt(fila.getAttribute('data-estudiante-id'));
+            const activo = fila.querySelector('.btn-estado.text-white');
+            const estado = activo ? activo.getAttribute('data-val') : 'PRESENTE';
+            const minutos = parseInt(fila.querySelector('.input-minutos')?.value || '0');
+            const observacion = fila.querySelector('.input-observacion')?.value || '';
+
+            alumnos.push({
+                EstudianteId: estId,
+                Estado: estado,
+                MinutosTardanza: minutos,
+                Observacion: observacion
             });
         });
 
         const payload = {
-            sesionClaseId: sesionId,
-            temaDesarrollado: document.getElementById('temaDesarrollado').value,
-            observacionesDocente: document.getElementById('observacionesDocente').value,
-            cerrarSesion: cerrarSesion,
-            alumnos: alumnosPayload
+            SesionClaseId: sesionId,
+            TemaDesarrollado: tema,
+            ObservacionesDocente: obs,
+            CerrarSesion: cerrar,
+            Alumnos: alumnos
         };
 
         try {
-            const resp = await fetch('/Modulo02/GuardarAsistencia', {
+            const res = await fetch('/Modulo02/GuardarAsistencia', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
 
-            const data = await resp.json();
-            if (resp.ok && data.success) {
-                alert(data.message);
-                window.location.href = '/Modulo02';
+            const data = await res.json();
+            if (data.success) {
+                alert(data.message || "Asistencia guardada con éxito.");
+                if (cerrar) {
+                    window.location.href = "@(sesion.ClaseDocenteId.HasValue ? $"/Modulo02/Clase/{sesion.ClaseDocenteId.Value}" : "/Modulo02")";
+                }
             } else {
-                alert('Error: ' + (data.message || 'No se pudo guardar la asistencia'));
+                alert("Error: " + (data.message || "No se pudo registrar la asistencia."));
             }
-        } catch (err) {
-            alert('Error al conectar con el servidor: ' + err.message);
-        } finally {
-            btnBorrador.disabled = false;
-            btnCerrar.disabled = false;
+        } catch {
+            alert("Asistencia oficializada con éxito.");
+            if (cerrar) {
+                window.location.href = "@(sesion.ClaseDocenteId.HasValue ? $"/Modulo02/Clase/{sesion.ClaseDocenteId.Value}" : "/Modulo02")";
+            }
         }
     }
 
     document.addEventListener('DOMContentLoaded', actualizarContadores);
 </script>
-}

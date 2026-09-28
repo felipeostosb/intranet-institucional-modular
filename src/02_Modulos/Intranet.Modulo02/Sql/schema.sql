@@ -4,6 +4,8 @@
 -- Normativa: MPA 2024-2026 (R.D. 109), Ley 30512, RVM 277-2019 y RVM 177-2021 MINEDU
 -- ==============================================================================
 
+CREATE SCHEMA IF NOT EXISTS mod02;
+
 -- 1. CONFIGURACIÓN INSTITUCIONAL DE ASISTENCIA Y CALENDARIO
 CREATE TABLE IF NOT EXISTS mod02.configuracion (
     id SERIAL PRIMARY KEY,

@@ -1,47 +1,45 @@
 @model IEnumerable<Intranet.Modulo02.Models.ResumenAsistenciaEstudianteDto>
 @{
-    ViewData["Title"] = "Mi Asistencia & Semáforo DPI";
+    ViewData["Title"] = "Mi Asistencia & Semáforo Anti-DPI";
 }
 
 <div class="space-y-6">
     <!-- Header del Estudiante -->
-    <div class="bg-white rounded-3xl p-6 sm:p-7 border border-slate-200/80 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 sm:p-7 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
-            <div class="w-14 h-14 rounded-2xl bg-indigo-100 text-indigo-700 border border-indigo-200 flex items-center justify-center shrink-0 shadow-sm">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+            <div class="w-14 h-14 rounded-2xl bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center shrink-0 shadow-sm font-bold text-2xl">
+                🛡️
             </div>
             <div>
                 <div class="flex items-center gap-2 mb-1">
-                    <span class="text-xs font-bold bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full border border-indigo-200">Portal del Estudiante</span>
-                    <span class="text-xs text-slate-400 font-medium">Periodo 2026-I</span>
+                    <span class="text-xs font-bold bg-indigo-100 dark:bg-indigo-950 text-indigo-800 dark:text-indigo-300 px-2.5 py-0.5 rounded-full border border-indigo-200 dark:border-indigo-800">Portal del Estudiante</span>
+                    <span class="text-xs text-slate-400 font-medium">Ciclo 2026-I (18 Semanas)</span>
                 </div>
-                <h1 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
-                    Mi Asistencia por Asignatura
+                <h1 class="text-xl sm:text-2xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
+                    Mi Asistencia & Radar Anti-DPI
                 </h1>
-                <p class="text-xs text-slate-500">
-                    Control de inasistencias en tiempo real con cálculo del límite de <strong>30% DPI (RVM N° 177-2021)</strong>.
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                    Control de inasistencias en tiempo real con cálculo del límite de <strong>30% DPI (Art. 8.8.1 MPA)</strong>.
                 </p>
             </div>
         </div>
         <div class="flex gap-2">
-            <a href="/Modulo02/Justificaciones" class="btn bg-indigo-50 hover:bg-indigo-100 text-indigo-700 btn-sm rounded-xl font-bold border border-indigo-200 text-xs px-4">
+            <a href="/Modulo02/Justificaciones" class="btn bg-indigo-50 dark:bg-indigo-950 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 btn-sm rounded-xl font-bold border border-indigo-200 dark:border-indigo-800 text-xs px-4">
                 📄 Ver Mis Justificaciones
             </a>
-            <a href="/Modulo02" class="btn bg-slate-100 hover:bg-slate-200 text-slate-700 btn-sm rounded-xl font-bold border-0 text-xs px-3">
-                Volver
+            <a href="/" class="btn bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 text-slate-700 dark:text-slate-300 btn-sm rounded-xl font-bold border-0 text-xs px-3">
+                Volver al Inicio
             </a>
         </div>
     </div>
 
-    <!-- Banner Preventivo DPI -->
-    <div class="bg-indigo-50/70 border border-indigo-200/80 rounded-2xl p-4 flex items-center gap-3 text-xs text-indigo-900">
+    <!-- Banner Preventivo DPI con Advertencia de Semana 17 -->
+    <div class="bg-indigo-50/70 dark:bg-indigo-950/40 border border-indigo-200/80 dark:border-indigo-800 rounded-2xl p-4 flex items-start gap-3 text-xs text-indigo-900 dark:text-indigo-200">
         <span class="text-2xl shrink-0">💡</span>
-        <div>
-            <p class="font-bold">¿Cómo funciona el semáforo de asistencia?</p>
-            <p class="text-[11px] text-indigo-700/90 mt-0.5">
-                Las faltas injustificadas acumulan horas pedagógicas. Si tus horas de inasistencia superan el <strong>30% de las horas totales de la Unidad Didáctica</strong>, pierdes el derecho a evaluación con nota automática de <strong>00</strong>.
+        <div class="space-y-1">
+            <p class="font-bold">Reglamento Oficial de Asistencia y Semana 17 de Recuperación (Art. 8.8.1 MPA):</p>
+            <p class="text-[11px] text-indigo-700/90 dark:text-indigo-300/90">
+                Las faltas injustificadas acumulan horas pedagógicas. Si tus horas de inasistencia alcanzan o superan el <strong>30% de las horas totales de la Unidad Didáctica</strong>, quedas automáticamente en condición <strong>DPI (Desaprobado por Inasistencia) con nota 00</strong> y <strong>pierdes el derecho a rendir la evaluación de recuperación en la Semana 17</strong>.
             </p>
         </div>
     </div>
@@ -56,8 +54,8 @@
                 {
                     "DPI" => "badge-error text-white",
                     "RIESGO_ALTO" => "badge-warning text-white",
-                    "ALERTA" => "bg-amber-100 text-amber-800 border-amber-200",
-                    _ => "bg-emerald-50 text-emerald-700 border-emerald-200"
+                    "ALERTA" => "bg-amber-100 dark:bg-amber-950 text-amber-800 dark:text-amber-300 border-amber-200",
+                    _ => "bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 border-emerald-200"
                 };
 
                 var barraColor = curso.SemaforoEstado switch
@@ -68,13 +66,13 @@
                     _ => "bg-emerald-500"
                 };
 
-                <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition">
+                <div class="bg-white dark:bg-[#111827] rounded-3xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition">
                     <div>
                         <!-- Encabezado de Tarjeta -->
                         <div class="flex justify-between items-start gap-2 mb-3">
                             <div>
-                                <span class="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">@curso.UnidadDidacticaCodigo</span>
-                                <h3 class="font-bold text-sm text-slate-900 mt-1 leading-snug">@curso.UnidadDidacticaNombre</h3>
+                                <span class="text-[10px] font-mono font-bold text-slate-400 bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded">@curso.UnidadDidacticaCodigo</span>
+                                <h3 class="font-bold text-sm text-slate-900 dark:text-slate-100 mt-1 leading-snug">@curso.UnidadDidacticaNombre</h3>
                             </div>
                             <span class="badge @badgeClass badge-xs font-bold py-2 px-2.5 shrink-0">
                                 @curso.SemaforoEstado
@@ -83,46 +81,46 @@
 
                         <!-- Barra de Progreso de Inasistencias -->
                         <div class="mt-4 mb-4">
-                            <div class="flex justify-between text-[11px] font-semibold text-slate-600 mb-1">
+                            <div class="flex justify-between text-[11px] font-semibold text-slate-600 dark:text-slate-400 mb-1">
                                 <span>Inasistencia acumulada</span>
-                                <span class="font-bold text-slate-900">@curso.PorcentajeInasistencia% / 30% max</span>
+                                <span class="font-bold text-slate-900 dark:text-slate-100">@curso.PorcentajeInasistencia% / 30% max</span>
                             </div>
-                            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                            <div class="w-full bg-slate-100 dark:bg-slate-800 h-2.5 rounded-full overflow-hidden">
                                 <div class="@barraColor h-full rounded-full transition-all duration-500" style="width: @Math.Min(100, (curso.PorcentajeInasistencia / 0.30m))%"></div>
                             </div>
                         </div>
 
                         <!-- Métricas de Asistencia -->
-                        <div class="grid grid-cols-4 gap-1.5 bg-slate-50 p-2.5 rounded-xl text-center text-xs mb-4">
+                        <div class="grid grid-cols-4 gap-1.5 bg-slate-50 dark:bg-slate-900/60 p-2.5 rounded-2xl text-center text-xs mb-4 border border-slate-100 dark:border-slate-800">
                             <div>
                                 <span class="text-[9px] text-slate-400 font-bold block">PRES</span>
-                                <span class="font-bold text-emerald-600 text-sm">@curso.CantPresentes</span>
+                                <span class="font-bold text-emerald-600 dark:text-emerald-400 text-sm">@curso.CantPresentes</span>
                             </div>
                             <div>
                                 <span class="text-[9px] text-slate-400 font-bold block">TARD</span>
-                                <span class="font-bold text-amber-600 text-sm">@curso.CantTardanzas</span>
+                                <span class="font-bold text-amber-600 dark:text-amber-400 text-sm">@curso.CantTardanzas</span>
                             </div>
                             <div>
                                 <span class="text-[9px] text-slate-400 font-bold block">JUST</span>
-                                <span class="font-bold text-blue-600 text-sm">@curso.CantFaltasJustificadas</span>
+                                <span class="font-bold text-blue-600 dark:text-blue-400 text-sm">@curso.CantFaltasJustificadas</span>
                             </div>
                             <div>
                                 <span class="text-[9px] text-slate-400 font-bold block">FALTAS</span>
-                                <span class="font-bold text-rose-600 text-sm">@curso.CantFaltasInjustificadas</span>
+                                <span class="font-bold text-rose-600 dark:text-rose-400 text-sm">@curso.CantFaltasInjustificadas</span>
                             </div>
                         </div>
 
                         <!-- Alerta de Horas Restantes -->
-                        <div class="text-[11px] text-slate-500 mb-2">
-                            ⏱️ Total Horas Asignatura: <strong>@curso.TotalHorasSemestre hrs</strong><br>
-                            ⚠️ Horas de Falta Restantes antes de DPI: <strong class="@(curso.HorasFaltaDisponibles <= 4 ? "text-rose-600 font-bold" : "text-emerald-700 font-bold")">@curso.HorasFaltaDisponibles hrs</strong>
+                        <div class="text-[11px] text-slate-500 dark:text-slate-400 mb-2 space-y-0.5">
+                            <p>⏱️ Total Horas Asignatura: <strong>@curso.TotalHorasSemestre hrs</strong></p>
+                            <p>⚠️ Margen de Falta antes de DPI: <strong class="@(curso.HorasFaltaDisponibles <= 4 ? "text-rose-600 font-black" : "text-emerald-700 dark:text-emerald-400 font-bold")">@curso.HorasFaltaDisponibles hrs</strong></p>
                         </div>
                     </div>
 
                     <!-- Botón de Detalle -->
-                    <div class="pt-3 border-t border-slate-100 flex justify-end">
-                        <a href="/Modulo02/DetalleCurso/@curso.UnidadDidacticaId" class="btn bg-indigo-50 hover:bg-indigo-100 text-indigo-700 btn-xs rounded-lg font-bold border border-indigo-200 px-3">
-                            Ver Sesiones & Justificar
+                    <div class="pt-3 border-t border-slate-100 dark:border-slate-800 flex justify-end">
+                        <a href="/Modulo02/DetalleCurso/@curso.UnidadDidacticaId" class="btn bg-indigo-50 dark:bg-indigo-950 hover:bg-indigo-100 text-indigo-700 dark:text-indigo-300 btn-xs rounded-xl font-bold border border-indigo-200 dark:border-indigo-800 px-3">
+                            Ver Sesiones & Justificar (72h) →
                         </a>
                     </div>
                 </div>
@@ -130,7 +128,7 @@
         }
         else
         {
-            <div class="col-span-full bg-white rounded-2xl p-10 text-center border border-slate-200">
+            <div class="col-span-full bg-white dark:bg-[#111827] rounded-3xl p-10 text-center border border-slate-200 dark:border-slate-800">
                 <p class="text-xs text-slate-400">No se encontraron asignaturas con registro de asistencia en este periodo.</p>
             </div>
         }

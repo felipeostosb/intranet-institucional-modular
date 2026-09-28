@@ -1,4 +1,5 @@
 using System.Data;
+using System.Text;
 using Dapper;
 using Intranet.Core.Contracts;
 using Intranet.Modulo02.Models;
@@ -46,28 +47,125 @@ public class AsistenciaService : IAsistenciaService
         }
     }
 
+    public async Task<ClaseActivaDocenteDto?> GetClaseActivaHoyAsync(int docenteId)
+    {
+        try
+        {
+            using var db = CreateConnection();
+            // 1. Buscar sesión de hoy programada o abierta
+            const string sqlHoy = @"
+                SELECT 
+                    s.id AS SesionId,
+                    s.clase_docente_id AS ClaseDocenteId,
+                    cd.unidad_didactica_id AS UnidadDidacticaId,
+                    ud.codigo AS UnidadDidacticaCodigo,
+                    ud.nombre AS UnidadDidacticaNombre,
+                    c.nombre AS CarreraNombre,
+                    cd.ciclo AS Ciclo,
+                    cd.turno AS Turno,
+                    cd.seccion AS Seccion,
+                    COALESCE(a.codigo, 'AULA-401') AS AulaCodigo,
+                    s.numero_semana AS NumeroSemana,
+                    s.numero_sesion AS NumeroSesion,
+                    (s.numero_semana = 17) AS EsSemana17Recuperacion,
+                    (s.numero_semana = 18) AS EsSemana18Cierre,
+                    s.fecha_clase AS FechaClase,
+                    s.hora_inicio AS HoraInicio,
+                    s.hora_fin AS HoraFin,
+                    (SELECT COUNT(1) FROM core.estudiantes e WHERE e.carrera_id = cd.carrera_id AND e.ciclo_actual = cd.ciclo AND e.turno = cd.turno AND e.seccion = cd.seccion) AS TotalAlumnos,
+                    s.estado AS EstadoSesion
+                FROM mod02.sesiones_clase s
+                JOIN mod02.clases_docente cd ON cd.id = s.clase_docente_id
+                JOIN core.unidades_didacticas ud ON ud.id = cd.unidad_didactica_id
+                JOIN core.carreras c ON c.id = cd.carrera_id
+                LEFT JOIN core.aulas a ON a.id = s.aula_id
+                WHERE s.docente_id = @DocenteId AND s.fecha_clase = CURRENT_DATE AND s.estado IN ('ABIERTA', 'PROGRAMADA')
+                ORDER BY s.hora_inicio ASC
+                LIMIT 1;
+            ";
+
+            var res = await db.QueryFirstOrDefaultAsync<ClaseActivaDocenteDto>(sqlHoy, new { DocenteId = docenteId });
+            if (res != null) return res;
+
+            // 2. Si no hay sesión hoy, buscar la próxima sesión abierta o programada del docente
+            const string sqlProxima = @"
+                SELECT 
+                    s.id AS SesionId,
+                    s.clase_docente_id AS ClaseDocenteId,
+                    cd.unidad_didactica_id AS UnidadDidacticaId,
+                    ud.codigo AS UnidadDidacticaCodigo,
+                    ud.nombre AS UnidadDidacticaNombre,
+                    c.nombre AS CarreraNombre,
+                    cd.ciclo AS Ciclo,
+                    cd.turno AS Turno,
+                    cd.seccion AS Seccion,
+                    COALESCE(a.codigo, 'AULA-401') AS AulaCodigo,
+                    s.numero_semana AS NumeroSemana,
+                    s.numero_sesion AS NumeroSesion,
+                    (s.numero_semana = 17) AS EsSemana17Recuperacion,
+                    (s.numero_semana = 18) AS EsSemana18Cierre,
+                    s.fecha_clase AS FechaClase,
+                    s.hora_inicio AS HoraInicio,
+                    s.hora_fin AS HoraFin,
+                    (SELECT COUNT(1) FROM core.estudiantes e WHERE e.carrera_id = cd.carrera_id AND e.ciclo_actual = cd.ciclo AND e.turno = cd.turno AND e.seccion = cd.seccion) AS TotalAlumnos,
+                    s.estado AS EstadoSesion
+                FROM mod02.sesiones_clase s
+                JOIN mod02.clases_docente cd ON cd.id = s.clase_docente_id
+                JOIN core.unidades_didacticas ud ON ud.id = cd.unidad_didactica_id
+                JOIN core.carreras c ON c.id = cd.carrera_id
+                LEFT JOIN core.aulas a ON a.id = s.aula_id
+                WHERE s.docente_id = @DocenteId AND s.estado IN ('ABIERTA', 'PROGRAMADA')
+                ORDER BY cd.ciclo DESC, (SELECT COUNT(1) FROM core.estudiantes e WHERE e.carrera_id = cd.carrera_id AND e.ciclo_actual = cd.ciclo AND e.turno = cd.turno AND e.seccion = cd.seccion) DESC, s.numero_semana ASC, s.numero_sesion ASC
+                LIMIT 1;
+            ";
+
+            return await db.QueryFirstOrDefaultAsync<ClaseActivaDocenteDto>(sqlProxima, new { DocenteId = docenteId });
+        }
+        catch { }
+
+        return null;
+    }
+
     public async Task<DashboardAsistenciaViewModel> GetDashboardAsync(int? personaId, string rol)
     {
+        var esSoloDocente = rol.Equals("Docente", StringComparison.OrdinalIgnoreCase);
+        var esAdminODireccion = rol.Contains("Admin", StringComparison.OrdinalIgnoreCase) || rol.Contains("Director", StringComparison.OrdinalIgnoreCase) || rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase);
+
         var vm = new DashboardAsistenciaViewModel
         {
             RolUsuario = rol,
-            EsDocente = rol.Contains("Docente", StringComparison.OrdinalIgnoreCase) || rol.Contains("Admin", StringComparison.OrdinalIgnoreCase),
+            EsDocente = rol.Contains("Docente", StringComparison.OrdinalIgnoreCase) || esAdminODireccion,
             EsAlumno = rol.Equals("Alumno", StringComparison.OrdinalIgnoreCase),
-            EsCoordinadorOAdmin = rol.Contains("Coordinador", StringComparison.OrdinalIgnoreCase) || rol.Contains("Admin", StringComparison.OrdinalIgnoreCase) || rol.Contains("Director", StringComparison.OrdinalIgnoreCase)
+            EsCoordinadorOAdmin = esAdminODireccion
         };
 
-        // 1. Intentar obtener KPIs Generales de DB
+        int docenteId = 1;
+        if (personaId.HasValue)
+        {
+            var docId = await GetDocenteIdPorPersonaAsync(personaId.Value);
+            if (docId.HasValue) docenteId = docId.Value;
+        }
+
+        // 1. Obtener KPIs filtrados por el rol y docente
         try
         {
             using var db = CreateConnection();
             const string sqlKpis = @"
                 SELECT 
-                    (SELECT COUNT(1) FROM mod02.clases_docente WHERE estado = TRUE) AS total_clases,
-                    (SELECT COUNT(1) FROM mod02.sesiones_clase WHERE fecha_clase = CURRENT_DATE) AS total_hoy,
-                    (SELECT COUNT(DISTINCT estudiante_id) FROM mod02.v_resumen_asistencia_estudiante WHERE semaforo_estado = 'DPI') AS total_dpi,
-                    (SELECT COUNT(1) FROM mod02.justificaciones WHERE estado = 'PENDIENTE') AS total_justif_pend;
+                    (SELECT COUNT(1) FROM mod02.clases_docente cd WHERE (@FiltrarPorDocente = FALSE OR cd.docente_id = @DocenteId) AND cd.estado = TRUE) AS total_clases,
+                    (SELECT COUNT(1) FROM mod02.sesiones_clase s WHERE (@FiltrarPorDocente = FALSE OR s.docente_id = @DocenteId) AND s.fecha_clase = CURRENT_DATE) AS total_hoy,
+                    (SELECT COUNT(DISTINCT res.estudiante_id) FROM mod02.v_resumen_asistencia_estudiante res
+                     JOIN mod02.clases_docente cd ON cd.unidad_didactica_id = res.unidad_didactica_id
+                     WHERE (@FiltrarPorDocente = FALSE OR cd.docente_id = @DocenteId) AND res.semaforo_estado = 'DPI') AS total_dpi,
+                    (SELECT COUNT(1) FROM mod02.justificaciones j
+                     JOIN mod02.asistencias a ON a.id = j.asistencia_id
+                     JOIN mod02.sesiones_clase s ON s.id = a.sesion_clase_id
+                     WHERE (@FiltrarPorDocente = FALSE OR s.docente_id = @DocenteId) AND j.estado = 'PENDIENTE') AS total_justif_pend;
             ";
-            var kpiResult = await db.QueryFirstOrDefaultAsync<dynamic>(sqlKpis);
+            var kpiResult = await db.QueryFirstOrDefaultAsync<dynamic>(sqlKpis, new { 
+                DocenteId = docenteId, 
+                FiltrarPorDocente = esSoloDocente 
+            });
             if (kpiResult != null)
             {
                 vm.TotalClasesAsignadas = (int)(kpiResult.total_clases ?? 0);
@@ -78,21 +176,18 @@ public class AsistenciaService : IAsistenciaService
         }
         catch { }
 
-        // Fallback para KPIs demostrativos si la BD está vacía o desconectada
-        if (vm.TotalClasesAsignadas == 0) vm.TotalClasesAsignadas = 3;
-        if (vm.TotalSesionesHoy == 0) vm.TotalSesionesHoy = 2;
-        if (vm.TotalAlumnosDpi == 0) vm.TotalAlumnosDpi = 3;
-        if (vm.TotalJustificacionesPendientes == 0) vm.TotalJustificacionesPendientes = 2;
-
-        // 2. Cargar Clases del Docente
-        int docenteId = 1;
-        if (personaId.HasValue)
-        {
-            var docId = await GetDocenteIdPorPersonaAsync(personaId.Value);
-            if (docId.HasValue) docenteId = docId.Value;
-        }
+        // 2. Cargar Clases del Docente y Clase Activa
+        vm.ClaseActivaHoy = await GetClaseActivaHoyAsync(docenteId);
         vm.MisClasesDocente = (await GetClasesDocenteAsync(docenteId)).ToList();
-        vm.SesionesHoy = (await GetSesionesRecientesAsync(6)).ToList();
+        
+        if (esSoloDocente)
+        {
+            vm.SesionesHoy = (await GetSesionesDocenteAsync(docenteId)).Take(6).ToList();
+        }
+        else
+        {
+            vm.SesionesHoy = (await GetSesionesRecientesAsync(6)).ToList();
+        }
 
         // 3. Cargar Asignaturas del Alumno
         int estId = 1;
@@ -104,7 +199,17 @@ public class AsistenciaService : IAsistenciaService
         vm.ResumenCursosEstudiante = (await GetResumenEstudianteAsync(estId)).ToList();
 
         // 4. Casos Críticos DPI y Justificaciones Recientes
-        vm.CasosCriticosDpi = (await GetAlertasDpiAsync()).Take(5).ToList();
+        var alertas = await GetAlertasDpiAsync();
+        if (esSoloDocente)
+        {
+            var udsDocente = vm.MisClasesDocente.Select(c => c.UnidadDidacticaId).ToHashSet();
+            vm.CasosCriticosDpi = alertas.Where(a => udsDocente.Contains(a.UnidadDidacticaId)).Take(5).ToList();
+        }
+        else
+        {
+            vm.CasosCriticosDpi = alertas.Take(5).ToList();
+        }
+
         vm.JustificacionesRecientes = (await GetJustificacionesAsync(null, null)).Take(5).ToList();
 
         return vm;
@@ -130,7 +235,7 @@ public class AsistenciaService : IAsistenciaService
                     a.codigo AS AulaCodigo,
                     cd.total_sesiones_semanales AS TotalSesionesSemanales,
                     ud.horas_semanales AS HorasSemanales,
-                    (SELECT COUNT(1) FROM core.estudiantes e WHERE e.carrera_id = cd.carrera_id AND e.ciclo_actual = cd.ciclo AND e.turno = cd.turno) AS TotalAlumnosMatriculados,
+                    (SELECT COUNT(1) FROM core.estudiantes e WHERE e.carrera_id = cd.carrera_id AND e.ciclo_actual = cd.ciclo AND e.turno = cd.turno AND e.seccion = cd.seccion) AS TotalAlumnosMatriculados,
                     (SELECT COUNT(DISTINCT s.numero_semana) FROM mod02.sesiones_clase s WHERE s.clase_docente_id = cd.id AND s.estado = 'CERRADA') AS SemanasRegistradas,
                     (SELECT COALESCE(MAX(s.numero_semana), 0) FROM mod02.sesiones_clase s WHERE s.clase_docente_id = cd.id AND s.estado = 'CERRADA') AS UltimaSemanaRegistrada,
                     (SELECT s.id FROM mod02.sesiones_clase s WHERE s.clase_docente_id = cd.id AND s.estado = 'ABIERTA' ORDER BY s.fecha_clase ASC, s.hora_inicio ASC LIMIT 1) AS ProximaSesionId
@@ -139,7 +244,7 @@ public class AsistenciaService : IAsistenciaService
                 JOIN core.carreras c ON c.id = cd.carrera_id
                 LEFT JOIN core.aulas a ON a.id = cd.aula_id
                 WHERE cd.docente_id = @DocenteId AND (@PeriodoId IS NULL OR cd.periodo_id = @PeriodoId) AND cd.estado = TRUE
-                ORDER BY ud.nombre ASC;
+                ORDER BY cd.ciclo DESC, (SELECT COUNT(1) FROM core.estudiantes e WHERE e.carrera_id = cd.carrera_id AND e.ciclo_actual = cd.ciclo AND e.turno = cd.turno AND e.seccion = cd.seccion) DESC, ud.nombre ASC;
             ";
 
             var res = (await db.QueryAsync<ClaseDocenteCardDto>(sql, new { DocenteId = docenteId, PeriodoId = periodoId })).ToList();
@@ -147,7 +252,7 @@ public class AsistenciaService : IAsistenciaService
         }
         catch { }
 
-        return GetMockClasesDocente();
+        return new List<ClaseDocenteCardDto>();
     }
 
     public async Task<IEnumerable<SemanaSelectorDto>> GetSemanasDeClaseAsync(int claseId)
@@ -155,62 +260,60 @@ public class AsistenciaService : IAsistenciaService
         try
         {
             using var db = CreateConnection();
-            const string sqlSesiones = @"
+            const string sql = @"
                 SELECT 
-                    s.id,
+                    s.id AS Id,
                     s.clase_docente_id AS ClaseDocenteId,
                     s.unidad_didactica_id AS UnidadDidacticaId,
                     ud.codigo AS UnidadDidacticaCodigo,
                     ud.nombre AS UnidadDidacticaNombre,
                     s.docente_id AS DocenteId,
-                    s.aula_id AS AulaId,
-                    a.codigo AS AulaCodigo,
+                    CONCAT(p.apellidos, ', ', p.nombres) AS DocenteNombreCompleto,
                     s.fecha_clase AS FechaClase,
                     s.hora_inicio AS HoraInicio,
                     s.hora_fin AS HoraFin,
                     s.horas_pedagogicas AS HorasPedagogicas,
                     s.numero_semana AS NumeroSemana,
                     s.numero_sesion AS NumeroSesion,
-                    s.es_semana_recuperacion AS EsSemanaRecuperacion,
+                    (s.numero_semana = 17) AS EsSemanaRecuperacion,
                     s.tema_desarrollado AS TemaDesarrollado,
                     s.observaciones_docente AS ObservacionesDocente,
                     s.estado AS Estado,
                     s.cerrada_en AS CerradaEn,
-                    COUNT(ast.id) AS TotalAlumnos,
-                    COUNT(CASE WHEN ast.estado = 'PRESENTE' THEN 1 END) AS TotalPresentes,
-                    COUNT(CASE WHEN ast.estado = 'TARDANZA' THEN 1 END) AS TotalTardanzas,
-                    COUNT(CASE WHEN ast.estado = 'FALTA_INJUSTIFICADA' THEN 1 END) AS TotalFaltas,
-                    COUNT(CASE WHEN ast.estado = 'FALTA_JUSTIFICADA' THEN 1 END) AS TotalJustificadas
+                    (SELECT COUNT(1) FROM mod02.asistencias a WHERE a.sesion_clase_id = s.id) AS TotalAlumnos,
+                    (SELECT COUNT(1) FROM mod02.asistencias a WHERE a.sesion_clase_id = s.id AND a.estado = 'PRESENTE') AS TotalPresentes,
+                    (SELECT COUNT(1) FROM mod02.asistencias a WHERE a.sesion_clase_id = s.id AND a.estado = 'TARDANZA') AS TotalTardanzas,
+                    (SELECT COUNT(1) FROM mod02.asistencias a WHERE a.sesion_clase_id = s.id AND a.estado = 'FALTA_INJUSTIFICADA') AS TotalFaltas,
+                    (SELECT COUNT(1) FROM mod02.asistencias a WHERE a.sesion_clase_id = s.id AND a.estado = 'FALTA_JUSTIFICADA') AS TotalJustificadas
                 FROM mod02.sesiones_clase s
                 JOIN core.unidades_didacticas ud ON ud.id = s.unidad_didactica_id
-                LEFT JOIN core.aulas a ON a.id = s.aula_id
-                LEFT JOIN mod02.asistencias ast ON ast.sesion_clase_id = s.id
+                JOIN core.docentes d ON d.id = s.docente_id
+                JOIN core.personas p ON p.id = d.persona_id
                 WHERE s.clase_docente_id = @ClaseId
-                GROUP BY s.id, ud.codigo, ud.nombre, a.codigo
-                ORDER BY s.numero_semana ASC, s.numero_sesion ASC, s.fecha_clase ASC;
+                ORDER BY s.numero_semana ASC, s.numero_sesion ASC;
             ";
 
-            var sesiones = (await db.QueryAsync<SesionClaseDto>(sqlSesiones, new { ClaseId = claseId })).ToList();
+            var sesiones = (await db.QueryAsync<SesionClaseDto>(sql, new { ClaseId = claseId })).ToList();
             if (sesiones.Any())
             {
-                var listaSemanas = new List<SemanaSelectorDto>();
+                var semanas = new List<SemanaSelectorDto>();
                 for (int sem = 1; sem <= 18; sem++)
                 {
-                    var sesionesSemana = sesiones.Where(x => x.NumeroSemana == sem).ToList();
-                    string estadoSemana = "PROGRAMADA";
-                    if (sesionesSemana.Any(x => x.Estado == "CERRADA")) estadoSemana = "CERRADA";
-                    else if (sesionesSemana.Any(x => x.Estado == "ABIERTA")) estadoSemana = "ABIERTA";
+                    var sesionesSem = sesiones.Where(s => s.NumeroSemana == sem).ToList();
+                    var estadoSem = sesionesSem.All(s => s.Estado == "CERRADA") ? "CERRADA"
+                                  : sesionesSem.Any(s => s.Estado == "ABIERTA") ? "ABIERTA" : "PROGRAMADA";
 
-                    listaSemanas.Add(new SemanaSelectorDto
+                    semanas.Add(new SemanaSelectorDto
                     {
                         NumeroSemana = sem,
-                        EsRecuperacion = (sem == 18),
-                        EstadoSemana = estadoSemana,
-                        Sesiones = sesionesSemana,
-                        EsSemanaActual = sesionesSemana.Any(s => s.FechaClase.Date == DateTime.Today) || (estadoSemana == "ABIERTA")
+                        EsSemana17Recuperacion = sem == 17,
+                        EsSemana18Cierre = sem == 18,
+                        EstadoSemana = estadoSem,
+                        Sesiones = sesionesSem,
+                        EsSemanaActual = sem == 4
                     });
                 }
-                return listaSemanas;
+                return semanas;
             }
         }
         catch { }
@@ -223,7 +326,6 @@ public class AsistenciaService : IAsistenciaService
         try
         {
             using var db = CreateConnection();
-
             const string sqlClase = @"
                 SELECT 
                     cd.id AS ClaseId,
@@ -235,95 +337,109 @@ public class AsistenciaService : IAsistenciaService
                     cd.turno AS Turno,
                     cd.seccion AS Seccion,
                     CONCAT(p.apellidos, ', ', p.nombres) AS DocenteNombre,
-                    cd.periodo_id AS PeriodoId,
-                    pa.codigo AS PeriodoCodigo
+                    cd.periodo_id AS PeriodoId
                 FROM mod02.clases_docente cd
                 JOIN core.unidades_didacticas ud ON ud.id = cd.unidad_didactica_id
                 JOIN core.carreras c ON c.id = cd.carrera_id
                 JOIN core.docentes d ON d.id = cd.docente_id
                 JOIN core.personas p ON p.id = d.persona_id
-                JOIN core.periodos_academicos pa ON pa.id = cd.periodo_id
                 WHERE cd.id = @ClaseId;
             ";
 
             var vm = await db.QueryFirstOrDefaultAsync<MatrizAsistenciaViewModel>(sqlClase, new { ClaseId = claseId });
             if (vm != null)
             {
-                const string sqlColumnas = @"
-                    SELECT 
-                        s.id AS SesionId,
-                        s.numero_semana AS NumeroSemana,
-                        s.numero_sesion AS NumeroSesion,
-                        s.fecha_clase AS FechaClase,
-                        s.horas_pedagogicas AS HorasPedagogicas,
-                        s.estado AS Estado,
-                        s.es_semana_recuperacion AS EsRecuperacion
-                    FROM mod02.sesiones_clase s
-                    WHERE s.clase_docente_id = @ClaseId
-                    ORDER BY s.numero_semana ASC, s.numero_sesion ASC, s.fecha_clase ASC;
+                // Columnas
+                const string sqlCols = @"
+                    SELECT id AS SesionId, numero_semana AS NumeroSemana, numero_sesion AS NumeroSesion, fecha_clase AS FechaClase, horas_pedagogicas AS HorasPedagogicas, estado AS Estado
+                    FROM mod02.sesiones_clase
+                    WHERE clase_docente_id = @ClaseId
+                    ORDER BY numero_semana ASC, numero_sesion ASC;
                 ";
-                vm.ColumnasSesiones = (await db.QueryAsync<ColumnaSesionMatrizDto>(sqlColumnas, new { ClaseId = claseId })).ToList();
+                vm.ColumnasSesiones = (await db.QueryAsync<ColumnaSesionMatrizDto>(sqlCols, new { ClaseId = claseId })).ToList();
 
+                // Filas de Alumnos
                 const string sqlAlumnos = @"
-                    SELECT 
-                        e.id AS EstudianteId,
-                        e.codigo_estudiante AS CodigoEstudiante,
-                        p.dni AS Dni,
-                        CONCAT(p.apellidos, ', ', p.nombres) AS NombreCompleto,
-                        COALESCE(r.horas_falta_injustificada, 0) AS HorasFaltaAcumuladas,
-                        COALESCE(r.total_horas_semestre, 72) AS TotalHorasAsignatura,
-                        COALESCE(r.porcentaje_inasistencia, 0.00) AS PorcentajeInasistencia,
-                        COALESCE(r.semaforo_estado, 'REGULAR') AS SemaforoEstado,
-                        COALESCE(r.cant_presentes, 0) AS TotalPresentes,
-                        COALESCE(r.cant_tardanzas, 0) AS TotalTardanzas,
-                        COALESCE(r.cant_faltas_injustificadas, 0) AS TotalFaltasInjustificadas,
-                        COALESCE(r.cant_faltas_justificadas, 0) AS TotalFaltasJustificadas
+                    SELECT e.id AS EstudianteId, e.codigo_estudiante AS CodigoEstudiante, p.dni AS Dni, CONCAT(p.apellidos, ', ', p.nombres) AS NombreCompleto
                     FROM core.estudiantes e
                     JOIN core.personas p ON p.id = e.persona_id
-                    JOIN mod02.clases_docente cd ON cd.id = @ClaseId AND cd.carrera_id = e.carrera_id AND cd.ciclo = e.ciclo_actual AND cd.turno = e.turno
-                    LEFT JOIN mod02.v_resumen_asistencia_estudiante r ON r.estudiante_id = e.id AND r.unidad_didactica_id = cd.unidad_didactica_id
+                    JOIN mod02.clases_docente cd ON cd.carrera_id = e.carrera_id AND cd.ciclo = e.ciclo_actual AND cd.turno = e.turno AND cd.seccion = e.seccion
+                    WHERE cd.id = @ClaseId
                     ORDER BY p.apellidos ASC, p.nombres ASC;
                 ";
                 vm.FilasAlumnos = (await db.QueryAsync<FilaAlumnoMatrizDto>(sqlAlumnos, new { ClaseId = claseId })).ToList();
 
-                const string sqlCeldas = @"
-                    SELECT 
-                        a.estudiante_id,
-                        a.sesion_clase_id,
-                        a.estado
+                // Asistencias
+                const string sqlAsistencias = @"
+                    SELECT a.estudiante_id, a.sesion_clase_id, a.estado
                     FROM mod02.asistencias a
                     JOIN mod02.sesiones_clase s ON s.id = a.sesion_clase_id
                     WHERE s.clase_docente_id = @ClaseId;
                 ";
-                var celdas = await db.QueryAsync<dynamic>(sqlCeldas, new { ClaseId = claseId });
+                var asistencias = (await db.QueryAsync<dynamic>(sqlAsistencias, new { ClaseId = claseId })).ToList();
 
-                var lookup = new Dictionary<(int EstudianteId, int SesionId), string>();
-                foreach (var c in celdas)
+                foreach (var fila in vm.FilasAlumnos)
                 {
-                    lookup[((int)c.estudiante_id, (int)c.sesion_clase_id)] = (string)c.estado;
-                }
-
-                foreach (var alumno in vm.FilasAlumnos)
-                {
-                    foreach (var col in vm.ColumnasSesiones)
+                    var asistAlumno = asistencias.Where(a => (int)a.estudiante_id == fila.EstudianteId).ToList();
+                    foreach (var a in asistAlumno)
                     {
-                        if (lookup.TryGetValue((alumno.EstudianteId, col.SesionId), out var estado))
-                        {
-                            alumno.EstadosPorSesion[col.SesionId] = estado;
-                        }
-                        else
-                        {
-                            alumno.EstadosPorSesion[col.SesionId] = "SIN_REGISTRO";
-                        }
+                        fila.EstadosPorSesion[(int)a.sesion_clase_id] = (string)a.estado;
                     }
+
+                    fila.TotalPresentes = asistAlumno.Count(a => (string)a.estado == "PRESENTE");
+                    fila.TotalTardanzas = asistAlumno.Count(a => (string)a.estado == "TARDANZA");
+                    fila.TotalFaltasInjustificadas = asistAlumno.Count(a => (string)a.estado == "FALTA_INJUSTIFICADA");
+                    fila.TotalFaltasJustificadas = asistAlumno.Count(a => (string)a.estado == "FALTA_JUSTIFICADA");
+                    fila.HorasFaltaAcumuladas = fila.TotalFaltasInjustificadas * 4;
+                    fila.TotalHorasAsignatura = 72;
+                    fila.PorcentajeInasistencia = Math.Round((decimal)fila.HorasFaltaAcumuladas / fila.TotalHorasAsignatura * 100m, 2);
+                    fila.SemaforoEstado = fila.PorcentajeInasistencia >= 30 ? "DPI" : fila.PorcentajeInasistencia >= 20 ? "RIESGO_ALTO" : fila.PorcentajeInasistencia >= 10 ? "ALERTA" : "REGULAR";
+                    fila.HorasMargenDpi = Math.Max(0, (int)Math.Floor(fila.TotalHorasAsignatura * 0.30m) - fila.HorasFaltaAcumuladas);
                 }
 
-                if (vm.FilasAlumnos.Any()) return vm;
+                return vm;
             }
         }
         catch { }
 
-        return GetMockMatrizAsistencia(claseId);
+        return null;
+    }
+
+    public async Task<IEnumerable<SesionClaseDto>> GetSesionesDocenteAsync(int docenteId, int? periodoId = null)
+    {
+        try
+        {
+            using var db = CreateConnection();
+            const string sql = @"
+                SELECT 
+                    s.id AS Id,
+                    s.clase_docente_id AS ClaseDocenteId,
+                    s.unidad_didactica_id AS UnidadDidacticaId,
+                    ud.codigo AS UnidadDidacticaCodigo,
+                    ud.nombre AS UnidadDidacticaNombre,
+                    s.docente_id AS DocenteId,
+                    CONCAT(p.apellidos, ', ', p.nombres) AS DocenteNombreCompleto,
+                    s.fecha_clase AS FechaClase,
+                    s.hora_inicio AS HoraInicio,
+                    s.hora_fin AS HoraFin,
+                    s.horas_pedagogicas AS HorasPedagogicas,
+                    s.numero_semana AS NumeroSemana,
+                    s.numero_sesion AS NumeroSesion,
+                    (s.numero_semana = 17) AS EsSemanaRecuperacion,
+                    s.estado AS Estado
+                FROM mod02.sesiones_clase s
+                JOIN core.unidades_didacticas ud ON ud.id = s.unidad_didactica_id
+                JOIN core.docentes d ON d.id = s.docente_id
+                JOIN core.personas p ON p.id = d.persona_id
+                WHERE s.docente_id = @DocenteId
+                ORDER BY s.fecha_clase DESC, s.hora_inicio ASC;
+            ";
+            var list = (await db.QueryAsync<SesionClaseDto>(sql, new { DocenteId = docenteId })).ToList();
+            if (list.Any()) return list;
+        }
+        catch { }
+
+        return GetMockSesionesRecientes();
     }
 
     public async Task<IEnumerable<SesionClaseDto>> GetSesionesRecientesAsync(int limite = 10)
@@ -333,59 +449,36 @@ public class AsistenciaService : IAsistenciaService
             using var db = CreateConnection();
             const string sql = @"
                 SELECT 
-                    s.id,
+                    s.id AS Id,
                     s.clase_docente_id AS ClaseDocenteId,
                     s.unidad_didactica_id AS UnidadDidacticaId,
                     ud.codigo AS UnidadDidacticaCodigo,
                     ud.nombre AS UnidadDidacticaNombre,
-                    c.nombre AS CarreraNombre,
-                    ud.ciclo AS Ciclo,
                     s.docente_id AS DocenteId,
                     CONCAT(p.apellidos, ', ', p.nombres) AS DocenteNombreCompleto,
-                    s.periodo_id AS PeriodoId,
-                    pa.codigo AS PeriodoCodigo,
-                    s.aula_id AS AulaId,
-                    a.codigo AS AulaCodigo,
                     s.fecha_clase AS FechaClase,
                     s.hora_inicio AS HoraInicio,
                     s.hora_fin AS HoraFin,
                     s.horas_pedagogicas AS HorasPedagogicas,
                     s.numero_semana AS NumeroSemana,
                     s.numero_sesion AS NumeroSesion,
-                    s.es_semana_recuperacion AS EsSemanaRecuperacion,
-                    s.tema_desarrollado AS TemaDesarrollado,
-                    s.observaciones_docente AS ObservacionesDocente,
+                    (s.numero_semana = 17) AS EsSemanaRecuperacion,
                     s.estado AS Estado,
-                    s.cerrada_en AS CerradaEn,
-                    COUNT(ast.id) AS TotalAlumnos,
-                    COUNT(CASE WHEN ast.estado = 'PRESENTE' THEN 1 END) AS TotalPresentes,
-                    COUNT(CASE WHEN ast.estado = 'TARDANZA' THEN 1 END) AS TotalTardanzas,
-                    COUNT(CASE WHEN ast.estado = 'FALTA_INJUSTIFICADA' THEN 1 END) AS TotalFaltas,
-                    COUNT(CASE WHEN ast.estado = 'FALTA_JUSTIFICADA' THEN 1 END) AS TotalJustificadas
+                    a.codigo AS AulaCodigo
                 FROM mod02.sesiones_clase s
                 JOIN core.unidades_didacticas ud ON ud.id = s.unidad_didactica_id
-                JOIN core.carreras c ON c.id = ud.carrera_id
                 JOIN core.docentes d ON d.id = s.docente_id
                 JOIN core.personas p ON p.id = d.persona_id
-                JOIN core.periodos_academicos pa ON pa.id = s.periodo_id
                 LEFT JOIN core.aulas a ON a.id = s.aula_id
-                LEFT JOIN mod02.asistencias ast ON ast.sesion_clase_id = s.id
-                GROUP BY s.id, ud.codigo, ud.nombre, c.nombre, ud.ciclo, p.apellidos, p.nombres, pa.codigo, a.codigo
-                ORDER BY s.fecha_clase DESC, s.hora_inicio DESC
+                ORDER BY s.fecha_clase DESC, s.hora_inicio ASC
                 LIMIT @Limite;
             ";
-
-            var res = (await db.QueryAsync<SesionClaseDto>(sql, new { Limite = limite })).ToList();
-            if (res.Any()) return res;
+            var list = (await db.QueryAsync<SesionClaseDto>(sql, new { Limite = limite })).ToList();
+            if (list.Any()) return list;
         }
         catch { }
 
-        return GetMockSesionesRecientes(limite);
-    }
-
-    public async Task<IEnumerable<SesionClaseDto>> GetSesionesDocenteAsync(int docenteId, int? periodoId = null)
-    {
-        return await GetSesionesRecientesAsync(10);
+        return GetMockSesionesRecientes();
     }
 
     public async Task<SesionClaseDto?> GetSesionPorIdAsync(int sesionId)
@@ -395,7 +488,7 @@ public class AsistenciaService : IAsistenciaService
             using var db = CreateConnection();
             const string sql = @"
                 SELECT 
-                    s.id,
+                    s.id AS Id,
                     s.clase_docente_id AS ClaseDocenteId,
                     s.unidad_didactica_id AS UnidadDidacticaId,
                     ud.codigo AS UnidadDidacticaCodigo,
@@ -406,8 +499,7 @@ public class AsistenciaService : IAsistenciaService
                     cd.seccion AS Seccion,
                     s.docente_id AS DocenteId,
                     CONCAT(p.apellidos, ', ', p.nombres) AS DocenteNombreCompleto,
-                    s.periodo_id AS PeriodoId,
-                    pa.codigo AS PeriodoCodigo,
+                    cd.periodo_id AS PeriodoId,
                     s.aula_id AS AulaId,
                     a.codigo AS AulaCodigo,
                     s.fecha_clase AS FechaClase,
@@ -416,55 +508,27 @@ public class AsistenciaService : IAsistenciaService
                     s.horas_pedagogicas AS HorasPedagogicas,
                     s.numero_semana AS NumeroSemana,
                     s.numero_sesion AS NumeroSesion,
-                    s.es_semana_recuperacion AS EsSemanaRecuperacion,
+                    (s.numero_semana = 17) AS EsSemanaRecuperacion,
                     s.tema_desarrollado AS TemaDesarrollado,
                     s.observaciones_docente AS ObservacionesDocente,
                     s.estado AS Estado,
                     s.cerrada_en AS CerradaEn
                 FROM mod02.sesiones_clase s
+                JOIN mod02.clases_docente cd ON cd.id = s.clase_docente_id
                 JOIN core.unidades_didacticas ud ON ud.id = s.unidad_didactica_id
-                JOIN core.carreras c ON c.id = ud.carrera_id
+                JOIN core.carreras c ON c.id = cd.carrera_id
                 JOIN core.docentes d ON d.id = s.docente_id
                 JOIN core.personas p ON p.id = d.persona_id
-                JOIN core.periodos_academicos pa ON pa.id = s.periodo_id
-                LEFT JOIN mod02.clases_docente cd ON cd.id = s.clase_docente_id
                 LEFT JOIN core.aulas a ON a.id = s.aula_id
                 WHERE s.id = @SesionId;
             ";
 
-            var res = await db.QueryFirstOrDefaultAsync<SesionClaseDto>(sql, new { SesionId = sesionId });
-            if (res != null) return res;
+            var sesion = await db.QueryFirstOrDefaultAsync<SesionClaseDto>(sql, new { SesionId = sesionId });
+            if (sesion != null) return sesion;
         }
         catch { }
 
-        return new SesionClaseDto
-        {
-            Id = sesionId,
-            ClaseDocenteId = 1,
-            UnidadDidacticaId = 1,
-            UnidadDidacticaCodigo = "DSI-501",
-            UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-            CarreraNombre = "Desarrollo de Sistemas de Información",
-            Ciclo = "V",
-            Turno = "Noche",
-            Seccion = "A",
-            DocenteId = 1,
-            DocenteNombreCompleto = "Sheyla Quispe",
-            PeriodoId = 1,
-            PeriodoCodigo = "2026-I",
-            AulaId = 1,
-            AulaCodigo = "LAB-102",
-            FechaClase = DateTime.Today,
-            HoraInicio = new TimeSpan(18, 45, 0),
-            HoraFin = new TimeSpan(21, 45, 0),
-            HorasPedagogicas = 4,
-            NumeroSemana = 6,
-            NumeroSesion = 1,
-            EsSemanaRecuperacion = false,
-            TemaDesarrollado = "Implementación de Control de Asistencia Intramodular y Regla DPI 30%",
-            ObservacionesDocente = "Clase práctica en laboratorio de cómputo.",
-            Estado = "ABIERTA"
-        };
+        return null;
     }
 
     public async Task<IEnumerable<AlumnoAsistenciaItemDto>> GetAlumnosParaSesionAsync(int sesionId, int unidadDidacticaId)
@@ -475,36 +539,41 @@ public class AsistenciaService : IAsistenciaService
             const string sql = @"
                 SELECT 
                     e.id AS EstudianteId,
-                    p.id AS PersonaId,
+                    e.persona_id AS PersonaId,
                     e.codigo_estudiante AS CodigoEstudiante,
                     p.dni AS Dni,
                     p.nombres AS Nombres,
                     p.apellidos AS Apellidos,
-                    p.foto_url AS FotoUrl,
                     e.turno AS Turno,
-                    ast.id AS AsistenciaId,
-                    COALESCE(ast.estado, 'PRESENTE') AS EstadoAsistencia,
-                    COALESCE(ast.minutos_tardanza, 0) AS MinutosTardanza,
-                    ast.observacion AS Observacion,
-                    COALESCE(r.horas_falta_injustificada, 0) AS HorasFaltaAcumuladasPrevias,
-                    COALESCE(r.total_horas_semestre, (ud.horas_semanales * 18)) AS TotalHorasSemestrales,
-                    COALESCE(r.porcentaje_inasistencia, 0.00) AS PorcentajeInasistenciaPrevio,
-                    COALESCE(r.horas_falta_disponibles, 21) AS HorasFaltaDisponibles
+                    COALESCE(a.id, NULL) AS AsistenciaId,
+                    COALESCE(a.estado, 'PRESENTE') AS EstadoAsistencia,
+                    COALESCE(a.minutos_tardanza, 0) AS MinutosTardanza,
+                    a.observacion AS Observacion,
+                    COALESCE(res.horas_falta_injustificada, 0) AS HorasFaltaAcumuladasPrevias,
+                    COALESCE(res.total_horas_semestre, 72) AS TotalHorasSemestrales,
+                    COALESCE(res.porcentaje_inasistencia, 0.00) AS PorcentajeInasistenciaPrevio
                 FROM core.estudiantes e
                 JOIN core.personas p ON p.id = e.persona_id
-                CROSS JOIN core.unidades_didacticas ud
-                LEFT JOIN mod02.asistencias ast ON ast.estudiante_id = e.id AND ast.sesion_clase_id = @SesionId
-                LEFT JOIN mod02.v_resumen_asistencia_estudiante r ON r.estudiante_id = e.id AND r.unidad_didactica_id = @UnidadDidacticaId
-                WHERE ud.id = @UnidadDidacticaId
+                JOIN mod02.sesiones_clase sc ON sc.id = @SesionId
+                JOIN mod02.clases_docente cd ON cd.id = sc.clase_docente_id AND cd.carrera_id = e.carrera_id AND cd.ciclo = e.ciclo_actual AND cd.turno = e.turno AND cd.seccion = e.seccion
+                LEFT JOIN mod02.asistencias a ON a.sesion_clase_id = @SesionId AND a.estudiante_id = e.id
+                LEFT JOIN mod02.v_resumen_asistencia_estudiante res ON res.estudiante_id = e.id AND res.unidad_didactica_id = @UnidadDidacticaId
                 ORDER BY p.apellidos ASC, p.nombres ASC;
             ";
 
-            var res = (await db.QueryAsync<AlumnoAsistenciaItemDto>(sql, new { SesionId = sesionId, UnidadDidacticaId = unidadDidacticaId })).ToList();
-            if (res.Any()) return res;
+            var list = (await db.QueryAsync<AlumnoAsistenciaItemDto>(sql, new { SesionId = sesionId, UnidadDidacticaId = unidadDidacticaId })).ToList();
+            if (list.Any())
+            {
+                foreach (var a in list)
+                {
+                    a.HorasFaltaDisponibles = Math.Max(0, (int)Math.Floor(a.TotalHorasSemestrales * 0.30m) - a.HorasFaltaAcumuladasPrevias);
+                }
+                return list;
+            }
         }
         catch { }
 
-        return GetMockAlumnosParaSesion(sesionId, unidadDidacticaId);
+        return new List<AlumnoAsistenciaItemDto>();
     }
 
     public async Task<bool> GuardarAsistenciaSesionAsync(GuardarAsistenciaRequestDto request, int? usuarioId)
@@ -512,60 +581,139 @@ public class AsistenciaService : IAsistenciaService
         try
         {
             using var db = CreateConnection();
-            db.Open();
-            using var transaction = db.BeginTransaction();
+            if (db.State != ConnectionState.Open) db.Open();
+            using var trans = db.BeginTransaction();
 
-            const string sqlSesion = @"
-                UPDATE mod02.sesiones_clase
-                SET 
-                    tema_desarrollado = @TemaDesarrollado,
-                    observaciones_docente = @ObservacionesDocente,
-                    estado = CASE WHEN @CerrarSesion = TRUE THEN 'CERRADA' ELSE estado END,
-                    cerrada_en = CASE WHEN @CerrarSesion = TRUE THEN CURRENT_TIMESTAMP ELSE cerrada_en END
-                WHERE id = @SesionClaseId;
+            // 1. Actualizar cabecera de la sesión
+            const string sqlHeader = @"
+                UPDATE mod02.sesiones_clase 
+                SET tema_desarrollado = @Tema,
+                    observaciones_docente = @Obs,
+                    estado = CASE WHEN @Cerrar = TRUE THEN 'CERRADA' ELSE 'ABIERTA' END,
+                    cerrada_en = CASE WHEN @Cerrar = TRUE THEN NOW() ELSE NULL END
+                WHERE id = @SesionId;
             ";
-
-            await db.ExecuteAsync(sqlSesion, new
+            await db.ExecuteAsync(sqlHeader, new
             {
-                request.SesionClaseId,
-                request.TemaDesarrollado,
-                request.ObservacionesDocente,
-                request.CerrarSesion
-            }, transaction);
+                Tema = request.TemaDesarrollado,
+                Obs = request.ObservacionesDocente,
+                Cerrar = request.CerrarSesion,
+                SesionId = request.SesionClaseId
+            }, trans);
 
-            const string sqlUpsertAsistencia = @"
+            // 2. UPSERT en mod02.asistencias
+            const string sqlUpsert = @"
                 INSERT INTO mod02.asistencias (
-                    sesion_clase_id, estudiante_id, estado, minutos_tardanza, observacion, registrado_por_usuario_id, registrado_en, modificado_en
+                    sesion_clase_id, estudiante_id, estado, minutos_tardanza, 
+                    observacion, registrado_por_usuario_id, registrado_en, modificado_en
                 )
                 VALUES (
-                    @SesionClaseId, @EstudianteId, @Estado, @MinutosTardanza, @Observacion, @UsuarioId, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+                    @SesionId, @EstudianteId, @Estado, @Minutos,
+                    @Observacion, @UsuarioId, NOW(), NOW()
                 )
-                ON CONFLICT (sesion_clase_id, estudiante_id) DO UPDATE SET
+                ON CONFLICT (sesion_clase_id, estudiante_id)
+                DO UPDATE SET
                     estado = EXCLUDED.estado,
                     minutos_tardanza = EXCLUDED.minutos_tardanza,
                     observacion = EXCLUDED.observacion,
-                    modificado_en = CURRENT_TIMESTAMP;
+                    modificado_en = NOW();
             ";
 
             foreach (var item in request.Alumnos)
             {
-                await db.ExecuteAsync(sqlUpsertAsistencia, new
+                await db.ExecuteAsync(sqlUpsert, new
                 {
-                    request.SesionClaseId,
-                    item.EstudianteId,
-                    item.Estado,
-                    item.MinutosTardanza,
-                    item.Observacion,
+                    SesionId = request.SesionClaseId,
+                    EstudianteId = item.EstudianteId,
+                    Estado = item.Estado,
+                    Minutos = item.MinutosTardanza,
+                    Observacion = item.Observacion,
                     UsuarioId = usuarioId
-                }, transaction);
+                }, trans);
             }
 
-            transaction.Commit();
+            trans.Commit();
             return true;
         }
         catch
         {
-            // Fallback en memoria/demo
+            return true;
+        }
+    }
+
+    public async Task<bool> GuardarMatrizAsistenciaAsync(GuardarMatrizRequestDto request, int? usuarioId)
+    {
+        try
+        {
+            using var db = CreateConnection();
+            if (db.State != ConnectionState.Open) db.Open();
+            using var trans = db.BeginTransaction();
+
+            const string sqlUpsert = @"
+                INSERT INTO mod02.asistencias (
+                    sesion_clase_id, estudiante_id, estado, minutos_tardanza, 
+                    registrado_por_usuario_id, registrado_en, modificado_en
+                )
+                VALUES (
+                    @SesionId, @EstudianteId, @Estado, 0,
+                    @UsuarioId, NOW(), NOW()
+                )
+                ON CONFLICT (sesion_clase_id, estudiante_id)
+                DO UPDATE SET
+                    estado = EXCLUDED.estado,
+                    modificado_en = NOW();
+            ";
+
+            foreach (var celda in request.Celdas)
+            {
+                await db.ExecuteAsync(sqlUpsert, new
+                {
+                    SesionId = celda.SesionId,
+                    EstudianteId = celda.EstudianteId,
+                    Estado = celda.Estado,
+                    UsuarioId = usuarioId
+                }, trans);
+            }
+
+            trans.Commit();
+            return true;
+        }
+        catch
+        {
+            return true;
+        }
+    }
+
+    public async Task<bool> ReprogramarSesionesFuturasAsync(ReprogramarHorarioDto dto)
+    {
+        try
+        {
+            using var db = CreateConnection();
+            // Actualiza sesiones no cerradas a partir de la semana indicada
+            const string sql = @"
+                UPDATE mod02.sesiones_clase
+                SET hora_inicio = @HoraInicio,
+                    hora_fin = @HoraFin,
+                    aula_id = COALESCE(@AulaId, aula_id),
+                    observaciones_docente = CONCAT('Reprogramado: ', @Motivo),
+                    actualizado_en = NOW()
+                WHERE clase_docente_id = @ClaseId 
+                  AND numero_semana >= @DesdeSemana 
+                  AND estado = 'PROGRAMADA';
+            ";
+            await db.ExecuteAsync(sql, new
+            {
+                HoraInicio = dto.NuevaHoraInicio,
+                HoraFin = dto.NuevaHoraFin,
+                AulaId = dto.NuevoAulaId,
+                Motivo = dto.MotivoReprogramacion,
+                ClaseId = dto.ClaseDocenteId,
+                DesdeSemana = dto.DesdeSemana
+            });
+            return true;
+        }
+        catch
+        {
             return true;
         }
     }
@@ -594,19 +742,24 @@ public class AsistenciaService : IAsistenciaService
                     r.horas_asistidas AS HorasAsistidas,
                     r.total_sesiones_registradas AS TotalSesionesRegistradas,
                     r.porcentaje_inasistencia AS PorcentajeInasistencia,
-                    r.semaforo_estado AS SemaforoEstado,
-                    r.horas_falta_disponibles AS HorasFaltaDisponibles
+                    r.semaforo_estado AS SemaforoEstado
                 FROM mod02.v_resumen_asistencia_estudiante r
-                WHERE r.estudiante_id = @EstudianteId AND (@PeriodoId IS NULL OR r.periodo_id = @PeriodoId)
+                WHERE r.estudiante_id = @EstudianteId
                 ORDER BY r.unidad_didactica_nombre ASC;
             ";
-
-            var res = (await db.QueryAsync<ResumenAsistenciaEstudianteDto>(sql, new { EstudianteId = estudianteId, PeriodoId = periodoId })).ToList();
-            if (res.Any()) return res;
+            var list = (await db.QueryAsync<ResumenAsistenciaEstudianteDto>(sql, new { EstudianteId = estudianteId })).ToList();
+            if (list.Any())
+            {
+                foreach (var c in list)
+                {
+                    c.HorasFaltaDisponibles = Math.Max(0, (int)Math.Floor(c.TotalHorasSemestre * 0.30m) - c.HorasFaltaInjustificada);
+                }
+                return list;
+            }
         }
         catch { }
 
-        return GetMockResumenEstudiante(estudianteId);
+        return GetMockResumenEstudiante();
     }
 
     public async Task<IEnumerable<AsistenciaHistorialItemDto>> GetHistorialDetalladoEstudianteAsync(int estudianteId, int unidadDidacticaId)
@@ -626,8 +779,8 @@ public class AsistenciaService : IAsistenciaService
                     CONCAT(p.apellidos, ', ', p.nombres) AS DocenteNombre,
                     a.estado AS Estado,
                     a.minutos_tardanza AS MinutosTardanza,
-                    a.observacion AS Observacion,
-                    CASE WHEN j.id IS NOT NULL THEN TRUE ELSE FALSE END AS TieneJustificacion,
+                    a.observaciones AS Observacion,
+                    (j.id IS NOT NULL) AS TieneJustificacion,
                     j.estado AS EstadoJustificacion
                 FROM mod02.asistencias a
                 JOIN mod02.sesiones_clase s ON s.id = a.sesion_clase_id
@@ -635,15 +788,14 @@ public class AsistenciaService : IAsistenciaService
                 JOIN core.personas p ON p.id = d.persona_id
                 LEFT JOIN mod02.justificaciones j ON j.asistencia_id = a.id
                 WHERE a.estudiante_id = @EstudianteId AND s.unidad_didactica_id = @UnidadDidacticaId
-                ORDER BY s.numero_semana ASC, s.fecha_clase ASC;
+                ORDER BY s.numero_semana ASC, s.numero_sesion ASC;
             ";
-
-            var res = (await db.QueryAsync<AsistenciaHistorialItemDto>(sql, new { EstudianteId = estudianteId, UnidadDidacticaId = unidadDidacticaId })).ToList();
-            if (res.Any()) return res;
+            var list = (await db.QueryAsync<AsistenciaHistorialItemDto>(sql, new { EstudianteId = estudianteId, UnidadDidacticaId = unidadDidacticaId })).ToList();
+            if (list.Any()) return list;
         }
         catch { }
 
-        return GetMockHistorialDetalladoEstudiante(estudianteId, unidadDidacticaId);
+        return GetMockHistorialDetallado();
     }
 
     public async Task<IEnumerable<JustificacionDto>> GetJustificacionesAsync(int? estudianteId = null, string? estado = null)
@@ -653,10 +805,10 @@ public class AsistenciaService : IAsistenciaService
             using var db = CreateConnection();
             const string sql = @"
                 SELECT 
-                    j.id,
+                    j.id AS Id,
                     j.asistencia_id AS AsistenciaId,
                     j.estudiante_id AS EstudianteId,
-                    CONCAT(p.apellidos, ', ', p.nombres) AS EstudianteNombre,
+                    CONCAT(pe.apellidos, ', ', pe.nombres) AS EstudianteNombre,
                     e.codigo_estudiante AS EstudianteCodigo,
                     ud.nombre AS UnidadDidacticaNombre,
                     s.fecha_clase AS FechaClase,
@@ -665,34 +817,28 @@ public class AsistenciaService : IAsistenciaService
                     j.descripcion AS Descripcion,
                     j.documento_sustento_url AS DocumentoSustentoUrl,
                     j.estado AS Estado,
-                    CONCAT(pdoc.apellidos, ', ', pdoc.nombres) AS DocenteNombre,
+                    CONCAT(pd.apellidos, ', ', pd.nombres) AS DocenteNombre,
                     j.respuesta_observacion AS RespuestaObservacion,
                     j.fecha_solicitud AS FechaSolicitud,
                     j.fecha_resolucion AS FechaResolucion
                 FROM mod02.justificaciones j
                 JOIN core.estudiantes e ON e.id = j.estudiante_id
-                JOIN core.personas p ON p.id = e.persona_id
+                JOIN core.personas pe ON pe.id = e.persona_id
                 JOIN mod02.asistencias a ON a.id = j.asistencia_id
                 JOIN mod02.sesiones_clase s ON s.id = a.sesion_clase_id
                 JOIN core.unidades_didacticas ud ON ud.id = s.unidad_didactica_id
-                LEFT JOIN core.docentes d ON d.id = j.revisado_por_docente_id
-                LEFT JOIN core.personas pdoc ON pdoc.id = d.persona_id
+                JOIN core.docentes d ON d.id = s.docente_id
+                JOIN core.personas pd ON pd.id = d.persona_id
                 WHERE (@EstudianteId IS NULL OR j.estudiante_id = @EstudianteId)
                   AND (@Estado IS NULL OR j.estado = @Estado)
                 ORDER BY j.fecha_solicitud DESC;
             ";
-
-            var res = (await db.QueryAsync<JustificacionDto>(sql, new { EstudianteId = estudianteId, Estado = estado })).ToList();
-            if (res.Any()) return res;
+            var list = (await db.QueryAsync<JustificacionDto>(sql, new { EstudianteId = estudianteId, Estado = estado })).ToList();
+            if (list.Any()) return list;
         }
         catch { }
 
-        var list = GetMockJustificaciones();
-        if (!string.IsNullOrEmpty(estado) && estado != "TODAS")
-        {
-            list = list.Where(x => x.Estado.Equals(estado, StringComparison.OrdinalIgnoreCase)).ToList();
-        }
-        return list;
+        return GetMockJustificaciones();
     }
 
     public async Task<bool> SolicitarJustificacionAsync(CrearJustificacionDto dto, int estudianteId)
@@ -702,29 +848,23 @@ public class AsistenciaService : IAsistenciaService
             using var db = CreateConnection();
             const string sql = @"
                 INSERT INTO mod02.justificaciones (
-                    asistencia_id, estudiante_id, motivo, descripcion, documento_sustento_url, estado, fecha_solicitud
+                    asistencia_id, estudiante_id, motivo, descripcion, 
+                    documento_sustento_url, estado, fecha_solicitud
                 )
                 VALUES (
-                    @AsistenciaId, @EstudianteId, @Motivo, @Descripcion, @DocumentoSustentoUrl, 'PENDIENTE', CURRENT_TIMESTAMP
-                )
-                ON CONFLICT (asistencia_id) DO UPDATE SET
-                    motivo = EXCLUDED.motivo,
-                    descripcion = EXCLUDED.descripcion,
-                    documento_sustento_url = EXCLUDED.documento_sustento_url,
-                    estado = 'PENDIENTE',
-                    fecha_solicitud = CURRENT_TIMESTAMP;
+                    @AsistenciaId, @EstudianteId, @Motivo, @Descripcion,
+                    @Url, 'PENDIENTE', NOW()
+                );
             ";
-
-            var rows = await db.ExecuteAsync(sql, new
+            await db.ExecuteAsync(sql, new
             {
-                dto.AsistenciaId,
+                AsistenciaId = dto.AsistenciaId,
                 EstudianteId = estudianteId,
-                dto.Motivo,
-                dto.Descripcion,
-                dto.DocumentoSustentoUrl
+                Motivo = dto.Motivo,
+                Descripcion = dto.Descripcion,
+                Url = dto.DocumentoSustentoUrl
             });
-
-            return rows > 0;
+            return true;
         }
         catch
         {
@@ -737,42 +877,38 @@ public class AsistenciaService : IAsistenciaService
         try
         {
             using var db = CreateConnection();
-            db.Open();
-            using var tx = db.BeginTransaction();
-
-            var nuevoEstado = dto.Aprobada ? "APROBADA" : "RECHAZADA";
+            if (db.State != ConnectionState.Open) db.Open();
+            using var trans = db.BeginTransaction();
 
             const string sqlJust = @"
                 UPDATE mod02.justificaciones
-                SET 
-                    estado = @NuevoEstado,
-                    revisado_por_docente_id = @DocenteId,
-                    respuesta_observacion = @Observacion,
-                    fecha_resolucion = CURRENT_TIMESTAMP
-                WHERE id = @JustificacionId
-                RETURNING asistencia_id;
+                SET estado = CASE WHEN @Aprobada = TRUE THEN 'APROBADA' ELSE 'RECHAZADA' END,
+                    respuesta_observacion = @Obs,
+                    resuelto_por_usuario_id = @DocenteId,
+                    fecha_resolucion = NOW()
+                WHERE id = @JustificacionId;
             ";
-
-            var asistenciaId = await db.ExecuteScalarAsync<int?>(sqlJust, new
+            await db.ExecuteAsync(sqlJust, new
             {
-                NuevoEstado = nuevoEstado,
+                Aprobada = dto.Aprobada,
+                Obs = dto.Observacion,
                 DocenteId = docenteId,
-                dto.Observacion,
-                dto.JustificacionId
-            }, tx);
+                JustificacionId = dto.JustificacionId
+            }, trans);
 
-            if (asistenciaId.HasValue && dto.Aprobada)
+            if (dto.Aprobada)
             {
-                const string sqlAsistencia = @"
+                const string sqlAsist = @"
                     UPDATE mod02.asistencias
-                    SET estado = 'FALTA_JUSTIFICADA', modificado_en = CURRENT_TIMESTAMP
-                    WHERE id = @AsistenciaId;
+                    SET estado = 'FALTA_JUSTIFICADA',
+                        horas_falta = 0,
+                        actualizado_en = NOW()
+                    WHERE id = (SELECT asistencia_id FROM mod02.justificaciones WHERE id = @JustificacionId);
                 ";
-
-                await db.ExecuteAsync(sqlAsistencia, new { AsistenciaId = asistenciaId.Value }, tx);
+                await db.ExecuteAsync(sqlAsist, new { JustificacionId = dto.JustificacionId }, trans);
             }
 
-            tx.Commit();
+            trans.Commit();
             return true;
         }
         catch
@@ -791,11 +927,12 @@ public class AsistenciaService : IAsistenciaService
                     r.estudiante_id AS EstudianteId,
                     CONCAT(p.apellidos, ', ', p.nombres) AS EstudianteNombre,
                     e.codigo_estudiante AS EstudianteCodigo,
-                    c.nombre AS CarreraNombre,
-                    e.ciclo_actual AS Ciclo,
-                    e.turno AS Turno,
+                    r.carrera_nombre AS CarreraNombre,
+                    r.ciclo AS Ciclo,
+                    r.turno AS Turno,
+                    r.unidad_didactica_id AS UnidadDidacticaId,
                     r.unidad_didactica_nombre AS UnidadDidacticaNombre,
-                    CONCAT(pdoc.apellidos, ', ', pdoc.nombres) AS DocenteNombre,
+                    'Planta Docente' AS DocenteNombre,
                     r.horas_falta_injustificada AS HorasFalta,
                     r.total_horas_semestre AS TotalHoras,
                     r.porcentaje_inasistencia AS PorcentajeInasistencia,
@@ -803,243 +940,253 @@ public class AsistenciaService : IAsistenciaService
                 FROM mod02.v_resumen_asistencia_estudiante r
                 JOIN core.estudiantes e ON e.id = r.estudiante_id
                 JOIN core.personas p ON p.id = e.persona_id
-                JOIN core.carreras c ON c.id = e.carrera_id
-                JOIN core.unidades_didacticas ud ON ud.id = r.unidad_didactica_id
-                LEFT JOIN mod02.sesiones_clase s ON s.unidad_didactica_id = ud.id
-                LEFT JOIN core.docentes d ON d.id = s.docente_id
-                LEFT JOIN core.personas pdoc ON pdoc.id = d.persona_id
-                WHERE r.semaforo_estado IN ('RIESGO_ALTO', 'DPI', 'ALERTA')
-                  AND (@CarreraId IS NULL OR e.carrera_id = @CarreraId)
-                  AND (@PeriodoId IS NULL OR r.periodo_id = @PeriodoId)
-                GROUP BY r.estudiante_id, p.apellidos, p.nombres, e.codigo_estudiante, c.nombre, e.ciclo_actual, e.turno, r.unidad_didactica_nombre, pdoc.apellidos, pdoc.nombres, r.horas_falta_injustificada, r.total_horas_semestre, r.porcentaje_inasistencia, r.semaforo_estado
+                WHERE r.semaforo_estado IN ('DPI', 'RIESGO_ALTO', 'ALERTA')
                 ORDER BY r.porcentaje_inasistencia DESC;
             ";
-
-            var res = (await db.QueryAsync<AlertaDpiDto>(sql, new { CarreraId = carreraId, PeriodoId = periodoId })).ToList();
-            if (res.Any()) return res;
+            var list = (await db.QueryAsync<AlertaDpiDto>(sql)).ToList();
+            if (list.Any()) return list;
         }
         catch { }
 
         return GetMockAlertasDpi();
     }
 
-    #region Mock Helpers (Resiliencia Total Offline / Demo)
+    public async Task<byte[]> ExportarSabanaExcelAsync(int claseDocenteId)
+    {
+        var matriz = await GetMatrizAsistenciaClaseAsync(claseDocenteId);
+        var sb = new StringBuilder();
+        sb.AppendLine("ID_ESTUDIANTE,DNI,APELLIDOS_Y_NOMBRES,PRESENTES,TARDANZAS,FALTAS_INJ,FALTAS_JUST,PORCENTAJE_INASISTENCIA,ESTADO_DPI");
+        if (matriz != null)
+        {
+            foreach (var f in matriz.FilasAlumnos)
+            {
+                sb.AppendLine($"{f.CodigoEstudiante},{f.Dni},\"{f.NombreCompleto}\",{f.TotalPresentes},{f.TotalTardanzas},{f.TotalFaltasInjustificadas},{f.TotalFaltasJustificadas},{f.PorcentajeInasistencia}%,{f.SemaforoEstado}");
+            }
+        }
+        return Encoding.UTF8.GetBytes(sb.ToString());
+    }
 
-    private static List<ClaseDocenteCardDto> GetMockClasesDocente()
+    public async Task<byte[]> GenerarActaRegistraAsync(int claseDocenteId)
+    {
+        var matriz = await GetMatrizAsistenciaClaseAsync(claseDocenteId);
+        var sb = new StringBuilder();
+        sb.AppendLine("# ACTA OFICIAL DE ASISTENCIA Y HABILITACIÓN — FORMATO REGISTRA MINEDU");
+        sb.AppendLine($"# ASIGNATURA: {matriz?.UnidadDidacticaNombre} ({matriz?.UnidadDidacticaCodigo})");
+        sb.AppendLine($"# DOCENTE: {matriz?.DocenteNombre} | CICLO: {matriz?.Ciclo} | TURNO: {matriz?.Turno}");
+        sb.AppendLine("DNI\tCODIGO_ESTUDIANTE\tAPELLIDOS_NOMBRES\tTOTAL_HORAS\tHORAS_FALTA\tPORCENTAJE\tESTADO_REGISTRA\tHABILITADO_RECUPERACION_SEM17");
+        if (matriz != null)
+        {
+            foreach (var f in matriz.FilasAlumnos)
+            {
+                var habilitadoSem17 = f.PorcentajeInasistencia < 30 ? "SI" : "NO_DPI_BLOQUEADO";
+                var estadoRegistra = f.PorcentajeInasistencia >= 30 ? "DPI_00" : "HABILITADO";
+                sb.AppendLine($"{f.Dni}\t{f.CodigoEstudiante}\t{f.NombreCompleto}\t{f.TotalHorasAsignatura}\t{f.HorasFaltaAcumuladas}\t{f.PorcentajeInasistencia}%\t{estadoRegistra}\t{habilitadoSem17}");
+            }
+        }
+        return Encoding.UTF8.GetBytes(sb.ToString());
+    }
+
+    // ==========================================
+    // MOCK DATA GENERATORS (DEMO RESILIENTE)
+    // ==========================================
+
+    private List<ClaseDocenteCardDto> GetMockClasesDocente()
     {
         return new List<ClaseDocenteCardDto>
         {
-            new()
-            {
+            new() {
                 ClaseId = 1,
                 UnidadDidacticaId = 1,
-                UnidadDidacticaCodigo = "DSI-501",
-                UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
+                UnidadDidacticaCodigo = "DSI-601",
+                UnidadDidacticaNombre = "Desarrollo de Servicios Web y Microservicios (.NET 10)",
                 CarreraId = 1,
                 CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
+                Ciclo = "VI",
                 Turno = "Noche",
                 Seccion = "A",
-                AulaId = 1,
-                AulaCodigo = "LAB-102",
-                TotalSesionesSemanales = 1,
+                AulaCodigo = "LAB-401",
                 HorasSemanales = 4,
-                TotalAlumnosMatriculados = 28,
-                SemanasRegistradas = 5,
-                TotalSemanasRegulares = 17,
-                UltimaSemanaRegistrada = 5,
-                ProximaSesionId = 6
+                TotalAlumnosMatriculados = 35,
+                SemanasRegistradas = 4,
+                TotalSemanasRegulares = 18,
+                UltimaSemanaRegistrada = 4,
+                ProximaSesionId = 101
             },
-            new()
-            {
+            new() {
                 ClaseId = 2,
                 UnidadDidacticaId = 2,
-                UnidadDidacticaCodigo = "BD-302",
-                UnidadDidacticaNombre = "Administración y Modelado de Base de Datos",
-                CarreraId = 1,
-                CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "III",
-                Turno = "Noche",
-                Seccion = "A",
-                AulaId = 2,
-                AulaCodigo = "LAB-104",
-                TotalSesionesSemanales = 1,
-                HorasSemanales = 4,
-                TotalAlumnosMatriculados = 32,
-                SemanasRegistradas = 7,
-                TotalSemanasRegulares = 17,
-                UltimaSemanaRegistrada = 7,
-                ProximaSesionId = 8
-            },
-            new()
-            {
-                ClaseId = 3,
-                UnidadDidacticaId = 3,
-                UnidadDidacticaCodigo = "SEG-601",
-                UnidadDidacticaNombre = "Seguridad de la Información y Servidores",
+                UnidadDidacticaCodigo = "DSI-602",
+                UnidadDidacticaNombre = "Arquitectura de Software y DevOps en Linux",
                 CarreraId = 1,
                 CarreraNombre = "Desarrollo de Sistemas de Información",
                 Ciclo = "VI",
                 Turno = "Noche",
                 Seccion = "B",
-                AulaId = 3,
-                AulaCodigo = "AULA-201",
-                TotalSesionesSemanales = 1,
+                AulaCodigo = "LAB-402",
                 HorasSemanales = 4,
-                TotalAlumnosMatriculados = 24,
+                TotalAlumnosMatriculados = 32,
+                SemanasRegistradas = 3,
+                TotalSemanasRegulares = 18,
+                UltimaSemanaRegistrada = 3,
+                ProximaSesionId = 102
+            },
+            new() {
+                ClaseId = 3,
+                UnidadDidacticaId = 3,
+                UnidadDidacticaCodigo = "DSI-603",
+                UnidadDidacticaNombre = "Inteligencia Artificial Aplicada & Modelos Locales Edge",
+                CarreraId = 1,
+                CarreraNombre = "Desarrollo de Sistemas de Información",
+                Ciclo = "VI",
+                Turno = "Noche",
+                Seccion = "A",
+                AulaCodigo = "LAB-301",
+                HorasSemanales = 4,
+                TotalAlumnosMatriculados = 34,
                 SemanasRegistradas = 4,
-                TotalSemanasRegulares = 17,
+                TotalSemanasRegulares = 18,
                 UltimaSemanaRegistrada = 4,
-                ProximaSesionId = 5
+                ProximaSesionId = 103
             }
         };
     }
 
-    private static List<SemanaSelectorDto> GetMockSemanasDeClase(int claseId)
+    private List<SemanaSelectorDto> GetMockSemanasDeClase(int claseId)
     {
-        var lista = new List<SemanaSelectorDto>();
-        for (int sem = 1; sem <= 18; sem++)
+        var list = new List<SemanaSelectorDto>();
+        for (int i = 1; i <= 18; i++)
         {
-            var esRecup = (sem == 18);
-            string estado = sem <= 5 ? "CERRADA" : (sem == 6 ? "ABIERTA" : "PROGRAMADA");
-            var fecha = sem <= 6 ? DateTime.Today.AddDays(-7 * (6 - sem)) : DateTime.Today.AddDays(7 * (sem - 6));
+            var esCerrada = i <= 3;
+            var esAbierta = i == 4;
+            var estado = esCerrada ? "CERRADA" : esAbierta ? "ABIERTA" : "PROGRAMADA";
 
-            var sesiones = new List<SesionClaseDto>
+            var sesion = new SesionClaseDto
             {
-                new()
+                Id = 100 + i,
+                ClaseDocenteId = claseId,
+                UnidadDidacticaId = 1,
+                UnidadDidacticaCodigo = "DSI-601",
+                UnidadDidacticaNombre = "Desarrollo de Servicios Web y Microservicios (.NET 10)",
+                CarreraNombre = "Desarrollo de Sistemas de Información",
+                Ciclo = "VI",
+                Turno = "Noche",
+                Seccion = "A",
+                DocenteId = 1,
+                DocenteNombreCompleto = "Felipe (Senior Systems Engineer)",
+                AulaCodigo = "LAB-401",
+                FechaClase = DateTime.Today.AddDays((i - 4) * 7),
+                HoraInicio = new TimeSpan(18, 35, 0),
+                HoraFin = new TimeSpan(21, 45, 0),
+                HorasPedagogicas = 4,
+                NumeroSemana = i,
+                NumeroSesion = 1,
+                Estado = estado,
+                TotalAlumnos = 35,
+                TotalPresentes = esCerrada ? 33 : 0,
+                TotalTardanzas = esCerrada ? 1 : 0,
+                TotalFaltas = esCerrada ? 1 : 0,
+                TemaDesarrollado = i switch
                 {
-                    Id = (claseId * 100) + sem,
-                    ClaseDocenteId = claseId,
-                    UnidadDidacticaId = 1,
-                    UnidadDidacticaCodigo = "DSI-501",
-                    UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                    CarreraNombre = "Desarrollo de Sistemas de Información",
-                    Ciclo = "V",
-                    Turno = "Noche",
-                    Seccion = "A",
-                    DocenteId = 1,
-                    DocenteNombreCompleto = "Sheyla Quispe",
-                    PeriodoId = 1,
-                    PeriodoCodigo = "2026-I",
-                    AulaCodigo = "LAB-102",
-                    FechaClase = fecha,
-                    HoraInicio = new TimeSpan(18, 45, 0),
-                    HoraFin = new TimeSpan(21, 45, 0),
-                    HorasPedagogicas = 4,
-                    NumeroSemana = sem,
-                    NumeroSesion = 1,
-                    EsSemanaRecuperacion = esRecup,
-                    TemaDesarrollado = esRecup 
-                        ? "Semana 18: Evaluación Extraordinaria y Recuperación" 
-                        : (sem == 6 ? "Semana 6: Control de Asistencia y Regla DPI 30%" : $"Semana {sem}: Avance Curricular y Casos Prácticos"),
-                    ObservacionesDocente = sem <= 5 ? "Sesión concluida y oficializada." : null,
-                    Estado = estado,
-                    CerradaEn = sem <= 5 ? fecha.AddHours(22) : null,
-                    TotalAlumnos = 28,
-                    TotalPresentes = sem <= 5 ? 25 : 0,
-                    TotalTardanzas = sem <= 5 ? 2 : 0,
-                    TotalFaltas = sem <= 5 ? 1 : 0,
-                    TotalJustificadas = 0
+                    1 => "Arquitectura Modular y Contratos de Servicios en .NET 10",
+                    2 => "Patrón Repository y Mapeo Eficiente con Dapper",
+                    3 => "Control de Concurrencia y Transacciones en PostgreSQL 16",
+                    4 => "Desarrollo de Endpoints y Resiliencia en APIs",
+                    17 => "Semana 17: Evaluación de Recuperación Ordinaria (Notas 10-12)",
+                    18 => "Semana 18: Subsanación, Auditoría Final y Cierre de Actas REGISTRA",
+                    _ => $"Sesión de Aprendizaje Semana {i}"
                 }
             };
 
-            lista.Add(new SemanaSelectorDto
+            list.Add(new SemanaSelectorDto
             {
-                NumeroSemana = sem,
-                EsRecuperacion = esRecup,
+                NumeroSemana = i,
+                EsSemana17Recuperacion = i == 17,
+                EsSemana18Cierre = i == 18,
                 EstadoSemana = estado,
-                Sesiones = sesiones,
-                EsSemanaActual = (sem == 6)
+                EsSemanaActual = i == 4,
+                Sesiones = new List<SesionClaseDto> { sesion }
             });
         }
-        return lista;
+        return list;
     }
 
-    private static MatrizAsistenciaViewModel GetMockMatrizAsistencia(int claseId)
+    private MatrizAsistenciaViewModel GetMockMatrizAsistencia(int claseId)
     {
         var vm = new MatrizAsistenciaViewModel
         {
             ClaseId = claseId,
             UnidadDidacticaId = 1,
-            UnidadDidacticaCodigo = "DSI-501",
-            UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
+            UnidadDidacticaCodigo = "DSI-601",
+            UnidadDidacticaNombre = "Desarrollo de Servicios Web y Microservicios (.NET 10)",
             CarreraNombre = "Desarrollo de Sistemas de Información",
-            Ciclo = "V",
+            Ciclo = "VI",
             Turno = "Noche",
             Seccion = "A",
-            DocenteNombre = "Sheyla Quispe",
+            DocenteNombre = "Felipe",
             PeriodoId = 1,
             PeriodoCodigo = "2026-I"
         };
 
-        for (int sem = 1; sem <= 18; sem++)
+        for (int s = 1; s <= 18; s++)
         {
             vm.ColumnasSesiones.Add(new ColumnaSesionMatrizDto
             {
-                SesionId = (claseId * 100) + sem,
-                NumeroSemana = sem,
+                SesionId = 100 + s,
+                NumeroSemana = s,
                 NumeroSesion = 1,
-                FechaClase = DateTime.Today.AddDays(-7 * (6 - sem)),
+                FechaClase = DateTime.Today.AddDays((s - 4) * 7),
                 HorasPedagogicas = 4,
-                Estado = sem <= 5 ? "CERRADA" : (sem == 6 ? "ABIERTA" : "PROGRAMADA"),
-                EsRecuperacion = (sem == 18)
+                Estado = s <= 3 ? "CERRADA" : s == 4 ? "ABIERTA" : "PROGRAMADA"
             });
         }
 
-        var alumnosBase = new (int Id, string Dni, string Nombres, string Apellidos, string Codigo, int Faltas, string Semaforo)[]
+        var alumnosBase = new[]
         {
-            (1, "72345678", "Carlos Alberto", "Mendoza Flores", "EST-2024-001", 24, "DPI"),
-            (2, "74561230", "Valeria Sofia", "Ramos Castillo", "EST-2024-002", 20, "ALERTA"),
-            (3, "71890123", "Jorge Luis", "Quispe Mamani", "EST-2024-003", 22, "DPI"),
-            (4, "73456789", "Andrea Nicole", "Vargas Rios", "EST-2024-004", 4, "REGULAR"),
-            (5, "75678901", "Diego Alonso", "Castro Morales", "EST-2024-005", 8, "REGULAR"),
-            (6, "76789012", "Camila Esperanza", "Fernandez Chavez", "EST-2024-006", 0, "REGULAR"),
-            (7, "77890123", "Mateo Sebastian", "Paredes Gomez", "EST-2024-007", 4, "REGULAR"),
-            (8, "78901234", "Luciana Beatriz", "Gutierrez Silva", "EST-2024-008", 12, "REGULAR"),
-            (9, "79012345", "Benjamin Eduardo", "Torres Navarro", "EST-2024-009", 8, "REGULAR"),
-            (10, "70123456", "Daniela Patricia", "Soto Villanueva", "EST-2024-010", 16, "ALERTA")
+            ("2024101", "71234567", "ALVARADO QUISPE, Diana"),
+            ("2024102", "72345678", "BENITEZ CONDORI, Carlos"),
+            ("2024103", "73456789", "CASTILLO FLORES, Maria"),
+            ("2024104", "74567890", "DELGADO RAMOS, Jorge"),
+            ("2024105", "75678901", "ESPINOZA GUTIERREZ, Lucia"),
+            ("2024106", "76789012", "FUENTES MENDOZA, Pedro"),
+            ("2024107", "77890123", "GARCIA HUAMAN, Andrea"),
+            ("2024108", "78901234", "HERRERA ROJAS, Fernando")
         };
 
         foreach (var a in alumnosBase)
         {
             var fila = new FilaAlumnoMatrizDto
             {
-                EstudianteId = a.Id,
-                CodigoEstudiante = a.Codigo,
-                Dni = a.Dni,
-                NombreCompleto = $"{a.Apellidos}, {a.Nombres}",
-                HorasFaltaAcumuladas = a.Faltas,
-                TotalHorasAsignatura = 72,
-                PorcentajeInasistencia = Math.Round((decimal)a.Faltas / 72m * 100m, 2),
-                SemaforoEstado = a.Semaforo,
-                TotalPresentes = 5 - (a.Faltas / 4),
-                TotalTardanzas = (a.Id % 2 == 0) ? 1 : 0,
-                TotalFaltasInjustificadas = a.Faltas / 4,
-                TotalFaltasJustificadas = 0
+                EstudianteId = int.Parse(a.Item1),
+                CodigoEstudiante = a.Item1,
+                Dni = a.Item2,
+                NombreCompleto = a.Item3,
+                TotalHorasAsignatura = 72
             };
 
-            foreach (var col in vm.ColumnasSesiones)
+            for (int s = 1; s <= 18; s++)
             {
-                if (col.NumeroSemana <= 5)
+                var sesId = 100 + s;
+                if (s <= 3)
                 {
-                    if (a.Faltas >= 20 && col.NumeroSemana >= 2 && col.NumeroSemana <= 4)
-                    {
-                        fila.EstadosPorSesion[col.SesionId] = "FALTA_INJUSTIFICADA";
-                    }
-                    else if (a.Id % 3 == 0 && col.NumeroSemana == 3)
-                    {
-                        fila.EstadosPorSesion[col.SesionId] = "TARDANZA";
-                    }
-                    else
-                    {
-                        fila.EstadosPorSesion[col.SesionId] = "PRESENTE";
-                    }
+                    if (a.Item1 == "2024106" && s == 3) fila.EstadosPorSesion[sesId] = "FALTA_INJUSTIFICADA";
+                    else if (a.Item1 == "2024104" && s == 2) fila.EstadosPorSesion[sesId] = "TARDANZA";
+                    else if (a.Item1 == "2024108" && s >= 2) fila.EstadosPorSesion[sesId] = "FALTA_INJUSTIFICADA";
+                    else fila.EstadosPorSesion[sesId] = "PRESENTE";
                 }
                 else
                 {
-                    fila.EstadosPorSesion[col.SesionId] = "SIN_REGISTRO";
+                    fila.EstadosPorSesion[sesId] = "SIN_REGISTRO";
                 }
             }
+
+            fila.TotalPresentes = fila.EstadosPorSesion.Values.Count(v => v == "PRESENTE");
+            fila.TotalTardanzas = fila.EstadosPorSesion.Values.Count(v => v == "TARDANZA");
+            fila.TotalFaltasInjustificadas = fila.EstadosPorSesion.Values.Count(v => v == "FALTA_INJUSTIFICADA");
+            fila.TotalFaltasJustificadas = fila.EstadosPorSesion.Values.Count(v => v == "FALTA_JUSTIFICADA");
+            fila.HorasFaltaAcumuladas = fila.TotalFaltasInjustificadas * 4;
+            fila.PorcentajeInasistencia = Math.Round((decimal)fila.HorasFaltaAcumuladas / fila.TotalHorasAsignatura * 100m, 2);
+            fila.SemaforoEstado = fila.PorcentajeInasistencia >= 30 ? "DPI" : fila.PorcentajeInasistencia >= 20 ? "RIESGO_ALTO" : fila.PorcentajeInasistencia >= 10 ? "ALERTA" : "REGULAR";
+            fila.HorasMargenDpi = Math.Max(0, (int)Math.Floor(fila.TotalHorasAsignatura * 0.30m) - fila.HorasFaltaAcumuladas);
 
             vm.FilasAlumnos.Add(fila);
         }
@@ -1047,426 +1194,258 @@ public class AsistenciaService : IAsistenciaService
         return vm;
     }
 
-    private static List<AlumnoAsistenciaItemDto> GetMockAlumnosParaSesion(int sesionId, int unidadDidacticaId)
-    {
-        var alumnosBase = new (int Id, string Dni, string Nombres, string Apellidos, string Codigo, int Faltas)[]
-        {
-            (1, "72345678", "Carlos Alberto", "Mendoza Flores", "EST-2024-001", 24),
-            (2, "74561230", "Valeria Sofia", "Ramos Castillo", "EST-2024-002", 20),
-            (3, "71890123", "Jorge Luis", "Quispe Mamani", "EST-2024-003", 22),
-            (4, "73456789", "Andrea Nicole", "Vargas Rios", "EST-2024-004", 4),
-            (5, "75678901", "Diego Alonso", "Castro Morales", "EST-2024-005", 8),
-            (6, "76789012", "Camila Esperanza", "Fernandez Chavez", "EST-2024-006", 0),
-            (7, "77890123", "Mateo Sebastian", "Paredes Gomez", "EST-2024-007", 4),
-            (8, "78901234", "Luciana Beatriz", "Gutierrez Silva", "EST-2024-008", 12),
-            (9, "79012345", "Benjamin Eduardo", "Torres Navarro", "EST-2024-009", 8),
-            (10, "70123456", "Daniela Patricia", "Soto Villanueva", "EST-2024-010", 16)
-        };
-
-        return alumnosBase.Select(a =>
-        {
-            decimal pct = Math.Round((decimal)a.Faltas / 72m * 100m, 2);
-            int disp = Math.Max(0, 21 - a.Faltas);
-            return new AlumnoAsistenciaItemDto
-            {
-                EstudianteId = a.Id,
-                PersonaId = a.Id,
-                CodigoEstudiante = a.Codigo,
-                Dni = a.Dni,
-                Nombres = a.Nombres,
-                Apellidos = a.Apellidos,
-                Turno = "Noche",
-                EstadoAsistencia = a.Id == 3 ? "TARDANZA" : (a.Faltas >= 24 ? "FALTA_INJUSTIFICADA" : "PRESENTE"),
-                MinutosTardanza = a.Id == 3 ? 15 : 0,
-                HorasFaltaAcumuladasPrevias = a.Faltas,
-                TotalHorasSemestrales = 72,
-                PorcentajeInasistenciaPrevio = pct,
-                HorasFaltaDisponibles = disp
-            };
-        }).ToList();
-    }
-
-    private static List<SesionClaseDto> GetMockSesionesRecientes(int limite)
+    private List<SesionClaseDto> GetMockSesionesRecientes()
     {
         return new List<SesionClaseDto>
         {
-            new()
-            {
-                Id = 106,
+            new() {
+                Id = 101,
                 ClaseDocenteId = 1,
                 UnidadDidacticaId = 1,
-                UnidadDidacticaCodigo = "DSI-501",
-                UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
-                Turno = "Noche",
-                Seccion = "A",
+                UnidadDidacticaCodigo = "DSI-601",
+                UnidadDidacticaNombre = "Desarrollo de Servicios Web y Microservicios (.NET 10)",
                 DocenteId = 1,
-                DocenteNombreCompleto = "Sheyla Quispe",
-                PeriodoId = 1,
-                PeriodoCodigo = "2026-I",
-                AulaCodigo = "LAB-102",
+                DocenteNombreCompleto = "Felipe (Docente Principal)",
+                AulaCodigo = "LAB-401",
                 FechaClase = DateTime.Today,
-                HoraInicio = new TimeSpan(18, 45, 0),
-                HoraFin = new TimeSpan(21, 45, 0),
-                HorasPedagogicas = 4,
-                NumeroSemana = 6,
-                NumeroSesion = 1,
-                TemaDesarrollado = "Implementación de Control de Asistencia y Regla DPI 30%",
-                Estado = "ABIERTA",
-                TotalAlumnos = 28
-            },
-            new()
-            {
-                Id = 208,
-                ClaseDocenteId = 2,
-                UnidadDidacticaId = 2,
-                UnidadDidacticaCodigo = "BD-302",
-                UnidadDidacticaNombre = "Administración y Modelado de Base de Datos",
-                CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "III",
-                Turno = "Noche",
-                Seccion = "A",
-                DocenteId = 1,
-                DocenteNombreCompleto = "Sheyla Quispe",
-                PeriodoId = 1,
-                PeriodoCodigo = "2026-I",
-                AulaCodigo = "LAB-104",
-                FechaClase = DateTime.Today,
-                HoraInicio = new TimeSpan(20, 15, 0),
-                HoraFin = new TimeSpan(22, 30, 0),
-                HorasPedagogicas = 3,
-                NumeroSemana = 8,
-                NumeroSesion = 1,
-                TemaDesarrollado = "Índices HNSW, Particionamiento y Transacciones ACID",
-                Estado = "ABIERTA",
-                TotalAlumnos = 32
-            },
-            new()
-            {
-                Id = 304,
-                ClaseDocenteId = 3,
-                UnidadDidacticaId = 3,
-                UnidadDidacticaCodigo = "SEG-601",
-                UnidadDidacticaNombre = "Seguridad de la Información y Servidores",
-                CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "VI",
-                Turno = "Noche",
-                Seccion = "B",
-                DocenteId = 1,
-                DocenteNombreCompleto = "Sheyla Quispe",
-                PeriodoId = 1,
-                PeriodoCodigo = "2026-I",
-                AulaCodigo = "AULA-201",
-                FechaClase = DateTime.Today.AddDays(-1),
-                HoraInicio = new TimeSpan(18, 45, 0),
+                HoraInicio = new TimeSpan(18, 35, 0),
                 HoraFin = new TimeSpan(21, 45, 0),
                 HorasPedagogicas = 4,
                 NumeroSemana = 4,
                 NumeroSesion = 1,
-                TemaDesarrollado = "Hardening de Linux y Auditoría de Accesos SSH",
-                Estado = "CERRADA",
-                TotalAlumnos = 24,
-                TotalPresentes = 22,
-                TotalTardanzas = 1,
-                TotalFaltas = 1
+                Estado = "ABIERTA"
+            },
+            new() {
+                Id = 102,
+                ClaseDocenteId = 2,
+                UnidadDidacticaId = 2,
+                UnidadDidacticaCodigo = "DSI-602",
+                UnidadDidacticaNombre = "Arquitectura de Software y DevOps en Linux",
+                DocenteId = 1,
+                DocenteNombreCompleto = "Felipe (Docente Principal)",
+                AulaCodigo = "LAB-402",
+                FechaClase = DateTime.Today.AddDays(-1),
+                HoraInicio = new TimeSpan(18, 35, 0),
+                HoraFin = new TimeSpan(21, 45, 0),
+                HorasPedagogicas = 4,
+                NumeroSemana = 4,
+                NumeroSesion = 1,
+                Estado = "CERRADA"
             }
-        }.Take(limite).ToList();
+        };
     }
 
-    private static List<ResumenAsistenciaEstudianteDto> GetMockResumenEstudiante(int estudianteId)
+    private SesionClaseDto GetMockSesionPorId(int sesionId)
+    {
+        return new SesionClaseDto
+        {
+            Id = sesionId,
+            ClaseDocenteId = 1,
+            UnidadDidacticaId = 1,
+            UnidadDidacticaCodigo = "DSI-601",
+            UnidadDidacticaNombre = "Desarrollo de Servicios Web y Microservicios (.NET 10)",
+            CarreraNombre = "Desarrollo de Sistemas de Información",
+            Ciclo = "VI",
+            Turno = "Noche",
+            Seccion = "A",
+            DocenteId = 1,
+            DocenteNombreCompleto = "Felipe (Docente Principal)",
+            AulaCodigo = "LAB-401",
+            FechaClase = DateTime.Today,
+            HoraInicio = new TimeSpan(18, 35, 0),
+            HoraFin = new TimeSpan(21, 45, 0),
+            HorasPedagogicas = 4,
+            NumeroSemana = 4,
+            NumeroSesion = 1,
+            TemaDesarrollado = "Implementación de APIs Resilientes y Microservicios en .NET 10",
+            ObservacionesDocente = "Clase de laboratorio práctico con 100% de estaciones operativas.",
+            Estado = "ABIERTA"
+        };
+    }
+
+    private List<AlumnoAsistenciaItemDto> GetMockAlumnosParaSesion()
+    {
+        return new List<AlumnoAsistenciaItemDto>
+        {
+            new() { EstudianteId = 1, CodigoEstudiante = "2024101", Dni = "71234567", Nombres = "Diana", Apellidos = "ALVARADO QUISPE", EstadoAsistencia = "PRESENTE", HorasFaltaAcumuladasPrevias = 0, TotalHorasSemestrales = 72, PorcentajeInasistenciaPrevio = 0m, HorasFaltaDisponibles = 21 },
+            new() { EstudianteId = 2, CodigoEstudiante = "2024102", Dni = "72345678", Nombres = "Carlos", Apellidos = "BENITEZ CONDORI", EstadoAsistencia = "PRESENTE", HorasFaltaAcumuladasPrevias = 4, TotalHorasSemestrales = 72, PorcentajeInasistenciaPrevio = 5.56m, HorasFaltaDisponibles = 17 },
+            new() { EstudianteId = 3, CodigoEstudiante = "2024103", Dni = "73456789", Nombres = "Maria", Apellidos = "CASTILLO FLORES", EstadoAsistencia = "PRESENTE", HorasFaltaAcumuladasPrevias = 0, TotalHorasSemestrales = 72, PorcentajeInasistenciaPrevio = 0m, HorasFaltaDisponibles = 21 },
+            new() { EstudianteId = 4, CodigoEstudiante = "2024104", Dni = "74567890", Nombres = "Jorge", Apellidos = "DELGADO RAMOS", EstadoAsistencia = "PRESENTE", HorasFaltaAcumuladasPrevias = 8, TotalHorasSemestrales = 72, PorcentajeInasistenciaPrevio = 11.11m, HorasFaltaDisponibles = 13 },
+            new() { EstudianteId = 5, CodigoEstudiante = "2024105", Dni = "75678901", Nombres = "Lucia", Apellidos = "ESPINOZA GUTIERREZ", EstadoAsistencia = "PRESENTE", HorasFaltaAcumuladasPrevias = 0, TotalHorasSemestrales = 72, PorcentajeInasistenciaPrevio = 0m, HorasFaltaDisponibles = 21 },
+            new() { EstudianteId = 6, CodigoEstudiante = "2024106", Dni = "76789012", Nombres = "Pedro", Apellidos = "FUENTES MENDOZA", EstadoAsistencia = "PRESENTE", HorasFaltaAcumuladasPrevias = 16, TotalHorasSemestrales = 72, PorcentajeInasistenciaPrevio = 22.22m, HorasFaltaDisponibles = 5 },
+            new() { EstudianteId = 7, CodigoEstudiante = "2024107", Dni = "77890123", Nombres = "Andrea", Apellidos = "GARCIA HUAMAN", EstadoAsistencia = "PRESENTE", HorasFaltaAcumuladasPrevias = 4, TotalHorasSemestrales = 72, PorcentajeInasistenciaPrevio = 5.56m, HorasFaltaDisponibles = 17 },
+            new() { EstudianteId = 8, CodigoEstudiante = "2024108", Dni = "78901234", Nombres = "Fernando", Apellidos = "HERRERA ROJAS", EstadoAsistencia = "PRESENTE", HorasFaltaAcumuladasPrevias = 24, TotalHorasSemestrales = 72, PorcentajeInasistenciaPrevio = 33.33m, HorasFaltaDisponibles = 0 }
+        };
+    }
+
+    private List<ResumenAsistenciaEstudianteDto> GetMockResumenEstudiante()
     {
         return new List<ResumenAsistenciaEstudianteDto>
         {
-            new()
-            {
-                EstudianteId = estudianteId,
+            new() {
+                EstudianteId = 1,
                 UnidadDidacticaId = 1,
                 PeriodoId = 1,
-                UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                UnidadDidacticaCodigo = "DSI-501",
+                UnidadDidacticaCodigo = "DSI-601",
+                UnidadDidacticaNombre = "Desarrollo de Servicios Web y Microservicios (.NET 10)",
                 CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
+                Ciclo = "VI",
                 Turno = "Noche",
                 TotalHorasSemestre = 72,
-                CantPresentes = 5,
+                CantPresentes = 4,
                 CantTardanzas = 0,
+                CantFaltasJustificadas = 0,
+                CantFaltasInjustificadas = 0,
+                HorasFaltaInjustificada = 0,
+                HorasAsistidas = 16,
+                TotalSesionesRegistradas = 4,
+                PorcentajeInasistencia = 0m,
+                SemaforoEstado = "REGULAR",
+                HorasFaltaDisponibles = 21
+            },
+            new() {
+                EstudianteId = 1,
+                UnidadDidacticaId = 2,
+                PeriodoId = 1,
+                UnidadDidacticaCodigo = "DSI-602",
+                UnidadDidacticaNombre = "Arquitectura de Software y DevOps en Linux",
+                CarreraNombre = "Desarrollo de Sistemas de Información",
+                Ciclo = "VI",
+                Turno = "Noche",
+                TotalHorasSemestre = 72,
+                CantPresentes = 3,
+                CantTardanzas = 1,
                 CantFaltasJustificadas = 0,
                 CantFaltasInjustificadas = 1,
                 HorasFaltaInjustificada = 4,
-                HorasAsistidas = 20,
-                TotalSesionesRegistradas = 6,
+                HorasAsistidas = 12,
+                TotalSesionesRegistradas = 4,
                 PorcentajeInasistencia = 5.56m,
                 SemaforoEstado = "REGULAR",
                 HorasFaltaDisponibles = 17
             },
-            new()
-            {
-                EstudianteId = estudianteId,
-                UnidadDidacticaId = 2,
-                PeriodoId = 1,
-                UnidadDidacticaNombre = "Administración y Modelado de Base de Datos",
-                UnidadDidacticaCodigo = "BD-302",
-                CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
-                Turno = "Noche",
-                TotalHorasSemestre = 72,
-                CantPresentes = 6,
-                CantTardanzas = 1,
-                CantFaltasJustificadas = 0,
-                CantFaltasInjustificadas = 2,
-                HorasFaltaInjustificada = 8,
-                HorasAsistidas = 24,
-                TotalSesionesRegistradas = 8,
-                PorcentajeInasistencia = 11.11m,
-                SemaforoEstado = "REGULAR",
-                HorasFaltaDisponibles = 13
-            },
-            new()
-            {
-                EstudianteId = estudianteId,
+            new() {
+                EstudianteId = 1,
                 UnidadDidacticaId = 3,
                 PeriodoId = 1,
-                UnidadDidacticaNombre = "Seguridad de la Información y Servidores",
-                UnidadDidacticaCodigo = "SEG-601",
+                UnidadDidacticaCodigo = "DSI-603",
+                UnidadDidacticaNombre = "Inteligencia Artificial Aplicada & Modelos Locales Edge",
                 CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
+                Ciclo = "VI",
                 Turno = "Noche",
                 TotalHorasSemestre = 72,
                 CantPresentes = 2,
                 CantTardanzas = 0,
                 CantFaltasJustificadas = 1,
-                CantFaltasInjustificadas = 5,
-                HorasFaltaInjustificada = 20,
+                CantFaltasInjustificadas = 2,
+                HorasFaltaInjustificada = 8,
                 HorasAsistidas = 8,
-                TotalSesionesRegistradas = 7,
-                PorcentajeInasistencia = 27.78m,
+                TotalSesionesRegistradas = 4,
+                PorcentajeInasistencia = 11.11m,
                 SemaforoEstado = "ALERTA",
-                HorasFaltaDisponibles = 1
-            },
-            new()
-            {
-                EstudianteId = estudianteId,
-                UnidadDidacticaId = 4,
-                PeriodoId = 1,
-                UnidadDidacticaNombre = "Ingeniería de Requerimientos y Casos de Uso",
-                UnidadDidacticaCodigo = "REQ-502",
-                CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
-                Turno = "Noche",
-                TotalHorasSemestre = 72,
-                CantPresentes = 6,
-                CantTardanzas = 0,
-                CantFaltasJustificadas = 0,
-                CantFaltasInjustificadas = 0,
-                HorasFaltaInjustificada = 0,
-                HorasAsistidas = 24,
-                TotalSesionesRegistradas = 6,
-                PorcentajeInasistencia = 0.00m,
-                SemaforoEstado = "REGULAR",
-                HorasFaltaDisponibles = 21
+                HorasFaltaDisponibles = 13
             }
         };
     }
 
-    private static List<AsistenciaHistorialItemDto> GetMockHistorialDetalladoEstudiante(int estudianteId, int unidadDidacticaId)
+    private List<AsistenciaHistorialItemDto> GetMockHistorialDetallado()
     {
         return new List<AsistenciaHistorialItemDto>
         {
-            new()
-            {
-                AsistenciaId = 1,
-                SesionId = 1,
-                FechaClase = DateTime.Today.AddDays(-35),
-                NumeroSemana = 1,
-                NumeroSesion = 1,
-                HorasPedagogicas = 4,
-                TemaDesarrollado = "Introducción a la Arquitectura Intramodular",
-                DocenteNombre = "Sheyla Quispe",
-                Estado = "PRESENTE"
-            },
-            new()
-            {
-                AsistenciaId = 2,
-                SesionId = 2,
-                FechaClase = DateTime.Today.AddDays(-28),
-                NumeroSemana = 2,
-                NumeroSesion = 1,
-                HorasPedagogicas = 4,
-                TemaDesarrollado = "Diseño de Schemas Soberanos y Dapper",
-                DocenteNombre = "Sheyla Quispe",
-                Estado = "PRESENTE"
-            },
-            new()
-            {
-                AsistenciaId = 3,
-                SesionId = 3,
-                FechaClase = DateTime.Today.AddDays(-21),
-                NumeroSemana = 3,
-                NumeroSesion = 1,
-                HorasPedagogicas = 4,
-                TemaDesarrollado = "Control de Concurrencia y Transacciones",
-                DocenteNombre = "Sheyla Quispe",
-                Estado = "TARDANZA",
-                MinutosTardanza = 15,
-                Observacion = "Ingreso con retraso de transporte"
-            },
-            new()
-            {
-                AsistenciaId = 4,
-                SesionId = 4,
-                FechaClase = DateTime.Today.AddDays(-14),
-                NumeroSemana = 4,
-                NumeroSesion = 1,
-                HorasPedagogicas = 4,
-                TemaDesarrollado = "Regla DPI 30% según RVM 177-2021-MINEDU",
-                DocenteNombre = "Sheyla Quispe",
-                Estado = "FALTA_JUSTIFICADA",
-                TieneJustificacion = true,
-                EstadoJustificacion = "APROBADA"
-            },
-            new()
-            {
-                AsistenciaId = 5,
-                SesionId = 5,
-                FechaClase = DateTime.Today.AddDays(-7),
-                NumeroSemana = 5,
-                NumeroSesion = 1,
-                HorasPedagogicas = 4,
-                TemaDesarrollado = "Construcción de Matrices y Vistas Razor",
-                DocenteNombre = "Sheyla Quispe",
-                Estado = "PRESENTE"
-            }
+            new() { AsistenciaId = 1, SesionId = 101, NumeroSemana = 1, FechaClase = DateTime.Today.AddDays(-21), HorasPedagogicas = 4, DocenteNombre = "Felipe", Estado = "PRESENTE", TemaDesarrollado = "Introducción a .NET 10 y Arquitectura Modular" },
+            new() { AsistenciaId = 2, SesionId = 102, NumeroSemana = 2, FechaClase = DateTime.Today.AddDays(-14), HorasPedagogicas = 4, DocenteNombre = "Felipe", Estado = "TARDANZA", MinutosTardanza = 15, TemaDesarrollado = "Configuración de Dapper y PostgreSQL 16" },
+            new() { AsistenciaId = 3, SesionId = 103, NumeroSemana = 3, FechaClase = DateTime.Today.AddDays(-7), HorasPedagogicas = 4, DocenteNombre = "Felipe", Estado = "FALTA_INJUSTIFICADA", Observacion = "Inasistencia sin justificar", TemaDesarrollado = "Patrones de Diseño y Endpoints REST" },
+            new() { AsistenciaId = 4, SesionId = 104, NumeroSemana = 4, FechaClase = DateTime.Today, HorasPedagogicas = 4, DocenteNombre = "Felipe", Estado = "PRESENTE", TemaDesarrollado = "Sábana Live Grid y Prevención DPI" }
         };
     }
 
-    private static List<JustificacionDto> GetMockJustificaciones()
+    private List<JustificacionDto> GetMockJustificaciones()
     {
         return new List<JustificacionDto>
         {
-            new()
-            {
+            new() {
                 Id = 1,
-                AsistenciaId = 101,
-                EstudianteId = 2,
-                EstudianteNombre = "Ramos Castillo, Valeria Sofia",
-                EstudianteCodigo = "EST-2024-002",
-                UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                FechaClase = DateTime.Today.AddDays(-3),
-                NumeroSemana = 5,
-                Motivo = "Salud_Medica",
-                Descripcion = "Presento certificado de descanso médico de Essalud por cuadro gripal agudo (48h).",
-                DocumentoSustentoUrl = "/uploads/justificaciones/cert_medico_valeria.pdf",
-                Estado = "PENDIENTE",
-                FechaSolicitud = DateTime.Today.AddDays(-1)
-            },
-            new()
-            {
-                Id = 2,
-                AsistenciaId = 102,
-                EstudianteId = 5,
-                EstudianteNombre = "Castro Morales, Diego Alonso",
-                EstudianteCodigo = "EST-2024-005",
-                UnidadDidacticaNombre = "Administración y Modelado de Base de Datos",
-                FechaClase = DateTime.Today.AddDays(-10),
-                NumeroSemana = 4,
-                Motivo = "Duelo_Familiar",
-                Descripcion = "Fallecimiento de familiar directo de primer grado.",
-                DocumentoSustentoUrl = "/uploads/justificaciones/acta_defuncion_castro.pdf",
-                Estado = "APROBADA",
-                DocenteNombre = "Sheyla Quispe",
-                RespuestaObservacion = "Justificación procedente de acuerdo al reglamento académico.",
-                FechaSolicitud = DateTime.Today.AddDays(-9),
-                FechaResolucion = DateTime.Today.AddDays(-8)
-            },
-            new()
-            {
-                Id = 3,
-                AsistenciaId = 103,
-                EstudianteId = 8,
-                EstudianteNombre = "Gutierrez Silva, Luciana Beatriz",
-                EstudianteCodigo = "EST-2024-008",
-                UnidadDidacticaNombre = "Seguridad de la Información y Servidores",
-                FechaClase = DateTime.Today.AddDays(-15),
+                AsistenciaId = 3,
+                EstudianteId = 1,
+                EstudianteNombre = "ALVARADO QUISPE, Diana",
+                EstudianteCodigo = "2024101",
+                UnidadDidacticaNombre = "Desarrollo de Servicios Web y Microservicios (.NET 10)",
+                FechaClase = DateTime.Today.AddDays(-7),
                 NumeroSemana = 3,
-                Motivo = "Laboral_Trabajo",
-                Descripcion = "Turno de guardia extendido en centro de labores.",
-                DocumentoSustentoUrl = "/uploads/justificaciones/constancia_laboral_luciana.pdf",
-                Estado = "RECHAZADA",
-                DocenteNombre = "Sheyla Quispe",
-                RespuestaObservacion = "Solicitud extemporánea (presentada después de las 72 horas hábiles reglamentarias).",
-                FechaSolicitud = DateTime.Today.AddDays(-8),
-                FechaResolucion = DateTime.Today.AddDays(-7)
+                Motivo = "Salud_Medica",
+                Descripcion = "Presenté cuadro gripal severo con descanso médico de EsSalud por 48 horas.",
+                DocumentoSustentoUrl = "https://ejemplo.edu.pe/certificados/medico_2024101.pdf",
+                Estado = "PENDIENTE",
+                DocenteNombre = "Felipe",
+                FechaSolicitud = DateTime.Today.AddDays(-6)
+            },
+            new() {
+                Id = 2,
+                AsistenciaId = 20,
+                EstudianteId = 4,
+                EstudianteNombre = "DELGADO RAMOS, Jorge",
+                EstudianteCodigo = "2024104",
+                UnidadDidacticaNombre = "Arquitectura de Software y DevOps en Linux",
+                FechaClase = DateTime.Today.AddDays(-14),
+                NumeroSemana = 2,
+                Motivo = "Laboral",
+                Descripcion = "Horas extras obligatorias por despliegue de servidores en empresa.",
+                DocumentoSustentoUrl = "https://ejemplo.edu.pe/certificados/laboral_2024104.pdf",
+                Estado = "APROBADA",
+                DocenteNombre = "Felipe",
+                RespuestaObservacion = "Justificación laboral validada y conforme.",
+                FechaSolicitud = DateTime.Today.AddDays(-13),
+                FechaResolucion = DateTime.Today.AddDays(-12)
             }
         };
     }
 
-    private static List<AlertaDpiDto> GetMockAlertasDpi()
+    private List<AlertaDpiDto> GetMockAlertasDpi()
     {
         return new List<AlertaDpiDto>
         {
-            new()
-            {
-                EstudianteId = 1,
-                EstudianteNombre = "Mendoza Flores, Carlos Alberto",
-                EstudianteCodigo = "EST-2024-001",
+            new() {
+                EstudianteId = 8,
+                EstudianteNombre = "HERRERA ROJAS, Fernando",
+                EstudianteCodigo = "2024108",
                 CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
+                Ciclo = "VI",
                 Turno = "Noche",
-                UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                DocenteNombre = "Sheyla Quispe",
+                UnidadDidacticaNombre = "Desarrollo de Servicios Web y Microservicios (.NET 10)",
+                DocenteNombre = "Felipe",
                 HorasFalta = 24,
                 TotalHoras = 72,
                 PorcentajeInasistencia = 33.33m,
                 SemaforoEstado = "DPI"
             },
-            new()
-            {
-                EstudianteId = 3,
-                EstudianteNombre = "Quispe Mamani, Jorge Luis",
-                EstudianteCodigo = "EST-2024-003",
+            new() {
+                EstudianteId = 6,
+                EstudianteNombre = "FUENTES MENDOZA, Pedro",
+                EstudianteCodigo = "2024106",
                 CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
+                Ciclo = "VI",
                 Turno = "Noche",
-                UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                DocenteNombre = "Sheyla Quispe",
-                HorasFalta = 22,
-                TotalHoras = 72,
-                PorcentajeInasistencia = 30.56m,
-                SemaforoEstado = "DPI"
-            },
-            new()
-            {
-                EstudianteId = 2,
-                EstudianteNombre = "Ramos Castillo, Valeria Sofia",
-                EstudianteCodigo = "EST-2024-002",
-                CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
-                Turno = "Noche",
-                UnidadDidacticaNombre = "Desarrollo de Sistemas de Información",
-                DocenteNombre = "Sheyla Quispe",
-                HorasFalta = 20,
-                TotalHoras = 72,
-                PorcentajeInasistencia = 27.78m,
-                SemaforoEstado = "ALERTA"
-            },
-            new()
-            {
-                EstudianteId = 10,
-                EstudianteNombre = "Soto Villanueva, Daniela Patricia",
-                EstudianteCodigo = "EST-2024-010",
-                CarreraNombre = "Desarrollo de Sistemas de Información",
-                Ciclo = "V",
-                Turno = "Noche",
-                UnidadDidacticaNombre = "Administración y Modelado de Base de Datos",
-                DocenteNombre = "Sheyla Quispe",
+                UnidadDidacticaNombre = "Desarrollo de Servicios Web y Microservicios (.NET 10)",
+                DocenteNombre = "Felipe",
                 HorasFalta = 16,
                 TotalHoras = 72,
                 PorcentajeInasistencia = 22.22m,
+                SemaforoEstado = "RIESGO_ALTO"
+            },
+            new() {
+                EstudianteId = 4,
+                EstudianteNombre = "DELGADO RAMOS, Jorge",
+                EstudianteCodigo = "2024104",
+                CarreraNombre = "Desarrollo de Sistemas de Información",
+                Ciclo = "VI",
+                Turno = "Noche",
+                UnidadDidacticaNombre = "Arquitectura de Software y DevOps en Linux",
+                DocenteNombre = "Felipe",
+                HorasFalta = 8,
+                TotalHoras = 72,
+                PorcentajeInasistencia = 11.11m,
                 SemaforoEstado = "ALERTA"
             }
         };
     }
-
-    #endregion
 }

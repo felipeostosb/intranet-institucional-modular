@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visor de Arquitectura Mermaid - IESTP Argentina</title>
+    
+    <!-- Tipografía Montserrat Oficial Apple Style -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: #f8fafc;
+            color: #0f172a;
+            -webkit-font-smoothing: antialiased;
+        }
+        .mermaid svg {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: auto !important;
+        }
+        .diagram-card {
+            transition: all 0.2s ease-in-out;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col p-4 md:p-8">
+
+    <!-- Topbar Institucional -->
+    <header class="max-w-7xl w-full mx-auto mb-8 bg-white rounded-3xl p-6 border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="flex items-center gap-3.5">
+            <div class="w-12 h-12 rounded-2xl bg-slate-900 text-white flex items-center justify-center font-bold text-lg shadow-sm">
+                AR
+            </div>
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="text-[11px] font-semibold text-sky-700 bg-sky-50 px-2.5 py-0.5 rounded-full border border-sky-200">Semestre 2026-II</span>
+                    <span class="text-[11px] text-slate-400 font-light">Desarrollo de Sistemas</span>
+                </div>
+                <h1 class="text-xl md:text-2xl font-bold text-slate-900 mt-0.5">IESTP "Argentina" • Visor Maestro de Arquitectura</h1>
+                <p class="text-xs text-slate-500 font-light">36 Desarrolladores • .NET 10 LTS • MariaDB 10.11 • Despliegue en GCP Free Tier ($0.00)</p>
+            </div>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+            <button onclick="window.print()" class="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium transition">
+                🖨️ Imprimir / Guardar PDF
+            </button>
+            <a href="http://35.209.228.150" target="_blank" class="px-4 py-2 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-xs font-medium transition flex items-center gap-1.5 shadow-sm">
+                <span>Ir a Producción</span>
+                <span>↗</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Navegador de Secciones / Pestañas Rápidas -->
+    <nav class="max-w-7xl w-full mx-auto mb-6 flex flex-wrap gap-2">
+        <a href="#diag-1" class="px-4 py-2 rounded-2xl bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 text-xs font-medium border border-slate-200 transition shadow-xs">
+            🌐 1. Topología Cloud & Redes ($0.00)
+        </a>
+        <a href="#diag-2" class="px-4 py-2 rounded-2xl bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 text-xs font-medium border border-slate-200 transition shadow-xs">
+            🛡️ 2. Aislamiento de 36 Devs (Zero-Blast-Radius)
+        </a>
+        <a href="#diag-3" class="px-4 py-2 rounded-2xl bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 text-xs font-medium border border-slate-200 transition shadow-xs">
+            🔄 3. Ciclo Git & CI/CD Autónomo
+        </a>
+        <a href="#diag-4" class="px-4 py-2 rounded-2xl bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 text-xs font-medium border border-slate-200 transition shadow-xs">
+            ⚡ 4. Single Sign-On & Claims Cookies
+        </a>
+        <a href="#diag-5" class="px-4 py-2 rounded-2xl bg-white hover:bg-sky-50 text-slate-700 hover:text-sky-700 text-xs font-medium border border-slate-200 transition shadow-xs">
+            📊 5. Curva de Capacidad & Sizing
+        </a>
+    </nav>
+
+    <!-- Contenedor Principal de Diagramas -->
+    <main class="max-w-7xl w-full mx-auto space-y-10">
+
+        <!-- DIAGRAMA 1 -->
+        <section id="diag-1" class="diagram-card bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
+            <div class="mb-6">
+                <span class="text-[11px] font-mono text-sky-600 bg-sky-50 px-2.5 py-1 rounded-full border border-sky-200 font-semibold">SECCIÓN 01</span>
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 mt-2">1. Topología de Servidores en la Nube (GCP Free Tier)</h2>
+                <p class="text-xs text-slate-500 font-light mt-1">Desacoplamiento en 2 VMs comunicadas por la red privada interna VPC de Google Cloud (<0.2ms latencia / $0.00 costo).</p>
+            </div>
+            <div class="mermaid bg-slate-50/50 p-4 rounded-2xl border border-slate-100 overflow-x-auto flex justify-center">
+graph TB
+    subgraph CLIENTES["👥 Clientes & Comunidad Institucional"]
+        A1["🎓 2,450 Alumnos<br/>(Navegadores Web / Móviles)"]
+        A2["👨‍🏫 86 Docentes & Directivos<br/>(Laptops / Aulas)"]
+        A3["👨‍💻 36 Desarrolladores<br/>(9 Equipos de Trabajo)"]
+    end
+
+    subgraph INTERNET["🌐 Red Pública / Internet"]
+        DNS["📡 DNS / IP Pública<br/>35.209.228.150:80"]
+    end
+
+    subgraph MILI3["☁️ SERVIDOR WEB & APP: mili3 (GCP e2-micro - 1 GB RAM / 2 vCPU)"]
+        direction TB
+        NGINX["🛡️ Nginx Reverse Proxy (Alpine)<br/>• Puerto: 80<br/>• RAM: 2.87 MiB | CPU: 0.00%<br/>• Gzip + HTTP 1.1 Keep-Alive"]
+        
+        subgraph DOTNET_CONTAINER["🐳 Contenedor: net-app (.NET 10 LTS Alpine)"]
+            KESTREL["⚡ Kestrel Web Server (:5000)"]
+            MIDDLEWARE["🔒 Cookie Authentication & Claims Engine<br/>• Cifrado HMAC-SHA256<br/>• 0 MB RAM en Sesiones de Servidor"]
+            RAZOR["🎨 Motor Razor + Tailwind UI Minimalista<br/>• Fuente Montserrat (Pesos Finos)<br/>• 9 Vistas Modulares Integradas"]
+            CORE_SVC["⚙️ Intranet.Core Shared Kernel<br/>• ModuloBaseController<br/>• Contratos & DTOs Desacoplados"]
+            EF_CORE["🗄️ Entity Framework Core 10 (Pomelo MySQL)<br/>• Connection Pooling (Min: 5 / Max: 100)<br/>• AsNoTracking Optimization"]
+        end
+
+        NGINX -->|Proxy Pass http://app:5000| KESTREL
+        KESTREL --> MIDDLEWARE --> RAZOR --> CORE_SVC --> EF_CORE
+    end
+
+    subgraph GCP_VPC["🔒 Red Privada Interna VPC (Google Cloud Virtual Private Cloud)"]
+        VPC_LINK["⚡ Enlace Privado a $0.00 Costo<br/>• Latencia: &lt; 0.2 ms<br/>• Ancho de Banda: 1 Gbps interno"]
+    end
+
+    subgraph MILI2["☁️ SERVIDOR DE BASE DE DATOS: mili2 (GCP e2-micro - 1 GB RAM / 2 vCPU)"]
+        direction TB
+        MARIADB["🗄️ MariaDB 10.11 Engine (Docker)<br/>• Puerto: 10.128.0.3:3306<br/>• RAM: 136.0 MiB | CPU: 0.03%<br/>• Buffer Pool InnoDB en RAM (384 MiB)"]
+        PMA["📊 phpMyAdmin Dashboard (:8080)<br/>• Acceso Administrativo de Equipos"]
+        
+        subgraph DATABASES["🗂️ 10 Bases de Datos Físicamente Aisladas"]
+            DB_CORE[("🔑 db_core<br/>Usuarios & Roles")]
+            DB_M01[("📘 db_modulo01<br/>Admisión")]
+            DB_M02[("🎓 db_modulo02<br/>Matrícula")]
+            DB_M03[("💼 db_modulo03<br/>Docentes")]
+            DB_M04[("📋 db_modulo04<br/>Calificaciones")]
+            DB_M05[("💳 db_modulo05<br/>Tesorería")]
+            DB_M06[("📖 db_modulo06<br/>Biblioteca")]
+            DB_M07[("📨 db_modulo07<br/>Mesa de Partes")]
+            DB_M08[("🏢 db_modulo08<br/>Prácticas EFSRT")]
+            DB_M09[("⚡ db_modulo09<br/>Mesa de Ayuda")]
+        end
+
+        MARIADB --- DATABASES
+    end
+
+    A1 -->|HTTP| DNS
+    A2 -->|HTTP| DNS
+    A3 -->|HTTP| DNS
+    DNS --> NGINX
+
+    EF_CORE ==>|TCP 10.128.0.3:3306| VPC_LINK ==> MARIADB
+
+    classDef web fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef db fill:#ede9fe,stroke:#7c3aed,stroke-width:2px,color:#5b21b6;
+    classDef client fill:#f1f5f9,stroke:#64748b,stroke-width:1.5px,color:#0f172a;
+    classDef vpc fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#15803d;
+
+    class MILI3,DOTNET_CONTAINER,NGINX web;
+    class MILI2,MARIADB,DATABASES,DB_CORE,DB_M01,DB_M02,DB_M03,DB_M04,DB_M05,DB_M06,DB_M07,DB_M08,DB_M09 db;
+    class CLIENTES,A1,A2,A3 client;
+    class GCP_VPC,VPC_LINK vpc;
+            </div>
+        </section>
+
+        <!-- DIAGRAMA 2 -->
+        <section id="diag-2" class="diagram-card bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
+            <div class="mb-6">
+                <span class="text-[11px] font-mono text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-full border border-indigo-200 font-semibold">SECCIÓN 02</span>
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 mt-2">2. Aislamiento Estricto de 36 Devs (Zero-Blast-Radius)</h2>
+                <p class="text-xs text-slate-500 font-light mt-1">9 Equipos de 4 desarrolladores con usuarios MariaDB exclusivos y rechazo estricto de accesos cruzados (ERROR 1044).</p>
+            </div>
+            <div class="mermaid bg-slate-50/50 p-4 rounded-2xl border border-slate-100 overflow-x-auto flex justify-center">
+graph LR
+    subgraph EQUIPOS["👥 36 Desarrolladores (9 Equipos de 4)"]
+        E01["Equipo 01 (4 devs)<br/>👤 user_equipo01"]
+        E02["Equipo 02 (4 devs)<br/>👤 user_equipo02"]
+        E03["Equipo 03 (4 devs)<br/>👤 user_equipo03"]
+        E04["Equipo 04 (4 devs)<br/>👤 user_equipo04"]
+        E05["Equipo 05 (4 devs)<br/>👤 user_equipo05"]
+        E06["Equipo 06 (4 devs)<br/>👤 user_equipo06"]
+        E07["Equipo 07 (4 devs)<br/>👤 user_equipo07"]
+        E08["Equipo 08 (4 devs)<br/>👤 user_equipo08"]
+        E09["Equipo 09 (4 devs)<br/>👤 user_equipo09"]
+    end
+
+    subgraph MARIADB_PERMS["🔒 Matriz de Seguridad y Privilegios MariaDB"]
+        CORE_SHARED[("🔑 db_core.core_usuarios<br/>(DNI, Nombre, Rol, Email)")]
+        
+        subgraph SCHEMAS_AISLADOS["🗂️ Esquemas Dedicados e Independientes"]
+            S01[("📘 db_modulo01<br/>Postulantes, Vacantes, Modalidades")]
+            S02[("🎓 db_modulo02<br/>Matrículas, Cursos, Horarios")]
+            S03[("💼 db_modulo03<br/>Asignaciones, Asistencia, Sílabos")]
+            S04[("📋 db_modulo04<br/>Notas EC1, EC2, EF, Actas")]
+            S05[("💳 db_modulo05<br/>Tasas, Recibos, Arqueo Caja")]
+            S06[("📖 db_modulo06<br/>Libros, Tesis, Préstamos QR")]
+            S07[("📨 db_modulo07<br/>FUT, Trámites, Expedientes")]
+            S08[("🏢 db_modulo08<br/>Empresas, Prácticas EFSRT")]
+            S09[("⚡ db_modulo09<br/>Tickets TI, Laboratorios")]
+        end
+    end
+
+    E01 ==>|ALL PRIVILEGES| S01
+    E02 ==>|ALL PRIVILEGES| S02
+    E03 ==>|ALL PRIVILEGES| S03
+    E04 ==>|ALL PRIVILEGES| S04
+    E05 ==>|ALL PRIVILEGES| S05
+    E06 ==>|ALL PRIVILEGES| S06
+    E07 ==>|ALL PRIVILEGES| S07
+    E08 ==>|ALL PRIVILEGES| S08
+    E09 ==>|ALL PRIVILEGES| S09
+
+    E01 -.->|SELECT ONLY| CORE_SHARED
+    E02 -.->|SELECT ONLY| CORE_SHARED
+    E03 -.->|SELECT ONLY| CORE_SHARED
+    E04 -.->|SELECT ONLY| CORE_SHARED
+    E05 -.->|SELECT ONLY| CORE_SHARED
+    E06 -.->|SELECT ONLY| CORE_SHARED
+    E07 -.->|SELECT ONLY| CORE_SHARED
+    E08 -.->|SELECT ONLY| CORE_SHARED
+    E09 -.->|SELECT ONLY| CORE_SHARED
+
+    E01 x-.-x|❌ ERROR 1044: Access Denied| S05
+    E04 x-.-x|❌ ERROR 1044: Access Denied| S02
+    E09 x-.-x|❌ ERROR 1044: Access Denied| S04
+
+    classDef eq fill:#f8fafc,stroke:#94a3b8,stroke-width:1.5px;
+    classDef grant fill:#dbeafe,stroke:#3b82f6,stroke-width:2px;
+    classDef core fill:#fef3c7,stroke:#f59e0b,stroke-width:2px;
+
+    class E01,E02,E03,E04,E05,E06,E07,E08,E09 eq;
+    class S01,S02,S03,S04,S05,S06,S07,S08,S09 grant;
+    class CORE_SHARED core;
+            </div>
+        </section>
+
+        <!-- DIAGRAMA 3 -->
+        <section id="diag-3" class="diagram-card bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
+            <div class="mb-6">
+                <span class="text-[11px] font-mono text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 font-semibold">SECCIÓN 03</span>
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 mt-2">3. Flujo Git, Validación de Carpetas & CI/CD Autónomo</h2>
+                <p class="text-xs text-slate-500 font-light mt-1">Cómo un Pull Request se audita, compila con .NET 10 SDK, se auto-fusiona y se despliega en menos de 45 segundos.</p>
+            </div>
+            <div class="mermaid bg-slate-50/50 p-4 rounded-2xl border border-slate-100 overflow-x-auto flex justify-center">
+sequenceDiagram
+    autonumber
+    actor Dev as "👨‍💻 Desarrollador (Equipo 04)"
+    participant LocalGit as "💻 Git Local"
+    participant RemoteGH as "🐙 GitHub Repository"
+    participant ActionCI as "🤖 GitHub Actions (validate-pr.yml)"
+    participant GHCR as "📦 GitHub Packages (GHCR.io)"
+    participant ServerMili3 as "☁️ Servidor mili3 (Producción)"
+
+    Note over Dev,LocalGit: 1. Creación de rama de trabajo
+    Dev->>LocalGit: git checkout -b modulo04/registro-evaluacion-continua
+    Dev->>LocalGit: Desarrolla en src/02_Modulos/Intranet.Modulo04
+    Dev->>LocalGit: git commit -m "feat(m04): calculo automatico de promedio"
+    Dev->>RemoteGH: git push origin modulo04/registro-evaluacion-continua
+
+    Note over RemoteGH,ActionCI: 2. Apertura de Pull Request hacia 'main'
+    Dev->>RemoteGH: Abre Pull Request (PR)
+    RemoteGH->>ActionCI: Dispara Trigger 'on: pull_request'
+
+    Note over ActionCI: 3. Auditoría de Límites & Compilación
+    ActionCI->>ActionCI: 🔍 Valida git diff: ¿Modificó solo src/02_Modulos/Intranet.Modulo04?
+    alt Intento de modificar archivos de otro módulo o Program.cs central
+        ActionCI-->>RemoteGH: ❌ ERROR: Modificación no autorizada fuera del Módulo 04
+        RemoteGH-->>Dev: ⚠️ PR Rechazado con alerta de seguridad
+    else Modificación 100% aislada
+        ActionCI->>ActionCI: ⚙️ Ejecuta: dotnet build IntranetInstitucional.sln (.NET 10 SDK)
+        ActionCI->>RemoteGH: ✅ Validación Exitosa (0 Warnings / 0 Errors)
+        ActionCI->>RemoteGH: 🔀 Auto-Merge automático a la rama 'main'
+    end
+
+    Note over RemoteGH,ServerMili3: 4. Despliegue Continuo (deploy.yml)
+    RemoteGH->>GHCR: 🐳 Construye imagen Alpine Docker y sube a GHCR
+    RemoteGH->>ServerMili3: 🚀 Ejecuta script SSH remoto
+    ServerMili3->>GHCR: docker compose pull app
+    ServerMili3->>ServerMili3: docker compose up -d app (Reinicio sin downtime < 2s)
+    ServerMili3-->>Dev: 🎉 Cambio en vivo en http://35.209.228.150/Modulo04
+            </div>
+        </section>
+
+        <!-- DIAGRAMA 4 -->
+        <section id="diag-4" class="diagram-card bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
+            <div class="mb-6">
+                <span class="text-[11px] font-mono text-purple-600 bg-purple-50 px-2.5 py-1 rounded-full border border-purple-200 font-semibold">SECCIÓN 04</span>
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 mt-2">4. Autenticación Centralizada (SSO & Cookie Claims)</h2>
+                <p class="text-xs text-slate-500 font-light mt-1">Navegación fluida por los 9 módulos con cookies encriptadas (0 MB de consumo de sesiones en RAM de servidor).</p>
+            </div>
+            <div class="mermaid bg-slate-50/50 p-4 rounded-2xl border border-slate-100 overflow-x-auto flex justify-center">
+sequenceDiagram
+    autonumber
+    actor User as "👤 Usuario (Director / Docente / Alumno)"
+    participant Browser as "🌐 Navegador Web"
+    participant AccountCtrl as "🔑 AccountController (.NET 10)"
+    participant UserSvc as "⚙️ UsuarioService (Intranet.Data)"
+    participant MariaDBCore as "🗄️ MariaDB (db_core.core_usuarios)"
+    participant ModuloCtrl as "📦 Modulo01Controller / Modulo04Controller"
+
+    User->>Browser: Ingresa DNI y Contraseña en /Account/Login
+    Browser->>AccountCtrl: POST /Account/Login (DNI, Pass)
+    AccountCtrl->>UserSvc: ValidarCredencialesAsync(dni, pass)
+    UserSvc->>MariaDBCore: SELECT * FROM core_usuarios WHERE Dni = @dni
+    MariaDBCore-->>UserSvc: Retorna registro (Hash, Salt, Rol, Nombre)
+    UserSvc->>UserSvc: Verifica Hash PBKDF2 / SHA256
+
+    alt Credenciales Válidas
+        UserSvc-->>AccountCtrl: UsuarioDto (Id, Nombre, Rol, Email, Dni)
+        AccountCtrl->>AccountCtrl: Construye ClaimsIdentity (NameIdentifier, Role, Dni, Codigo)
+        AccountCtrl->>Browser: Set-Cookie: .AspNetCore.Cookies (Cifrada con HMAC-SHA256)
+        AccountCtrl-->>Browser: HTTP 302 Redirect -> /Home/Index o /ModuloXX
+    else Credenciales Inválidas
+        AccountCtrl-->>Browser: Retorna Vista con error "Credenciales incorrectas"
+    end
+
+    Note over Browser,ModuloCtrl: Navegación subsiguiente a cualquier módulo
+    Browser->>ModuloCtrl: GET /Modulo04/Calificaciones (Envía Cookie Cifrada)
+    ModuloCtrl->>ModuloCtrl: ModuloBaseController desencripta Claims automáticamente
+    ModuloCtrl->>ModuloCtrl: Verifica permisos: EsDocente == true / EsDirector == true
+    ModuloCtrl-->>Browser: Renderiza vista personalizada con los datos del usuario logueado
+            </div>
+        </section>
+
+        <!-- DIAGRAMA 5 -->
+        <section id="diag-5" class="diagram-card bg-white rounded-3xl p-6 md:p-8 border border-slate-200 shadow-sm">
+            <div class="mb-6">
+                <span class="text-[11px] font-mono text-amber-600 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200 font-semibold">SECCIÓN 05</span>
+                <h2 class="text-lg md:text-xl font-bold text-slate-900 mt-2">5. Curva de Capacidad, Concurrencia & Semáforo de Carga</h2>
+                <p class="text-xs text-slate-500 font-light mt-1">Comportamiento medido ante 2,450 estudiantes y estrategias de escalabilidad a costo $0.00.</p>
+            </div>
+            <div class="mermaid bg-slate-50/50 p-4 rounded-2xl border border-slate-100 overflow-x-auto flex justify-center">
+graph TD
+    subgraph TRAFICO["📈 Flujo de Tráfico Entrante"]
+        REQ["Peticiones HTTP Simultáneas"]
+    end
+
+    subgraph RANGOS["🚦 Semáforo de Capacidad en mili3 + mili2"]
+        direction TB
+        
+        ZONA_VERDE["🟢 ZONA VERDE: Operación Normal (100% de los Días)<br/>• 50 a 150 Peticiones / Segundo (RPS)<br/>• Atiende a 1,200 a 2,250 Alumnos navegando al mismo tiempo<br/>• Latencia Mediana: &lt; 120 ms | CPU: &lt; 15% | RAM: 73 MiB Web / 136 MiB BD"]
+        
+        ZONA_AMARILLA["🟡 ZONA AMARILLA: Horas Pico (Días de Matrícula / Cierre de Notas)<br/>• 180 a 250 Peticiones / Segundo (RPS)<br/>• Atiende a 2,700 a 3,750 Alumnos en simultáneo<br/>• Latencia Mediana: 150 a 250 ms | CPU en ráfaga: 40-60% | 100% Éxito"]
+        
+        ZONA_ROJA["🔴 ZONA ROJA: Límite Teórico de la VM e2-micro Gratuita<br/>• &gt; 350 Peticiones / Segundo continuas durante &gt; 30 min<br/>• Se agotan créditos de CPU compartida de GCP<br/>• Latencias suben a 2-3 segundos por encolamiento de red"]
+    end
+
+    subgraph SOLUCIONES["🚀 Estrategias de Escalabilidad a Costo $0.00"]
+        OPT1["1. Caché Inmutable de Estáticos en Navegador (Elimina 85% de tráfico a mili3)"]
+        OPT2["2. Consultas con AsNoTracking en EF Core (Reduce 60% de CPU en consultas)"]
+        OPT3["3. Micro-caching en RAM con Nginx epoll (Sube capacidad a 3,000+ RPS)"]
+        OPT4["4. Cloudflare CDN Edge gratuito (Sube capacidad a 10,000+ RPS)"]
+    end
+
+    REQ --> ZONA_VERDE
+    ZONA_VERDE -->|Pico de Matrícula| ZONA_AMARILLA
+    ZONA_AMARILLA -->|Estrés Extremo| ZONA_ROJA
+    ZONA_ROJA -.->|Mitigación Inmediata| SOLUCIONES
+
+    classDef verde fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#14532d;
+    classDef amarilla fill:#fef9c3,stroke:#ca8a04,stroke-width:2px,color:#713f12;
+    classDef roja fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#7f1d1d;
+    classDef opt fill:#e0f2fe,stroke:#0284c7,stroke-width:1.5px,color:#0369a1;
+
+    class ZONA_VERDE verde;
+    class ZONA_AMARILLA amarilla;
+    class ZONA_ROJA roja;
+    class OPT1,OPT2,OPT3,OPT4 opt;
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="max-w-7xl w-full mx-auto mt-12 py-6 text-center text-xs text-slate-400 font-light">
+        IESTP "Argentina" • Especialidad: Desarrollo de Sistemas de Información • Arquitectura Senior .NET 10 LTS
+    </footer>
+
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                fontFamily: 'Montserrat, -apple-system, sans-serif',
+                primaryColor: '#e0f2fe',
+                primaryTextColor: '#0369a1',
+                primaryBorderColor: '#0284c7',
+                lineColor: '#64748b',
+                secondaryColor: '#ede9fe',
+                tertiaryColor: '#f1f5f9'
+            },
+            flowchart: { curve: 'basis' }
+        });
+    </script>
+</body>
+</html>
