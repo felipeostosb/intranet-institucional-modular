@@ -78,6 +78,40 @@ public class ResumenMatriculaDto
     public int Reservadas { get; set; }
 }
 
+// =====================================================================
+// Resumen del Módulo 01 por puesto (rol activo)
+// =====================================================================
+
+/// <summary>Panel del puesto de Tesorería: vouchers de reserva (CT13/TM05).</summary>
+public class ResumenTesoreriaMatriculaDto
+{
+    public int VouchersPendientes { get; set; }     // TM05 con pago Pendiente
+    public int VouchersValidados { get; set; }      // TM05 con pago Validado
+    public int VouchersRechazados { get; set; }      // TM05 con pago Rechazado
+    public decimal RecaudadoReservas { get; set; }  // sum CT13 validados
+    /// <summary>Reservas con voucher validado pero sin matrícula cerrada aún.</summary>
+    public int PagadasSinMatricular { get; set; }
+}
+
+/// <summary>Panel del puesto de Secretaría: cierre de matrículas.</summary>
+public class ResumenSecretariaMatriculaDto
+{
+    public int ListasParaCerrar { get; set; }       // voucher Validado + período habilitado, sin cerrar
+    public int MatriculadosPeriodo { get; set; }    // ya cerradas del período habilitado
+    public int EsperandoVoucher { get; set; }       // TM05 activo con voucher no validado
+    public int TramitesActivos { get; set; }        // TM05 en mesa (Recibido/En evaluación)
+    /// <summary>Matrículas cerradas por carrera (mini-gráfico).</summary>
+    public List<MatriculasPorCarreraDto> PorCarrera { get; set; } = [];
+}
+
+/// <summary>Fila del desglose de matrículas cerradas por carrera.</summary>
+public class MatriculasPorCarreraDto
+{
+    public string Codigo { get; set; } = "";   // DSI, CONT, ADM
+    public string Nombre { get; set; } = "";
+    public int Cantidad { get; set; }
+}
+
 /// <summary>Tablero de vacantes por carril.</summary>
 public class VacanteDto
 {

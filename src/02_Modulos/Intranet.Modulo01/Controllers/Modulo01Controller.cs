@@ -60,6 +60,15 @@ public class Modulo01Controller : ModuloBaseController
                 new { PersonaId = PersonaActualId ?? 0 }) ?? 0;
             vm.Panel = await _matriculaturaService.PanelAlumnoAsync(estudianteId);
         }
+
+        // Resumen POR PUESTO (rol activo) — anti-confusión Tesorería/Secretaría:
+        // Tesorería ve el estado económico de las reservas (vouchers CT13),
+        // Secretaría ve SU trabajo (cierres de matrícula). Jefaturas: vista general.
+        var rolActivo = ViewData["RolesUsuario"]?.ToString() ?? "";
+        if (rolActivo.Equals("Tesoreria", StringComparison.OrdinalIgnoreCase))
+            vm.ResumenTesoreria = await _matriculaturaService.ResumenTesoreriaAsync();
+        if (rolActivo.Equals("Secretaria", StringComparison.OrdinalIgnoreCase))
+            vm.ResumenSecretaria = await _matriculaturaService.ResumenSecretariaAsync();
         return View(vm);
     }
 }
@@ -75,4 +84,8 @@ public class Modulo01DashboardViewModel
     public string RolUsuario { get; set; } = "";
     /// <summary>Mini-dashboard personal (solo rol activo Alumno).</summary>
     public PanelAlumnoDto? Panel { get; set; }
+    /// <summary>Panel de vouchers de reserva (solo rol activo Tesorería).</summary>
+    public ResumenTesoreriaMatriculaDto? ResumenTesoreria { get; set; }
+    /// <summary>Panel de cierre de matrículas (solo rol activo Secretaría).</summary>
+    public ResumenSecretariaMatriculaDto? ResumenSecretaria { get; set; }
 }
