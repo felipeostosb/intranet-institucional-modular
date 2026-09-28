@@ -90,14 +90,17 @@ public class MatriculaturaController : ModuloBaseController
 
         // La reserva debe pertenecer al estudiante buscado (anti-suplantación)
         var expedienteChk = await _matriculatura.BuscarPorDniAsync(form.Dni);
-        if (expedienteChk?.Reserva == null || expedienteChk.Reserva.MatriculaId != form.MatriculaId)
+        if (expedienteChk?.Reserva == null
+            || (form.MatriculaId != null && expedienteChk.Reserva.MatriculaId != form.MatriculaId)
+            || (form.TramiteId != null && expedienteChk.Reserva.TramiteId != form.TramiteId))
         {
             MostrarAlertaError("La reserva indicada no corresponde al estudiante.");
             return RedirectToAction(nameof(Expediente), new { dni = form.Dni });
         }
 
         var cmd = new MatricularCommand(
-            form.Dni, form.MatriculaId, form.TurnoId, form.TipoMatriculaId,
+            form.Dni, form.MatriculaId, form.TramiteId, form.CicloProximo ?? "",
+            form.TurnoId, form.TipoMatriculaId,
             form.Condicion ?? "", form.CursosDesaprobadosNombres ?? "",
             form.UnidadesDidacticasIds);
         var (ok, mensaje, matriculaId) = await _matriculatura.MatricularAsync(cmd, UsuarioActualId ?? 0);
@@ -205,6 +208,8 @@ public class MatricularFormViewModel
 {
     public string Dni { get; set; } = "";
     public int? MatriculaId { get; set; }
+    public int? TramiteId { get; set; }
+    public string? CicloProximo { get; set; }
     public int TurnoId { get; set; }
     public int TipoMatriculaId { get; set; }
     public string? Condicion { get; set; }
