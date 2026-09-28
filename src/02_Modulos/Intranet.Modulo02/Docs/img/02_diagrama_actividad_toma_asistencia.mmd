@@ -1,0 +1,31 @@
+flowchart TD
+    Inicio([🟢 Inicio: Docente accede al Módulo 02]) --> AutoDetect[Autodetección de Horario y Clase Activa de Hoy]
+    AutoDetect --> HayClaseHoy{¿Hay clase programada hoy?}
+    
+    HayClaseHoy -- Sí --> MuestraHero[Mostrar Hero Banner: Tomar Asistencia Flash]
+    HayClaseHoy -- No --> SelectorClase[Mostrar Catálogo de Cursos Asignados]
+    
+    MuestraHero --> SeleccionModo[Docente selecciona Modo de Registro]
+    SelectorClase --> SeleccionModo
+    
+    SeleccionModo --> ModoFlash["⚡ Modo 1: Flash Móvil (1 Clic)"]
+    SeleccionModo --> ModoSabana["📊 Modo 2: Sábana Live Grid (18 Semanas)"]
+    SeleccionModo --> ModoCopyPaste["📋 Modo 3: Smart Copy-Paste (Ctrl+V)"]
+    
+    ModoFlash --> CargaPresentes[Carga nómina con todos los alumnos en PRESENTE]
+    CargaPresentes --> MarcaAusentes[Docente toca solo a los alumnos ausentes -> Cambian a FALTA]
+    
+    ModoSabana --> NavegaTeclado[Docente navega con flechas y presiona teclas F / T / P]
+    NavegaTeclado --> LiveDpi[Cálculo en vivo de % Inasistencias y alerta DPI en columna derecha]
+    
+    ModoCopyPaste --> CapturaClipboard[Docente presiona Ctrl+V -> Parser JS lee portapapeles]
+    CapturaClipboard --> ValidaDni[Mapea automáticamente por DNI / Apellidos en 1 segundo]
+    
+    MarcaAusentes --> Guardar[Docente pulsa Guardar y Oficializar Asistencia]
+    LiveDpi --> Guardar
+    ValidaDni --> Guardar
+    
+    Guardar --> TxAtomic[Backend ejecuta Bulk UPSERT atómico en mod02.asistencias]
+    TxAtomic --> CierraSesion[Actualiza mod02.sesiones_clase -> estado = CERRADA]
+    CierraSesion --> NotificaAlumnos[Actualiza vista v_resumen_asistencia_estudiante]
+    NotificaAlumnos --> Fin([🏁 Fin: Asistencia Oficializada e Inmutable])

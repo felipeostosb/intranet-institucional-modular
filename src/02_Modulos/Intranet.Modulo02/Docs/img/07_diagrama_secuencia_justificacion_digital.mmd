@@ -1,0 +1,36 @@
+sequenceDiagram
+    autonumber
+    actor Estudiante as 👨‍🎓 Estudiante
+    participant UI as 📱 Portal Mi Asistencia
+    participant Controller as 🌐 Modulo02Controller
+    participant Service as 🧠 AsistenciaService
+    participant Storage as 📁 Almacenamiento Seguro
+    participant DB as 🗄️ PostgreSQL 16 (mod02)
+    actor Docente as 👨‍🏫 Docente Titular
+
+    Estudiante->>UI: Ingresa a /Modulo02/MiAsistencia y ve inasistencia del 26/09
+    Estudiante->>UI: Clic en '📎 Justificar' -> Adjunta 'Certificado_Medico.pdf' y motivo
+    UI->>Controller: POST /Modulo02/SolicitarJustificacion (Multipart Form)
+    Controller->>Service: SolicitarJustificacionAsync(dto, estudianteId)
+    
+    Service->>DB: SELECT fecha_clase FROM mod02.sesiones_clase WHERE id = sesionId
+    DB-->>Service: Retorna fecha_clase
+    Note over Service: Valida regla de negocio: (NOW - fecha_clase) <= 72 HORAS
+    
+    Service->>Storage: Guarda archivo 'justif_20260928_est74096398.pdf'
+    Storage-->>Service: URL del archivo guardado
+    Service->>DB: INSERT INTO mod02.justificaciones (asistencia_id, estudiante_id, archivo_url, estado='PENDIENTE')
+    DB-->>Service: Creado OK
+    Service-->>Controller: OK
+    Controller-->>UI: Mensaje 'Expediente registrado. En evaluación por el docente'
+    
+    Docente->>Controller: GET /Modulo02/Justificaciones (Bandeja de Entrada)
+    Controller-->>Docente: Muestra solicitud pendiente con enlace a 'Certificado_Medico.pdf'
+    Docente->>Controller: POST /Modulo02/ResolverJustificacion (JustificacionId=15, Aprobado=True)
+    Controller->>Service: ResolverJustificacionAsync(dto, docenteId)
+    Service->>DB: UPDATE mod02.justificaciones SET estado = 'APROBADA'
+    Service->>DB: UPDATE mod02.asistencias SET estado = 'FALTA_JUSTIFICADA' WHERE id = asistenciaId
+    DB-->>Service: Éxito
+    Service-->>Controller: OK
+    Note over DB: Vista v_resumen_asistencia_estudiante recalcula DPI instantáneamente
+    Controller-->>Docente: Toast: 'Justificación Aprobada y Asistencia Regularizada'

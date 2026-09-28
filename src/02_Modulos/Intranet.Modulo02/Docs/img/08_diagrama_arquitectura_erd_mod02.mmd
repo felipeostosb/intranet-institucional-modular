@@ -1,0 +1,74 @@
+erDiagram
+    core_personas ||--o{ core_estudiantes : "1:1 tiene perfil"
+    core_personas ||--o{ core_docentes : "1:1 tiene perfil"
+    core_personas ||--o{ core_usuarios : "1:1 tiene cuenta"
+    
+    core_carreras ||--o{ core_unidades_didacticas : "pertenece a"
+    core_unidades_didacticas ||--o{ mod02_clases_docente : "se dicta en"
+    core_docentes ||--o{ mod02_clases_docente : "dicta"
+    core_aulas ||--o{ mod02_clases_docente : "aula asignada"
+    
+    mod02_clases_docente ||--o{ mod02_clase_horarios : "tiene plantilla semanal"
+    mod02_clases_docente ||--o{ mod02_sesiones_clase : "genera 18 semanas"
+    core_docentes ||--o{ mod02_sesiones_clase : "imparte sesión"
+    core_aulas ||--o{ mod02_sesiones_clase : "se dicta en aula"
+    
+    mod02_sesiones_clase ||--o{ mod02_asistencias : "registra asistencia"
+    core_estudiantes ||--o{ mod02_asistencias : "asiste a"
+    
+    mod02_asistencias ||--o| mod02_justificaciones : "se sustenta con"
+    core_estudiantes ||--o{ mod02_justificaciones : "solicita"
+    core_docentes ||--o{ mod02_justificaciones : "revisa y aprueba"
+
+    mod02_clases_docente {
+        int id PK
+        int unidad_didactica_id FK
+        int docente_id FK
+        int periodo_id FK
+        int carrera_id FK
+        string ciclo
+        string turno
+        string seccion
+        int aula_id FK
+        int total_sesiones_semanales
+        boolean estado
+    }
+
+    mod02_sesiones_clase {
+        int id PK
+        int clase_docente_id FK
+        int unidad_didactica_id FK
+        int docente_id FK
+        int periodo_id FK
+        int numero_semana
+        int numero_sesion
+        date fecha_clase
+        time hora_inicio
+        time hora_fin
+        int aula_id FK
+        string estado
+        string tipo_sesion
+    }
+
+    mod02_asistencias {
+        int id PK
+        int sesion_clase_id FK
+        int estudiante_id FK
+        string estado
+        timestamp registrado_en
+        int registrado_por_usuario_id FK
+        string observaciones
+    }
+
+    mod02_justificaciones {
+        int id PK
+        int asistencia_id FK
+        int estudiante_id FK
+        string motivo
+        text descripcion
+        string archivo_sustento_url
+        string estado
+        timestamp solicitada_en
+        int revisado_por_docente_id FK
+        timestamp revisada_en
+    }

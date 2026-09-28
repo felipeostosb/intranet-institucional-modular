@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor Docente as 👨‍🏫 Docente
+    participant Portapapeles as 📋 Clipboard OS (Excel)
+    participant UI as 🖥️ UI Sábana Live Grid (Módulo 02)
+    participant JS as ⚙️ JS Smart Paste Parser
+    participant Controller as 🌐 Modulo02Controller (.NET 10)
+    participant Service as 🧠 AsistenciaService (Dapper)
+    participant DB as 🗄️ PostgreSQL 16 (mod02)
+
+    Docente->>Portapapeles: Selecciona columnas en Excel y presiona Ctrl+C
+    Docente->>UI: Hace clic en la celda inicial de la Sábana y presiona Ctrl+V
+    UI->>JS: Dispara evento 'paste' con texto tabulado (TSV)
+    JS->>JS: Parsea filas, normaliza valores (P, T, F, J) y valida DNIs
+    JS->>UI: Rellena instantáneamente las 35 celdas con colores verde/rojo/amarillo
+    JS->>UI: Actualiza en vivo columna '% DPI' y alerta visual
+    
+    Docente->>UI: Clic en botón '💾 Guardar y Sincronizar Cambios'
+    UI->>Controller: POST /Modulo02/GuardarAsistenciaMasiva (JSON con matriz de asistencias)
+    Controller->>Service: GuardarAsistenciaMasivaMatrizAsync(dto, usuarioId)
+    Service->>DB: BEGIN TRANSACTION
+    Service->>DB: Bulk UPSERT en mod02.asistencias (sesion_clase_id, estudiante_id, estado)
+    Service->>DB: COMMIT TRANSACTION
+    DB-->>Service: Registros guardados exitosamente
+    Service-->>Controller: TaskResult OK (True)
+    Controller-->>UI: HTTP 200 JSON { success: true, message: '35 asistencias sincronizadas' }
+    UI->>Docente: Toast Notification: '✅ Asistencia sincronizada correctamente'

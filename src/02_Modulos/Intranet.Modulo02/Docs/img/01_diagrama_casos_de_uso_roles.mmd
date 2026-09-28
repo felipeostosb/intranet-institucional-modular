@@ -1,0 +1,61 @@
+flowchart TD
+    subgraph Actores["👥 ACTORES DEL SISTEMA"]
+        Docente["👨‍🏫 Docente Titular"]
+        Estudiante["👨‍🎓 Estudiante Regular"]
+        Coord["👔 Coordinador / Director"]
+        Sec["📂 Secretaría Académica"]
+    end
+
+    subgraph Modulo02["📦 MÓDULO 02: CONTROL DE ASISTENCIA & PREVENCIÓN DPI"]
+        subgraph Docente_UC["Casos de Uso: Docente"]
+            CU01["CU-02.1: Toma Asistencia Flash en 1 Clic (Móvil)"]
+            CU02["CU-02.2: Sábana Interactiva de 18 Semanas (Live Grid)"]
+            CU03["CU-02.3: Smart Copy-Paste (Ctrl+V desde Excel)"]
+            CU04["CU-02.4: Oficializar y Congelar Sesión (Inmutabilidad)"]
+            CU05["CU-02.5: Iniciar Sesión de Recuperación / Extraordinaria"]
+            CU06["CU-02.6: Cambiar Aula en Vivo si Lab está ocupado"]
+            CU07["CU-02.7: Evaluar y Resolver Justificaciones Médicas (72h)"]
+            CU08["CU-02.8: Gestión de Asistencia Semana 17 (Recuperación)"]
+        end
+
+        subgraph Estudiante_UC["Casos de Uso: Estudiante"]
+            CU09["CU-02.9: Consultar Semáforo Anti-DPI y Horas de Margen"]
+            CU10["CU-02.10: Solicitar Justificación Médica Digital en 72h"]
+            CU11["CU-02.11: Ver Historial Detallado Sesión a Sesión"]
+            CU12["CU-02.12: Descargar Constancia de Asistencia en PDF"]
+        end
+
+        subgraph Coord_UC["Casos de Uso: Coordinación & Dirección"]
+            CU13["CU-02.13: Radar de Cumplimiento Docente en Vivo"]
+            CU14["CU-02.14: Radar Preventivo de Deserción y Casos DPI"]
+            CU15["CU-02.15: Reprogramar Sesiones Futuras sin alterar pasado"]
+            CU16["CU-02.16: Exportar Sábanas Oficiales REGISTRA MINEDU (.xlsx)"]
+        end
+
+        subgraph Sec_UC["Casos de Uso: Secretaría Académica"]
+            CU17["CU-02.17: Auditoría de Expedientes de Justificación"]
+            CU18["CU-02.18: Emisión de Actas de Asistencia Consolidadas"]
+        end
+    end
+
+    Docente --> CU01
+    Docente --> CU02
+    Docente --> CU03
+    Docente --> CU04
+    Docente --> CU05
+    Docente --> CU06
+    Docente --> CU07
+    Docente --> CU08
+
+    Estudiante --> CU09
+    Estudiante --> CU10
+    Estudiante --> CU11
+    Estudiante --> CU12
+
+    Coord --> CU13
+    Coord --> CU14
+    Coord --> CU15
+    Coord --> CU16
+
+    Sec --> CU17
+    Sec --> CU18

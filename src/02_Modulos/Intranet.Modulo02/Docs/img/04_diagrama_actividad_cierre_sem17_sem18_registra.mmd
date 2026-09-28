@@ -1,0 +1,25 @@
+flowchart TD
+    Semanas116["🗓️ Semanas 01 a 16: Desarrollo Lectivo Regular y Registro Continuo"] --> FinSem16["Fin de Semana 16: Cierre de Avance Curricular Ordinario"]
+    
+    FinSem16 --> AuditoriaDpi["Sistema ejecuta Auditoría Automática de DPI en mod02.v_resumen_asistencia_estudiante"]
+    AuditoriaDpi --> FormulaDpi["Fórmula: (Horas Falta Injustificada / Total Horas UD) * 100"]
+    
+    FormulaDpi --> EvaluaDpi{"¿Porcentaje Inasistencia >= 30.00%?"}
+    
+    EvaluaDpi -- Sí (>= 30%) --> CondicionDPI["⚠️ CONDICIÓN: DPI - Desaprobado por Inasistencias"]
+    CondicionDPI --> BloqueoSem17["🚫 BLOQUEO LEGAL ART. 8.8.1 MPA: Inhabilitado para rendir Recuperación"]
+    BloqueoSem17 --> NotaCero["Calificación Final de UD = CERO 00 en Acta"]
+    
+    EvaluaDpi -- No (< 30%) --> EvaluaPromedio{"¿Promedio Regular entre 10 y 12 puntos?"}
+    EvaluaPromedio -- Sí --> HabilitaSem17["✅ Habilitado para rendir Evaluación de Recuperación en Semana 17"]
+    EvaluaPromedio -- No (>= 13 o < 10) --> CierreDirecto["Cierre Ordinario de Calificación"]
+    
+    HabilitaSem17 --> Sem17["🗓️ SEMANA 17: Evaluación de Recuperación Ordinaria"]
+    Sem17 --> Sem18["🗓️ SEMANA 18: Subsanación y Cierre Definitivo de Actas"]
+    
+    NotaCero --> Sem18
+    CierreDirecto --> Sem18
+    
+    Sem18 --> ExportaRegistra["📦 Exportación Estructurada Oficial en Formato REGISTRA MINEDU (.xlsx)"]
+    ExportaRegistra --> FirmaActas["Firma Digital de Actas e Inmutabilidad en Base de Datos"]
+    FirmaActas --> Fin(["🏁 Fin de Semestre Académico"])

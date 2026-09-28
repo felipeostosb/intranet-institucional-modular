@@ -1,0 +1,28 @@
+sequenceDiagram
+    autonumber
+    actor Docente as 👨‍🏫 Docente (Móvil / Tablet)
+    participant UI as 📱 UI Flash Asistencia
+    participant Controller as 🌐 Modulo02Controller
+    participant Service as 🧠 AsistenciaService
+    participant DB as 🗄️ PostgreSQL 16 (mod02)
+
+    Docente->>UI: Ingresa al Módulo 02 desde su teléfono móvil
+    UI->>Controller: GET /Modulo02/IniciarClaseActiva
+    Controller->>Service: GetClaseActivaHoyAsync(docenteId)
+    Service->>DB: SELECT sesión de hoy donde hora_inicio <= NOW() <= hora_fin
+    DB-->>Service: Retorna SesionId = 42, Aula = 'LAB-01', Curso = 'Taller Web'
+    Service-->>Controller: ClaseActivaDocenteDto
+    Controller-->>UI: Renderiza vista TomarAsistencia (Flash Móvil)
+    
+    Note over UI: UI precarga todos los 41 alumnos en 'PRESENTE' por defecto
+    Docente->>UI: Toca la tarjeta de 'Alcalá' y 'Alegre' (alumnos ausentes)
+    UI->>UI: Conmuta estado a 'FALTA_INJUSTIFICADA' (Fondo Rojo)
+    
+    Docente->>UI: Pulsa botón '⚡ Oficializar Asistencia en 1 Clic'
+    UI->>Controller: POST /Modulo02/GuardarAsistencia (SesionId=42, Estados=[...])
+    Controller->>Service: GuardarAsistenciaSesionAsync(request, usuarioId)
+    Service->>DB: UPSERT mod02.asistencias & UPDATE mod02.sesiones_clase SET estado='CERRADA'
+    DB-->>Service: Éxito
+    Service-->>Controller: OK
+    Controller-->>UI: HTTP 200 Redirect -> Index (con badge de Sesión Oficializada)
+    UI->>Docente: Pantalla de Confirmación: '🎉 Sesión cerrada en 8 segundos'

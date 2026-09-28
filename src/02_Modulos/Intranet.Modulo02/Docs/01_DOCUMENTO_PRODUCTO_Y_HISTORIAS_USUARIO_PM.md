@@ -76,6 +76,10 @@ El diseño de este módulo responde rigurosamente a las **Condiciones Básicas d
 
 ## 👥 3. Matriz Exhaustiva de Casos de Uso por Rol
 
+![Diagrama de Casos de Uso por Rol](./img/01_diagrama_casos_de_uso_roles.png)
+*Figura 3.1: Diagrama UML de Casos de Uso del Módulo 02 por Rol (Docente, Estudiante, Coordinación y Secretaría).*
+
+
 ```mermaid
 flowchart TD
     subgraph Actores
@@ -135,6 +139,10 @@ flowchart TD
 
 ### 🔹 Diagrama de Actividades 1: Flujo Multimodal de Toma de Asistencia (Docente)
 
+![Flujo Toma Asistencia](./img/02_diagrama_actividad_toma_asistencia.png)
+*Figura 4.1: Diagrama de Actividades del Flujo de Toma de Asistencia (Modo Flash, Sábana 18 Semanas y Smart Copy-Paste).*
+
+
 ```mermaid
 flowchart TD
     Inicio([Docente ingresa a /Modulo02]) --> AutoDetect[Sistema autodetecta la clase de hoy y semana actual 1..18]
@@ -168,6 +176,10 @@ flowchart TD
 
 ### 🔹 Diagrama de Actividades 2: Flujo de Justificación Digital (Ventana Estricta 72h)
 
+![Flujo Justificacion](./img/03_diagrama_actividad_justificacion_estudiante.png)
+*Figura 4.2: Diagrama de Actividades para la Solicitud y Resolución de Justificaciones Médicas (Regla 72h).* 
+
+
 ```mermaid
 flowchart TD
     InicioJust([Estudiante visualiza falta roja en su portal]) --> ClicJust[Clic en '📎 Justificar Falta']
@@ -197,6 +209,10 @@ flowchart TD
 ---
 
 ### 🔹 Diagrama de Actividades 3: Auditoría y Cierre en Semana 17 y 18
+
+![Flujo Auditoria DPI y Cierre Sem17 Sem18](./img/04_diagrama_actividad_cierre_sem17_sem18_registra.png)
+*Figura 4.3: Diagrama de Actividades para la Detección Automática de DPI, Bloqueo de Semana 17 y Exportación REGISTRA MINEDU en Semana 18.*
+
 
 ```mermaid
 flowchart TD

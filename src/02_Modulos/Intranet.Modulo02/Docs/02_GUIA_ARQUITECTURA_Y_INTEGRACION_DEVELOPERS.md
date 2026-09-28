@@ -40,6 +40,10 @@ En `mod02.sesiones_clase`, el campo `numero_semana` recorre de 1 a 18 con propó
 
 ## 📐 2. Diagramas de Casos de Uso por Rol (UML)
 
+![Diagrama de Casos de Uso por Rol](./img/01_diagrama_casos_de_uso_roles.png)
+*Figura 2.1: Arquitectura de Casos de Uso implementados en el Módulo 02 por Rol.*
+
+
 ```mermaid
 flowchart TD
     subgraph Actores del Ecosistema
@@ -96,6 +100,10 @@ flowchart TD
 
 ### 🔹 Diagrama de Actividades: Flujo de Toma de Asistencia Multimodal
 
+![Flujo Toma Asistencia](./img/02_diagrama_actividad_toma_asistencia.png)
+*Figura 3.1: Diagrama de Actividades del Flujo de Registro de Asistencia Multimodal.*
+
+
 ```mermaid
 flowchart TD
     A([Docente accede a /Modulo02]) --> B[Backend evalúa Hora, Día y DocenteId]
@@ -126,6 +134,10 @@ flowchart TD
 ---
 
 ### 🔹 Diagrama de Actividades: Flujo de Justificación y Recálculo de DPI
+
+![Flujo Justificacion](./img/03_diagrama_actividad_justificacion_estudiante.png)
+*Figura 3.2: Flujo de Solicitud de Justificación, Ventana 72h y Recálculo Dinámico de DPI.*
+
 
 ```mermaid
 flowchart TD
@@ -159,6 +171,10 @@ flowchart TD
 
 ### 🔹 Secuencia 1: Smart Copy-Paste desde Excel (`Ctrl+V`)
 
+![Secuencia Smart Copy-Paste](./img/05_diagrama_secuencia_smart_copy_paste.png)
+*Figura 4.1: Diagrama de Secuencia E2E del Smart Copy-Paste desde Excel con Dapper Bulk UPSERT.*
+
+
 ```mermaid
 sequenceDiagram
     autonumber
@@ -186,7 +202,22 @@ sequenceDiagram
 
 ---
 
-### 🔹 Secuencia 2: Reprogramación Elástica de Horarios Futuros
+
+---
+
+### 🔹 Secuencia 2: Toma de Asistencia Flash Móvil (1 Clic)
+
+![Secuencia Toma Flash](./img/06_diagrama_secuencia_toma_flash.png)
+*Figura 4.2: Diagrama de Secuencia E2E para la Autodetección de Clase Activa y Cierre en 1 Clic.*
+
+---
+
+### 🔹 Secuencia 3: Flujo Completo de Justificación Digital (Ventana 72h)
+
+![Secuencia Justificación Digital](./img/07_diagrama_secuencia_justificacion_digital.png)
+*Figura 4.3: Diagrama de Secuencia E2E para la Carga de Sustento, Evaluación Docente y Reclasificación en Vivo.*
+
+### 🔹 Secuencia 4: Reprogramación Elástica de Horarios Futuros
 
 ```mermaid
 sequenceDiagram
@@ -212,7 +243,14 @@ sequenceDiagram
 
 ---
 
-## 🗄️ 5. Diccionario de Datos del Esquema `mod02`
+## 🏛️ 5. Modelo Entidad-Relación Soberano (`mod02`)
+
+![Modelo Entidad-Relación](./img/08_diagrama_arquitectura_erd_mod02.png)
+*Figura 5.1: Diagrama Entidad-Relación (ERD) del Esquema Soberano mod02 y sus referencias a core.*
+
+---
+
+## 🗄️ 6. Diccionario de Datos del Esquema `mod02`
 
 | Tabla / Vista | Propósito de Negocio | Claves Foráneas |
 | :--- | :--- | :--- |
