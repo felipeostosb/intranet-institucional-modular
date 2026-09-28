@@ -125,6 +125,41 @@ public static class DatabaseInitializer
                     break;
                 }
             }
+
+            if (num == "02")
+            {
+                var seedPaths = new[]
+                {
+                    Path.Combine(baseDir, "Sql", "seed_real_salon_via.sql"),
+                    Path.Combine(currentDir, "src", "02_Modulos", modName, "Sql", "seed_real_salon_via.sql"),
+                    Path.Combine(currentDir, "02_Modulos", modName, "Sql", "seed_real_salon_via.sql"),
+                    Path.Combine(baseDir, "..", "..", "..", "..", "02_Modulos", modName, "Sql", "seed_real_salon_via.sql"),
+                    Path.Combine(baseDir, "src", "02_Modulos", modName, "Sql", "seed_real_salon_via.sql")
+                };
+                foreach (var sPath in seedPaths)
+                {
+                    if (File.Exists(sPath))
+                    {
+                        try
+                        {
+                            var seedSql = await File.ReadAllTextAsync(sPath);
+                            if (!string.IsNullOrWhiteSpace(seedSql))
+                            {
+                                await using var conn = new NpgsqlConnection(defaultConn);
+                                await conn.OpenAsync();
+                                await using var cmd = new NpgsqlCommand(seedSql, conn);
+                                await cmd.ExecuteNonQueryAsync();
+                                Console.WriteLine("[DatabaseInitializer] ✓ Seed oficial de Salón VI-A ejecutado.");
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine($"[DatabaseInitializer] Aviso seed VI-A: {ex.Message}");
+                        }
+                        break;
+                    }
+                }
+            }
         }
     }
 }
