@@ -102,6 +102,12 @@
     {
         var rt = Model.ResumenTesoreria;
         <!-- Panel de TESORERÍA (ámbar): vouchers y recaudación — SU puesto -->
+        <div class="relative overflow-hidden bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-amber-950/40 dark:via-[#111827] dark:to-orange-950/30 rounded-3xl border border-amber-200/80 dark:border-amber-800/60 p-5 shadow-sm">
+            <div class="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div><div class="flex items-center gap-2 mb-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span><span class="text-[10px] font-black uppercase tracking-[0.18em] text-amber-700 dark:text-amber-300">Puesto financiero</span></div><h2 class="text-base font-black text-slate-900 dark:text-slate-100">Centro de validación y caja</h2><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Revisa vouchers pendientes y controla la recaudación validada.</p></div>
+                <a href="/Modulo09/Pagos" class="btn btn-warning btn-sm rounded-xl text-xs font-bold shadow-sm whitespace-nowrap">Abrir bandeja <span aria-hidden="true">→</span></a>
+            </div>
+        </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-amber-300/70 dark:border-amber-800/60 shadow-sm">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🧾 Vouchers por validar</span>
@@ -154,6 +160,12 @@
     {
         var rs = Model.ResumenSecretaria;
         <!-- Panel de SECRETARÍA (celeste): mesa de partes — SU puesto, cero finanzas -->
+        <div class="relative overflow-hidden bg-gradient-to-br from-sky-50 via-white to-cyan-50 dark:from-sky-950/40 dark:via-[#111827] dark:to-cyan-950/30 rounded-3xl border border-sky-200/80 dark:border-sky-800/60 p-5 shadow-sm">
+            <div class="relative flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div><div class="flex items-center gap-2 mb-1"><span class="w-2 h-2 rounded-full bg-sky-500"></span><span class="text-[10px] font-black uppercase tracking-[0.18em] text-sky-700 dark:text-sky-300">Mesa de partes</span></div><h2 class="text-base font-black text-slate-900 dark:text-slate-100">Cola de atención TUPA</h2><p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Prioriza expedientes, corrige observaciones y entrega los aprobados.</p></div>
+                <a href="/Modulo09/Tramites" class="btn btn-info btn-sm rounded-xl text-xs font-bold shadow-sm whitespace-nowrap">Abrir mesa de trámites <span aria-hidden="true">→</span></a>
+            </div>
+        </div>
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-sky-300/70 dark:border-sky-800/60 shadow-sm">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🗂️ En mesa</span>
@@ -236,10 +248,10 @@
             var ra = Model.ResumenAlumno;
             <!-- Indicadores personales del alumno (sus datos, no cifras del instituto) -->
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-                <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trámites activos</span>
-                    <div class="text-xl font-bold text-sky-600 dark:text-sky-400 mt-1">@ra.TramitesActivos</div>
-                    <p class="text-[10px] text-slate-400 mt-0.5">en mesa / evaluación</p>
+                <div class="col-span-2 lg:col-span-1 relative overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-600 rounded-2xl p-4 text-white shadow-sm">
+                    <span class="relative text-[10px] font-bold uppercase tracking-wider text-emerald-100 block">Mi actividad</span>
+                    <div class="relative text-4xl font-black mt-2">@ra.TramitesActivos</div>
+                    <p class="relative text-[10px] text-emerald-100 mt-1">trámites en curso</p>
                 </div>
                 <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requieren tu acción</span>
