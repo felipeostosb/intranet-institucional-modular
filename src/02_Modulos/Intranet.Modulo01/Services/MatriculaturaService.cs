@@ -33,7 +33,6 @@ public interface IMatriculaturaService
 public record MatricularCommand(
     string Dni,
     int? MatriculaId,          // matrícula "En trámite" existente (reserva), si la hay
-    int PeriodoId,            // período al que se matricula (2026-II)
     int TurnoId,
     int TipoMatriculaId,
     string Condicion,           // Promovido | Promovido con curso a cargo | Repitente
@@ -196,7 +195,9 @@ public class MatriculaturaService : IMatriculaturaService
         }
         dto.OfertaProximoCiclo = oferta;
 
-        // Voucher del trámite de reserva: TM05 con pago Validado habilita a matricular
+        // Voucher del trámite de reserva: TM05 con pago Validado habilita a matricular.
+        // Se muestra la reserva más reciente (sea del período que sea); el cierre
+        // exige además que el período destino tenga permite_matricula (PeriodoHabilitado).
         const string voucherSql = """
             SELECT m.id AS MatriculaId,
                    m.codigo_matricula AS CodigoMatricula,
@@ -206,12 +207,13 @@ public class MatriculaturaService : IMatriculaturaService
                    t.codigo AS TramiteCodigo,
                    t.estado AS TramiteEstado,
                    pg.voucher_estado AS VoucherEstado,
-                   pg.monto AS VoucherMonto
+                   pg.monto AS VoucherMonto,
+                   (pm.permite_matricula OR pm.id IS NULL) AS PeriodoHabilitado
             FROM matriculas_v2 m
             LEFT JOIN mod09.tramites t ON t.id = m.tramite_reserva_id
             LEFT JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
+            LEFT JOIN periodos_academicos pm ON pm.id = m.periodo_id
             WHERE m.estudiante_id = @EstudianteId
-              AND m.periodo_id = (SELECT id FROM periodos_academicos WHERE permite_matricula ORDER BY id DESC LIMIT 1)
               AND m.estado <> 'Anulada'
             ORDER BY m.creado_en DESC
             LIMIT 1;
@@ -222,8 +224,10 @@ public class MatriculaturaService : IMatriculaturaService
                       .Replace("pagos_v2", tabla == "matriculas" ? "pagos" : "pagos_v2"),
             new { dto.EstudianteId });
         dto.Reserva = voucher;
-        // La matrícula se puede cerrar si el voucher del trámite fue Validado por Tesorería
-        dto.PuedeMatricular = voucher != null && voucher.VoucherEstado == "Validado";
+        // La matrícula se puede cerrar si el voucher del trámite fue Validado por
+        // Tesorería Y el período de la reserva está habilitado para matrícula
+        dto.PuedeMatricular = voucher != null && voucher.VoucherEstado == "Validado"
+                             && voucher.PeriodoHabilitado;
 
         return dto;
     }
