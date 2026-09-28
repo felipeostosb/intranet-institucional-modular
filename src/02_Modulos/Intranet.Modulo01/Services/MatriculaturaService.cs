@@ -259,12 +259,15 @@ public class MatriculaturaService : IMatriculaturaService
         // Regla del sistema (uq_matricula_vigente): un estudiante tiene UNA sola
         // matrícula no anulada por período. Si ya está Matriculado en un período
         // habilitado, no se abre otra — esa es SU matrícula del período.
-        var yaMatriculado = await db.ExecuteScalarAsync<int?>("""
-            SELECT m.id
+        var yaMatriculado = await db.QueryFirstOrDefaultAsync<ReservaDto>("""
+            SELECT m.id AS MatriculaId,
+                   m.codigo_matricula AS CodigoMatricula,
+                   'Matriculado' AS Estado
             FROM matriculas_v2 m
             WHERE m.estudiante_id = @EstudianteId
               AND m.estado = 'Matriculado'
               AND m.periodo_id IN (SELECT id FROM periodos_academicos WHERE permite_matricula)
+            ORDER BY m.creado_en DESC
             LIMIT 1;
             """.Replace("matriculas_v2", tabla), new { dto.EstudianteId });
 
@@ -291,16 +294,10 @@ public class MatriculaturaService : IMatriculaturaService
         if (yaMatriculado != null)
         {
             dto.PuedeMatricular = false;
-            dto.YaMatriculadoId = yaMatriculado.Value;
-            if (voucher == null || voucher.MatriculaId == 0)
-            {
-                dto.Reserva = new ReservaDto
-                {
-                    MatriculaId = yaMatriculado.Value,
-                    Estado = "Matriculado",
-                    PeriodoHabilitado = true
-                };
-            }
+            dto.YaMatriculadoId = yaMatriculado.MatriculaId;
+            // La matrícula ya cerrada del período habilitado gana a cualquier
+            // reserva abierta vieja en el expediente: es SU matrícula vigente.
+            dto.Reserva = yaMatriculado;
         }
 
         return dto;
