@@ -13,6 +13,7 @@
         }
         else
         {
+            <a href="/Modulo01/Matriculatura" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Secretaria,Director,Coordinador,Admin">Matriculatura</a>
             <a href="/Modulo01/Matriculas" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Panel de trabajo</a>
             <a href="/Modulo01/Matriculas/Vacantes" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Vacantes</a>
         }
@@ -65,7 +66,8 @@
             }
             else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
             {
-                <a href="/Modulo01/Matriculas" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">
+                <a href="/Modulo01/Matriculatura" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">🗂️ Matricular estudiante (Reserva TM05)</a>
+                <a href="/Modulo01/Matriculas" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">
                     📷 Tu Panel: Fotos + Conformidad
                     @if (Model.Resumen.ListasParaRegistrar > 0)
                     {
