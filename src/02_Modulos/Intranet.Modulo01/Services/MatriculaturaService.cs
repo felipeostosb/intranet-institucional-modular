@@ -30,6 +30,12 @@ public interface IMatriculaturaService
 
     /// <summary>Mini-dashboard personal del alumno para el Resumen del módulo.</summary>
     Task<PanelAlumnoDto?> PanelAlumnoAsync(int estudianteId);
+
+    /// <summary>Panel del puesto de Tesorería: vouchers de reserva (CT13/TM05).</summary>
+    Task<ResumenTesoreriaMatriculaDto> ResumenTesoreriaAsync();
+
+    /// <summary>Panel del puesto de Secretaría: cierre de matrículas del período.</summary>
+    Task<ResumenSecretariaMatriculaDto> ResumenSecretariaAsync();
 }
 
 /// <summary>Comando de matrícula desde el puesto de Secretaría.</summary>
@@ -717,6 +723,126 @@ public class MatriculaturaService : IMatriculaturaService
             Estado = cerrada ? "Completado" : voucherOk ? "Actual" : "Pendiente"
         });
         dto.PasosFlujo = pasos;
+        return dto;
+    }
+
+    // ------------------------------------------------------------------
+    // PANEL TESORERÍA (Resumen del módulo): vouchers de la Reserva de
+    // Matrícula (TM05/CT13). El puesto de Tesorería valida vouchers en
+    // el módulo 09 — este panel le muestra el estado económico del flujo.
+    // ------------------------------------------------------------------
+    public async Task<ResumenTesoreriaMatriculaDto> ResumenTesoreriaAsync()
+    {
+        using var db = CreateConnection();
+        var tablaPagos = TablaMatriculas(db) == "matriculas" ? "mod09.pagos" : "mod09.pagos_v2";
+
+        var dto = await db.QueryFirstOrDefaultAsync<ResumenTesoreriaMatriculaDto>("""
+            SELECT count(*) FILTER (WHERE pg.voucher_estado = 'Pendiente')   AS VouchersPendientes,
+                   count(*) FILTER (WHERE pg.voucher_estado = 'Validado')    AS VouchersValidados,
+                   count(*) FILTER (WHERE pg.voucher_estado = 'Rechazado')   AS VouchersRechazados,
+                   COALESCE(sum(pg.monto) FILTER (WHERE pg.voucher_estado = 'Validado'), 0) AS RecaudadoReservas
+            FROM mod09.tramites t
+            JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
+            LEFT JOIN PAGOS_TM05 pg ON pg.id = t.pago_id
+            WHERE tt.codigo = 'TM05'
+              AND t.estado NOT IN ('Rechazado', 'Entregado');
+            """.Replace("PAGOS_TM05", tablaPagos)) ?? new ResumenTesoreriaMatriculaDto();
+
+        // Reservas con voucher validado cuya matrícula aún no está cerrada:
+        // el alumno pagó y Tesorería validó, pero Secretaría no ha matriculado.
+        var tablaMat = TablaMatriculas(db);
+        const string sinMatricularSql = """
+            SELECT count(*)
+            FROM mod09.tramites t
+            JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
+            LEFT JOIN PAGOS_TM05 pg ON pg.id = t.pago_id
+            LEFT JOIN matriculas_v2 m ON m.tramite_reserva_id = t.id
+            WHERE tt.codigo = 'TM05'
+              AND pg.voucher_estado = 'Validado'
+              AND (m.id IS NULL OR m.estado <> 'Matriculado');
+            """;
+        dto.PagadasSinMatricular = await db.ExecuteScalarAsync<int>(
+            sinMatricularSql.Replace("PAGOS_TM05", tablaPagos)
+                             .Replace("matriculas_v2", tablaMat));
+        return dto;
+    }
+
+    // ------------------------------------------------------------------
+    // PANEL SECRETARÍA (Resumen del módulo): el cierre de matrículas es
+    // SU puesto. Listas para cerrar, ya cerradas del período y el estado
+    // de las reservas que esperan algo (voucher de Tesorería).
+    // ------------------------------------------------------------------
+    public async Task<ResumenSecretariaMatriculaDto> ResumenSecretariaAsync()
+    {
+        using var db = CreateConnection();
+        var tablaMat = TablaMatriculas(db);
+        var tablaPagos = tablaMat == "matriculas" ? "mod09.pagos" : "mod09.pagos_v2";
+
+        // Reservas listas para cerrar: voucher Validado + período habilitado
+        // y sin matrícula cerrada todavía.
+        const string listasSql = """
+            SELECT count(*)
+            FROM mod09.tramites t
+            JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
+            LEFT JOIN PAGOS_TM05 pg ON pg.id = t.pago_id
+            LEFT JOIN matriculas_v2 m ON m.tramite_reserva_id = t.id
+            WHERE tt.codigo = 'TM05'
+              AND t.estado NOT IN ('Rechazado', 'Entregado')
+              AND pg.voucher_estado = 'Validado'
+              AND (m.id IS NULL OR m.estado <> 'Matriculado')
+              AND EXISTS (SELECT 1 FROM periodos_academicos pa WHERE pa.permite_matricula);
+            """;
+        const string matriculadosSql = """
+            SELECT count(*)
+            FROM matriculas_v2 m
+            WHERE m.estado = 'Matriculado'
+              AND m.periodo_id IN (SELECT id FROM periodos_academicos WHERE permite_matricula);
+            """;
+        const string esperandoSql = """
+            SELECT count(*)
+            FROM mod09.tramites t
+            JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
+            LEFT JOIN PAGOS_TM05 pg ON pg.id = t.pago_id
+            LEFT JOIN matriculas_v2 m ON m.tramite_reserva_id = t.id
+            WHERE tt.codigo = 'TM05'
+              AND t.estado NOT IN ('Rechazado', 'Entregado')
+              AND COALESCE(pg.voucher_estado, '') <> 'Validado'
+              AND (m.id IS NULL OR m.estado <> 'Matriculado');
+            """;
+        const string activosSql = """
+            SELECT count(*)
+            FROM mod09.tramites t
+            JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
+            WHERE tt.codigo = 'TM05'
+              AND t.estado IN ('Recibido', 'En evaluación');
+            """;
+
+        var dto = new ResumenSecretariaMatriculaDto
+        {
+            ListasParaCerrar = await db.ExecuteScalarAsync<int>(listasSql
+                .Replace("PAGOS_TM05", tablaPagos).Replace("matriculas_v2", tablaMat)),
+            MatriculadosPeriodo = await db.ExecuteScalarAsync<int>(matriculadosSql
+                .Replace("matriculas_v2", tablaMat)),
+            EsperandoVoucher = await db.ExecuteScalarAsync<int>(esperandoSql
+                .Replace("PAGOS_TM05", tablaPagos).Replace("matriculas_v2", tablaMat)),
+            TramitesActivos = await db.ExecuteScalarAsync<int>(activosSql)
+        };
+
+        // Mini-gráfico: matrículas cerradas por carrera (período habilitado)
+        const string porCarreraSql = """
+            SELECT c.codigo AS Codigo,
+                   c.nombre AS Nombre,
+                   count(m.id) AS Cantidad
+            FROM carreras c
+            LEFT JOIN matriculas_v2 m ON m.carrera_id = c.id
+                 AND m.estado = 'Matriculado'
+                 AND m.periodo_id IN (SELECT id FROM periodos_academicos WHERE permite_matricula)
+            GROUP BY c.codigo, c.nombre
+            HAVING count(m.id) > 0
+            ORDER BY 3 DESC;
+            """;
+        dto.PorCarrera = (await db.QueryAsync<MatriculasPorCarreraDto>(
+            porCarreraSql.Replace("matriculas_v2", tablaMat))).ToList();
         return dto;
     }
 }
