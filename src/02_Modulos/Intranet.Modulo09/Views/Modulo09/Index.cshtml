@@ -98,6 +98,111 @@
 
 @if (!Model.EsAlumno)
     {
+    @if (Model.ResumenTesoreria != null)
+    {
+        var rt = Model.ResumenTesoreria;
+        <!-- Panel de TESORERÍA (ámbar): vouchers y recaudación — SU puesto -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-amber-300/70 dark:border-amber-800/60 shadow-sm">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🧾 Vouchers por validar</span>
+                <div class="text-xl font-bold @(rt.VouchersPendientes > 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400") mt-1">@rt.VouchersPendientes</div>
+                <p class="text-[10px] text-slate-400 mt-0.5"><a class="link link-primary" href="/Modulo09/Pagos">Ir a la bandeja →</a></p>
+            </div>
+            <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-amber-300/70 dark:border-amber-800/60 shadow-sm">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">↩️ Rechazados</span>
+                <div class="text-xl font-bold @(rt.VouchersRechazados > 0 ? "text-amber-600 dark:text-amber-400" : "text-slate-600 dark:text-slate-300") mt-1">@rt.VouchersRechazados</div>
+                <p class="text-[10px] text-slate-400 mt-0.5">el alumno debe re-subir</p>
+            </div>
+            <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-amber-300/70 dark:border-amber-800/60 shadow-sm">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">✅ Validados hoy</span>
+                <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">@rt.VouchersValidadosHoy</div>
+                <p class="text-[10px] text-slate-400 mt-0.5">recibos del día</p>
+            </div>
+            <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-amber-300/70 dark:border-amber-800/60 shadow-sm">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">💰 Recaudado hoy</span>
+                <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 font-mono">S/ @rt.RecaudadoHoy.ToString("0.00")</div>
+                <p class="text-[10px] text-slate-400 mt-0.5">período: S/ @rt.RecaudadoPeriodo.ToString("0.00") · @rt.RecibosValidados recibos</p>
+            </div>
+        </div>
+        <!-- Recaudación por concepto (top 5, barras CSS) -->
+        @if (rt.PorConcepto.Any())
+        {
+            var maxMonto = rt.PorConcepto.Max(c => c.Monto);
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">💰 Recaudación por concepto</h2>
+                    <span class="text-[10px] text-slate-400">solo vouchers validados</span>
+                </div>
+                <div class="space-y-2.5">
+                    @foreach (var c in rt.PorConcepto)
+                    {
+                        var pct = maxMonto > 0 ? (int)Math.Round((double)(c.Monto * 100 / maxMonto)) : 0;
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 w-12 shrink-0" title="@c.Nombre">@c.Codigo</span>
+                            <div class="flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-amber-500 rounded-full" style="width:@(pct)%"></div>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-300 w-20 text-right">S/ @c.Monto.ToString("0")</span>
+                            <span class="text-[10px] text-slate-400 w-12 text-right">@c.Recibos rec.</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else if (Model.ResumenSecretaria != null)
+    {
+        var rs = Model.ResumenSecretaria;
+        <!-- Panel de SECRETARÍA (celeste): mesa de partes — SU puesto, cero finanzas -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+            <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-sky-300/70 dark:border-sky-800/60 shadow-sm">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🗂️ En mesa</span>
+                <div class="text-xl font-bold text-sky-600 dark:text-sky-400 mt-1">@rs.Recibidos</div>
+                <p class="text-[10px] text-slate-400 mt-0.5"><a class="link link-primary" href="/Modulo09/Tramites">Ver la mesa →</a></p>
+            </div>
+            <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-sky-300/70 dark:border-sky-800/60 shadow-sm">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🔍 En evaluación</span>
+                <div class="text-xl font-bold text-amber-600 dark:text-amber-400 mt-1">@rs.EnEvaluacion</div>
+                <p class="text-[10px] text-slate-400 mt-0.5">en revisión</p>
+            </div>
+            <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-sky-300/70 dark:border-sky-800/60 shadow-sm">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">📦 Aprobados por entregar</span>
+                <div class="text-xl font-bold @(rs.AprobadosPendientesEntrega > 0 ? "text-emerald-600 dark:text-emerald-400" : "text-slate-600 dark:text-slate-300") mt-1">@rs.AprobadosPendientesEntrega</div>
+                <p class="text-[10px] text-slate-400 mt-0.5">listos para recoger</p>
+            </div>
+            <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-sky-300/70 dark:border-sky-800/60 shadow-sm">
+                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">⚠️ Observados</span>
+                <div class="text-xl font-bold @(rs.Observados > 0 ? "text-rose-600 dark:text-rose-400" : "text-slate-600 dark:text-slate-300") mt-1">@rs.Observados</div>
+                <p class="text-[10px] text-slate-400 mt-0.5">alumno debe corregir · @rs.Entregados entregados</p>
+            </div>
+        </div>
+        <!-- Trámites por tipo (top 5, barras CSS) -->
+        @if (rs.PorTipo.Any())
+        {
+            var maxCant = rs.PorTipo.Max(x => x.Cantidad);
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">🗂️ Trámites por tipo</h2>
+                    <span class="text-[10px] text-slate-400">más solicitados</span>
+                </div>
+                <div class="space-y-2.5">
+                    @foreach (var x in rs.PorTipo)
+                    {
+                        var pct = maxCant > 0 ? x.Cantidad * 100 / maxCant : 0;
+                        <div class="flex items-center gap-2">
+                            <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 w-12 shrink-0" title="@x.Nombre">@x.Codigo</span>
+                            <div class="flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                <div class="h-full bg-sky-500 rounded-full" style="width:@(pct)%"></div>
+                            </div>
+                            <span class="text-[10px] font-mono font-bold text-slate-600 dark:text-slate-300 w-8 text-right">@x.Cantidad</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
     <!-- Indicadores operativos (staff) — el alumno no ve la operación interna -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
@@ -122,9 +227,37 @@
         </div>
     </div>
     }
+    }
 
     @if (Model.EsAlumno)
     {
+        @if (Model.ResumenAlumno != null)
+        {
+            var ra = Model.ResumenAlumno;
+            <!-- Indicadores personales del alumno (sus datos, no cifras del instituto) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trámites activos</span>
+                    <div class="text-xl font-bold text-sky-600 dark:text-sky-400 mt-1">@ra.TramitesActivos</div>
+                    <p class="text-[10px] text-slate-400 mt-0.5">en mesa / evaluación</p>
+                </div>
+                <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Requieren tu acción</span>
+                    <div class="text-xl font-bold @(ra.TramitesObservados > 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400") mt-1">@ra.TramitesObservados</div>
+                    <p class="text-[10px] text-slate-400 mt-0.5">observados — corrige y vuelve a subir</p>
+                </div>
+                <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Vouchers por subir</span>
+                    <div class="text-xl font-bold @(ra.VouchersPorSubir > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400") mt-1">@ra.VouchersPorSubir</div>
+                    <p class="text-[10px] text-slate-400 mt-0.5"><a class="link link-primary" href="/Modulo09/Pagos">Subir en Mis pagos →</a></p>
+                </div>
+                <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total pagado</span>
+                    <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 font-mono">S/ @ra.TotalPagado.ToString("0.00")</div>
+                    <p class="text-[10px] text-slate-400 mt-0.5">vouchers validados · @ra.TramitesCerrados trámites cerrados</p>
+                </div>
+            </div>
+        }
         <!-- Tu flujo (estudiante): trámites con estado + acceso a pagos -->
         <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
             <div class="flex justify-between items-center mb-3">

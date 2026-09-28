@@ -34,6 +34,7 @@ public interface ITramiteService
     Task<(bool Ok, string Mensaje)> AvanzarEstadoAsync(
         int tramiteId, string nuevoEstado, string? resolucion, int usuarioId);
     Task<int> ContarPendientesAsync();
+    Task<ResumenSecretariaDto> ResumenSecretariaAsync();
 }
 
 public class TramiteService : ITramiteService
@@ -431,5 +432,36 @@ public class TramiteService : ITramiteService
         using var db = CreateConnection();
         return await db.ExecuteScalarAsync<int>(
             "SELECT count(*) FROM tramites WHERE estado IN ('Recibido','En evaluación');");
+    }
+
+    // ------------------------------------------------------------------
+    // Panel del puesto de SECRETARÍA (Resumen del módulo): mesa de partes
+    // TUPA — trámites por estado y por tipo. Cero datos financieros.
+    // ------------------------------------------------------------------
+    public async Task<ResumenSecretariaDto> ResumenSecretariaAsync()
+    {
+        using var db = CreateConnection();
+        var dto = await db.QueryFirstOrDefaultAsync<ResumenSecretariaDto>("""
+            SELECT count(*) FILTER (WHERE estado = 'Recibido')   AS Recibidos,
+                   count(*) FILTER (WHERE estado = 'En evaluación') AS EnEvaluacion,
+                   count(*) FILTER (WHERE estado = 'Aprobado')   AS AprobadosPendientesEntrega,
+                   count(*) FILTER (WHERE estado = 'Entregado')   AS Entregados,
+                   count(*) FILTER (WHERE estado = 'Observado')  AS Observados
+            FROM mod09.tramites;
+            """) ?? new ResumenSecretariaDto();
+
+        const string porTipoSql = """
+            SELECT tt.codigo AS Codigo,
+                   tt.nombre AS Nombre,
+                   count(tr.id) AS Cantidad
+            FROM tipos_tramite tt
+            LEFT JOIN mod09.tramites tr ON tr.tipo_tramite_id = tt.id
+            GROUP BY tt.codigo, tt.nombre
+            HAVING count(tr.id) > 0
+            ORDER BY 3 DESC
+            LIMIT 5;
+            """;
+        dto.PorTipo = (await db.QueryAsync<TramitesPorTipoDto>(porTipoSql)).ToList();
+        return dto;
     }
 }

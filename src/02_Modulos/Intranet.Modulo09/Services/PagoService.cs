@@ -28,6 +28,8 @@ public interface IPagoService
     Task<(bool Ok, string Mensaje)> SubirVoucherAsync(int pagoId, int estudianteId, string nombre, string tipo, byte[] contenido);
     Task<ArchivoVoucherDto?> ObtenerVoucherAsync(int pagoId);
     Task<PagosResumenDto> ResumenAsync();
+    Task<ResumenTesoreriaDto> ResumenTesoreriaAsync();
+    Task<ResumenAlumnoDto> ResumenAlumnoAsync(int estudianteId);
     Task<IEnumerable<ConceptoPagoDto>> ListarConceptosAsync();
     Task<IEnumerable<TipoPagoDto>> ListarTiposPagoAsync();
 }
@@ -358,6 +360,94 @@ public class PagoService : IPagoService
             FROM {TABLA};
             """;
         return await db.QueryFirstOrDefaultAsync<PagosResumenDto>(sql.Replace("{TABLA}", TablaPagos(db))) ?? new PagosResumenDto();
+    }
+
+    // ------------------------------------------------------------------
+    // Panel del puesto de TESORERÍA (Resumen del módulo): vouchers y
+    // recaudación — sin nada de la mesa de trámites (eso es de Secretaría).
+    // ------------------------------------------------------------------
+    public async Task<ResumenTesoreriaDto> ResumenTesoreriaAsync()
+    {
+        using var db = CreateConnection();
+        var t = TablaPagos(db);
+        var dto = await db.QueryFirstOrDefaultAsync<ResumenTesoreriaDto>("""
+            SELECT count(*) FILTER (WHERE voucher_estado = 'Pendiente')   AS VouchersPendientes,
+                   count(*) FILTER (WHERE voucher_estado = 'Rechazado')   AS VouchersRechazados,
+                   count(*) FILTER (WHERE voucher_estado = 'Validado'
+                                      AND fecha_validacion = CURRENT_DATE) AS VouchersValidadosHoy,
+                   COALESCE(sum(monto) FILTER (WHERE voucher_estado = 'Validado'
+                                      AND fecha_validacion = CURRENT_DATE), 0) AS RecaudadoHoy,
+                   COALESCE(sum(monto) FILTER (WHERE voucher_estado = 'Validado'), 0) AS RecaudadoPeriodo,
+                   count(*) FILTER (WHERE voucher_estado = 'Validado')   AS RecibosValidados
+            FROM {TABLA};
+            """.Replace("{TABLA}", t)) ?? new ResumenTesoreriaDto();
+
+        const string porConceptoSql = """
+            SELECT cp.codigo AS Codigo,
+                   cp.nombre AS Nombre,
+                   COALESCE(sum(p.monto), 0) AS Monto,
+                   count(p.id) AS Recibos
+            FROM conceptos_pago cp
+            LEFT JOIN {TABLA} p ON p.concepto_pago_id = cp.id AND p.voucher_estado = 'Validado'
+            GROUP BY cp.codigo, cp.nombre
+            HAVING count(p.id) > 0
+            ORDER BY 3 DESC
+            LIMIT 5;
+            """;
+        dto.PorConcepto = (await db.QueryAsync<RecaudacionPorConceptoDto>(
+            porConceptoSql.Replace("{TABLA}", t))).ToList();
+        return dto;
+    }
+
+    // ------------------------------------------------------------------
+    // Panel personal del ALUMNO (Resumen del módulo): SUS trámites,
+    // pagos y vouchers — cero cifras globales del instituto.
+    // ------------------------------------------------------------------
+    public async Task<ResumenAlumnoDto> ResumenAlumnoAsync(int estudianteId)
+    {
+        using var db = CreateConnection();
+        var t = TablaPagos(db);
+        var dto = new ResumenAlumnoDto();
+
+        // Contadores de SUS trámites por estado (mesa de mod09)
+        dto = await db.QueryFirstOrDefaultAsync<ResumenAlumnoDto>("""
+            SELECT count(*) FILTER (WHERE tr.estado IN ('Recibido', 'En evaluación')) AS TramitesActivos,
+                   count(*) FILTER (WHERE tr.estado = 'Observado')                    AS TramitesObservados,
+                   count(*) FILTER (WHERE tr.estado IN ('Aprobado', 'Entregado'))     AS TramitesCerrados
+            FROM mod09.tramites tr
+            WHERE tr.estudiante_id = @Id;
+            """, new { Id = estudianteId }) ?? dto;
+
+        // Pagos del alumno: total validado + vouchers pendientes SIN adjunto
+        var pagos = await db.QueryFirstOrDefaultAsync<(decimal Total, int PorSubir)>($"""
+            SELECT COALESCE(sum(monto) FILTER (WHERE p.voucher_estado = 'Validado'), 0),
+                   count(*) FILTER (WHERE p.voucher_estado <> 'Validado'
+                       AND NOT EXISTS (SELECT 1 FROM mod09.voucher_archivos va
+                                       WHERE va.pago_id = p.id))
+            FROM {t} p
+            WHERE p.estudiante_id = @Id;
+            """, new { Id = estudianteId });
+        dto.TotalPagado = pagos.Total;
+        dto.VouchersPorSubir = pagos.PorSubir;
+
+        // Últimos trámites con el voucher de su pago vinculado
+        const string ultimosSql = """
+            SELECT tr.id AS Id,
+                   tr.codigo AS Codigo,
+                   tt.nombre AS TipoNombre,
+                   tr.estado AS Estado,
+                   COALESCE(p.voucher_estado, '') AS VoucherEstado,
+                   tr.creado_en AS FechaSolicitud
+            FROM mod09.tramites tr
+            JOIN mod09.tipos_tramite tt ON tt.id = tr.tipo_tramite_id
+            LEFT JOIN {TABLA} p ON p.id = tr.pago_id
+            WHERE tr.estudiante_id = @Id
+            ORDER BY tr.creado_en DESC
+            LIMIT 5;
+            """;
+        dto.Ultimos = (await db.QueryAsync<MiTramiteCardDto>(
+            ultimosSql.Replace("{TABLA}", t), new { Id = estudianteId })).ToList();
+        return dto;
     }
 
     public async Task<IEnumerable<ConceptoPagoDto>> ListarConceptosAsync()
