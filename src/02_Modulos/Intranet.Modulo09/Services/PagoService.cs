@@ -254,6 +254,7 @@ public class PagoService : IPagoService
         if (!aprobar && string.IsNullOrWhiteSpace(motivo))
             return (false, "Indica el motivo del rechazo (el estudiante lo verá).");
 
+        var tabla = TablaPagos(db);
         var filas = await db.ExecuteAsync("""
             UPDATE {TABLA}
             SET voucher_estado = @Estado,
@@ -264,7 +265,7 @@ public class PagoService : IPagoService
                 actualizado_en = CURRENT_TIMESTAMP
             WHERE id = @Id
               AND voucher_estado <> 'Validado';
-            """, new { Id = pagoId, Estado = aprobar ? "Validado" : "Rechazado",
+            """.Replace("{TABLA}", tabla), new { Id = pagoId, Estado = aprobar ? "Validado" : "Rechazado",
                        Motivo = motivo, Validador = validadorId });
 
         if (filas == 0) return (false, "El pago no existe o ya fue validado.");
