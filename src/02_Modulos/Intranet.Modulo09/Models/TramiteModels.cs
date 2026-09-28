@@ -96,3 +96,23 @@ public class TramiteDetalleDto
     public string CodigoEstudiante { get; set; } = "";
     public IEnumerable<RequisitoEstadoDto> Requisitos { get; set; } = [];
 }
+
+/// <summary>Panel del puesto de Secretaría (mesa de partes TUPA).</summary>
+public class ResumenSecretariaDto
+{
+    public int Recibidos { get; set; }                     // en mesa esperando evaluación
+    public int EnEvaluacion { get; set; }
+    public int AprobadosPendientesEntrega { get; set; }    // falta entregar al alumno
+    public int Entregados { get; set; }
+    public int Observados { get; set; }                    // el alumno debe corregir
+    /// <summary>Top 5 tipos de trámite por volumen en mesa.</summary>
+    public List<TramitesPorTipoDto> PorTipo { get; set; } = [];
+}
+
+/// <summary>Fila del desglose de trámites por tipo TUPA.</summary>
+public class TramitesPorTipoDto
+{
+    public string Codigo { get; set; } = "";
+    public string Nombre { get; set; } = "";
+    public int Cantidad { get; set; }
+}

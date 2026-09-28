@@ -52,6 +52,51 @@ public class PagosResumenDto
     public decimal Recaudado { get; set; }
 }
 
+/// <summary>Panel del puesto de Tesorería (vouchers y recaudación).</summary>
+public class ResumenTesoreriaDto
+{
+    public int VouchersPendientes { get; set; }      // esperando validación
+    public int VouchersRechazados { get; set; }      // el alumno debe re-subir
+    public int VouchersValidadosHoy { get; set; }
+    public decimal RecaudadoHoy { get; set; }
+    public decimal RecaudadoPeriodo { get; set; }
+    public int RecibosValidados { get; set; }
+    /// <summary>Top 5 conceptos por recaudación validada.</summary>
+    public List<RecaudacionPorConceptoDto> PorConcepto { get; set; } = [];
+}
+
+/// <summary>Fila del desglose de recaudación por concepto TUPA.</summary>
+public class RecaudacionPorConceptoDto
+{
+    public string Codigo { get; set; } = "";
+    public string Nombre { get; set; } = "";
+    public decimal Monto { get; set; }
+    public int Recibos { get; set; }
+}
+
+/// <summary>Panel personal del alumno (sus trámites, pagos y voucher pendiente).</summary>
+public class ResumenAlumnoDto
+{
+    public int TramitesActivos { get; set; }    // Recibido / En evaluación / Observado
+    public int TramitesObservados { get; set; } // requieren corrección del alumno
+    public int TramitesCerrados { get; set; }  // Aprobado / Entregado
+    public int VouchersPorSubir { get; set; }  // pagos sin voucher PDF adjunto
+    public decimal TotalPagado { get; set; }   // vouchers validados del alumno
+    public List<MiTramiteCardDto> Ultimos { get; set; } = [];
+}
+
+/// <summary>Fila del listado de trámites del alumno en su panel.</summary>
+public class MiTramiteCardDto
+{
+    public int Id { get; set; }
+    public string Codigo { get; set; } = "";
+    public string TipoNombre { get; set; } = "";
+    public string Estado { get; set; } = "";
+    /// <summary>Estado del voucher del pago vinculado ('' si no tiene pago).</summary>
+    public string VoucherEstado { get; set; } = "";
+    public DateTime FechaSolicitud { get; set; }
+}
+
 /// <summary>Concepto del catálogo TUPA para el formulario.</summary>
 public class ConceptoPagoDto
 {

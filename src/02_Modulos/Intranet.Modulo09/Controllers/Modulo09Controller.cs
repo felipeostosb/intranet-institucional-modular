@@ -90,6 +90,19 @@ public class Modulo09Controller : ModuloBaseController
             NombreUsuario = UsuarioActualNombre,
             RolUsuario = UsuarioActualRol
         };
+
+        // Resumen POR ROL ACTIVO (fix anti-confusión Tesorería/Secretaría):
+        // cada puesto ve SU panel — Tesorería lo financiero, Secretaría la
+        // mesa de partes, el alumno lo suyo. Jefaturas mantienen la vista general.
+        var esTesoreriaActiva = rolActivo.Equals("Tesoreria", StringComparison.OrdinalIgnoreCase);
+        var esSecretariaActiva = rolActivo.Equals("Secretaria", StringComparison.OrdinalIgnoreCase);
+        if (esTesoreriaActiva)
+            vm.ResumenTesoreria = await _pagoService.ResumenTesoreriaAsync();
+        if (esSecretariaActiva)
+            vm.ResumenSecretaria = await _tramiteService.ResumenSecretariaAsync();
+        if (esAlumnoActivo)
+            vm.ResumenAlumno = await _pagoService.ResumenAlumnoAsync(
+                await ObtenerEstudianteIdAsync());
         return View(vm);
     }
 
@@ -117,4 +130,10 @@ public class Modulo09DashboardViewModel
     public IEnumerable<PagoBandejaDto> UltimosPagos { get; set; } = [];
     public string NombreUsuario { get; set; } = "";
     public string RolUsuario { get; set; } = "";
+    /// <summary>Panel financiero del puesto (solo rol activo Tesorería).</summary>
+    public ResumenTesoreriaDto? ResumenTesoreria { get; set; }
+    /// <summary>Panel de mesa de partes (solo rol activo Secretaría).</summary>
+    public ResumenSecretariaDto? ResumenSecretaria { get; set; }
+    /// <summary>Panel personal (solo rol activo Alumno).</summary>
+    public ResumenAlumnoDto? ResumenAlumno { get; set; }
 }
