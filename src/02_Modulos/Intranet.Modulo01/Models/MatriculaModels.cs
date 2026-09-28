@@ -143,6 +143,49 @@ public class HistorialFilaDto
     public string Estado { get; set; } = "";   // Aprobado | Desaprobado | Retirado
 }
 
+// =====================================================================
+// Panel del alumno (Resumen del Módulo 01)
+// =====================================================================
+
+/// <summary>Mini-dashboard personal del alumno para la pestaña Resumen.</summary>
+public class PanelAlumnoDto
+{
+    public string CodigoEstudiante { get; set; } = "";
+    public string Estudiante { get; set; } = "";
+    public string Carrera { get; set; } = "";
+    public string CarreraCodigo { get; set; } = "";
+    public string CicloActual { get; set; } = "";      // ciclo culminado
+    public string CicloProximo { get; set; } = "";
+    public string Condicion { get; set; } = "";         // Promovido | ... | Repitente
+    public string CursosDesaprobadosNombres { get; set; } = "";
+    public decimal Promedio { get; set; }               // ponderado del historial
+    public int CreditosAprobados { get; set; }
+    public List<HistorialFilaDto> Historial { get; set; } = [];
+
+    /// <summary>Pasos del flujo de reserva de matrícula para el timeline.</summary>
+    public List<PasoFlujoDto> PasosFlujo { get; set; } = [];
+}
+
+/// <summary>Paso del timeline del flujo (trámite → voucher → matrícula → ficha).</summary>
+public class PasoFlujoDto
+{
+    public string Titulo { get; set; } = "";
+    public string Detalle { get; set; } = "";
+    /// <summary>Completado | Actual | Pendiente</summary>
+    public string Estado { get; set; } = "Pendiente";
+}
+
+/// <summary>Fila interna del estado de la reserva más reciente del alumno.</summary>
+public class ReservaAlumnoRow
+{
+    public int MatriculaId { get; set; }
+    public string Codigo { get; set; } = "";
+    public string Estado { get; set; } = "";
+    public string Voucher { get; set; } = "";
+    public string TramiteEstado { get; set; } = "";
+    public string TramiteCodigo { get; set; } = "";
+}
+
 /// <summary>UD matriculable del próximo ciclo (core o espejo oferta_ciclo).</summary>
 public class UnidadOfertaDto
 {

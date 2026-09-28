@@ -27,6 +27,9 @@ public interface IMatriculaturaService
 
     /// <summary> Datos de la ficha PDF de una matrícula cerrada (para descargar/reenviar).</summary>
     Task<FichaMatriculaDto?> ObtenerFichaAsync(int matriculaId);
+
+    /// <summary>Mini-dashboard personal del alumno para el Resumen del módulo.</summary>
+    Task<PanelAlumnoDto?> PanelAlumnoAsync(int estudianteId);
 }
 
 /// <summary>Comando de matrícula desde el puesto de Secretaría.</summary>
@@ -597,5 +600,123 @@ public class MatriculaturaService : IMatriculaturaService
         ficha.CicloCulminado = maxCiclo > 0 ? orden[maxCiclo - 1] : "";
 
         return ficha;
+    }
+
+    // ------------------------------------------------------------------
+    // PANEL DEL ALUMNO (pestaña Resumen): mini-dashboard con datos reales
+    // del propio estudiante — historial con notas, promedio, condición y
+    // el estado de SU flujo de reserva (trámite → voucher → matrícula).
+    // ------------------------------------------------------------------
+    public async Task<PanelAlumnoDto?> PanelAlumnoAsync(int estudianteId)
+    {
+        using var db = CreateConnection();
+
+        // Datos base del estudiante
+        var dto = await db.QueryFirstOrDefaultAsync<PanelAlumnoDto>("""
+            SELECT e.codigo_estudiante AS CodigoEstudiante,
+                   p.nombres || ' ' || p.apellidos AS Estudiante,
+                   c.nombre AS Carrera,
+                   c.codigo AS CarreraCodigo
+            FROM estudiantes e
+            JOIN personas p ON p.id = e.persona_id
+            JOIN carreras c ON c.id = e.carrera_id
+            WHERE e.id = @Id;
+            """, new { Id = estudianteId });
+        if (dto == null) return null;
+
+        // Historial académico completo (mismas columnas que el expediente)
+        const string histSql = """
+            SELECT ud.codigo AS UnidadCodigo,
+                   ud.nombre AS UnidadNombre,
+                   ud.ciclo AS Ciclo,
+                   h.nota AS Nota,
+                   h.estado AS Estado
+            FROM historial_academico h
+            JOIN unidades_didacticas ud ON ud.id = h.unidad_didactica_id
+            WHERE h.estudiante_id = @Id
+            ORDER BY ud.ciclo, ud.codigo;
+            """;
+        dto.Historial = (await db.QueryAsync<HistorialFilaDto>(histSql,
+            new { Id = estudianteId })).ToList();
+
+        // Promedio ponderado y créditos aprobados (del historial + UDs oficiales)
+        if (dto.Historial.Count > 0)
+        {
+            dto.Promedio = dto.Historial.Average(h => h.Nota);
+            dto.CreditosAprobados = await db.ExecuteScalarAsync<int>("""
+                SELECT COALESCE(SUM(ud.creditos), 0)
+                FROM historial_academico h
+                JOIN unidades_didacticas ud ON ud.id = h.unidad_didactica_id
+                WHERE h.estudiante_id = @Id AND h.estado = 'Aprobado';
+                """, new { Id = estudianteId });
+        }
+
+        // Condición según el RI + ciclo culminado/próximo (misma lógica del expediente)
+        var desprobados = dto.Historial.Where(h => h.Estado == "Desaprobado").ToList();
+        dto.Condicion = desprobados.Count == 0 ? "Promovido"
+            : dto.Historial.All(h => h.Estado == "Desaprobado") ? "Repitente"
+            : "Promovido con curso a cargo";
+        dto.CursosDesaprobadosNombres = string.Join(", ",
+            desprobados.Select(h => $"{h.UnidadCodigo} ({h.Nota:0.0})"));
+
+        var orden = new[] { "I", "II", "III", "IV", "V", "VI" };
+        var ultimo = dto.Historial.Select(h => h.Ciclo).Distinct()
+            .OrderByDescending(x => Array.IndexOf(orden, x)).FirstOrDefault();
+        dto.CicloActual = ultimo ?? "";
+        var idx = string.IsNullOrEmpty(ultimo) ? -1 : Array.IndexOf(orden, ultimo);
+        dto.CicloProximo = idx >= 0 && idx < orden.Length - 1 ? orden[idx + 1] : ultimo ?? "";
+
+        // ---- Timeline del flujo: trámite TM05 → voucher → matrícula ----
+        var tabla = TablaMatriculas(db);
+        var reserva = await db.QueryFirstOrDefaultAsync<ReservaAlumnoRow>("""
+            SELECT m.id AS MatriculaId,
+                   m.codigo_matricula AS Codigo,
+                   m.estado AS Estado,
+                   COALESCE(pg.voucher_estado, '') AS Voucher,
+                   COALESCE(t.estado, '') AS TramiteEstado,
+                   COALESCE(t.codigo, '') AS TramiteCodigo
+            FROM matriculas_v2 m
+            LEFT JOIN mod09.tramites t ON t.id = m.tramite_reserva_id
+            LEFT JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
+            WHERE m.estudiante_id = @Id
+            ORDER BY m.creado_en DESC
+            LIMIT 1;
+            """.Replace("matriculas_v2", tabla)
+                .Replace("pagos_v2", tabla == "matriculas" ? "pagos" : "pagos_v2"),
+            new { Id = estudianteId }) ?? new ReservaAlumnoRow();
+
+        var pasos = new List<PasoFlujoDto>();
+        // Paso 1: trámite TM05 (mod09) — existe si hay reserva o trámite directo
+        var tramiteExiste = reserva.TramiteCodigo != "" || reserva.MatriculaId > 0;
+        pasos.Add(new PasoFlujoDto
+        {
+            Titulo = "Trámite de Reserva (TM05)",
+            Detalle = reserva.TramiteCodigo != "" ? $"{reserva.TramiteCodigo} — {reserva.TramiteEstado}"
+                : tramiteExiste ? "Vinculado a tu matrícula" : "Aún no iniciado — hazlo en Trámites TUPA",
+            Estado = tramiteExiste ? "Completado" : "Pendiente"
+        });
+        // Paso 2: voucher validado por Tesorería
+        var voucherOk = reserva.Voucher == "Validado" || reserva.Estado == "Matriculado";
+        pasos.Add(new PasoFlujoDto
+        {
+            Titulo = "Voucher validado por Tesorería",
+            Detalle = voucherOk ? "Tu voucher fue validado ✅"
+                : reserva.Voucher == "Rechazado" ? "Rechazado — revisa el motivo y sube otro"
+                : tramiteExiste ? "En revisión por Tesorería" : "Pendiente de iniciar el trámite",
+            Estado = voucherOk ? "Completado"
+                : tramiteExiste ? "Actual" : "Pendiente"
+        });
+        // Paso 3: matrícula cerrada por Secretaría
+        var cerrada = reserva.Estado == "Matriculado";
+        pasos.Add(new PasoFlujoDto
+        {
+            Titulo = "Matrícula cerrada por Secretaría",
+            Detalle = cerrada ? $"{reserva.Codigo} — matriculado en el ciclo {dto.CicloProximo}"
+                : reserva.MatriculaId > 0 ? $"{reserva.Codigo} — en trámite"
+                : "Se cierra cuando el período esté habilitado",
+            Estado = cerrada ? "Completado" : voucherOk ? "Actual" : "Pendiente"
+        });
+        dto.PasosFlujo = pasos;
+        return dto;
     }
 }
