@@ -349,49 +349,103 @@ ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
 SELECT setval('core.unidades_didacticas_id_seq', (SELECT MAX(id) FROM core.unidades_didacticas));
 
 -- 6. Personas Físicas Semilla
+-- NOTA: DNIs 10000001, 20000001, 30000001, 40000001, 10000003, 12345678, 87654321 son los usados
+--       en los botones de acceso rápido del Login. Deben tener usuario con el mismo codigo_institucional.
 INSERT INTO core.personas (id, dni, nombres, apellidos, email_personal, telefono, sexo) VALUES
-(1, '00000001', 'Administrador', 'General de TI', 'admin.ti@ieargentina.edu.pe', '999000001', 'M'),
-(2, '10000001', 'Manuel', 'Alvarado Carranza', 'manuel.alvarado@gmail.com', '999100001', 'M'),
-(3, '20000001', 'Carlos', 'Mendoza Rivas', 'carlos.mendoza@gmail.com', '999200001', 'M'),
-(4, '30000001', 'Rosa', 'Morales Salazar', 'rosa.morales@gmail.com', '999300001', 'F'),
-(5, '40000001', 'Elena', 'Ramos Palacios', 'elena.ramos@gmail.com', '999400001', 'F'),
-(6, '12345678', 'Roberto', 'Sánchez Benítez', 'rsanchez.prof@gmail.com', '999123456', 'M'),
-(7, '87654321', 'Felipe', 'Ostos', 'felipe.ostos@gmail.com', '999876543', 'M'),
-(8, '77654321', 'Ana', 'García Flores', 'ana.garcia@gmail.com', '999776543', 'F'),
-(9, '66554433', 'Luis', 'Torres Quispe', 'luis.torres@gmail.com', '999665544', 'M')
+(1,  '00000001', 'Administrador',    'General de TI',        'admin.ti@ieargentina.edu.pe',    '999000001', 'M'),
+(2,  '10000001', 'Manuel',           'Alvarado Carranza',    'manuel.alvarado@gmail.com',      '999100001', 'M'),
+(3,  '20000001', 'Carlos',           'Mendoza Rivas',        'carlos.mendoza@gmail.com',       '999200001', 'M'),
+(4,  '30000001', 'Rosa',             'Morales Salazar',      'rosa.morales@gmail.com',         '999300001', 'F'),
+(5,  '40000001', 'Elena',            'Ramos Palacios',       'elena.ramos@gmail.com',          '999400001', 'F'),
+(6,  '12345678', 'Sheyla',           'Quispe Torres',        'sheyla.quispe@gmail.com',        '999123456', 'F'),
+(7,  '87654321', 'Carlos Alberto',   'Mendoza Flores',       'cmendoza.est@gmail.com',         '999876543', 'M'),
+(8,  '77654321', 'Ana',              'García Flores',        'ana.garcia@gmail.com',           '999776543', 'F'),
+(9,  '66554433', 'Luis',             'Torres Quispe',        'luis.torres@gmail.com',          '999665544', 'M'),
+(10, '10000003', 'Javier',           'Montero Quispe',       'montero@gmail.com',              '999100003', 'M'),
+(11, '47915633', 'Felipe Pedro Jose','Ostos Bermudez',       'fpedro.ostos@gmail.com',         '999479156', 'M')
 ON CONFLICT (id) DO UPDATE SET dni = EXCLUDED.dni, nombres = EXCLUDED.nombres, apellidos = EXCLUDED.apellidos;
+
+-- Asegurar que Montero y Felipe existan por DNI aunque los IDs difieran
+INSERT INTO core.personas (dni, nombres, apellidos, email_personal, telefono, sexo) VALUES
+('10000003', 'Javier',            'Montero Quispe',    'montero@gmail.com',         '999100003', 'M'),
+('47915633', 'Felipe Pedro Jose', 'Ostos Bermudez',   'fpedro.ostos@gmail.com',    '999479156', 'M')
+ON CONFLICT (dni) DO NOTHING;
 
 SELECT setval('core.personas_id_seq', (SELECT MAX(id) FROM core.personas));
 
 -- 7. Cuentas de Acceso (core.usuarios)
+-- IMPORTANTE: codigo_institucional = DNI para que los botones del login rápido funcionen en producción
 INSERT INTO core.usuarios (id, persona_id, codigo_institucional, email, password_hash, estado) VALUES
-(1, 1, 'ADMIN-2026', 'admin.ti@ieargentina.edu.pe', '123456', TRUE),
-(2, 2, 'DIR-2026', 'direccion@ieargentina.edu.pe', '123456', TRUE),
-(3, 3, 'COORD-DSI', 'coord.sistemas@ieargentina.edu.pe', '123456', TRUE),
-(4, 4, 'SEC-ACAD', 'secretaria.academica@ieargentina.edu.pe', '123456', TRUE),
-(5, 5, 'TES-2026', 'tesoreria@ieargentina.edu.pe', '123456', TRUE),
-(6, 6, 'DOC-DSI-01', 'rsanchez@ieargentina.edu.pe', '123456', TRUE),
-(7, 7, 'EST-DSI-001', 'felipe.ostos@ieargentina.edu.pe', '123456', TRUE),
-(8, 8, 'EST-DSI-002', 'ana.garcia@ieargentina.edu.pe', '123456', TRUE),
-(9, 9, 'EST-CONT-001', 'luis.torres@ieargentina.edu.pe', '123456', TRUE)
-ON CONFLICT (id) DO UPDATE SET codigo_institucional = EXCLUDED.codigo_institucional;
+(1,  1,  '10000001', 'director@iestpargentina.edu.pe',      '123456', TRUE),
+(2,  2,  '10000001', 'director@iestpargentina.edu.pe',      '123456', TRUE),
+(3,  3,  '20000001', 'coordinacion@iestpargentina.edu.pe',  '123456', TRUE),
+(4,  4,  '30000001', 'secretaria@iestpargentina.edu.pe',    '123456', TRUE),
+(5,  5,  '40000001', 'tesoreria@iestpargentina.edu.pe',     '123456', TRUE),
+(6,  6,  '12345678', 'sheyla.docente@iestpargentina.edu.pe','123456', TRUE),
+(7,  7,  '87654321', 'mendoza@iestpargentina.edu.pe',       '123456', TRUE),
+(8,  8,  'EST-DSI-002', 'ana.garcia@ieargentina.edu.pe',   '123456', TRUE),
+(9,  9,  'EST-CONT-001','luis.torres@ieargentina.edu.pe',  '123456', TRUE),
+(10, 10, '10000003', 'montero@iestpargentina.edu.pe',       '123456', TRUE),
+(11, 11, '47915633', 'felipe.ostos@iestpargentina.edu.pe',  '123456', TRUE)
+ON CONFLICT (id) DO UPDATE SET
+    codigo_institucional = EXCLUDED.codigo_institucional,
+    email = EXCLUDED.email,
+    password_hash = EXCLUDED.password_hash,
+    estado = EXCLUDED.estado;
+
+-- Asegurar que Montero exista por código aunque los IDs difieran
+INSERT INTO core.usuarios (persona_id, codigo_institucional, email, password_hash, estado)
+SELECT p.id, '10000003', 'montero@iestpargentina.edu.pe', '123456', TRUE
+FROM core.personas p WHERE p.dni = '10000003'
+ON CONFLICT (codigo_institucional) DO UPDATE SET
+    email = EXCLUDED.email, password_hash = EXCLUDED.password_hash, estado = EXCLUDED.estado;
+
+-- Asegurar que Felipe exista por código
+INSERT INTO core.usuarios (persona_id, codigo_institucional, email, password_hash, estado)
+SELECT p.id, '47915633', 'felipe.ostos@iestpargentina.edu.pe', '123456', TRUE
+FROM core.personas p WHERE p.dni = '47915633'
+ON CONFLICT (codigo_institucional) DO UPDATE SET
+    email = EXCLUDED.email, password_hash = EXCLUDED.password_hash, estado = EXCLUDED.estado;
 
 SELECT setval('core.usuarios_id_seq', (SELECT MAX(id) FROM core.usuarios));
 
 -- 8. Asignación de Roles
 INSERT INTO core.usuario_roles (id, usuario_id, rol_id) VALUES
-(1, 1, 1),
-(2, 2, 2),
-(3, 3, 3),
-(4, 4, 4),
-(5, 5, 5),
-(6, 6, 6),
-(7, 7, 7),
-(8, 7, 6),
-(9, 7, 1),
-(10, 8, 7),
-(11, 9, 7)
+(1,  1,  1),  -- Admin: Admin General
+(2,  2,  2),  -- Director: 10000001
+(3,  3,  3),  -- Coordinador: 20000001
+(4,  4,  4),  -- Secretaria: 30000001
+(5,  5,  5),  -- Tesoreria: 40000001
+(6,  6,  6),  -- Docente: Sheyla 12345678
+(7,  7,  7),  -- Alumno: Carlos Mendoza 87654321
+(8,  8,  7),  -- Alumno: Ana García
+(9,  9,  7),  -- Alumno: Luis Torres
+(10, 10, 6),  -- Docente: Montero 10000003
+(11, 11, 2),  -- Director: Felipe 47915633
+(12, 11, 1),  -- Admin: Felipe
+(13, 11, 6),  -- Docente: Felipe
+(14, 11, 7),  -- Alumno: Felipe
+(15, 11, 3),  -- Coordinador: Felipe
+(16, 11, 4),  -- Secretaria: Felipe
+(17, 11, 5)   -- Tesoreria: Felipe
 ON CONFLICT (id) DO NOTHING;
+
+-- Asegurar rol Docente para Montero (robusto contra id diferente en producción)
+INSERT INTO core.usuario_roles (usuario_id, rol_id)
+SELECT u.id, 6
+FROM core.usuarios u
+JOIN core.personas p ON p.id = u.persona_id
+WHERE p.dni = '10000003'
+ON CONFLICT DO NOTHING;
+
+-- Asegurar todos los roles para Felipe
+INSERT INTO core.usuario_roles (usuario_id, rol_id)
+SELECT u.id, r.id
+FROM core.usuarios u
+JOIN core.personas p ON p.id = u.persona_id
+CROSS JOIN core.roles r
+WHERE p.dni = '47915633'
+ON CONFLICT DO NOTHING;
 
 SELECT setval('core.usuario_roles_id_seq', (SELECT MAX(id) FROM core.usuario_roles));
 
@@ -406,9 +460,15 @@ SELECT setval('core.estudiantes_id_seq', (SELECT MAX(id) FROM core.estudiantes))
 
 -- 10. Perfiles de Docente
 INSERT INTO core.docentes (id, persona_id, codigo_docente, carrera_principal_id, profesion, condicion) VALUES
-(1, 6, 'DOC-DSI-001', 1, 'Ingeniero de Sistemas e Informática', 'Nombrado'),
-(2, 7, 'DOC-DSI-002', 1, 'Senior Backend & Systems Engineer', 'Contratado')
+(1, 6, 'DOC-001', 1, 'Licenciada en Educación', 'Nombrado'),
+(2, 10, 'DOC-MONTERO', 1, 'Licenciado en Computación e Informática', 'Contratado')
 ON CONFLICT (id) DO UPDATE SET codigo_docente = EXCLUDED.codigo_docente;
+
+-- Asegurar perfil docente para Montero por DNI
+INSERT INTO core.docentes (persona_id, codigo_docente, carrera_principal_id, profesion, condicion)
+SELECT p.id, 'DOC-MONTERO', 1, 'Licenciado en Computación e Informática', 'Contratado'
+FROM core.personas p WHERE p.dni = '10000003'
+ON CONFLICT (persona_id) DO UPDATE SET profesion = EXCLUDED.profesion;
 
 SELECT setval('core.docentes_id_seq', (SELECT MAX(id) FROM core.docentes));
 
