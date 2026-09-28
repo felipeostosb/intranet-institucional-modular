@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS core.periodos_academicos (
 CREATE TABLE IF NOT EXISTS core.aulas (
     id SERIAL PRIMARY KEY,
     codigo VARCHAR(20) NOT NULL UNIQUE,
-    pabellon VARCHAR(10) NOT NULL,
+    pabellon VARCHAR(50) NOT NULL,
     aforo INT NOT NULL DEFAULT 35,
     tipo VARCHAR(30) NOT NULL DEFAULT 'Teoria' CHECK (tipo IN ('Teoria', 'Laboratorio_Computo', 'Taller'))
 );
@@ -98,7 +98,9 @@ CREATE TABLE IF NOT EXISTS core.estudiantes (
     periodo_ingreso_id INT NOT NULL REFERENCES core.periodos_academicos(id) ON DELETE RESTRICT,
     ciclo_actual VARCHAR(5) NOT NULL DEFAULT 'I' CHECK (ciclo_actual IN ('I', 'II', 'III', 'IV', 'V', 'VI')),
     turno VARCHAR(10) NOT NULL DEFAULT 'Manana' CHECK (turno IN ('Manana', 'Tarde', 'Noche')),
-    condicion VARCHAR(15) NOT NULL DEFAULT 'Regular' CHECK (condicion IN ('Regular', 'Irregular', 'Egresado', 'Titulado'))
+    seccion VARCHAR(5) NOT NULL DEFAULT 'A',
+    condicion VARCHAR(15) NOT NULL DEFAULT 'Regular' CHECK (condicion IN ('Regular', 'Irregular', 'Egresado', 'Titulado')),
+    CONSTRAINT estudiantes_persona_id_key UNIQUE (persona_id)
 );
 
 CREATE TABLE IF NOT EXISTS core.docentes (
@@ -108,7 +110,8 @@ CREATE TABLE IF NOT EXISTS core.docentes (
     carrera_principal_id INT NULL REFERENCES core.carreras(id) ON DELETE SET NULL,
     profesion VARCHAR(150) NOT NULL,
     grado_academico VARCHAR(100) NOT NULL DEFAULT 'Licenciado / Ingeniero',
-    condicion VARCHAR(15) NOT NULL DEFAULT 'Contratado' CHECK (condicion IN ('Nombrado', 'Contratado'))
+    condicion VARCHAR(15) NOT NULL DEFAULT 'Contratado' CHECK (condicion IN ('Nombrado', 'Contratado')),
+    CONSTRAINT docentes_persona_id_key UNIQUE (persona_id)
 );
 
 CREATE TABLE IF NOT EXISTS core.administrativos (
@@ -361,14 +364,14 @@ INSERT INTO core.personas (id, dni, nombres, apellidos, email_personal, telefono
 (7,  '87654321', 'Carlos Alberto',   'Mendoza Flores',       'cmendoza.est@gmail.com',         '999876543', 'M'),
 (8,  '77654321', 'Ana',              'García Flores',        'ana.garcia@gmail.com',           '999776543', 'F'),
 (9,  '66554433', 'Luis',             'Torres Quispe',        'luis.torres@gmail.com',          '999665544', 'M'),
-(10, '10000003', 'Javier',           'Montero Quispe',       'montero@gmail.com',              '999100003', 'M'),
+(10, '10000003', 'Docente',          'Montero',              'montero@iestpargentina.edu.pe',  '999100003', 'M'),
 (11, '47915633', 'Felipe Pedro Jose','Ostos Bermudez',       'fpedro.ostos@gmail.com',         '999479156', 'M')
 ON CONFLICT (id) DO UPDATE SET dni = EXCLUDED.dni, nombres = EXCLUDED.nombres, apellidos = EXCLUDED.apellidos;
 
 -- Asegurar que Montero y Felipe existan por DNI aunque los IDs difieran
 INSERT INTO core.personas (dni, nombres, apellidos, email_personal, telefono, sexo) VALUES
-('10000003', 'Javier',            'Montero Quispe',    'montero@gmail.com',         '999100003', 'M'),
-('47915633', 'Felipe Pedro Jose', 'Ostos Bermudez',   'fpedro.ostos@gmail.com',    '999479156', 'M')
+('10000003', 'Docente',           'Montero',           'montero@iestpargentina.edu.pe', '999100003', 'M'),
+('47915633', 'Felipe Pedro Jose', 'Ostos Bermudez',   'fpedro.ostos@gmail.com',        '999479156', 'M')
 ON CONFLICT (dni) DO NOTHING;
 
 SELECT setval('core.personas_id_seq', (SELECT MAX(id) FROM core.personas));
