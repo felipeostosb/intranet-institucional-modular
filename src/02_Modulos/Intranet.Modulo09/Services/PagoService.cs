@@ -271,22 +271,23 @@ public class PagoService : IPagoService
         if (filas == 0) return (false, "El pago no existe o ya fue validado.");
 
         // ------------------------------------------------------------------
-        // Voucher → trámite: si el pago está vinculado a un trámite TUPA
+        // Propagación trámite↔pago: si el pago pertenece a un trámite en curso
         // (p. ej. Reserva de Matrícula TM05), la validación de Tesorería
         // impulsa su avance: rechazo → trámite Observado con el motivo;
         // aprobación → el trámite queda listo para que Mesa lo cierre
         // (Aprobado/Entregado sigue siendo decisión de Secretaría).
-        // Cubre ambos vínculos: tramites.pago_id (producción) y
-        // pagos.tramite_id (espejo local).
+        // La vinculación se resuelve SOLO por tramites.pago_id, presente en
+        // producción (pagos_v2) y en espejos (pagos); la columna inversa
+        // pagos.tramite_id solo existe en algunos espejos y NO en producción.
         // ------------------------------------------------------------------
         var tablaPagos = TablaPagos(db);
-        var sqlTramite = "SELECT t.id FROM tramites t WHERE t.pago_id = @Id " +
-                         "OR t.id = (SELECT tramite_id FROM " + tablaPagos + " WHERE id = @Id) LIMIT 1;";
+        var sqlTramite = "SELECT t.id FROM mod09.tramites t " +
+                         "WHERE t.pago_id = @Id LIMIT 1;";
         var tramiteAfectado = await db.ExecuteScalarAsync<int?>(sqlTramite, new { Id = pagoId });
         if (tramiteAfectado is int tid)
         {
             await db.ExecuteAsync("""
-                UPDATE tramites
+                UPDATE mod09.tramites
                 SET estado = CASE WHEN @Aprobado THEN 'En evaluación' ELSE 'Observado' END,
                     resolucion = CASE WHEN @Aprobado
                                 THEN 'Voucher validado por Tesorería.'
