@@ -62,7 +62,7 @@
                         <span class="badge badge-error badge-xs text-white font-bold">@Model.Resumen.EnEspera en espera</span>
                     }
                 </a>
-                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">📊 Vacantes</a>
+                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">📊 Vacantes <span aria-hidden="true">↗</span></a>
             }
             else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
             {
@@ -74,12 +74,12 @@
                         <span class="badge badge-error badge-xs text-white font-bold">@Model.Resumen.ListasParaRegistrar listas</span>
                     }
                 </a>
-                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">📊 Vacantes</a>
+                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">📊 Vacantes <span aria-hidden="true">↗</span></a>
             }
             else
             {
                 <a href="/Modulo01/Matriculas" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">📋 Panel de Trabajo</a>
-                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">📊 Vacantes</a>
+                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">📊 Vacantes <span aria-hidden="true">↗</span></a>
             }
         </div>
     </div>
@@ -104,7 +104,7 @@
             <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-amber-300/70 dark:border-amber-800/60 shadow-sm">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🧾 Vouchers de reserva por validar</span>
                 <div class="text-xl font-bold @(rt.VouchersPendientes > 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400") mt-1">@rt.VouchersPendientes</div>
-                <p class="text-[10px] text-slate-400 mt-0.5"><a class="link link-primary" href="/Modulo09/Pagos">Validarlos en la bandeja →</a></p>
+                <a class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition text-[10px] font-bold" href="/Modulo09/Pagos">Abrir bandeja <span aria-hidden="true">↗</span></a>
             </div>
             <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-amber-300/70 dark:border-amber-800/60 shadow-sm">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">✅ Vouchers validados</span>
@@ -219,7 +219,7 @@
         <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📋 Últimas matrículas</h2>
-                <a href="/Modulo01/Matriculas" class="link link-primary text-[11px]">Ver el panel completo</a>
+                <a href="/Modulo01/Matriculas" class="btn btn-outline btn-xs rounded-lg text-[10px] font-bold">Ver panel completo <span aria-hidden="true">↗</span></a>
             </div>
             <div class="space-y-2">
                 @if (!Model.Ultimas.Any())
@@ -241,7 +241,7 @@
         <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📊 Vacantes: carriles con menos cupos</h2>
-                <a href="/Modulo01/Matriculas/Vacantes" class="link link-primary text-[11px]">Tablero completo</a>
+                <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-outline btn-xs rounded-lg text-[10px] font-bold">Abrir tablero <span aria-hidden="true">↗</span></a>
             </div>
             <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
                 @foreach (var v in Model.VacantesCriticas)

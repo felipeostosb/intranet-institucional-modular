@@ -30,7 +30,7 @@
             <div class="text-4xl mb-3">📭</div>
             <h2 class="text-base font-bold text-slate-800 dark:text-slate-200">Todavía no tienes una matrícula registrada</h2>
             <p class="text-xs text-slate-500 dark:text-slate-400 mt-2">
-                Tu matrícula nace del trámite TUPA: lo inicias en <a class="link link-primary" href="/Modulo09/Tramites#nuevoTramite">Mis trámites → Nuevo trámite</a>
+                Tu matrícula nace del trámite TUPA: lo inicias en <a href="/Modulo09/Tramites#nuevoTramite" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition font-bold">Abrir Mis trámites <span aria-hidden="true">↗</span></a>
                 adjuntando tu voucher de pago y la foto del carné. Tesorería valida el voucher, Secretaría
                 valida la foto y recién ahí se registra tu matrícula aquí.
             </p>
@@ -75,7 +75,7 @@
             <p class="text-[11px] text-slate-400 mt-3">Etapa actual: <span class="font-semibold text-slate-600 dark:text-slate-300">@Model.EtapaLegible</span></p>
 
             <details class="mt-4">
-                <summary class="text-[11px] link link-primary cursor-pointer">Ver bitácora del proceso</summary>
+                <summary class="inline-flex items-center gap-1.5 text-[11px] font-bold text-primary cursor-pointer hover:underline">Ver bitácora del proceso <span aria-hidden="true">⌄</span></summary>
                 <div class="mt-2 text-[11px] text-slate-500 dark:text-slate-400 font-mono bg-slate-50 dark:bg-slate-900/50 rounded-xl p-3">
                     @Model.CreadoEn.ToString("dd/MM/yyyy") · Trámite iniciado (Cero Filas)
                     @if (Model.FechaMatricula.HasValue)
@@ -126,7 +126,7 @@
                     </p>
                 </div>
             </div>
-            <p class="text-[11px] text-slate-400 mt-3">Si un documento fue observado, se corrige desde <a class="link link-primary" href="/Modulo09/Tramites">Mis trámites → Corregir</a>.</p>
+            <div class="mt-4 flex items-center justify-between gap-3 flex-wrap rounded-xl border border-amber-200/70 dark:border-amber-900/60 bg-amber-50/70 dark:bg-amber-950/20 px-3 py-2.5"><p class="text-[11px] text-slate-500 dark:text-slate-400">¿Te observaron un documento?</p><a href="/Modulo09/Tramites" class="btn btn-warning btn-xs rounded-lg font-bold">Corregir documento <span aria-hidden="true">→</span></a></div>
         </div>
     }
 </div>
