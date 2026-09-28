@@ -15,5 +15,9 @@ public class Modulo01Startup : IModuloStartup
     {
         // Matrícula Académica — proceso Cero Filas (Equipo 01)
         services.AddScoped<IMatriculaService, MatriculaService>();
+        // Matriculatura de Secretaría — cierre del flujo Reserva de Matrícula (TM05/CT13)
+        services.AddScoped<IMatriculaturaService, MatriculaturaService>();
+        // Envío de la ficha PDF al correo del estudiante (MailKit; bitácora en fichas_enviadas)
+        services.AddScoped<IEmailFichaService, EmailFichaService>();
     }
 }

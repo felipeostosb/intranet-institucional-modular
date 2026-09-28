@@ -97,3 +97,157 @@ public class VacanteConsumoDto
     public int TurnoId { get; set; }
     public int PeriodoId { get; set; }
 }
+
+
+// =====================================================================
+// Matriculatura de Secretaría (flujo Reserva de Matrícula TM05/CT13)
+// =====================================================================
+
+/// <summary>Expediente del alumno listo para matricular (búsqueda por DNI).</summary>
+public class ExpedienteMatriculaDto
+{
+    public int EstudianteId { get; set; }
+    public string CodigoEstudiante { get; set; } = "";
+    public string Estudiante { get; set; } = "";
+    public string Dni { get; set; } = "";
+    public string EmailPersonal { get; set; } = "";
+    public string EmailInstitucional { get; set; } = "";
+    public int CarreraId { get; set; }
+    public string Carrera { get; set; } = "";
+    public string CarreraCodigo { get; set; } = "";
+    public string CicloActual { get; set; } = "";
+
+    // situación académica
+    public string CicloCulminado { get; set; } = "";
+    public string CicloProximo { get; set; } = "";
+    public string Condicion { get; set; } = "";          // Promovido | Promovido con curso a cargo | Repitente
+    public int CursosDesaprobados { get; set; }
+    public string CursosDesaprobadosNombres { get; set; } = "";
+    public List<HistorialFilaDto> Historial { get; set; } = [];
+    public List<UnidadOfertaDto> OfertaProximoCiclo { get; set; } = [];
+
+    // reserva TUPA y su voucher
+    public ReservaDto? Reserva { get; set; }
+    public bool PuedeMatricular { get; set; }
+    /// <summary>Id de una matrícula ya cerrada en el período destino (no se abre otra).</summary>
+    public int YaMatriculadoId { get; set; }
+}
+
+/// <summary>Fila del historial académico (aprobado/desaprobado por UD).</summary>
+public class HistorialFilaDto
+{
+    public string UnidadCodigo { get; set; } = "";
+    public string UnidadNombre { get; set; } = "";
+    public string Ciclo { get; set; } = "";
+    public decimal Nota { get; set; }
+    public string Estado { get; set; } = "";   // Aprobado | Desaprobado | Retirado
+}
+
+// =====================================================================
+// Panel del alumno (Resumen del Módulo 01)
+// =====================================================================
+
+/// <summary>Mini-dashboard personal del alumno para la pestaña Resumen.</summary>
+public class PanelAlumnoDto
+{
+    public string CodigoEstudiante { get; set; } = "";
+    public string Estudiante { get; set; } = "";
+    public string Carrera { get; set; } = "";
+    public string CarreraCodigo { get; set; } = "";
+    public string CicloActual { get; set; } = "";      // ciclo culminado
+    public string CicloProximo { get; set; } = "";
+    public string Condicion { get; set; } = "";         // Promovido | ... | Repitente
+    public string CursosDesaprobadosNombres { get; set; } = "";
+    public decimal Promedio { get; set; }               // ponderado del historial
+    public int CreditosAprobados { get; set; }
+    public List<HistorialFilaDto> Historial { get; set; } = [];
+
+    /// <summary>Pasos del flujo de reserva de matrícula para el timeline.</summary>
+    public List<PasoFlujoDto> PasosFlujo { get; set; } = [];
+}
+
+/// <summary>Paso del timeline del flujo (trámite → voucher → matrícula → ficha).</summary>
+public class PasoFlujoDto
+{
+    public string Titulo { get; set; } = "";
+    public string Detalle { get; set; } = "";
+    /// <summary>Completado | Actual | Pendiente</summary>
+    public string Estado { get; set; } = "Pendiente";
+}
+
+/// <summary>Fila interna del estado de la reserva más reciente del alumno.</summary>
+public class ReservaAlumnoRow
+{
+    public int MatriculaId { get; set; }
+    public string Codigo { get; set; } = "";
+    public string Estado { get; set; } = "";
+    public string Voucher { get; set; } = "";
+    public string TramiteEstado { get; set; } = "";
+    public string TramiteCodigo { get; set; } = "";
+}
+
+/// <summary>UD matriculable del próximo ciclo (core o espejo oferta_ciclo).</summary>
+public class UnidadOfertaDto
+{
+    public int Id { get; set; }
+    /// <summary>Origen del Id: "core" (unidades_didacticas) o "espejo" (mod01.oferta_ciclo).</summary>
+    public string Origen { get; set; } = "core";
+    public string Codigo { get; set; } = "";
+    public string Nombre { get; set; } = "";
+    public int Creditos { get; set; }
+    public string Tipo { get; set; } = "";
+    public string Ciclo { get; set; } = "";
+    public bool Obligatoria { get; set; } = true;
+    /// <summary>Curso a cargo: desaprobado que se vuelve a llevar junto al nuevo ciclo.</summary>
+    public bool EsCursoACargo { get; set; }
+}
+
+/// <summary>Estado del trámite de reserva y su voucher (para Secretaría).</summary>
+public class ReservaDto
+{
+    public int MatriculaId { get; set; }
+    public string CodigoMatricula { get; set; } = "";
+    public string Estado { get; set; } = "";
+    public bool VoucherOk { get; set; }
+    public int? TramiteId { get; set; }
+    public string TramiteCodigo { get; set; } = "";
+    public string TramiteEstado { get; set; } = "";
+    public string VoucherEstado { get; set; } = "";   // Pendiente | Validado | Rechazado
+    public decimal VoucherMonto { get; set; }
+    /// <summary>El período de la reserva tiene permite_matricula (lo habilita el dueño).</summary>
+    public bool PeriodoHabilitado { get; set; } = true;
+}
+
+/// <summary>RETURNING interno al cerrar la matrícula (consumo de vacante).</summary>
+public class MatriculaCierreDto
+{
+    public int Id { get; set; }
+    public int EstudianteId { get; set; }
+    public int CarreraId { get; set; }
+    public int CicloId { get; set; }
+    public int TurnoId { get; set; }
+    public int PeriodoId { get; set; }
+}
+
+/// <summary>
+/// Datos de la ficha de matrícula PDF (QuestPDF) que se envía al estudiante.
+/// </summary>
+public class FichaMatriculaDto
+{
+    public string CodigoMatricula { get; set; } = "";
+    public string Periodo { get; set; } = "";
+    public string Estudiante { get; set; } = "";
+    public string CodigoEstudiante { get; set; } = "";
+    public string Dni { get; set; } = "";
+    public string Carrera { get; set; } = "";
+    public string CarreraCodigo { get; set; } = "";
+    public string Condicion { get; set; } = "";
+    public string CursosDesaprobadosNombres { get; set; } = "";
+    public string CicloCulminado { get; set; } = "";
+    public string CicloProximo { get; set; } = "";
+    public string Turno { get; set; } = "";
+    public string TipoMatricula { get; set; } = "";
+    public DateTime? FechaMatricula { get; set; }
+    public string Estado { get; set; } = "";
+    public List<UnidadOfertaDto> Unidades { get; set; } = [];
+}

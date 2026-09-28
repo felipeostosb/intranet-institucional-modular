@@ -25,6 +25,8 @@ public interface IPagoService
     Task<(bool Ok, string Mensaje)> EmitirReciboDirectoAsync(
         int estudianteId, int periodoId, string conceptoCodigo, string tipoPagoCodigo, decimal monto, int cajeroId);
     Task<(bool Ok, string Mensaje)> ValidarVoucherAsync(int pagoId, bool aprobar, string? motivo, int validadorId);
+    Task<(bool Ok, string Mensaje)> SubirVoucherAsync(int pagoId, int estudianteId, string nombre, string tipo, byte[] contenido);
+    Task<ArchivoVoucherDto?> ObtenerVoucherAsync(int pagoId);
     Task<PagosResumenDto> ResumenAsync();
     Task<IEnumerable<ConceptoPagoDto>> ListarConceptosAsync();
     Task<IEnumerable<TipoPagoDto>> ListarTiposPagoAsync();
@@ -84,7 +86,8 @@ public class PagoService : IPagoService
                    cp.codigo AS ConceptoCodigo,
                    cp.nombre AS ConceptoNombre,
                    tp.nombre AS TipoPago,
-                   pa.codigo AS Periodo
+                   pa.codigo AS Periodo,
+                   (SELECT count(*) FROM voucher_archivos va WHERE va.pago_id = p.id) > 0 AS TieneVoucher
             FROM {TABLA} p
             JOIN conceptos_pago cp ON cp.id = p.concepto_pago_id
             JOIN tipos_pago tp ON tp.id = p.tipo_pago_id
@@ -114,7 +117,8 @@ public class PagoService : IPagoService
                    cp.nombre AS ConceptoNombre,
                    tp.nombre AS TipoPago,
                    e.codigo_estudiante AS CodigoEstudiante,
-                   pe.nombres || ' ' || pe.apellidos AS Estudiante
+                   pe.nombres || ' ' || pe.apellidos AS Estudiante,
+                   (SELECT count(*) FROM voucher_archivos va WHERE va.pago_id = p.id) > 0 AS TieneVoucher
             FROM {TABLA} p
             JOIN conceptos_pago cp ON cp.id = p.concepto_pago_id
             JOIN tipos_pago tp ON tp.id = p.tipo_pago_id
@@ -144,7 +148,8 @@ public class PagoService : IPagoService
                    cp.nombre AS ConceptoNombre,
                    tp.nombre AS TipoPago,
                    e.codigo_estudiante AS CodigoEstudiante,
-                   pe.nombres || ' ' || pe.apellidos AS Estudiante
+                   pe.nombres || ' ' || pe.apellidos AS Estudiante,
+                   (SELECT count(*) FROM voucher_archivos va WHERE va.pago_id = p.id) > 0 AS TieneVoucher
             FROM {TABLA} p
             JOIN conceptos_pago cp ON cp.id = p.concepto_pago_id
             JOIN tipos_pago tp ON tp.id = p.tipo_pago_id
@@ -249,6 +254,7 @@ public class PagoService : IPagoService
         if (!aprobar && string.IsNullOrWhiteSpace(motivo))
             return (false, "Indica el motivo del rechazo (el estudiante lo verá).");
 
+        var tabla = TablaPagos(db);
         var filas = await db.ExecuteAsync("""
             UPDATE {TABLA}
             SET voucher_estado = @Estado,
@@ -259,14 +265,83 @@ public class PagoService : IPagoService
                 actualizado_en = CURRENT_TIMESTAMP
             WHERE id = @Id
               AND voucher_estado <> 'Validado';
-            """, new { Id = pagoId, Estado = aprobar ? "Validado" : "Rechazado",
+            """.Replace("{TABLA}", tabla), new { Id = pagoId, Estado = aprobar ? "Validado" : "Rechazado",
                        Motivo = motivo, Validador = validadorId });
 
+        if (filas == 0) return (false, "El pago no existe o ya fue validado.");
+
+        // ------------------------------------------------------------------
+        // Propagación trámite↔pago: si el pago pertenece a un trámite en curso
+        // (p. ej. Reserva de Matrícula TM05), la validación de Tesorería
+        // impulsa su avance: rechazo → trámite Observado con el motivo;
+        // aprobación → el trámite queda listo para que Mesa lo cierre
+        // (Aprobado/Entregado sigue siendo decisión de Secretaría).
+        // La vinculación se resuelve SOLO por tramites.pago_id, presente en
+        // producción (pagos_v2) y en espejos (pagos); la columna inversa
+        // pagos.tramite_id solo existe en algunos espejos y NO en producción.
+        // ------------------------------------------------------------------
+        var tablaPagos = TablaPagos(db);
+        var sqlTramite = "SELECT t.id FROM mod09.tramites t " +
+                         "WHERE t.pago_id = @Id LIMIT 1;";
+        var tramiteAfectado = await db.ExecuteScalarAsync<int?>(sqlTramite, new { Id = pagoId });
+        if (tramiteAfectado is int tid)
+        {
+            await db.ExecuteAsync("""
+                UPDATE mod09.tramites
+                SET estado = CASE WHEN @Aprobado THEN 'En evaluación' ELSE 'Observado' END,
+                    resolucion = CASE WHEN @Aprobado
+                                THEN 'Voucher validado por Tesorería.'
+                                ELSE 'Voucher rechazado: ' || @Motivo END,
+                    fecha_resolucion = CURRENT_DATE,
+                    actualizado_en = CURRENT_TIMESTAMP
+                WHERE id = @Tid AND estado NOT IN ('Aprobado','Entregado','Rechazado');
+                """, new { Aprobado = aprobar, Motivo = motivo, Tid = tid });
+        }
+
+        return (true, aprobar
+            ? "Voucher validado. La matrícula/trámite queda habilitado para conformidad."
+            : "Voucher rechazado con motivo. El estudiante debe corregirlo.");
+    }
+
+    // ------------------------------------------------------------------
+    // ALUMNO: adjuntar el voucher PDF de su pago. Verifica que el pago sea
+    // del estudiante (Zero-Blast-Radius: no se puede adjuntar a pagos ajenos).
+    // ------------------------------------------------------------------
+    public async Task<(bool, string)> SubirVoucherAsync(
+        int pagoId, int estudianteId, string nombre, string tipo, byte[] contenido)
+    {
+        using var db = CreateConnection();
+        var dueno = await db.ExecuteScalarAsync<int?>(
+            "SELECT estudiante_id FROM " + TablaPagos(db) + " WHERE id = @Id;", new { Id = pagoId });
+        if (dueno != estudianteId)
+            return (false, "El recibo no existe o no es tuyo.");
+
+        var filas = await db.ExecuteAsync("""
+            INSERT INTO voucher_archivos (pago_id, archivo_nombre, archivo_tipo, archivo_contenido)
+            VALUES (@Id, @Nombre, @Tipo, @Contenido)
+            ON CONFLICT (pago_id) DO UPDATE SET
+                archivo_nombre = EXCLUDED.archivo_nombre,
+                archivo_tipo = EXCLUDED.archivo_tipo,
+                archivo_contenido = EXCLUDED.archivo_contenido,
+                subido_en = CURRENT_TIMESTAMP;
+            """, new { Id = pagoId, Nombre = nombre, Tipo = tipo, Contenido = contenido });
         return filas > 0
-            ? (true, aprobar
-                ? "Voucher validado. La matrícula/trámite queda habilitado para conformidad."
-                : "Voucher rechazado con motivo. El estudiante debe corregirlo.")
-            : (false, "El pago no existe o ya fue validado.");
+            ? (true, "Voucher adjuntado. Tesorería lo validará desde su bandeja.")
+            : (false, "No se pudo guardar el voucher.");
+    }
+
+    // ------------------------------------------------------------------
+    // PERSONAL: leer el voucher PDF de un pago (validación con evidencia)
+    // ------------------------------------------------------------------
+    public async Task<ArchivoVoucherDto?> ObtenerVoucherAsync(int pagoId)
+    {
+        using var db = CreateConnection();
+        return await db.QueryFirstOrDefaultAsync<ArchivoVoucherDto>("""
+            SELECT archivo_nombre AS Nombre,
+                   archivo_tipo AS Tipo,
+                   archivo_contenido AS Contenido
+            FROM voucher_archivos WHERE pago_id = @Id;
+            """, new { Id = pagoId });
     }
 
     // ------------------------------------------------------------------

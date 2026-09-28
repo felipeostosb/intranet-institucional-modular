@@ -4,11 +4,19 @@
 }
 
 <div class="space-y-6">
-    <!-- Tabs del módulo (rol-aware) -->
+    <!-- Tabs del módulo (flujo por rol) -->
     <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="09">
         <a href="/Modulo09" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
-        <a href="/Modulo09/Tramites" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Trámites TUPA</a>
-        <a href="/Modulo09/Pagos" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Pagos & Vouchers</a>
+        @if (Model.EsAlumno)
+        {
+            <a href="/Modulo09/Tramites" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Mis trámites</a>
+            <a href="/Modulo09/Pagos" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Mis pagos</a>
+        }
+        else
+        {
+            <a href="/Modulo09/Tramites" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Mesa de trámites</a>
+            <a href="/Modulo09/Pagos" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Bandeja de vouchers</a>
+        }
     </div>
     <!-- Header Zen del Módulo (patrón del Módulo 02) -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -76,7 +84,21 @@
         </div>
     </div>
 
-    <!-- Indicadores (datos reales del esquema mod09) -->
+    @if (Model.EsAlumno)
+    {
+    <!-- CTA del alumno: el flujo empieza en Mis trámites → Nuevo trámite (Cero Filas) -->
+    <div class="bg-gradient-to-r from-emerald-500/10 via-sky-500/10 to-cyan-500/10 border border-emerald-200/70 dark:border-emerald-800/60 rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div>
+            <h2 class="text-sm font-bold text-slate-900 dark:text-slate-100">Solicita tu trámite en línea</h2>
+            <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">Constancias, carné y más — sin filas. Sube tu voucher (PDF) y sigue el estado aquí.</p>
+        </div>
+        <a href="/Modulo09/Tramites#nuevoTramite" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm whitespace-nowrap">Iniciar trámite</a>
+    </div>
+    }
+
+@if (!Model.EsAlumno)
+    {
+    <!-- Indicadores operativos (staff) — el alumno no ve la operación interna -->
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Trámites en mesa</span>
@@ -99,52 +121,32 @@
             <p class="text-[10px] text-emerald-600 dark:text-emerald-400 font-semibold mt-0.5">DBA: Ismael</p>
         </div>
     </div>
+    }
 
     @if (Model.EsAlumno)
     {
-        <!-- Sección alumno -->
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
-                <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📄 Mis últimos trámites</h2>
-                    <a href="/Modulo09/Tramites" class="link link-primary text-[11px]">Ver todos</a>
-                </div>
-                <div class="space-y-2">
-                    @if (!Model.UltimosTramites.Any())
-                    {
-                        <p class="text-xs text-slate-400 italic">Sin trámites aún. <a class="link link-primary" href="/Modulo09/Tramites">Solicita el primero</a>.</p>
-                    }
-                    @foreach (var t in Model.UltimosTramites)
-                    {
-                        <div class="flex items-center justify-between gap-2 text-xs">
-                            <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@t.Codigo</span>
-                            <span class="flex-1 truncate text-slate-600 dark:text-slate-300">@t.TipoCodigo · @t.TipoNombre</span>
-                            <span class="badge @(t.Estado == "Aprobado" || t.Estado == "Entregado" ? "badge-success" : t.Estado == "Rechazado" ? "badge-error" : "badge-warning") badge-xs font-semibold text-white">@t.Estado</span>
-                        </div>
-                    }
-                </div>
+        <!-- Tu flujo (estudiante): trámites con estado + acceso a pagos -->
+        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+            <div class="flex justify-between items-center mb-3">
+                <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📄 Mis trámites</h2>
+                <a href="/Modulo09/Tramites" class="link link-primary text-[11px]">Ver todos / Nuevo trámite</a>
             </div>
-            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
-                <div class="flex justify-between items-center mb-3">
-                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">💳 Mis últimos pagos</h2>
-                    <a href="/Modulo09/Pagos" class="link link-primary text-[11px]">Ver todos</a>
-                </div>
-                <div class="space-y-2">
-                    @if (!Model.UltimosPagos.Any())
-                    {
-                        <p class="text-xs text-slate-400 italic">Sin pagos aún.</p>
-                    }
-                    @foreach (var p in Model.UltimosPagos)
-                    {
-                        <div class="flex items-center justify-between gap-2 text-xs">
-                            <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@p.Codigo</span>
-                            <span class="flex-1 truncate text-slate-600 dark:text-slate-300">@p.ConceptoNombre</span>
-                            <span class="font-mono">S/ @p.Monto.ToString("0.00")</span>
-                            <span class="badge @(p.VoucherEstado == "Validado" ? "badge-success" : p.VoucherEstado == "Rechazado" ? "badge-error" : "badge-warning") badge-xs font-semibold text-white">@p.VoucherEstado</span>
-                        </div>
-                    }
-                </div>
+            <div class="space-y-2">
+                @if (!Model.UltimosTramites.Any())
+                {
+                    <p class="text-xs text-slate-400 italic">Sin trámites aún. <a class="link link-primary" href="/Modulo09/Tramites#nuevoTramite">Solicita el primero</a>.</p>
+                }
+                @foreach (var t in Model.UltimosTramites)
+                {
+                    <div class="flex items-center justify-between gap-2 text-xs">
+                        <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@t.Codigo</span>
+                        <span class="flex-1 truncate text-slate-600 dark:text-slate-300">@t.TipoCodigo · @t.TipoNombre</span>
+                        <span class="badge @(t.Estado == "Aprobado" || t.Estado == "Entregado" ? "badge-success" : t.Estado == "Observado" ? "badge-error" : "badge-warning") badge-xs font-semibold text-white">@t.Estado</span>
+                        <a class="btn btn-ghost btn-xs rounded-xl" href="/Modulo09/Tramites/Detalle/@t.Id">Ver</a>
+                    </div>
+                }
             </div>
+            <p class="text-[11px] text-slate-400 mt-3">Los recibos de cada trámite están en <a class="link link-primary" href="/Modulo09/Pagos">Mis pagos</a>.</p>
         </div>
     }
     else

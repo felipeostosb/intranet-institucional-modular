@@ -1,4 +1,6 @@
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Intranet.Core.Controllers;
 using Intranet.Modulo01.Models;
 using Intranet.Modulo01.Services;
@@ -14,10 +16,13 @@ namespace Intranet.Modulo01.Controllers;
 public class Modulo01Controller : ModuloBaseController
 {
     private readonly IMatriculaService _matriculaService;
+    private readonly IMatriculaturaService _matriculaturaService;
 
-    public Modulo01Controller(IMatriculaService matriculaService)
+    public Modulo01Controller(IMatriculaService matriculaService,
+        IMatriculaturaService matriculaturaService)
     {
         _matriculaService = matriculaService;
+        _matriculaturaService = matriculaturaService;
     }
 
     [HttpGet("")]
@@ -27,9 +32,12 @@ public class Modulo01Controller : ModuloBaseController
         ViewData["Title"] = "01. Matrícula Académica";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;
-        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
+        // Fix multi-rol: el filtro de tabs usa el ROL ACTIVO (el modo elegido con el selector
+        // se guarda en el claim "ActiveRole"), no la lista completa de roles — si no, un
+        // multi-rol (p. ej. Director+Alumno) ve pestañas de staff estando en Modo Alumno.
+        ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
 
-        var esAlumno = EsAlumno && !EsAdmin;
+        var esAlumno = EsAlumno; // ActiveRole-aware: demo 87654321 multi-rol en Modo Alumno
 
         var vm = new Modulo01DashboardViewModel
         {
@@ -41,6 +49,17 @@ public class Modulo01Controller : ModuloBaseController
             NombreUsuario = UsuarioActualNombre,
             RolUsuario = UsuarioActualRol
         };
+        // Mini-dashboard personal del alumno: historial, promedio y estado de SU flujo.
+        if (esAlumno)
+        {
+            var factory = HttpContext.RequestServices
+                .GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+            using var conn = factory.CreateConnection("01");
+            var estudianteId = await conn.ExecuteScalarAsync<int?>(
+                "SELECT e.id FROM core.estudiantes e WHERE e.persona_id = @PersonaId;",
+                new { PersonaId = PersonaActualId ?? 0 }) ?? 0;
+            vm.Panel = await _matriculaturaService.PanelAlumnoAsync(estudianteId);
+        }
         return View(vm);
     }
 }
@@ -54,4 +73,6 @@ public class Modulo01DashboardViewModel
     public IEnumerable<VacanteDto> VacantesCriticas { get; set; } = [];
     public string NombreUsuario { get; set; } = "";
     public string RolUsuario { get; set; } = "";
+    /// <summary>Mini-dashboard personal (solo rol activo Alumno).</summary>
+    public PanelAlumnoDto? Panel { get; set; }
 }

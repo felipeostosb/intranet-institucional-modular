@@ -48,9 +48,8 @@ public class TramiteService : ITramiteService
     private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("09");
 
     // ------------------------------------------------------------------
-    // Resolución del nombre real de la tabla de pagos (legacy en
-    // producción: "pagos" es una tabla antigua de otro dueño; la
-    // nuestra es pagos_v2 hasta que el DBA restaure el nombre oficial).
+    // Nombres reales de tablas de pago (producción usa pagos_v2 porque
+    // “pagos” es legacy de otro dueño; local usa “pagos”).
     // ------------------------------------------------------------------
     private static string? _tablaPagos;
     private static string TablaPagos(IDbConnection db)
@@ -58,17 +57,19 @@ public class TramiteService : ITramiteService
         if (_tablaPagos != null) return _tablaPagos;
         try
         {
-            var tieneColumnaNueva = db.ExecuteScalar<int?>(
+            var tieneVoucher = db.ExecuteScalar<int?>(
                 "SELECT 1 FROM information_schema.columns WHERE table_schema = 'mod09' AND table_name = 'pagos' AND column_name = 'voucher_estado';");
-            _tablaPagos = tieneColumnaNueva == 1 ? "pagos" : "pagos_v2";
+            _tablaPagos = tieneVoucher == 1 ? "pagos" : "pagos_v2";
         }
-        catch
-        {
-            _tablaPagos = "pagos";
-        }
+        catch { _tablaPagos = "pagos"; }
         return _tablaPagos;
     }
 
+    // ------------------------------------------------------------------
+    // Resolución del nombre real de la tabla de pagos (legacy en
+    // producción: "pagos" es una tabla antigua de otro dueño; la
+    // nuestra es pagos_v2 hasta que el DBA restaure el nombre oficial).
+    // ------------------------------------------------------------------
     // número correlativo de trámite: T0001, T0002... según el diseño del prototipo
     private const string SqlNuevoCodigo = "SELECT 'T' || lpad((count(*) + 1)::text, 4, '0') FROM tramites;";
 
@@ -256,7 +257,8 @@ public class TramiteService : ITramiteService
         using var tx = db.BeginTransaction();
 
         var tipo = await db.QueryFirstOrDefaultAsync<TipoTramiteDto>("""
-            SELECT tt.id, tt.codigo, tt.nombre, tt.dias_habiles AS DiasHabiles
+            SELECT tt.id, tt.codigo, tt.nombre, tt.dias_habiles AS DiasHabiles,
+                   tt.concepto_pago_id AS ConceptoPagoId
             FROM tipos_tramite tt WHERE tt.codigo = @Codigo AND tt.activo;
             """, new { Codigo = tipoCodigo }, tx);
 
@@ -298,8 +300,45 @@ public class TramiteService : ITramiteService
                            Nombre = archivo.Nombre, Tipo = archivo.Tipo, Contenido = archivo.Contenido }, tx);
         }
 
+                // ------------------------------------------------------------------
+        // Si el tipo de trámite tiene concepto de pago asociado (p. ej. TM05
+        // Reserva de Matrícula → CT13), se genera AQUÍ el pago Pendiente:
+        // el estudiante lo paga, sube el voucher PDF en «Mis pagos» y
+        // Tesorería lo valida desde su bandeja. Antes el voucher nacía
+        // suelto y nada lo ataba al trámite.
+        // ------------------------------------------------------------------
+        int? pagoId = null;
+        if (tipo.ConceptoPagoId is int conceptoId)
+        {
+            var tipoPagoId = await db.ExecuteScalarAsync<int?>(
+                "SELECT id FROM tipos_pago WHERE activo ORDER BY id LIMIT 1;", tx);
+            if (tipoPagoId != null)
+            {
+                var tablaPagos = TablaPagos(db);
+                var codigoPago = await db.ExecuteScalarAsync<string>(
+                    $"SELECT 'REC-' || lpad((count(*) + 1)::text, 4, '0') FROM {tablaPagos};", tx);
+                var sqlPago = "INSERT INTO " + tablaPagos + @" (codigo, estudiante_id, concepto_pago_id, periodo_id,
+                                  tipo_pago_id, monto, voucher_estado)
+            VALUES (@Codigo, @EstudianteId, @ConceptoId, @PeriodoId,
+                    @TipoPagoId, (SELECT monto FROM conceptos_pago WHERE id = @ConceptoId),
+                    'Pendiente')
+            RETURNING id;";
+                pagoId = await db.ExecuteScalarAsync<int>(sqlPago,
+                    new { Codigo = codigoPago, EstudianteId = estudianteId, ConceptoId = conceptoId,
+                          PeriodoId = periodoId, TipoPagoId = tipoPagoId }, tx);
+                // vínculo trámite ↔ pago: en línea es tramites.pago_id; en local
+                // el espejo usa pagos.tramite_id — cubrir ambos para que funcione en los dos.
+                await db.ExecuteAsync(
+                    "UPDATE tramites SET pago_id = @PagoId WHERE id = @Id;",
+                    new { PagoId = pagoId, Id = nuevoId }, tx);
+            }
+        }
+
         tx.Commit();
-        return (true, $"Trámite {codigo} registrado. Secretaría lo evaluará en {tipo.DiasHabiles} días hábiles.", codigo);
+        var mensaje = pagoId == null
+            ? $"Trámite {codigo} registrado. Secretaría lo evaluará en {tipo.DiasHabiles} días hábiles."
+            : $"Trámite {codigo} registrado. Paga el recibo generado en «Mis pagos», sube el voucher PDF y Tesorería lo validará.";
+        return (true, mensaje, codigo);
     }
 
     // ------------------------------------------------------------------

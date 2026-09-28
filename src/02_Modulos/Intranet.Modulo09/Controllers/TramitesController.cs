@@ -28,7 +28,10 @@ public class TramitesController : ModuloBaseController
     /// <summary>Expone los roles del usuario a las vistas (tabs rol-aware).</summary>
     public override void OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext context)
     {
-        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
+        // Fix multi-rol: el filtro de tabs usa el ROL ACTIVO (el modo elegido con el selector
+        // se guarda en el claim "ActiveRole"), no la lista completa de roles — si no, un
+        // multi-rol (p. ej. Director+Alumno) ve pestañas de staff estando en Modo Alumno.
+        ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
         base.OnActionExecuting(context);
     }
 
@@ -45,7 +48,7 @@ public class TramitesController : ModuloBaseController
         ViewData["UsuarioRol"] = UsuarioActualRol;
 
         // el alumno es un estudiante: obtener su id vía persona → estudiantes
-        if (EsAlumno && !EsAdmin)
+        if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
             var mios = await _tramiteService.ListarPorEstudianteAsync(estudianteId, estado);
@@ -87,7 +90,26 @@ public class TramitesController : ModuloBaseController
     {
         var t = await _tramiteService.ObtenerDetalleAsync(id);
         if (t == null) return NotFound();
+
+        // Zero-Blast-Radius de datos: el alumno SOLO puede abrir SU ficha. Antes el id
+        // era suficiente y cualquier estudiante veía el trámite (y los requisitos) de otro.
+        if (EsAlumno)
+        {
+            var estudianteId = await ObtenerEstudianteIdAsync();
+            if (estudianteId == 0 || t.CodigoEstudiante != await ObtenerCodigoEstudianteAsync(estudianteId))
+                return Forbid();
+        }
         return View(t);
+    }
+
+    /// <summary>Código del estudiante (mod09.tramites.c_estudiante) para cotejar autoría.</summary>
+    private async Task<string> ObtenerCodigoEstudianteAsync(int estudianteId)
+    {
+        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = factory.CreateConnection("09");
+        return await conn.ExecuteScalarAsync<string>(
+            "SELECT e.codigo_estudiante FROM core.estudiantes e WHERE e.id = @Id;",
+            new { Id = estudianteId }) ?? "";
     }
 
     // ------------------------------------------------------------------
@@ -99,7 +121,7 @@ public class TramitesController : ModuloBaseController
     [RequestSizeLimit(10_485_760)] // 10 MB total: PDFs ≤2MB por requisito (regla del prototipo)
     public async Task<IActionResult> Crear(string tipoTramite, string? observaciones)
     {
-        if (EsAlumno && !EsAdmin)
+        if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
             var periodoId = await ObtenerPeriodoActivoIdAsync();
@@ -141,6 +163,16 @@ public class TramitesController : ModuloBaseController
     [RequestSizeLimit(10_485_760)]
     public async Task<IActionResult> Corregir(int id, int requisitoId, string? nota)
     {
+        // El alumno solo puede corregir requisitos de SU trámite (mismo control que Detalle).
+        if (EsAlumno)
+        {
+            var estudianteId = await ObtenerEstudianteIdAsync();
+            var t = await _tramiteService.ObtenerDetalleAsync(id);
+            if (t == null) return NotFound();
+            if (estudianteId == 0 || t.CodigoEstudiante != await ObtenerCodigoEstudianteAsync(estudianteId))
+                return Forbid();
+        }
+
         // el alumno re-sube el archivo del requisito observado (PDF obligatorio en el prototipo)
         (string Nombre, string Tipo, byte[] Contenido)? archivo = null;
         var file = Request.Form.Files.FirstOrDefault(f => f.Name == "req_" + requisitoId && f.Length > 0);

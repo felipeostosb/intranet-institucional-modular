@@ -181,3 +181,101 @@ FROM (VALUES
 ) AS v(codigo, orden, requisito)
 JOIN mod09.tipos_tramite tt ON tt.codigo = v.codigo
 ON CONFLICT DO NOTHING;
+
+-- ============================================================
+-- TUPA 2026 ampliado (TM01..TM20) — catálogo oficial del TUPA-2026.pdf
+-- con requisitos por tipo. Idempotente.
+-- ============================================================
+INSERT INTO mod09.tipos_tramite (codigo, nombre, concepto_pago_id, dias_habiles, activo) VALUES
+ ('TM01','Matrícula de Ingresante',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT07'),1,true),
+ ('TM02','Matrícula por Traslado Externo/Interno',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT08'),1,true),
+ ('TM03','Ratificación de Matrícula',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT09'),1,true),
+ ('TM04','Fraccionamiento de Matrícula',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT10'),1,true),
+ ('TM05','Reserva de Matrícula',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT13'),5,true),
+ ('TM06','Convalidación de Estudios',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT14'),5,true),
+ ('TM07','Repitencia de Unidad Didáctica',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT15'),1,true),
+ ('TM08','Repitencia de Módulo',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT17'),1,true),
+ ('TM09','Reingreso',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT18'),5,true),
+ ('TM10','Evaluación Extraordinaria',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT19'),1,true),
+ ('TM11','Reporte Record de Notas',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT21'),10,true),
+ ('TM12','Constancia de Ingreso',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT22'),15,true),
+ ('TM13','Constancia de Estudios',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT24'),15,true),
+ ('TM14','Constancia de Primera Matrícula',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT25'),15,true),
+ ('TM15','Constancia de Egresado',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT26'),15,true),
+ ('TM16','Constancia de Título en Trámite',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT27'),15,true),
+ ('TM17','Constancia de Tercio Superior o Conducta',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT28'),15,true),
+ ('TM18','Carta de Presentación',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT29'),10,true),
+ ('TM19','Duplicado de Carné Estudiantil',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT04'),5,true),
+ ('TM20','Diploma de Egresado',(SELECT id FROM mod09.conceptos_pago WHERE codigo='CT45'),15,true)
+ON CONFLICT (codigo) DO NOTHING;
+
+INSERT INTO mod09.requisitos_tipos_tramite (tipo_tramite_id, orden, requisito)
+SELECT tt.id, v.orden, v.requisito
+FROM (VALUES
+ ('TM01',1,'Recibo de pago de matrícula ingresante'),
+ ('TM01',2,'Copia de DNI'),
+ ('TM02',1,'Recibo de pago de matrícula por traslado'),
+ ('TM02',2,'Constancia de vacante o resolución de traslado'),
+ ('TM03',1,'Copia de boleta de notas'),
+ ('TM03',2,'Recibo de pago de ratificación'),
+ ('TM04',1,'Copia de boleta de notas'),
+ ('TM04',2,'Declaración jurada de fraccionamiento'),
+ ('TM05',1,'Solicitud dirigida al Director General'),
+ ('TM05',2,'Recibo de pago (CT13 Reserva de matrícula)'),
+ ('TM05',3,'Declaración jurada del motivo de reserva'),
+ ('TM06',1,'Solicitud dirigida al Director General'),
+ ('TM06',2,'Certificados de estudios originales'),
+ ('TM06',3,'Recibo de pago de convalidación'),
+ ('TM07',1,'Verificación previa de horarios (sábana)'),
+ ('TM07',2,'Boleta de notas'),
+ ('TM08',1,'Recibo de pago de repitencia de módulo'),
+ ('TM08',2,'Historial académico'),
+ ('TM09',1,'Solicitud dirigida al Director General'),
+ ('TM09',2,'Copia de boleta de notas'),
+ ('TM10',1,'Solicitud dirigida al Director General'),
+ ('TM10',2,'Record de notas'),
+ ('TM10',3,'Recibo de pago de evaluación extraordinaria'),
+ ('TM11',1,'Solicitud dirigida al Director General'),
+ ('TM11',2,'Recibo de pago de record de notas'),
+ ('TM12',1,'Verificación de ingreso en listado oficial de admisión'),
+ ('TM12',2,'Recibo de pago de constancia de ingreso'),
+ ('TM13',1,'Solicitud dirigida al Director General'),
+ ('TM13',2,'01 foto tamaño carné'),
+ ('TM13',3,'Recibo de pago de constancia de estudios'),
+ ('TM14',1,'Solicitud dirigida al Director General'),
+ ('TM14',2,'01 foto tamaño carné'),
+ ('TM14',3,'Recibo de pago de constancia de primera matrícula'),
+ ('TM15',1,'Solicitud dirigida al Director General'),
+ ('TM15',2,'02 fotos tamaño carné'),
+ ('TM15',3,'Recibo de pago de constancia de egresado'),
+ ('TM16',1,'Solicitud dirigida al Director General'),
+ ('TM16',2,'02 fotos tamaño carné'),
+ ('TM16',3,'Recibo de pago de constancia de título en trámite'),
+ ('TM17',1,'Solicitud dirigida al Director General'),
+ ('TM17',2,'Recibo de pago de constancia de tercio superior'),
+ ('TM18',1,'Solicitud dirigida al Director General'),
+ ('TM18',2,'Recibo de pago de carta de presentación'),
+ ('TM19',1,'Solicitud dirigida al Director General'),
+ ('TM19',2,'Recibo de pago de duplicado de carné'),
+ ('TM19',3,'01 foto tamaño carné fondo blanco'),
+ ('TM20',1,'Solicitud dirigida al Director General'),
+ ('TM20',2,'01 foto tamaño carné'),
+ ('TM20',3,'Recibo de pago de diploma de egresado')
+) AS v(codigo, orden, requisito)
+JOIN mod09.tipos_tramite tt ON tt.codigo = v.codigo
+ON CONFLICT (tipo_tramite_id, orden, requisito) DO NOTHING;
+
+-- ============================================================
+-- Flujo voucher: el trámite con costo genera el pago y el alumno
+-- adjunta el voucher PDF que Tesorería valida.
+-- ============================================================
+ALTER TABLE mod09.tramites ADD COLUMN IF NOT EXISTS pago_id INT REFERENCES mod09.pagos_v2(id);
+CREATE INDEX IF NOT EXISTS idx_tramites_pago ON mod09.tramites(pago_id);
+
+CREATE TABLE IF NOT EXISTS mod09.voucher_archivos (
+    pago_id INT NOT NULL PRIMARY KEY REFERENCES mod09.pagos_v2(id) ON DELETE CASCADE,
+    archivo_nombre VARCHAR(200) NOT NULL,
+    archivo_tipo VARCHAR(100) NOT NULL,
+    archivo_contenido BYTEA NOT NULL,
+    subido_en TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+);

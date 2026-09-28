@@ -26,7 +26,10 @@ public class MatriculasController : ModuloBaseController
     /// <summary>Expone los roles del usuario a las vistas (tabs rol-aware).</summary>
     public override void OnActionExecuting(Microsoft.AspNetCore.Mvc.Filters.ActionExecutingContext context)
     {
-        ViewData["RolesUsuario"] = string.Join(",", UsuarioActualRoles);
+        // Fix multi-rol: el filtro de tabs usa el ROL ACTIVO (el modo elegido con el selector
+        // se guarda en el claim "ActiveRole"), no la lista completa de roles — si no, un
+        // multi-rol (p. ej. Director+Alumno) ve pestañas de staff estando en Modo Alumno.
+        ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
         base.OnActionExecuting(context);
     }
 
@@ -39,7 +42,7 @@ public class MatriculasController : ModuloBaseController
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;
 
-        if (EsAlumno && !EsAdmin)
+        if (EsAlumno)
         {
             var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
             return View("MiMatricula", activa);
@@ -62,6 +65,10 @@ public class MatriculasController : ModuloBaseController
     [HttpGet("MiMatricula")]
     public async Task<IActionResult> MiMatricula()
     {
+        // Ruta del alumno: el personal no tiene una "mi matrícula" propia. Antes cualquier
+        // rol autenticado caía aquí y veía el registro de un estudiante arbitrario.
+        if (!EsAlumno) return NotFound();
+
         ViewData["Title"] = "Mi Matrícula";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
