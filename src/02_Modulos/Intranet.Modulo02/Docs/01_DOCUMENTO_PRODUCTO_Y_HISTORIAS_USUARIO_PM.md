@@ -76,60 +76,35 @@ El diseño de este módulo responde rigurosamente a las **Condiciones Básicas d
 
 ## 👥 3. Matriz Exhaustiva de Casos de Uso por Rol
 
-![Diagrama de Casos de Uso por Rol](./img/01_diagrama_casos_de_uso_roles.png)
-*Figura 3.1: Diagrama UML de Casos de Uso del Módulo 02 por Rol (Docente, Estudiante, Coordinación y Secretaría).*
+### 👨‍🏫 3.1. Casos de Uso del Rol Docente (CU-DOC-01 al CU-DOC-08)
 
+El docente es el actor principal de registro. Cuenta con 3 motores para pasar asistencia según el contexto:
 
-```mermaid
-flowchart TD
-    subgraph Actores
-        Docente["👨‍🏫 DOCENTE"]
-        Estudiante["👨‍🎓 ESTUDIANTE"]
-        Coordinador["👔 COORDINADOR / DIRECCIÓN"]
-    end
+![Diagrama Casos de Uso Docente](./img/01_diagrama_casos_de_uso_docente.png)
+*Figura 3.1: Diagrama de Casos de Uso UML del Rol Docente (Toma Flash en Móvil, Sábana Live Grid de 18 Semanas, Smart Copy-Paste Ctrl+V y Justificaciones).*
 
-    subgraph "Casos de Uso: Docente"
-        CU_D1["CU-DOC-01: Toma de Asistencia Flash en 1 Clic (Móvil)"]
-        CU_D2["CU-DOC-02: Toma en Sábana Interactiva de 18 Semanas (Laptop)"]
-        CU_D3["CU-DOC-03: Carga Masiva Pegando desde Excel (Ctrl+V)"]
-        CU_D4["CU-DOC-04: Oficializar y Cerrar Sesión (Inmutabilidad)"]
-        CU_D5["CU-DOC-05: Iniciar Sesión de Recuperación / Extraordinaria"]
-        CU_D6["CU-DOC-06: Cambiar Aula en Vivo si el Laboratorio está ocupado"]
-        CU_D7["CU-DOC-07: Evaluar y Aprobar Justificaciones Médicas (72h)"]
-        CU_D8["CU-DOC-08: Gestión de Asistencia en Semana 17 (Recuperación)"]
-    end
+---
 
-    subgraph "Casos de Uso: Estudiante"
-        CU_E1["CU-EST-01: Consultar Semáforo Anti-DPI y Horas de Margen"]
-        CU_E2["CU-EST-02: Solicitar Justificación Digital con Foto (72h)"]
-        CU_E3["CU-EST-03: Ver Historial Detallado de 18 Semanas"]
-    end
+### 👨‍🎓 3.2. Casos de Uso del Rol Estudiante (CU-EST-01 al CU-EST-05)
 
-    subgraph "Casos de Uso: Coordinación"
-        CU_C1["CU-COORD-01: Radar de Cumplimiento Docente en Vivo"]
-        CU_C2["CU-COORD-02: Radar Preventivo de Deserción y Casos DPI (30%)"]
-        CU_C3["CU-COORD-03: Reprogramar Horarios Futuros sin alterar pasado"]
-        CU_C4["CU-COORD-04: Exportar Sábanas Oficiales en Excel (.xlsx) y Actas REGISTRA"]
-    end
+El estudiante es el beneficiario central del sistema de prevención de deserción. Tiene acceso en 1 clic a su Portal Anti-DPI:
 
-    Docente --> CU_D1
-    Docente --> CU_D2
-    Docente --> CU_D3
-    Docente --> CU_D4
-    Docente --> CU_D5
-    Docente --> CU_D6
-    Docente --> CU_D7
-    Docente --> CU_D8
+![Diagrama Casos de Uso Estudiante](./img/01_diagrama_casos_de_uso_estudiante.png)
+*Figura 3.2: Diagrama de Casos de Uso UML del Rol Estudiante (Portal Anti-DPI, Monitor de Horas de Margen y Justificación Digital en 72 Horas).*
 
-    Estudiante --> CU_E1
-    Estudiante --> CU_E2
-    Estudiante --> CU_E3
+---
 
-    Coordinador --> CU_C1
-    Coordinador --> CU_C2
-    Coordinador --> CU_C3
-    Coordinador --> CU_C4
-```
+### 🔄 3.3. Interacción Dual Docente - Estudiante
+
+![Diagrama Dual Docente Estudiante](./img/01_diagrama_casos_de_uso_docente_estudiante_dual.png)
+*Figura 3.3: Diagrama de Interacción Operativa y Prevención de Deserción entre Docente y Estudiante.*
+
+---
+
+### 🏛️ 3.4. Matriz General Consolidada (Todos los Roles)
+
+![Diagrama Consolidado](./img/01_diagrama_casos_de_uso_roles.png)
+*Figura 3.4: Diagrama Consolidado de los 18 Casos de Uso del Módulo 02.*
 
 ---
 

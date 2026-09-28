@@ -198,9 +198,20 @@ def generate_pm_docx(output_path):
     doc.add_paragraph("• Motor 2 (Sábana Interactiva Live Grid): Matriz completa de 18 semanas con navegación por teclado (flechas, F, T, P) y cálculo automático de DPI.", style='List Bullet')
     doc.add_paragraph("• Motor 3 (Smart Copy-Paste Ctrl+V): El docente pega directamente su columna desde Excel y el sistema mapea por DNI en 1 segundo.", style='List Bullet')
     
-    add_heading_1(doc, "2. Diagrama de Casos de Uso por Rol (UML)")
-    doc.add_paragraph("El siguiente diagrama consolida los 18 Casos de Uso del Módulo 02, organizados por los cuatro actores institucionales:")
-    add_diagram_image(doc, "01_diagrama_casos_de_uso_roles.png", "Diagrama UML de Casos de Uso por Rol (Docente, Estudiante, Coordinación y Secretaría)", width=Inches(6.8))
+    add_heading_1(doc, "2. Diagramas de Casos de Uso por Rol (UML)")
+    doc.add_paragraph("La arquitectura funcional del Módulo 02 se centra en los dos roles protagónicos del aula: el Docente y el Estudiante:")
+    
+    add_heading_2(doc, "2.1. Casos de Uso del Rol Docente (CU-DOC-01 al CU-DOC-08)")
+    doc.add_paragraph("Muestra la interacción del docente en los tres motores de asistencia (Flash, Sábana y Copy-Paste), evaluación de justificaciones y cierre inmutable:")
+    add_diagram_image(doc, "01_diagrama_casos_de_uso_docente.png", "Diagrama de Casos de Uso UML: Rol Docente (Toma Flash, Sábana 18 Semanas, Copy-Paste y Justificaciones)", width=Inches(6.8))
+
+    add_heading_2(doc, "2.2. Casos de Uso del Rol Estudiante (CU-EST-01 al CU-EST-05)")
+    doc.add_paragraph("Muestra la experiencia del alumno en su Portal Anti-DPI (/MiAsistencia), cálculo de horas restantes de inasistencia y justificación médica en 72 horas:")
+    add_diagram_image(doc, "01_diagrama_casos_de_uso_estudiante.png", "Diagrama de Casos de Uso UML: Rol Estudiante (Portal Anti-DPI, Monitor de Horas y Justificación Digital)", width=Inches(6.8))
+
+    add_heading_2(doc, "2.3. Interacción Dual Docente - Estudiante")
+    doc.add_paragraph("Consolidado de la interacción operativa entre la toma de asistencia del docente y la prevención de deserción del estudiante:")
+    add_diagram_image(doc, "01_diagrama_casos_de_uso_docente_estudiante_dual.png", "Diagrama de Interacción Operativa: Docente vs. Estudiante", width=Inches(6.8))
 
     add_heading_1(doc, "3. Diagramas de Actividad y Procesos de Negocio")
     
@@ -263,9 +274,14 @@ def generate_dev_docx(output_path):
     doc.add_paragraph("• Cero invasión: No modifica tablas ni lógica de ningún otro módulo.", style='List Bullet')
     doc.add_paragraph("• Cálculo Autónomo: La vista mod02.v_resumen_asistencia_estudiante calcula internamente las horas acumuladas, porcentaje de faltas y condición DPI (>=30%).", style='List Bullet')
 
-    add_heading_1(doc, "2. Diagrama de Casos de Uso por Rol (UML)")
-    doc.add_paragraph("Arquitectura de casos de uso implementados en los controladores y servicios del módulo:")
-    add_diagram_image(doc, "01_diagrama_casos_de_uso_roles.png", "Diagrama UML de Casos de Uso por Rol", width=Inches(6.8))
+    add_heading_1(doc, "2. Diagramas de Casos de Uso por Rol (UML)")
+    doc.add_paragraph("Especificación de los casos de uso implementados en los controladores y servicios del módulo:")
+    
+    add_heading_2(doc, "2.1. Casos de Uso: Rol Docente")
+    add_diagram_image(doc, "01_diagrama_casos_de_uso_docente.png", "Diagrama UML: Casos de Uso del Docente en Módulo 02", width=Inches(6.8))
+
+    add_heading_2(doc, "2.2. Casos de Uso: Rol Estudiante")
+    add_diagram_image(doc, "01_diagrama_casos_de_uso_estudiante.png", "Diagrama UML: Casos de Uso del Estudiante (Anti-DPI y Justificaciones)", width=Inches(6.8))
 
     add_heading_1(doc, "3. Diagramas de Secuencia E2E Críticos")
     

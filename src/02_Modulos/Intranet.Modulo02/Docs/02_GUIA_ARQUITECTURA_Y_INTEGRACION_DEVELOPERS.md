@@ -40,57 +40,21 @@ En `mod02.sesiones_clase`, el campo `numero_semana` recorre de 1 a 18 con propó
 
 ## 📐 2. Diagramas de Casos de Uso por Rol (UML)
 
-![Diagrama de Casos de Uso por Rol](./img/01_diagrama_casos_de_uso_roles.png)
-*Figura 2.1: Arquitectura de Casos de Uso implementados en el Módulo 02 por Rol.*
+### 👨‍🏫 2.1. Casos de Uso: Rol Docente (Operador de Asistencia)
+![Casos de Uso Docente](./img/01_diagrama_casos_de_uso_docente.png)
+*Figura 2.1: Diagrama UML de Casos de Uso del Docente en el Módulo 02.*
 
+---
 
-```mermaid
-flowchart TD
-    subgraph Actores del Ecosistema
-        Docente["👨‍🏫 Docente"]
-        Estudiante["👨‍🎓 Estudiante"]
-        Coordinador["👔 Coordinador / Dirección"]
-    end
+### 👨‍🎓 2.2. Casos de Uso: Rol Estudiante (Portal Anti-DPI)
+![Casos de Uso Estudiante](./img/01_diagrama_casos_de_uso_estudiante.png)
+*Figura 2.2: Diagrama UML de Casos de Uso del Estudiante (Anti-DPI y Justificaciones 72h).*
 
-    subgraph "Casos de Uso: Docente"
-        CU01["CU-02.1: Autodetectar y Tomar Asistencia Flash en 1 Clic"]
-        CU02["CU-02.2: Sábana Interactiva de 18 Semanas con Teclado"]
-        CU03["CU-02.3: Importación Rápida con Smart Copy-Paste (Ctrl+V)"]
-        CU04["CU-02.4: Oficializar y Cerrar Sesión (Inmutabilidad)"]
-        CU05["CU-02.5: Iniciar Sesión de Recuperación / Extraordinaria"]
-        CU06["CU-02.6: Cambiar Aula en Vivo si el Laboratorio está ocupado"]
-        CU07["CU-02.7: Evaluar y Resolver Justificaciones Médicas (72h)"]
-        CU08["CU-02.8: Gestión de Asistencia Semana 17 (Recuperación)"]
-    end
+---
 
-    subgraph "Casos de Uso: Estudiante"
-        CU09["CU-02.9: Consultar Semáforo Anti-DPI y Horas Restantes"]
-        CU10["CU-02.10: Solicitar Justificación Digital con Foto (72h)"]
-    end
-
-    subgraph "Casos de Uso: Coordinación"
-        CU11["CU-02.11: Reprogramar Sesiones Futuras ante cambio de horario"]
-        CU12["CU-02.12: Radar de Cumplimiento Docente y Casos DPI (30%)"]
-        CU13["CU-02.13: Exportar Sábanas Oficiales y Archivo para REGISTRA MINEDU"]
-    end
-
-    Docente --> CU01
-    Docente --> CU02
-    Docente --> CU03
-    Docente --> CU04
-    Docente --> CU05
-    Docente --> CU06
-    Docente --> CU07
-    Docente --> CU08
-
-    Estudiante --> CU09
-    Estudiante --> CU10
-
-    Coordinador --> CU07
-    Coordinador --> CU11
-    Coordinador --> CU12
-    Coordinador --> CU13
-```
+### 🏛️ 2.3. Diagrama General Consolidado (Docente, Estudiante, Coordinación y Secretaría)
+![Casos de Uso Consolidado](./img/01_diagrama_casos_de_uso_roles.png)
+*Figura 2.3: Arquitectura Consolidada de Casos de Uso del Módulo 02.*
 
 ---
 
