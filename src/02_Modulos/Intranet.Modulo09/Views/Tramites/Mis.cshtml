@@ -66,7 +66,7 @@
                             <td><span class="badge @t.ColorChip badge-xs font-semibold text-white">@t.Estado</span></td>
                             <td class="text-right font-mono @(t.Dias > 15 ? "text-rose-500 font-bold" : "text-slate-400")">@t.Dias</td>
                             <td class="font-mono">@t.RequisitosOk/@t.RequisitosTotal</td>
-                            <td><a class="btn btn-ghost btn-xs rounded-xl" asp-action="Detalle" asp-route-id="@t.Id">Ver ficha</a></td>
+                            <td><a class="btn btn-outline btn-xs rounded-lg font-bold whitespace-nowrap" asp-action="Detalle" asp-route-id="@t.Id"><span aria-hidden="true">↗</span> Abrir ficha</a></td>
                         </tr>
                     }
                 </tbody>

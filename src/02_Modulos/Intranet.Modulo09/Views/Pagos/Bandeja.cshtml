@@ -96,7 +96,7 @@
                                 @if (p.TieneVoucher)
                                 {
                                     <a href="/Modulo09/Pagos/Voucher/@p.Id" target="_blank"
-                                       class="btn btn-ghost btn-xs rounded-xl font-bold" title="Ver el voucher PDF subido por el estudiante">📄</a>
+                                       class="btn btn-outline btn-xs rounded-lg font-bold" title="Ver el voucher PDF subido por el estudiante">📄 Ver PDF</a>
                                 }
                                 <form method="post" asp-action="Validar" asp-route-id="@p.Id">
                                     @Html.AntiForgeryToken()

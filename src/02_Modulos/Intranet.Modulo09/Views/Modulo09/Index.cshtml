@@ -52,7 +52,7 @@
             @if (Model.EsAlumno)
             {
                 <a href="/Modulo09/Tramites" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">📄 Mis Trámites</a>
-                <a href="/Modulo09/Pagos" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">💳 Mis Pagos</a>
+                <a href="/Modulo09/Pagos" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">💳 Mis Pagos <span aria-hidden="true">↗</span></a>
             }
             else if (User.IsInRole("Tesoreria") && !User.IsInRole("Admin"))
             {
@@ -63,7 +63,7 @@
                         <span class="badge badge-error badge-xs text-white font-bold">@Model.ResumenPagos.PorValidar por validar</span>
                     }
                 </a>
-                <a href="/Modulo09/Tramites" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🗂️ Mesa (consulta)</a>
+                <a href="/Modulo09/Tramites" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">🗂️ Mesa (consulta) <span aria-hidden="true">↗</span></a>
             }
             else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
             {
@@ -74,12 +74,12 @@
                         <span class="badge badge-error badge-xs text-white font-bold">@Model.TramitesPendientes en mesa</span>
                     }
                 </a>
-                <a href="/Modulo09/Pagos" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🧾 Vouchers (consulta)</a>
+                <a href="/Modulo09/Pagos" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">🧾 Vouchers (consulta) <span aria-hidden="true">↗</span></a>
             }
             else
             {
-                <a href="/Modulo09/Tramites" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🗂️ Mesa de Trámites</a>
-                <a href="/Modulo09/Pagos" class="btn btn-ghost btn-sm rounded-xl text-xs font-semibold">🧾 Bandeja de Vouchers</a>
+                <a href="/Modulo09/Tramites" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">🗂️ Mesa de Trámites <span aria-hidden="true">↗</span></a>
+                <a href="/Modulo09/Pagos" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">🧾 Bandeja de Vouchers <span aria-hidden="true">↗</span></a>
             }
         </div>
     </div>
@@ -112,7 +112,7 @@
             <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-amber-300/70 dark:border-amber-800/60 shadow-sm">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🧾 Vouchers por validar</span>
                 <div class="text-xl font-bold @(rt.VouchersPendientes > 0 ? "text-rose-600 dark:text-rose-400" : "text-emerald-600 dark:text-emerald-400") mt-1">@rt.VouchersPendientes</div>
-                <p class="text-[10px] text-slate-400 mt-0.5"><a class="link link-primary" href="/Modulo09/Pagos">Ir a la bandeja →</a></p>
+                <a class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition text-[10px] font-bold" href="/Modulo09/Pagos">Abrir bandeja <span aria-hidden="true">↗</span></a>
             </div>
             <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-amber-300/70 dark:border-amber-800/60 shadow-sm">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">↩️ Rechazados</span>
@@ -170,7 +170,7 @@
             <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-sky-300/70 dark:border-sky-800/60 shadow-sm">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🗂️ En mesa</span>
                 <div class="text-xl font-bold text-sky-600 dark:text-sky-400 mt-1">@rs.Recibidos</div>
-                <p class="text-[10px] text-slate-400 mt-0.5"><a class="link link-primary" href="/Modulo09/Tramites">Ver la mesa →</a></p>
+                <a class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition text-[10px] font-bold" href="/Modulo09/Tramites">Abrir mesa <span aria-hidden="true">↗</span></a>
             </div>
             <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-sky-300/70 dark:border-sky-800/60 shadow-sm">
                 <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">🔍 En evaluación</span>
@@ -261,7 +261,7 @@
                 <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Vouchers por subir</span>
                     <div class="text-xl font-bold @(ra.VouchersPorSubir > 0 ? "text-amber-600 dark:text-amber-400" : "text-emerald-600 dark:text-emerald-400") mt-1">@ra.VouchersPorSubir</div>
-                    <p class="text-[10px] text-slate-400 mt-0.5"><a class="link link-primary" href="/Modulo09/Pagos">Subir en Mis pagos →</a></p>
+                    <p class="text-[10px] text-slate-400 mt-0.5"><a class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition font-bold" href="/Modulo09/Pagos">Subir voucher <span aria-hidden="true">↗</span></a></p>
                 </div>
                 <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
                     <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Total pagado</span>
@@ -274,12 +274,12 @@
         <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
             <div class="flex justify-between items-center mb-3">
                 <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📄 Mis trámites</h2>
-                <a href="/Modulo09/Tramites" class="link link-primary text-[11px]">Ver todos / Nuevo trámite</a>
+                <a href="/Modulo09/Tramites" class="btn btn-outline btn-xs rounded-lg text-[10px] font-bold">Abrir mis trámites <span aria-hidden="true">↗</span></a>
             </div>
             <div class="space-y-2">
                 @if (!Model.UltimosTramites.Any())
                 {
-                    <p class="text-xs text-slate-400 italic">Sin trámites aún. <a class="link link-primary" href="/Modulo09/Tramites#nuevoTramite">Solicita el primero</a>.</p>
+                    <p class="text-xs text-slate-400 italic">Sin trámites aún. <a class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition font-bold" href="/Modulo09/Tramites#nuevoTramite">Iniciar trámite <span aria-hidden="true">↗</span></a></p>
                 }
                 @foreach (var t in Model.UltimosTramites)
                 {
@@ -287,11 +287,11 @@
                         <span class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@t.Codigo</span>
                         <span class="flex-1 truncate text-slate-600 dark:text-slate-300">@t.TipoCodigo · @t.TipoNombre</span>
                         <span class="badge @(t.Estado == "Aprobado" || t.Estado == "Entregado" ? "badge-success" : t.Estado == "Observado" ? "badge-error" : "badge-warning") badge-xs font-semibold text-white">@t.Estado</span>
-                        <a class="btn btn-ghost btn-xs rounded-xl" href="/Modulo09/Tramites/Detalle/@t.Id">Ver</a>
+                        <a class="btn btn-outline btn-xs rounded-lg font-bold" href="/Modulo09/Tramites/Detalle/@t.Id"><span aria-hidden="true">↗</span> Abrir ficha</a>
                     </div>
                 }
             </div>
-            <p class="text-[11px] text-slate-400 mt-3">Los recibos de cada trámite están en <a class="link link-primary" href="/Modulo09/Pagos">Mis pagos</a>.</p>
+            <p class="text-[11px] text-slate-400 mt-3">Los recibos de cada trámite están en <a class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-success/30 bg-success/5 text-success hover:bg-success/10 transition font-bold" href="/Modulo09/Pagos">Mis pagos <span aria-hidden="true">↗</span></a>.</p>
         </div>
     }
     else
@@ -301,7 +301,7 @@
             <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">🗂️ Últimos trámites recibidos</h2>
-                    <a href="/Modulo09/Tramites" class="link link-primary text-[11px]">Ir a la mesa</a>
+                    <a href="/Modulo09/Tramites" class="btn btn-outline btn-xs rounded-lg text-[10px] font-bold">Abrir mesa <span aria-hidden="true">↗</span></a>
                 </div>
                 <div class="space-y-2">
                     @if (!Model.UltimosTramites.Any())
@@ -322,7 +322,7 @@
             <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
                 <div class="flex justify-between items-center mb-3">
                     <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">🧾 Últimos vouchers</h2>
-                    <a href="/Modulo09/Pagos" class="link link-primary text-[11px]">Ir a la bandeja</a>
+                    <a href="/Modulo09/Pagos" class="btn btn-outline btn-xs rounded-lg text-[10px] font-bold">Abrir bandeja <span aria-hidden="true">↗</span></a>
                 </div>
                 <div class="space-y-2">
                     @if (!Model.UltimosPagos.Any())
