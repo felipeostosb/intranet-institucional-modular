@@ -168,15 +168,13 @@ public class UsuarioService : IUsuarioService
     {
         return new List<UsuarioDto>
         {
-            new(120, 120, "47915633", "47915633", "Felipe Pedro Jose OSTOS BERMUDEZ", "felipe.ostos@iestpargentina.edu.pe", "Admin", new List<string> { "Admin", "Docente", "Alumno", "Director", "Coordinador" }),
-            new(1, 1, "00000001", "ADMIN-2026", "Administrador General de TI", "admin.ti@ieargentina.edu.pe", "Admin", new List<string> { "Admin" }),
-            new(2, 2, "10000003", "10000003", "Docente Montero", "montero@iestpargentina.edu.pe", "Docente", new List<string> { "Docente" }),
-            new(3, 3, "10000002", "10000002", "Gina Huertas Camacho", "gina.huertas@iestpargentina.edu.pe", "Docente", new List<string> { "Docente" }),
-            new(4, 4, "10000001", "DIR-2026", "Manuel Alvarado Carranza", "direccion@ieargentina.edu.pe", "Director", new List<string> { "Director", "Docente" }),
-            new(5, 5, "20000001", "COORD-DSI", "Carlos Mendoza Rivas", "coord.sistemas@ieargentina.edu.pe", "Coordinador", new List<string> { "Coordinador", "Docente" }),
-            new(6, 6, "30000001", "SEC-ACAD", "Rosa Morales Salazar", "secretaria.academica@ieargentina.edu.pe", "Secretaria", new List<string> { "Secretaria" }),
-            new(7, 7, "40000001", "TES-2026", "Elena Ramos Palacios", "tesoreria@ieargentina.edu.pe", "Tesoreria", new List<string> { "Tesoreria" }),
-            new(8, 8, "87654321", "EST-DSI-001", "Felipe Ostos", "felipe.ostos@ieargentina.edu.pe", "Alumno", new List<string> { "Alumno", "Docente", "Admin" })
+            new(1, 1, "10000001", "DIR-001", "Felipe / Director Institucional", "director@iestpargentina.edu.pe", "Director", new List<string> { "Director", "Admin", "Docente", "Alumno", "Coordinador", "Secretaria", "Tesoreria" }),
+            new(2, 2, "20000001", "COORD-001", "Ing. Carlos Rodríguez (Coordinador)", "coordinacion@iestpargentina.edu.pe", "Coordinador", new List<string> { "Coordinador", "Docente" }),
+            new(3, 3, "30000001", "SEC-001", "Lic. María Elena Flores (Secretaría)", "secretaria@iestpargentina.edu.pe", "Secretaria", new List<string> { "Secretaria" }),
+            new(4, 4, "40000001", "TES-001", "Lic. Juan Alberto Pérez (Tesorería)", "tesoreria@iestpargentina.edu.pe", "Tesoreria", new List<string> { "Tesoreria" }),
+            new(5, 5, "12345678", "DOC-001", "Sheyla Quispe / Docente", "sheyla.docente@iestpargentina.edu.pe", "Docente", new List<string> { "Docente", "Alumno" }),
+            new(6, 6, "87654321", "EST-2024-001", "Carlos Alberto Mendoza Flores", "carlos.mendoza@iestpargentina.edu.pe", "Alumno", new List<string> { "Alumno" }),
+            new(120, 120, "47915633", "47915633", "Felipe Pedro Jose OSTOS BERMUDEZ", "felipe.ostos@iestpargentina.edu.pe", "Director", new List<string> { "Director", "Admin", "Docente", "Alumno", "Coordinador", "Secretaria", "Tesoreria" })
         };
     }
 
@@ -188,15 +186,13 @@ public class UsuarioService : IUsuarioService
     private static UsuarioDto? GetMockUsuarioByDniOrCodigo(string dniOCodigo)
     {
         var clean = dniOCodigo.Trim();
-        if (clean.Equals("admin", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[0];
-        if (clean.Equals("felipe", StringComparison.OrdinalIgnoreCase) || clean.Equals("felipeostosb", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[0];
-        if (clean.Equals("montero", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[2];
-        if (clean.Equals("huertas", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[3];
-        if (clean.Equals("director", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[4];
-        if (clean.Equals("coordinador", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[5];
-        if (clean.Equals("secretaria", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[6];
-        if (clean.Equals("tesoreria", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[7];
-        if (clean.Equals("alumno", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[0];
+        if (clean.Equals("admin", StringComparison.OrdinalIgnoreCase) || clean.Equals("director", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[0];
+        if (clean.Equals("coordinador", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[1];
+        if (clean.Equals("secretaria", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[2];
+        if (clean.Equals("tesoreria", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[3];
+        if (clean.Equals("docente", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[4];
+        if (clean.Equals("alumno", StringComparison.OrdinalIgnoreCase) || clean.Equals("mendoza", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[5];
+        if (clean.Equals("felipe", StringComparison.OrdinalIgnoreCase) || clean.Equals("felipeostosb", StringComparison.OrdinalIgnoreCase)) return GetMockUsuariosList()[6];
 
         return GetMockUsuariosList().FirstOrDefault(x => 
             x.Dni.Equals(clean, StringComparison.OrdinalIgnoreCase) || 
