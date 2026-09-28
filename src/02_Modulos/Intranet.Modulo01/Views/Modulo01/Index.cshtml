@@ -156,15 +156,114 @@
     }
     else
     {
-        <!-- Tu flujo (estudiante) -->
-        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
-            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-3">📄 Tu matrícula</h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">El seguimiento de tu trámite y los documentos están en <strong>Mi matrícula</strong>. Si aún no la iniciaste, hazlo desde Trámites TUPA.</p>
-            <div class="flex flex-wrap gap-2">
-                <a href="/Modulo01/Matriculas/MiMatricula" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">Ver mi matrícula</a>
-                <a href="/Modulo09/Tramites#nuevoTramite" class="btn btn-outline btn-sm rounded-xl text-xs">Solicitar reserva / trámite TUPA</a>
+        <!-- Mini-dashboard del alumno: SUS datos reales (nada global del instituto) -->
+        @if (Model.Panel != null)
+        {
+            var p = Model.Panel;
+            var ordenCiclo = new[] { "I", "II", "III", "IV", "V", "VI" };
+            var idxCiclo = Array.IndexOf(ordenCiclo, p.CicloActual);
+            var pctCarrera = idxCiclo >= 0 ? (int)Math.Round((idxCiclo + 1) * 100.0 / ordenCiclo.Length) : 0;
+            var notaColor = new Dictionary<string, string>
+            {
+                ["Aprobado"] = "bg-emerald-500",
+                ["Desaprobado"] = "bg-rose-500",
+                ["Retirado"] = "bg-slate-400"
+            };
+
+            <!-- Indicadores personales (mismo patrón visual que los del personal) -->
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Promedio</span>
+                    <div class="text-xl font-bold @(p.Promedio >= 10.5m ? "text-emerald-600 dark:text-emerald-400" : "text-amber-600 dark:text-amber-400") mt-1">@(p.Historial.Count > 0 ? p.Promedio.ToString("0.0") : "—")</div>
+                    <p class="text-[10px] text-slate-400 mt-0.5">vigesimal, @(p.Historial.Count) cursos</p>
+                </div>
+                <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Condición</span>
+                    <div class="text-xl font-bold text-sky-600 dark:text-sky-400 mt-1">@(string.IsNullOrEmpty(p.Condicion) ? "—" : p.Condicion)</div>
+                    <p class="text-[10px] text-slate-400 mt-0.5">@(string.IsNullOrEmpty(p.CursosDesaprobadosNombres) ? "sin cursos a cargo" : p.CursosDesaprobadosNombres)</p>
+                </div>
+                <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Progreso de carrera</span>
+                    <div class="flex items-center gap-2 mt-2">
+                        <div class="flex-1 h-2 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                            <div class="h-full bg-sky-500 rounded-full" style="width:@(pctCarrera)%"></div>
+                        </div>
+                        <span class="text-sm font-bold text-slate-700 dark:text-slate-300 font-mono">@(pctCarrera)%</span>
+                    </div>
+                    <p class="text-[10px] text-slate-400 mt-1">ciclo @(string.IsNullOrEmpty(p.CicloActual) ? "—" : p.CicloActual) de VI@(string.IsNullOrEmpty(p.CicloProximo) ? "" : " → " + p.CicloProximo)</p>
+                </div>
+                <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
+                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Créditos aprobados</span>
+                    <div class="text-xl font-bold text-amber-600 dark:text-amber-400 mt-1">@(p.CreditosAprobados > 0 ? p.CreditosAprobados.ToString() : "—")</div>
+                    <p class="text-[10px] text-slate-400 mt-0.5">@(p.CarreraCodigo) · @p.CodigoEstudiante</p>
+                </div>
             </div>
-        </div>
+
+            <div class="grid lg:grid-cols-5 gap-4 items-start">
+                <!-- Timeline del flujo de reserva -->
+                <div class="lg:col-span-2 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-4">🧭 Tu proceso de matrícula</h2>
+                    <ol class="relative border-l-2 border-slate-200 dark:border-slate-700 ml-3 space-y-5">
+                        @foreach (var paso in p.PasosFlujo)
+                        {
+                            var icono = paso.Estado == "Completado" ? "✅" : paso.Estado == "Actual" ? "🔵" : "⬜";
+                            <li class="ml-4">
+                                <span class="absolute -left-[13px] flex w-6 h-6 items-center justify-center text-xs">@icono</span>
+                                <h3 class="text-xs font-bold @(paso.Estado == "Pendiente" ? "text-slate-400" : "text-slate-800 dark:text-slate-200")">@paso.Titulo</h3>
+                                <p class="text-[11px] @(paso.Estado == "Pendiente" ? "text-slate-400" : "text-slate-500 dark:text-slate-400") mt-0.5">@paso.Detalle</p>
+                            </li>
+                        }
+                    </ol>
+                    <div class="flex flex-wrap gap-2 mt-5">
+                        <a href="/Modulo01/Matriculas/MiMatricula" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">Ver mi matrícula</a>
+                        <a href="/Modulo09/Tramites#nuevoTramite" class="btn btn-outline btn-sm rounded-xl text-xs">Solicitar reserva / trámite TUPA</a>
+                    </div>
+                </div>
+
+                <!-- Barras de notas del historial -->
+                <div class="lg:col-span-3 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📊 Mis notas</h2>
+                        <span class="text-[10px] text-slate-400">escala 0 – 20</span>
+                    </div>
+                    @if (!p.Historial.Any())
+                    {
+                        <p class="text-xs text-slate-400 italic">Aún no tienes historial académico registrado.</p>
+                    }
+                    else
+                    {
+                        <div class="space-y-2.5">
+                            @foreach (var h in p.Historial)
+                            {
+                                var pct = Math.Min(100, (int)Math.Round(h.Nota * 5));
+                                <div class="flex items-center gap-2">
+                                    <span class="text-[10px] font-mono font-bold text-slate-500 dark:text-slate-400 w-14 shrink-0" title="@h.UnidadNombre">@h.UnidadCodigo</span>
+                                    <div class="flex-1 h-3 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden">
+                                        <div class="h-full @(notaColor.TryGetValue(h.Estado, out var c) ? c : "bg-slate-400") rounded-full" style="width:@(pct)%"></div>
+                                    </div>
+                                    <span class="text-[10px] font-mono font-bold @(h.Estado == "Desaprobado" ? "text-rose-500" : "text-slate-600 dark:text-slate-300") w-8 text-right">@h.Nota.ToString("0")</span>
+                                </div>
+                            }
+                        </div>
+                        <p class="text-[10px] text-slate-400 mt-4">
+                            🔴 en rojo: curso a cargo para tu próximo ciclo (Art. 24 del RI).
+                        </p>
+                    }
+                </div>
+            </div>
+        }
+        else
+        {
+            <!-- Fallback: sin datos de estudiante (usuario con rol Alumno sin expediente) -->
+            <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+                <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-3">📄 Tu matrícula</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400 mb-3">El seguimiento de tu trámite y los documentos están en <strong>Mi matrícula</strong>. Si aún no la iniciaste, hazlo desde Trámites TUPA.</p>
+                <div class="flex flex-wrap gap-2">
+                    <a href="/Modulo01/Matriculas/MiMatricula" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">Ver mi matrícula</a>
+                    <a href="/Modulo09/Tramites#nuevoTramite" class="btn btn-outline btn-sm rounded-xl text-xs">Solicitar reserva / trámite TUPA</a>
+                </div>
+            </div>
+        }
     }
 
     <!-- Pie de módulo -->
