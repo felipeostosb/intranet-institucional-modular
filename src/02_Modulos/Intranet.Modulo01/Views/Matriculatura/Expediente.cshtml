@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "01. Expediente de matrícula";
     var e = Model.Expediente;
-    var puedeMatricular = e.PuedeMatricular && e.Reserva != null && e.Reserva.MatriculaId > 0;
+    var puedeMatricular = e.PuedeMatricular && e.Reserva != null;
 }
 
 <div class="space-y-6">
@@ -90,14 +90,14 @@
         </div>
     </div>
 
-    @if (e.Reserva != null && e.Reserva.Estado == "Matriculado")
+    @if (e.Reserva != null && e.Reserva.Estado == "Matriculado" && e.Reserva.MatriculaId > 0)
     {
         <!-- Matrícula ya cerrada: ficha y reenvío -->
         <div class="bg-emerald-50 dark:bg-emerald-950/30 rounded-2xl p-5 border border-emerald-200 dark:border-emerald-900">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
                 <div>
-                    <h2 class="text-sm font-black text-emerald-800 dark:text-emerald-300">✅ Matrícula @e.Reserva.CodigoMatricula cerrada</h2>
-                    <p class="text-xs text-emerald-700 dark:text-emerald-400">Descarga la ficha o reenvíala al correo del estudiante.</p>
+                    <h2 class="text-sm font-black text-emerald-800 dark:text-emerald-300">✅ Matrícula @(e.Reserva.CodigoMatricula != "" ? e.Reserva.CodigoMatricula : "del período") ya registrada</h2>
+                    <p class="text-xs text-emerald-700 dark:text-emerald-400">El estudiante ya tiene su matrícula en el período habilitado. Descarga la ficha o reenvíala al correo.</p>
                 </div>
                 <div class="flex gap-2">
                     <a href="/Modulo01/Matriculatura/Ficha/@e.Reserva.MatriculaId" class="btn btn-sm rounded-xl text-xs font-bold">📄 Descargar ficha PDF</a>
@@ -116,6 +116,8 @@
             @Html.AntiForgeryToken()
             <input type="hidden" name="Dni" value="@e.Dni" />
             <input type="hidden" name="MatriculaId" value="@e.Reserva!.MatriculaId" />
+            <input type="hidden" name="TramiteId" value="@e.Reserva.TramiteId" />
+            <input type="hidden" name="CicloProximo" value="@e.CicloProximo" />
             <input type="hidden" name="Condicion" value="@e.Condicion" />
             <input type="hidden" name="CursosDesaprobadosNombres" value="@e.CursosDesaprobadosNombres" />
 

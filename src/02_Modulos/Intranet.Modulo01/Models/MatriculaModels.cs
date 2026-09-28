@@ -129,6 +129,8 @@ public class ExpedienteMatriculaDto
     // reserva TUPA y su voucher
     public ReservaDto? Reserva { get; set; }
     public bool PuedeMatricular { get; set; }
+    /// <summary>Id de una matrícula ya cerrada en el período destino (no se abre otra).</summary>
+    public int YaMatriculadoId { get; set; }
 }
 
 /// <summary>Fila del historial académico (aprobado/desaprobado por UD).</summary>

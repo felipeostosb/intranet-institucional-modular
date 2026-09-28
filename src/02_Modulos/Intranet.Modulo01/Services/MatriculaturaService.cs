@@ -33,6 +33,8 @@ public interface IMatriculaturaService
 public record MatricularCommand(
     string Dni,
     int? MatriculaId,          // matrícula "En trámite" existente (reserva), si la hay
+    int? TramiteId,            // o el trámite TM05 del módulo 09 (matrícula se crea aquí)
+    string CicloProximo,        // ciclo al que se matricula (para el carril de vacantes)
     int TurnoId,
     int TipoMatriculaId,
     string Condicion,           // Promovido | Promovido con curso a cargo | Repitente
@@ -196,8 +198,8 @@ public class MatriculaturaService : IMatriculaturaService
         dto.OfertaProximoCiclo = oferta;
 
         // Voucher del trámite de reserva: TM05 con pago Validado habilita a matricular.
-        // Se muestra la reserva más reciente (sea del período que sea); el cierre
-        // exige además que el período destino tenga permite_matricula (PeriodoHabilitado).
+        // Solo importan las matrículas ABIERTAS (En trámite); una matrícula vieja ya
+        // cerrada no es una reserva pendiente de Secretaría.
         const string voucherSql = """
             SELECT m.id AS MatriculaId,
                    m.codigo_matricula AS CodigoMatricula,
@@ -214,7 +216,7 @@ public class MatriculaturaService : IMatriculaturaService
             LEFT JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
             LEFT JOIN periodos_academicos pm ON pm.id = m.periodo_id
             WHERE m.estudiante_id = @EstudianteId
-              AND m.estado <> 'Anulada'
+              AND m.estado = 'En trámite'
             ORDER BY m.creado_en DESC
             LIMIT 1;
             """;
@@ -223,11 +225,83 @@ public class MatriculaturaService : IMatriculaturaService
             voucherSql.Replace("matriculas_v2", tabla)
                       .Replace("pagos_v2", tabla == "matriculas" ? "pagos" : "pagos_v2"),
             new { dto.EstudianteId });
+
+        // Sin matrícula registrada: el alumno puede tener el TRÁMITE TM05 en
+        // curso (módulo 09) sin que exista aún su matrícula en mod01 — mostrarlo
+        // igual para que Secretaría sepa que el alumno SÍ tramitó su reserva.
+        if (voucher == null)
+        {
+            var tramiteSql = """
+                SELECT 0 AS MatriculaId,
+                       '' AS CodigoMatricula,
+                       'En trámite' AS Estado,
+                       FALSE AS VoucherOk,
+                       t.id AS TramiteId,
+                       t.codigo AS TramiteCodigo,
+                       t.estado AS TramiteEstado,
+                       pg.voucher_estado AS VoucherEstado,
+                       pg.monto AS VoucherMonto,
+                       FALSE AS PeriodoHabilitado
+                FROM mod09.tramites t
+                JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
+                LEFT JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
+                WHERE t.estudiante_id = @EstudianteId AND tt.codigo = 'TM05'
+                  AND t.estado NOT IN ('Rechazado', 'Entregado')
+                ORDER BY t.creado_en DESC
+                LIMIT 1;
+                """.Replace("pagos_v2", tabla == "matriculas" ? "pagos" : "pagos_v2");
+            voucher = await db.QueryFirstOrDefaultAsync<ReservaDto>(
+                tramiteSql, new { dto.EstudianteId });
+        }
+
         dto.Reserva = voucher;
+
+        // Regla del sistema (uq_matricula_vigente): un estudiante tiene UNA sola
+        // matrícula no anulada por período. Si ya está Matriculado en un período
+        // habilitado, no se abre otra — esa es SU matrícula del período.
+        var yaMatriculado = await db.ExecuteScalarAsync<int?>("""
+            SELECT m.id
+            FROM matriculas_v2 m
+            WHERE m.estudiante_id = @EstudianteId
+              AND m.estado = 'Matriculado'
+              AND m.periodo_id IN (SELECT id FROM periodos_academicos WHERE permite_matricula)
+            LIMIT 1;
+            """.Replace("matriculas_v2", tabla), new { dto.EstudianteId });
+
         // La matrícula se puede cerrar si el voucher del trámite fue Validado por
-        // Tesorería Y el período de la reserva está habilitado para matrícula
-        dto.PuedeMatricular = voucher != null && voucher.VoucherEstado == "Validado"
-                             && voucher.PeriodoHabilitado;
+        // Tesorería Y el período destino está habilitado para matrícula. Sin
+        // matrícula aún, el periodo destino es el que tenga permite_matricula.
+        if (voucher == null)
+        {
+            dto.PuedeMatricular = false;
+        }
+        else if (voucher.MatriculaId > 0)
+        {
+            dto.PuedeMatricular = voucher.VoucherEstado == "Validado" && voucher.PeriodoHabilitado;
+        }
+        else
+        {
+            var hayPeriodo = await db.ExecuteScalarAsync<int>(
+                "SELECT count(*) FROM periodos_academicos WHERE permite_matricula;");
+            dto.PuedeMatricular = voucher.VoucherEstado == "Validado" && hayPeriodo > 0;
+            voucher.PeriodoHabilitado = hayPeriodo > 0;
+        }
+
+        // Ya matriculado en el período destino: no hay nada que cerrar
+        if (yaMatriculado != null)
+        {
+            dto.PuedeMatricular = false;
+            dto.YaMatriculadoId = yaMatriculado.Value;
+            if (voucher == null || voucher.MatriculaId == 0)
+            {
+                dto.Reserva = new ReservaDto
+                {
+                    MatriculaId = yaMatriculado.Value,
+                    Estado = "Matriculado",
+                    PeriodoHabilitado = true
+                };
+            }
+        }
 
         return dto;
     }
@@ -253,7 +327,8 @@ public class MatriculaturaService : IMatriculaturaService
             return (false, "No se encontró estudiante con ese DNI.", 0);
         }
 
-        // 1) La matrícula "En trámite" (reserva) con voucher Validado es la puerta
+        // 1) La reserva: matrícula "En trámite" existente, o el propio trámite TM05
+        //    con voucher Validado (la matrícula se crea aquí mismo en la transacción).
         MatriculaCierreDto? fila = null;
         if (cmd.MatriculaId is int mid)
         {
@@ -286,6 +361,105 @@ public class MatriculaturaService : IMatriculaturaService
                 Obs = cmd.CursosDesaprobadosNombres,
                 UsuarioId = usuarioId
             }, tx);
+        }
+        else if (cmd.TramiteId is int tramId)
+        {
+            // Creación desde el trámite: el alumno hizo su Reserva TM05 en el
+            // módulo 09 pero aún no existe matrícula en mod01. Validar que el
+            // trámite sea suyo, sea TM05, su voucher esté Validado y que el
+            // período destino (el activo para matrícula) exista.
+            var tramite = await db.QueryFirstOrDefaultAsync<(int EstudianteId, string Tipo, int? PagoId, string VoucherEstado)>("""
+                SELECT t.estudiante_id AS EstudianteId,
+                       tt.codigo AS Tipo,
+                       t.pago_id AS PagoId,
+                       COALESCE(pg.voucher_estado, 'Pendiente') AS VoucherEstado
+                FROM mod09.tramites t
+                JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
+                LEFT JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
+                WHERE t.id = @Id AND t.estado NOT IN ('Rechazado', 'Entregado');
+                """.Replace("pagos_v2", tablaPagos), new { Id = tramId }, tx);
+            if (tramite.EstudianteId != estudiante.Id)
+            {
+                tx.Rollback();
+                return (false, "El trámite indicado no pertenece a ese estudiante.", 0);
+            }
+            if (tramite.Tipo != "TM05")
+            {
+                tx.Rollback();
+                return (false, "El trámite indicado no es una Reserva de Matrícula (TM05).", 0);
+            }
+            if (tramite.VoucherEstado != "Validado")
+            {
+                tx.Rollback();
+                return (false, "El voucher de la reserva aún no está validado por Tesorería.", 0);
+            }
+
+            var periodoId = await db.ExecuteScalarAsync<int?>(
+                "SELECT id FROM periodos_academicos WHERE permite_matricula ORDER BY id DESC LIMIT 1;", tx);
+            if (periodoId == null)
+            {
+                tx.Rollback();
+                return (false, "No hay período académico habilitado para matrícula.", 0);
+            }
+
+            // Regla del sistema (uq_matricula_vigente): no puede existir otra
+            // matrícula no anulada del mismo estudiante en el mismo período.
+            var yaExiste = await db.ExecuteScalarAsync<int?>(
+                $"SELECT id FROM {tabla} WHERE estudiante_id = @EstudianteId AND periodo_id = @PeriodoId AND estado <> 'Anulada';",
+                new { EstudianteId = estudiante.Id, PeriodoId = periodoId }, tx);
+            if (yaExiste != null)
+            {
+                tx.Rollback();
+                return (false, "El estudiante ya tiene una matrícula en el período habilitado.", 0);
+            }
+
+            // datos del estudiante para el carril (carrera/ciclo/turno)
+            var cicloId = await db.ExecuteScalarAsync<int?>(
+                "SELECT id FROM ciclos WHERE codigo = @Ciclo;", new { Ciclo = cmd.CicloProximo }, tx);
+            if (cicloId == null)
+            {
+                tx.Rollback();
+                return (false, $"El ciclo {cmd.CicloProximo} no existe en el catálogo.", 0);
+            }
+
+            var codigoMat = await db.ExecuteScalarAsync<string>($"""
+                SELECT 'MAT-' || (SELECT codigo FROM periodos_academicos WHERE id = @PeriodoId)
+                       || '-' || lpad((count(*) + 90)::text, 3, '0')
+                FROM {tabla} WHERE periodo_id = @PeriodoId;
+                """, new { PeriodoId = periodoId }, tx);
+
+            var nuevoId = await db.ExecuteScalarAsync<int>($"""
+                INSERT INTO {tabla} (codigo_matricula, estudiante_id, periodo_id, carrera_id,
+                                     ciclo_id, turno_id, tipo_matricula_id, condicion, estado, etapa,
+                                     voucher_ok, fecha_matricula, conforme_por, observaciones_cursos,
+                                     tramite_reserva_id)
+                VALUES (@Codigo, @EstudianteId, @PeriodoId, @CarreraId,
+                        @CicloId, @TurnoId, @TipoMatriculaId, @Condicion, 'Matriculado', 'Cerrada',
+                        TRUE, CURRENT_DATE, @UsuarioId, @Obs, @TramiteId)
+                RETURNING id;
+                """, new
+            {
+                Codigo = codigoMat,
+                EstudianteId = estudiante.Id,
+                PeriodoId = periodoId,
+                CarreraId = estudiante.CarreraId,
+                CicloId = cicloId,
+                TurnoId = cmd.TurnoId,
+                TipoMatriculaId = cmd.TipoMatriculaId,
+                Condicion = cmd.Condicion,
+                Obs = cmd.CursosDesaprobadosNombres,
+                UsuarioId = usuarioId,
+                TramiteId = tramId
+            }, tx);
+            fila = new MatriculaCierreDto
+            {
+                Id = nuevoId,
+                EstudianteId = estudiante.Id,
+                CarreraId = estudiante.CarreraId,
+                CicloId = cicloId.Value,
+                TurnoId = cmd.TurnoId,
+                PeriodoId = periodoId.Value
+            };
         }
         if (fila == null)
         {
