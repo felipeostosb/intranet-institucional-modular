@@ -1,32 +1,23 @@
-flowchart TD
-    subgraph ActoresPrincipales["👥 ROLES PRINCIPALES DEL SISTEMA"]
-        Docente["👨‍🏫 DOCENTE (Evaluador / Registrador)"]
-        Estudiante["👨‍🎓 ESTUDIANTE (Beneficiario / Solicitante)"]
+flowchart LR
+    subgraph Actores["👥 ACTORES"]
+        Docente["👨‍🏫 DOCENTE"]
+        Estudiante["👨‍🎓 ESTUDIANTE"]
     end
 
-    subgraph NucleoOperativo["⚡ OPERATORIA DEL AULA (18 SEMANAS)"]
-        CU_D1["⚡ Tomar Asistencia Flash en 1 Clic"]
-        CU_D2["📊 Sábana Live Grid (Teclado F/T/P)"]
-        CU_D3["📋 Smart Copy-Paste desde Excel (Ctrl+V)"]
-        CU_D4["🔒 Oficializar y Congelar Sesión"]
-    end
-
-    subgraph PrevencionDPI["🛡️ PREVENCIÓN DE DESERCIÓN & REGULACIÓN"]
+    subgraph Operatorias["⚡ OPERACIONES DE AULA & PREVENCIÓN DPI"]
+        direction TB
+        CU_D1["⚡ Registro Asistencia (Flash / Sábana / Ctrl+V)"]
+        CU_D2["🔒 Oficialización y Congelamiento en BD"]
         CU_E1["🛡️ Portal Anti-DPI y Horas de Margen"]
-        CU_E2["📎 Justificar Inasistencia (Ventana 72h)"]
-        CU_D7["🩺 Evaluar y Resolver Justificación Médica"]
-        CU_D8["🚫 Inhabilitación Legal por DPI en Semana 17"]
+        CU_E2["📎 Justificación de Inasistencia (72h)"]
+        CU_D7["🩺 Evaluación Docente de Justificación"]
     end
 
     Docente --> CU_D1
-    Docente --> CU_D2
-    Docente --> CU_D3
-    Docente --> CU_D4
-    Docente --> CU_D7
-    Docente --> CU_D8
-
+    CU_D1 --> CU_D2
+    CU_D2 -.->|Actualiza % DPI en vivo| CU_E1
+    
     Estudiante --> CU_E1
     Estudiante --> CU_E2
-    
-    CU_E2 -.->|Genera expediente pendiente| CU_D7
-    CU_D4 -.->|Actualiza % DPI en vivo| CU_E1
+    CU_E2 -.->|Envía expediente| CU_D7
+    CU_D7 -.->|Reclasifica a Falta Justificada| CU_E1

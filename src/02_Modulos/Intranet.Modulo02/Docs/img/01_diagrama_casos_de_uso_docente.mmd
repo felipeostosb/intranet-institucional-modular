@@ -1,30 +1,27 @@
-flowchart LR
-    Docente(["👨‍🏫 DOCENTE TITULAR"])
-
-    subgraph Modulo02_Docente["📦 CASOS DE USO EXCLUSIVOS: ROL DOCENTE (MÓDULO 02)"]
-        CU_DOC_01(["⚡ CU-DOC-01: Autodetección y Toma Flash en 1 Clic
-(Móvil / Tablet en 8 segundos)"])
-        CU_DOC_02(["📊 CU-DOC-02: Sábana Interactiva de 18 Semanas
-(Live Grid con atajos de teclado F, T, P)"])
-        CU_DOC_03(["📋 CU-DOC-03: Smart Copy-Paste desde Excel Personal
-(Presionar Ctrl+V y mapeo automático por DNI)"])
-        CU_DOC_04(["🔒 CU-DOC-04: Oficializar y Congelar Sesión
-(Inmutabilidad de datos y cierre en BD)"])
-        CU_DOC_05(["🗓️ CU-DOC-05: Iniciar Sesión Extraordinaria
-(Clases de recuperación ad-hoc)"])
-        CU_DOC_06(["🏢 CU-DOC-06: Reubicación de Aula en Vivo
-(Cambio rápido si laboratorio está ocupado)"])
-        CU_DOC_07(["🩺 CU-DOC-07: Evaluar Justificaciones Médicas
-(Revisar sustento PDF/JPG en ventana 72h)"])
-        CU_DOC_08(["🎓 CU-DOC-08: Gestión Semana 17 Recuperación
-(Bloqueo legal de alumnos con DPI >= 30%)"])
+flowchart TD
+    Docente["👨‍🏫 DOCENTE TITULAR (MÓDULO 02)"]
+    
+    subgraph Col1["⚡ 1. TOMA FLASH & CIERRE"]
+        CU01["CU-DOC-01: Autodetección 1-Clic Móvil (8s)"]
+        CU04["CU-DOC-04: Oficializar y Congelar Sesión"]
+    end
+    
+    subgraph Col2["📊 2. SÁBANA & COPY-PASTE"]
+        CU02["CU-DOC-02: Sábana 18 Semanas (Live Grid)"]
+        CU03["CU-DOC-03: Smart Copy-Paste (Ctrl+V)"]
+    end
+    
+    subgraph Col3["🏢 3. FLEXIBILIDAD & AD-HOC"]
+        CU05["CU-DOC-05: Iniciar Sesión Extraordinaria"]
+        CU06["CU-DOC-06: Reubicación de Aula en Vivo"]
+    end
+    
+    subgraph Col4["🛡️ 4. JUSTIFICACIÓN & DPI"]
+        CU07["CU-DOC-07: Evaluar Justificaciones (72h)"]
+        CU08["CU-DOC-08: Gestión Semana 17 (Filtro DPI)"]
     end
 
-    Docente --> CU_DOC_01
-    Docente --> CU_DOC_02
-    Docente --> CU_DOC_03
-    Docente --> CU_DOC_04
-    Docente --> CU_DOC_05
-    Docente --> CU_DOC_06
-    Docente --> CU_DOC_07
-    Docente --> CU_DOC_08
+    Docente --> Col1
+    Docente --> Col2
+    Docente --> Col3
+    Docente --> Col4

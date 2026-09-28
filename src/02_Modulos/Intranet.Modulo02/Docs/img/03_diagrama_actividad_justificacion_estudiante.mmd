@@ -1,28 +1,25 @@
-flowchart TD
-    Inicio([🟢 Inicio: Estudiante ingresa a Mi Asistencia]) --> ConsultaFaltas[Estudiante revisa historial de inasistencias]
-    ConsultaFaltas --> ClicJustificar[Hace clic en '📎 Justificar Falta']
-    
-    ClicJustificar --> ValidaPlazo{¿Inasistencia dentro de las 72 horas hábiles?}
-    
-    ValidaPlazo -- No (> 72h) --> BloqueoPlazo[❌ Mostrar Alerta: Plazo Extemporáneo Vencido por MPA]
-    BloqueoPlazo --> FinNo([🏁 Fin: Solicitud No Admitida])
-    
-    ValidaPlazo -- Sí (<= 72h) --> Formulario[Formulario de Justificación Digital]
-    Formulario --> SubeSustento[Adjunta Comprobante: Certificado Médico / CITA ESSALUD / Constancia Laboral]
-    SubeSustento --> EnviaSolicitud[Estudiante envía solicitud]
-    
-    EnviaSolicitud --> RegistraExp[Crea registro en mod02.justificaciones con estado PENDIENTE]
-    RegistraExp --> AlertaDocente[Docente titular recibe notificación en su bandeja de entrada]
-    
-    AlertaDocente --> RevisionDocente[Docente evalúa expediente y sustento digital]
-    RevisionDocente --> Decision{¿Acepta justificación?}
-    
-    Decision -- Sí --> Aprueba[Docente marca APROBADA]
-    Aprueba --> UpdAsistencia[UPDATE mod02.asistencias: estado = 'FALTA_JUSTIFICADA']
-    UpdAsistencia --> RecalculoDpi[La falta justificada NO suma para DPI -> % DPI disminuye en vivo]
-    RecalculoDpi --> NotifAprobada[Estudiante recibe confirmación de falta justificada]
-    NotifAprobada --> FinOk([🏁 Fin: Justificación Exitosa])
-    
-    Decision -- No --> Rechaza[Docente marca RECHAZADA con motivo]
-    Rechaza --> MantieneFalta[Se mantiene FALTA_INJUSTIFICADA y se notifica al estudiante]
-    MantieneFalta --> FinNo
+flowchart LR
+    subgraph Etapa1["👨‍🎓 ETAPA 1: SOLICITUD ESTUDIANTE"]
+        A([Estudiante detecta falta]) --> B[Clic en '📎 Justificar']
+        B --> C{¿Fecha <= 72h hábiles?}
+        C -- No --> D[❌ Alerta: Plazo Extemporáneo Vencido]
+        D --> D_Fin([Fin: No Admitida])
+        C -- Sí --> E[Adjunta Certificado Médico / CITA]
+        E --> F[Envía expediente -> Estado PENDIENTE]
+    end
+
+    subgraph Etapa2["👨‍🏫 ETAPA 2: EVALUACIÓN DOCENTE"]
+        F --> G[Docente recibe alerta en bandeja]
+        G --> H[Revisa documento adjunto]
+        H --> I{¿Sustento Válido?}
+        I -- No --> J[Marca RECHAZADA]
+        J --> J_Fin([Fin: Mantiene Falta])
+        I -- Sí --> K[Marca APROBADA]
+    end
+
+    subgraph Etapa3["⚡ ETAPA 3: RECLASIFICACIÓN & DPI"]
+        K --> L[UPDATE asistencias estado='FALTA_JUSTIFICADA']
+        L --> M[Recálculo automático en v_resumen_asistencia]
+        M --> N[Disminuye % de Inasistencia del Estudiante]
+        N --> N_Fin([🏁 Fin: Falta Regularizada])
+    end

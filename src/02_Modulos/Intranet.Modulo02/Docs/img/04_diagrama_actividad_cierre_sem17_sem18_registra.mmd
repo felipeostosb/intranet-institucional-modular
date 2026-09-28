@@ -1,25 +1,24 @@
-flowchart TD
-    Semanas116["🗓️ Semanas 01 a 16: Desarrollo Lectivo Regular y Registro Continuo"] --> FinSem16["Fin de Semana 16: Cierre de Avance Curricular Ordinario"]
-    
-    FinSem16 --> AuditoriaDpi["Sistema ejecuta Auditoría Automática de DPI en mod02.v_resumen_asistencia_estudiante"]
-    AuditoriaDpi --> FormulaDpi["Fórmula: (Horas Falta Injustificada / Total Horas UD) * 100"]
-    
-    FormulaDpi --> EvaluaDpi{"¿Porcentaje Inasistencia >= 30.00%?"}
-    
-    EvaluaDpi -- Sí (>= 30%) --> CondicionDPI["⚠️ CONDICIÓN: DPI - Desaprobado por Inasistencias"]
-    CondicionDPI --> BloqueoSem17["🚫 BLOQUEO LEGAL ART. 8.8.1 MPA: Inhabilitado para rendir Recuperación"]
-    BloqueoSem17 --> NotaCero["Calificación Final de UD = CERO 00 en Acta"]
-    
-    EvaluaDpi -- No (< 30%) --> EvaluaPromedio{"¿Promedio Regular entre 10 y 12 puntos?"}
-    EvaluaPromedio -- Sí --> HabilitaSem17["✅ Habilitado para rendir Evaluación de Recuperación en Semana 17"]
-    EvaluaPromedio -- No (>= 13 o < 10) --> CierreDirecto["Cierre Ordinario de Calificación"]
-    
-    HabilitaSem17 --> Sem17["🗓️ SEMANA 17: Evaluación de Recuperación Ordinaria"]
-    Sem17 --> Sem18["🗓️ SEMANA 18: Subsanación y Cierre Definitivo de Actas"]
-    
-    NotaCero --> Sem18
-    CierreDirecto --> Sem18
-    
-    Sem18 --> ExportaRegistra["📦 Exportación Estructurada Oficial en Formato REGISTRA MINEDU (.xlsx)"]
-    ExportaRegistra --> FirmaActas["Firma Digital de Actas e Inmutabilidad en Base de Datos"]
-    FirmaActas --> Fin(["🏁 Fin de Semestre Académico"])
+flowchart LR
+    subgraph Bloque1["🗓️ SEMANAS 01 A 16"]
+        A["Avance Lectivo Regular Ordinario"] --> B["Fin de Semana 16"]
+        B --> C["Auditoría Automática DPI: (Horas Falta / Total Horas) * 100"]
+    end
+
+    subgraph Bloque2["⚖️ SEMANA 17: FILTRO LEGAL & RECUPERACIÓN"]
+        C --> D{¿Inasistencia >= 30.0%?}
+        D -- Sí (>=30%) --> E["⚠️ CONDICIÓN DPI"]
+        E --> F["🚫 Inhabilitado por Ley para Recuperación"]
+        F --> G["Nota Final = CERO 00"]
+        
+        D -- No (<30%) --> H{¿Nota entre 10 y 12?}
+        H -- Sí --> I["✅ Habilitado para Rendir Evaluación Semana 17"]
+        H -- No --> J["Cierre Ordinario (>=13 o <=09)"]
+    end
+
+    subgraph Bloque3["📦 SEMANA 18: ACTAS REGISTRA MINEDU"]
+        G --> K["Consolidación Definitiva de Actas"]
+        I --> K
+        J --> K
+        K --> L["Exportación Oficial REGISTRA (.xlsx)"]
+        L --> M([🏁 Fin de Semestre])
+    end

@@ -1,31 +1,24 @@
-flowchart TD
-    Inicio([🟢 Inicio: Docente accede al Módulo 02]) --> AutoDetect[Autodetección de Horario y Clase Activa de Hoy]
-    AutoDetect --> HayClaseHoy{¿Hay clase programada hoy?}
-    
-    HayClaseHoy -- Sí --> MuestraHero[Mostrar Hero Banner: Tomar Asistencia Flash]
-    HayClaseHoy -- No --> SelectorClase[Mostrar Catálogo de Cursos Asignados]
-    
-    MuestraHero --> SeleccionModo[Docente selecciona Modo de Registro]
-    SelectorClase --> SeleccionModo
-    
-    SeleccionModo --> ModoFlash["⚡ Modo 1: Flash Móvil (1 Clic)"]
-    SeleccionModo --> ModoSabana["📊 Modo 2: Sábana Live Grid (18 Semanas)"]
-    SeleccionModo --> ModoCopyPaste["📋 Modo 3: Smart Copy-Paste (Ctrl+V)"]
-    
-    ModoFlash --> CargaPresentes[Carga nómina con todos los alumnos en PRESENTE]
-    CargaPresentes --> MarcaAusentes[Docente toca solo a los alumnos ausentes -> Cambian a FALTA]
-    
-    ModoSabana --> NavegaTeclado[Docente navega con flechas y presiona teclas F / T / P]
-    NavegaTeclado --> LiveDpi[Cálculo en vivo de % Inasistencias y alerta DPI en columna derecha]
-    
-    ModoCopyPaste --> CapturaClipboard[Docente presiona Ctrl+V -> Parser JS lee portapapeles]
-    CapturaClipboard --> ValidaDni[Mapea automáticamente por DNI / Apellidos en 1 segundo]
-    
-    MarcaAusentes --> Guardar[Docente pulsa Guardar y Oficializar Asistencia]
-    LiveDpi --> Guardar
-    ValidaDni --> Guardar
-    
-    Guardar --> TxAtomic[Backend ejecuta Bulk UPSERT atómico en mod02.asistencias]
-    TxAtomic --> CierraSesion[Actualiza mod02.sesiones_clase -> estado = CERRADA]
-    CierraSesion --> NotificaAlumnos[Actualiza vista v_resumen_asistencia_estudiante]
-    NotificaAlumnos --> Fin([🏁 Fin: Asistencia Oficializada e Inmutable])
+flowchart LR
+    subgraph Fase1["🟢 FASE 1: DETECCIÓN"]
+        A([Inicio: Docente accede]) --> B[Autodetecta Clase Activa Hoy]
+        B --> C{¿Hay clase hoy?}
+        C -- Sí --> D[Hero Banner: Tomar Asistencia]
+        C -- No --> E[Selector de Cursos]
+    end
+
+    subgraph Fase2["⚡ FASE 2: TRIPLE MOTOR DE REGISTRO"]
+        D --> F{Elegir Modo}
+        E --> F
+        F -->|Modo 1: Flash| G[41 Alumnos en PRESENTE -> Marca Ausentes]
+        F -->|Modo 2: Sábana| H[Matriz 18 Semanas -> Teclas F, T, P]
+        F -->|Modo 3: Copy-Paste| I[Ctrl+V -> Parser TSV mapea por DNI]
+    end
+
+    subgraph Fase3["🔒 FASE 3: OFICIALIZACIÓN"]
+        G --> J[Clic 'Oficializar y Guardar']
+        H --> J
+        I --> J
+        J --> K[Bulk UPSERT atómico en mod02.asistencias]
+        K --> L[UPDATE sesiones_clase estado='CERRADA']
+        L --> M([🏁 Fin: Sesión Inmutable])
+    end

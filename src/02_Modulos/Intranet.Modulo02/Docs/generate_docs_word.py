@@ -127,15 +127,32 @@ def add_callout(doc, text, title="💡 NOTA TÉCNICA", fill="F1F5F9"):
     
     doc.add_paragraph().paragraph_format.space_after = Pt(4)
 
-def add_diagram_image(doc, img_name, caption, width=Inches(6.8)):
+def add_diagram_image(doc, img_name, caption, width=None, max_width_in=6.8, max_height_in=6.0, **kwargs):
+    if width is not None and hasattr(width, 'inches'):
+        max_width_in = width.inches
+    elif width is not None and isinstance(width, (int, float)):
+        max_width_in = float(width)
     img_path = os.path.join(IMG_DIR, img_name)
     if os.path.exists(img_path):
+        from PIL import Image
+        im = Image.open(img_path)
+        w, h = im.size
+        aspect = h / w
+        
+        # Proportional scaling to guarantee ZERO page overflow or clipping
+        target_w = max_width_in
+        target_h = target_w * aspect
+        if target_h > max_height_in:
+            target_h = max_height_in
+            target_w = target_h / aspect
+            
         p_img = doc.add_paragraph()
         p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
         p_img.paragraph_format.space_before = Pt(8)
         p_img.paragraph_format.space_after = Pt(2)
+        p_img.paragraph_format.keep_with_next = True
         run_img = p_img.add_run()
-        run_img.add_picture(img_path, width=width)
+        run_img.add_picture(img_path, width=Inches(target_w))
         
         p_cap = doc.add_paragraph()
         p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
