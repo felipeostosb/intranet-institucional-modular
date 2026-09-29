@@ -130,6 +130,14 @@ public class MatriculasController : ModuloBaseController
     [HttpGet("Vacantes")]
     public async Task<IActionResult> Vacantes()
     {
+        // Ruta del personal: el alumno no ve cifras globales de vacantes (regla del módulo).
+        // Mismo tratamiento que Index: se le muestra su propia matrícula.
+        if (EsAlumno)
+        {
+            var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
+            return View("MiMatricula", activa);
+        }
+
         ViewData["Title"] = "01. Vacantes por Carrera";
         var vacantes = await _matriculaService.ListarVacantesAsync();
         return View(vacantes);
