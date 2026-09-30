@@ -303,9 +303,41 @@ public class PagoService : IPagoService
                 archivo_contenido = EXCLUDED.archivo_contenido,
                 subido_en = CURRENT_TIMESTAMP;
             """, new { Id = pagoId, Nombre = nombre, Tipo = tipo, Contenido = contenido });
-        return filas > 0
-            ? (true, "Voucher adjuntado. Tesorería lo validará desde su bandeja.")
-            : (false, "No se pudo guardar el voucher.");
+
+        if (filas == 0) return (false, "No se pudo guardar el voucher.");
+
+        // ------------------------------------------------------------------
+        // Corrección de voucher rechazado: el re-envío devuelve el pago a la
+        // cola de validación de Tesorería (voucher_estado = 'Pendiente') con
+        // el intento registrado. Antes el pago quedaba en 'Rechazado' y el
+        // voucher corregido no reaparecía en la bandeja "Por validar" —
+        // Tesorería tenía que filtrar por Rechazado para encontrarlo.
+        // ------------------------------------------------------------------
+        await db.ExecuteAsync("""
+            UPDATE pagos
+            SET voucher_estado = 'Pendiente',
+                fecha_validacion = NULL,
+                validado_por = NULL,
+                motivo_rechazo = NULL,
+                intentos = intentos + 1,
+                actualizado_en = CURRENT_TIMESTAMP
+            WHERE id = @Id
+              AND voucher_estado = 'Rechazado';
+            """, new { Id = pagoId });
+
+        // Si el pago pertenece a un trámite en curso, también retoma su flujo:
+        // el trámite que quedó 'Observado' por el rechazo vuelve a evaluación.
+        await db.ExecuteAsync("""
+            UPDATE mod09.tramites
+            SET estado = 'En evaluación',
+                resolucion = NULL,
+                fecha_resolucion = NULL,
+                actualizado_en = CURRENT_TIMESTAMP
+            WHERE pago_id = @Id
+              AND estado = 'Observado';
+            """, new { Id = pagoId });
+
+        return (true, "Voucher adjuntado. Tesorería lo validará desde su bandeja.");
     }
 
     // ------------------------------------------------------------------
