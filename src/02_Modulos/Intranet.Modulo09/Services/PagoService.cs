@@ -45,32 +45,8 @@ public class PagoService : IPagoService
 
     private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("09");
 
-    // ------------------------------------------------------------------
-    // Resolución del nombre real de la tabla de pagos.
-    // En producción el nombre oficial "pagos" está ocupado por una tabla
-    // legacy de otro dueño (estructura antigua, sin voucher_estado).
-    // Si detectamos ese caso usamos "pagos_v2" (nuestra tabla real);
-    // cuando el DBA restaure el esquema oficial, vuelve al nombre canónico.
-    // ------------------------------------------------------------------
-    private static string? _tablaPagos;
-    private static string TablaPagos(IDbConnection db)
-    {
-        if (_tablaPagos != null) return _tablaPagos;
-        try
-        {
-            var tieneColumnaNueva = db.ExecuteScalar<int?>(
-                "SELECT 1 FROM information_schema.columns WHERE table_schema = 'mod09' AND table_name = 'pagos' AND column_name = 'voucher_estado';");
-            _tablaPagos = tieneColumnaNueva == 1 ? "pagos" : "pagos_v2";
-        }
-        catch
-        {
-            _tablaPagos = "pagos";
-        }
-        return _tablaPagos;
-    }
-
     private const string SqlNuevoRecibo =
-        "SELECT 'REC-' || lpad((count(*) + 1)::text, 4, '0') FROM {TABLA};";
+        "SELECT 'REC-' || lpad((count(*) + 1)::text, 4, '0') FROM pagos;";
 
     // ------------------------------------------------------------------
     // ALUMNO: sus pagos con el concepto y estado del voucher
@@ -90,14 +66,14 @@ public class PagoService : IPagoService
                    tp.nombre AS TipoPago,
                    pa.codigo AS Periodo,
                    (SELECT count(*) FROM voucher_archivos va WHERE va.pago_id = p.id) > 0 AS TieneVoucher
-            FROM {TABLA} p
+            FROM pagos p
             JOIN conceptos_pago cp ON cp.id = p.concepto_pago_id
             JOIN tipos_pago tp ON tp.id = p.tipo_pago_id
             JOIN periodos_academicos pa ON pa.id = p.periodo_id
             WHERE p.estudiante_id = @EstudianteId
             ORDER BY p.fecha_pago DESC, p.id DESC;
             """;
-        return await db.QueryAsync<PagoListaDto>(sql.Replace("{TABLA}", TablaPagos(db)), new { EstudianteId = estudianteId });
+        return await db.QueryAsync<PagoListaDto>(sql, new { EstudianteId = estudianteId });
     }
 
     // ------------------------------------------------------------------
@@ -121,7 +97,7 @@ public class PagoService : IPagoService
                    e.codigo_estudiante AS CodigoEstudiante,
                    pe.nombres || ' ' || pe.apellidos AS Estudiante,
                    (SELECT count(*) FROM voucher_archivos va WHERE va.pago_id = p.id) > 0 AS TieneVoucher
-            FROM {TABLA} p
+            FROM pagos p
             JOIN conceptos_pago cp ON cp.id = p.concepto_pago_id
             JOIN tipos_pago tp ON tp.id = p.tipo_pago_id
             JOIN estudiantes e ON e.id = p.estudiante_id
@@ -130,7 +106,7 @@ public class PagoService : IPagoService
             ORDER BY CASE p.voucher_estado WHEN 'Pendiente' THEN 0 ELSE 1 END,
                      p.fecha_pago DESC;
             """;
-        return await db.QueryAsync<PagoBandejaDto>(sql.Replace("{TABLA}", TablaPagos(db)),
+        return await db.QueryAsync<PagoBandejaDto>(sql,
             new { Estado = string.IsNullOrWhiteSpace(voucherEstado) ? null : voucherEstado });
     }
 
@@ -152,14 +128,14 @@ public class PagoService : IPagoService
                    e.codigo_estudiante AS CodigoEstudiante,
                    pe.nombres || ' ' || pe.apellidos AS Estudiante,
                    (SELECT count(*) FROM voucher_archivos va WHERE va.pago_id = p.id) > 0 AS TieneVoucher
-            FROM {TABLA} p
+            FROM pagos p
             JOIN conceptos_pago cp ON cp.id = p.concepto_pago_id
             JOIN tipos_pago tp ON tp.id = p.tipo_pago_id
             JOIN estudiantes e ON e.id = p.estudiante_id
             JOIN personas pe ON pe.id = e.persona_id
             WHERE p.id = @Id;
             """;
-        return await db.QueryFirstOrDefaultAsync<PagoBandejaDto>(sql.Replace("{TABLA}", TablaPagos(db)), new { Id = pagoId });
+        return await db.QueryFirstOrDefaultAsync<PagoBandejaDto>(sql, new { Id = pagoId });
     }
 
     // ------------------------------------------------------------------
@@ -214,17 +190,17 @@ public class PagoService : IPagoService
             return (false, "El monto debe ser mayor que cero.");
         }
 
-        var codigo = await db.ExecuteScalarAsync<string>(SqlNuevoRecibo.Replace("{TABLA}", TablaPagos(db)), transaction: tx);
+        var codigo = await db.ExecuteScalarAsync<string>(SqlNuevoRecibo, transaction: tx);
 
         var filas = await db.ExecuteAsync("""
-            INSERT INTO {TABLA} (codigo, estudiante_id, concepto_pago_id, periodo_id,
+            INSERT INTO pagos (codigo, estudiante_id, concepto_pago_id, periodo_id,
                                tipo_pago_id, monto, fecha_pago, voucher_estado,
                                fecha_validacion, validado_por, motivo_rechazo)
             VALUES (@Codigo, @EstudianteId, @ConceptoId, @PeriodoId,
                     @TipoId, @Monto, CURRENT_DATE, @Estado,
                     CASE WHEN @Estado = 'Validado' THEN CURRENT_DATE END,
                     @Validador, @Nota);
-            """.Replace("{TABLA}", TablaPagos(db)), new
+            """, new
         {
             Codigo = codigo,
             EstudianteId = estudianteId,
@@ -256,9 +232,9 @@ public class PagoService : IPagoService
         if (!aprobar && string.IsNullOrWhiteSpace(motivo))
             return (false, "Indica el motivo del rechazo (el estudiante lo verá).");
 
-        var tabla = TablaPagos(db);
+        var tabla = "pagos";
         var filas = await db.ExecuteAsync("""
-            UPDATE {TABLA}
+            UPDATE pagos
             SET voucher_estado = @Estado,
                 fecha_validacion = CASE WHEN @Estado = 'Validado' THEN CURRENT_DATE ELSE NULL END,
                 validado_por = CASE WHEN @Estado = 'Validado' THEN @Validador ELSE NULL END,
@@ -267,7 +243,7 @@ public class PagoService : IPagoService
                 actualizado_en = CURRENT_TIMESTAMP
             WHERE id = @Id
               AND voucher_estado <> 'Validado';
-            """.Replace("{TABLA}", tabla), new { Id = pagoId, Estado = aprobar ? "Validado" : "Rechazado",
+            """.Replace("pagos", tabla), new { Id = pagoId, Estado = aprobar ? "Validado" : "Rechazado",
                        Motivo = motivo, Validador = validadorId });
 
         if (filas == 0) return (false, "El pago no existe o ya fue validado.");
@@ -279,10 +255,10 @@ public class PagoService : IPagoService
         // aprobación → el trámite queda listo para que Mesa lo cierre
         // (Aprobado/Entregado sigue siendo decisión de Secretaría).
         // La vinculación se resuelve SOLO por tramites.pago_id, presente en
-        // producción (pagos_v2) y en espejos (pagos); la columna inversa
+        // producción (pagos) y en espejos (pagos); la columna inversa
         // pagos.tramite_id solo existe en algunos espejos y NO en producción.
         // ------------------------------------------------------------------
-        var tablaPagos = TablaPagos(db);
+        var tablaPagos = "pagos";
         var sqlTramite = "SELECT t.id FROM mod09.tramites t " +
                          "WHERE t.pago_id = @Id LIMIT 1;";
         var tramiteAfectado = await db.ExecuteScalarAsync<int?>(sqlTramite, new { Id = pagoId });
@@ -314,7 +290,7 @@ public class PagoService : IPagoService
     {
         using var db = CreateConnection();
         var dueno = await db.ExecuteScalarAsync<int?>(
-            "SELECT estudiante_id FROM " + TablaPagos(db) + " WHERE id = @Id;", new { Id = pagoId });
+            "SELECT estudiante_id FROM pagos WHERE id = @Id;", new { Id = pagoId });
         if (dueno != estudianteId)
             return (false, "El recibo no existe o no es tuyo.");
 
@@ -357,9 +333,9 @@ public class PagoService : IPagoService
                    count(*) FILTER (WHERE voucher_estado = 'Validado')  AS Validados,
                    count(*) FILTER (WHERE voucher_estado = 'Rechazado') AS Rechazados,
                    COALESCE(sum(monto) FILTER (WHERE voucher_estado = 'Validado'), 0) AS Recaudado
-            FROM {TABLA};
+            FROM pagos;
             """;
-        return await db.QueryFirstOrDefaultAsync<PagosResumenDto>(sql.Replace("{TABLA}", TablaPagos(db))) ?? new PagosResumenDto();
+        return await db.QueryFirstOrDefaultAsync<PagosResumenDto>(sql) ?? new PagosResumenDto();
     }
 
     // ------------------------------------------------------------------
@@ -369,7 +345,7 @@ public class PagoService : IPagoService
     public async Task<ResumenTesoreriaDto> ResumenTesoreriaAsync()
     {
         using var db = CreateConnection();
-        var t = TablaPagos(db);
+        var t = "pagos";
         var dto = await db.QueryFirstOrDefaultAsync<ResumenTesoreriaDto>("""
             SELECT count(*) FILTER (WHERE voucher_estado = 'Pendiente')   AS VouchersPendientes,
                    count(*) FILTER (WHERE voucher_estado = 'Rechazado')   AS VouchersRechazados,
@@ -379,8 +355,8 @@ public class PagoService : IPagoService
                                       AND fecha_validacion = CURRENT_DATE), 0) AS RecaudadoHoy,
                    COALESCE(sum(monto) FILTER (WHERE voucher_estado = 'Validado'), 0) AS RecaudadoPeriodo,
                    count(*) FILTER (WHERE voucher_estado = 'Validado')   AS RecibosValidados
-            FROM {TABLA};
-            """.Replace("{TABLA}", t)) ?? new ResumenTesoreriaDto();
+            FROM pagos;
+            """.Replace("pagos", t)) ?? new ResumenTesoreriaDto();
 
         const string porConceptoSql = """
             SELECT cp.codigo AS Codigo,
@@ -388,14 +364,14 @@ public class PagoService : IPagoService
                    COALESCE(sum(p.monto), 0) AS Monto,
                    count(p.id) AS Recibos
             FROM conceptos_pago cp
-            LEFT JOIN {TABLA} p ON p.concepto_pago_id = cp.id AND p.voucher_estado = 'Validado'
+            LEFT JOIN pagos p ON p.concepto_pago_id = cp.id AND p.voucher_estado = 'Validado'
             GROUP BY cp.codigo, cp.nombre
             HAVING count(p.id) > 0
             ORDER BY 3 DESC
             LIMIT 5;
             """;
         dto.PorConcepto = (await db.QueryAsync<RecaudacionPorConceptoDto>(
-            porConceptoSql.Replace("{TABLA}", t))).ToList();
+            porConceptoSql.Replace("pagos", t))).ToList();
         return dto;
     }
 
@@ -406,7 +382,7 @@ public class PagoService : IPagoService
     public async Task<ResumenAlumnoDto> ResumenAlumnoAsync(int estudianteId)
     {
         using var db = CreateConnection();
-        var t = TablaPagos(db);
+        var t = "pagos";
         var dto = new ResumenAlumnoDto();
 
         // Contadores de SUS trámites por estado (mesa de mod09)
@@ -440,13 +416,13 @@ public class PagoService : IPagoService
                    tr.creado_en AS FechaSolicitud
             FROM mod09.tramites tr
             JOIN mod09.tipos_tramite tt ON tt.id = tr.tipo_tramite_id
-            LEFT JOIN {TABLA} p ON p.id = tr.pago_id
+            LEFT JOIN pagos p ON p.id = tr.pago_id
             WHERE tr.estudiante_id = @Id
             ORDER BY tr.creado_en DESC
             LIMIT 5;
             """;
         dto.Ultimos = (await db.QueryAsync<MiTramiteCardDto>(
-            ultimosSql.Replace("{TABLA}", t), new { Id = estudianteId })).ToList();
+            ultimosSql.Replace("pagos", t), new { Id = estudianteId })).ToList();
         return dto;
     }
 

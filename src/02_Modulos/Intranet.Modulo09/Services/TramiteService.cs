@@ -49,27 +49,13 @@ public class TramiteService : ITramiteService
     private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("09");
 
     // ------------------------------------------------------------------
-    // Nombres reales de tablas de pago (producción usa pagos_v2 porque
+    // Nombres reales de tablas de pago (producción usa pagos porque
     // “pagos” es legacy de otro dueño; local usa “pagos”).
     // ------------------------------------------------------------------
-    private static string? _tablaPagos;
-    private static string TablaPagos(IDbConnection db)
-    {
-        if (_tablaPagos != null) return _tablaPagos;
-        try
-        {
-            var tieneVoucher = db.ExecuteScalar<int?>(
-                "SELECT 1 FROM information_schema.columns WHERE table_schema = 'mod09' AND table_name = 'pagos' AND column_name = 'voucher_estado';");
-            _tablaPagos = tieneVoucher == 1 ? "pagos" : "pagos_v2";
-        }
-        catch { _tablaPagos = "pagos"; }
-        return _tablaPagos;
-    }
-
     // ------------------------------------------------------------------
     // Resolución del nombre real de la tabla de pagos (legacy en
     // producción: "pagos" es una tabla antigua de otro dueño; la
-    // nuestra es pagos_v2 hasta que el DBA restaure el nombre oficial).
+    // nuestra es pagos hasta que el DBA restaure el nombre oficial).
     // ------------------------------------------------------------------
     // número correlativo de trámite: T0001, T0002... según el diseño del prototipo
     private const string SqlNuevoCodigo = "SELECT 'T' || lpad((count(*) + 1)::text, 4, '0') FROM tramites;";
@@ -124,7 +110,7 @@ public class TramiteService : ITramiteService
                    e.codigo_estudiante AS CodigoEstudiante,
                    t.resolucion,
                    (SELECT b.voucher_estado
-                      FROM {TABLA} b
+                      FROM pagos b
                      WHERE b.estudiante_id = t.estudiante_id
                        AND b.concepto_pago_id = tt.concepto_pago_id
                        AND b.periodo_id = t.periodo_id
@@ -136,7 +122,7 @@ public class TramiteService : ITramiteService
             WHERE (@Estado IS NULL OR t.estado = @Estado)
             ORDER BY t.fecha_solicitud;
             """;
-        return await db.QueryAsync<TramiteMesaDto>(sql.Replace("{TABLA}", TablaPagos(db)),
+        return await db.QueryAsync<TramiteMesaDto>(sql,
             new { Estado = string.IsNullOrWhiteSpace(estado) ? null : estado });
     }
 
@@ -315,7 +301,7 @@ public class TramiteService : ITramiteService
                 "SELECT id FROM tipos_pago WHERE activo ORDER BY id LIMIT 1;", tx);
             if (tipoPagoId != null)
             {
-                var tablaPagos = TablaPagos(db);
+                var tablaPagos = "pagos";
                 var codigoPago = await db.ExecuteScalarAsync<string>(
                     $"SELECT 'REC-' || lpad((count(*) + 1)::text, 4, '0') FROM {tablaPagos};", tx);
                 var sqlPago = "INSERT INTO " + tablaPagos + @" (codigo, estudiante_id, concepto_pago_id, periodo_id,
@@ -391,7 +377,7 @@ public class TramiteService : ITramiteService
         {
             const string checkPago = """
                 SELECT count(*)
-                FROM {TABLA} b
+                FROM pagos b
                 JOIN tramites t ON t.id = @Id
                 JOIN tipos_tramite tt ON tt.id = t.tipo_tramite_id
                 WHERE b.estudiante_id = t.estudiante_id
@@ -399,7 +385,7 @@ public class TramiteService : ITramiteService
                   AND b.periodo_id = t.periodo_id
                   AND b.voucher_estado = 'Validado';
                 """;
-            var pagado = await db.ExecuteScalarAsync<int>(checkPago.Replace("{TABLA}", TablaPagos(db)), new { Id = tramiteId });
+            var pagado = await db.ExecuteScalarAsync<int>(checkPago, new { Id = tramiteId });
             if (pagado == 0)
                 return (false, "Tesorería aún no validó el voucher de pago de este trámite.");
         }

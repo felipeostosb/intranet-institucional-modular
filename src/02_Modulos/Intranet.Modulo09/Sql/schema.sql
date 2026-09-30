@@ -269,11 +269,11 @@ ON CONFLICT (tipo_tramite_id, orden, requisito) DO NOTHING;
 -- Flujo voucher: el trámite con costo genera el pago y el alumno
 -- adjunta el voucher PDF que Tesorería valida.
 -- ============================================================
-ALTER TABLE mod09.tramites ADD COLUMN IF NOT EXISTS pago_id INT REFERENCES mod09.pagos_v2(id);
+ALTER TABLE mod09.tramites ADD COLUMN IF NOT EXISTS pago_id INT REFERENCES mod09.pagos(id);
 CREATE INDEX IF NOT EXISTS idx_tramites_pago ON mod09.tramites(pago_id);
 
 CREATE TABLE IF NOT EXISTS mod09.voucher_archivos (
-    pago_id INT NOT NULL PRIMARY KEY REFERENCES mod09.pagos_v2(id) ON DELETE CASCADE,
+    pago_id INT NOT NULL PRIMARY KEY REFERENCES mod09.pagos(id) ON DELETE CASCADE,
     archivo_nombre VARCHAR(200) NOT NULL,
     archivo_tipo VARCHAR(100) NOT NULL,
     archivo_contenido BYTEA NOT NULL,
