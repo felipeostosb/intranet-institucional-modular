@@ -13,7 +13,7 @@ namespace Intranet.Modulo01.Services;
 /// (Promovido / Promovido con curso a cargo / Repitente según el
 /// historial académico) y elige las unidades didácticas del nuevo
 /// semestre para cerrar la matrícula y emitir la ficha PDF.
-/// Domina las tablas mod01: matriculas[_v2], historial_academico,
+/// Domina las tablas mod01: matriculas, historial_academico,
 /// oferta_ciclo, detalles_matricula, fichas_enviadas + mod09 solo-lectura.
 /// </summary>
 public interface IMatriculaturaService
@@ -62,21 +62,6 @@ public class MatriculaturaService : IMatriculaturaService
     private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("01");
 
     // Mismo patrón que MatriculaService: en producción "matriculas" es
-    // legacy de otro dueño y la tabla real es "matriculas_v2".
-    private static string? _tablaMatriculas;
-    private static string TablaMatriculas(IDbConnection db)
-    {
-        if (_tablaMatriculas != null) return _tablaMatriculas;
-        try
-        {
-            var tieneCol = db.ExecuteScalar<int?>(
-                "SELECT 1 FROM information_schema.columns WHERE table_schema = 'mod01' AND table_name = 'matriculas' AND column_name = 'voucher_ok';");
-            _tablaMatriculas = tieneCol == 1 ? "matriculas" : "matriculas_v2";
-        }
-        catch { _tablaMatriculas = "matriculas"; }
-        return _tablaMatriculas;
-    }
-
     // ------------------------------------------------------------------
     // BUSCAR POR DNI: ficha del alumno lista para matricular
     // ------------------------------------------------------------------
@@ -220,19 +205,18 @@ public class MatriculaturaService : IMatriculaturaService
                    pg.voucher_estado AS VoucherEstado,
                    pg.monto AS VoucherMonto,
                    (pm.permite_matricula OR pm.id IS NULL) AS PeriodoHabilitado
-            FROM matriculas_v2 m
+            FROM matriculas m
             LEFT JOIN mod09.tramites t ON t.id = m.tramite_reserva_id
-            LEFT JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
+            LEFT JOIN mod09.pagos pg ON pg.id = t.pago_id
             LEFT JOIN periodos_academicos pm ON pm.id = m.periodo_id
             WHERE m.estudiante_id = @EstudianteId
               AND m.estado = 'En trámite'
             ORDER BY m.creado_en DESC
             LIMIT 1;
             """;
-        var tabla = TablaMatriculas(db);
         var voucher = await db.QueryFirstOrDefaultAsync<ReservaDto>(
-            voucherSql.Replace("matriculas_v2", tabla)
-                      .Replace("pagos_v2", tabla == "matriculas" ? "pagos" : "pagos_v2"),
+            voucherSql
+                      ,
             new { dto.EstudianteId });
 
         // Sin matrícula registrada: el alumno puede tener el TRÁMITE TM05 en
@@ -253,12 +237,12 @@ public class MatriculaturaService : IMatriculaturaService
                        FALSE AS PeriodoHabilitado
                 FROM mod09.tramites t
                 JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
-                LEFT JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
+                LEFT JOIN mod09.pagos pg ON pg.id = t.pago_id
                 WHERE t.estudiante_id = @EstudianteId AND tt.codigo = 'TM05'
                   AND t.estado NOT IN ('Rechazado', 'Entregado')
                 ORDER BY t.creado_en DESC
                 LIMIT 1;
-                """.Replace("pagos_v2", tabla == "matriculas" ? "pagos" : "pagos_v2");
+                """;
             voucher = await db.QueryFirstOrDefaultAsync<ReservaDto>(
                 tramiteSql, new { dto.EstudianteId });
         }
@@ -272,13 +256,13 @@ public class MatriculaturaService : IMatriculaturaService
             SELECT m.id AS MatriculaId,
                    m.codigo_matricula AS CodigoMatricula,
                    'Matriculado' AS Estado
-            FROM matriculas_v2 m
+            FROM matriculas m
             WHERE m.estudiante_id = @EstudianteId
               AND m.estado = 'Matriculado'
               AND m.periodo_id IN (SELECT id FROM periodos_academicos WHERE permite_matricula)
             ORDER BY m.creado_en DESC
             LIMIT 1;
-            """.Replace("matriculas_v2", tabla), new { dto.EstudianteId });
+            """, new { dto.EstudianteId });
 
         // La matrícula se puede cerrar si el voucher del trámite fue Validado por
         // Tesorería Y el período destino está habilitado para matrícula. Sin
@@ -320,8 +304,7 @@ public class MatriculaturaService : IMatriculaturaService
         using var db = CreateConnection();
         db.Open();
         using var tx = db.BeginTransaction();
-        var tabla = TablaMatriculas(db);
-        var tablaPagos = tabla == "matriculas" ? "pagos" : "pagos_v2";
+        var tablaPagos = "pagos";
 
         // 0) El estudiante existe
         var estudiante = await db.QueryFirstOrDefaultAsync<(int Id, int CarreraId)>(
@@ -339,7 +322,7 @@ public class MatriculaturaService : IMatriculaturaService
         if (cmd.MatriculaId is int mid)
         {
             var upd = """
-                UPDATE {TABLA}
+                UPDATE matriculas
                 SET turno_id = @TurnoId,
                     tipo_matricula_id = @TipoMatriculaId,
                     condicion = @Condicion,
@@ -349,15 +332,15 @@ public class MatriculaturaService : IMatriculaturaService
                     conforme_por = @UsuarioId,
                     actualizado_en = CURRENT_TIMESTAMP
                 WHERE id = @Id AND estado = 'En trámite'
-                  AND EXISTS (SELECT 1 FROM mod09.tramites t JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
-                              WHERE t.id = {TABLA}.tramite_reserva_id AND pg.voucher_estado = 'Validado')
+                  AND EXISTS (SELECT 1 FROM mod09.tramites t JOIN mod09.pagos pg ON pg.id = t.pago_id
+                              WHERE t.id = matriculas.tramite_reserva_id AND pg.voucher_estado = 'Validado')
                 RETURNING id,
                           estudiante_id AS EstudianteId,
                           carrera_id AS CarreraId,
                           ciclo_id AS CicloId,
                           turno_id AS TurnoId,
                           periodo_id AS PeriodoId;
-                """.Replace("{TABLA}", tabla).Replace("pagos_v2", tablaPagos);
+                """;
             fila = await db.QueryFirstOrDefaultAsync<MatriculaCierreDto>(upd, new
             {
                 Id = mid,
@@ -381,9 +364,9 @@ public class MatriculaturaService : IMatriculaturaService
                        COALESCE(pg.voucher_estado, 'Pendiente') AS VoucherEstado
                 FROM mod09.tramites t
                 JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
-                LEFT JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
+                LEFT JOIN mod09.pagos pg ON pg.id = t.pago_id
                 WHERE t.id = @Id AND t.estado NOT IN ('Rechazado', 'Entregado');
-                """.Replace("pagos_v2", tablaPagos), new { Id = tramId }, tx);
+                """, new { Id = tramId }, tx);
             if (tramite.EstudianteId != estudiante.Id)
             {
                 tx.Rollback();
@@ -411,7 +394,7 @@ public class MatriculaturaService : IMatriculaturaService
             // Regla del sistema (uq_matricula_vigente): no puede existir otra
             // matrícula no anulada del mismo estudiante en el mismo período.
             var yaExiste = await db.ExecuteScalarAsync<int?>(
-                $"SELECT id FROM {tabla} WHERE estudiante_id = @EstudianteId AND periodo_id = @PeriodoId AND estado <> 'Anulada';",
+                $"SELECT id FROM matriculas WHERE estudiante_id = @EstudianteId AND periodo_id = @PeriodoId AND estado <> 'Anulada';",
                 new { EstudianteId = estudiante.Id, PeriodoId = periodoId }, tx);
             if (yaExiste != null)
             {
@@ -431,11 +414,11 @@ public class MatriculaturaService : IMatriculaturaService
             var codigoMat = await db.ExecuteScalarAsync<string>($"""
                 SELECT 'MAT-' || (SELECT codigo FROM periodos_academicos WHERE id = @PeriodoId)
                        || '-' || lpad((count(*) + 90)::text, 3, '0')
-                FROM {tabla} WHERE periodo_id = @PeriodoId;
+                FROM matriculas WHERE periodo_id = @PeriodoId;
                 """, new { PeriodoId = periodoId }, tx);
 
             var nuevoId = await db.ExecuteScalarAsync<int>($"""
-                INSERT INTO {tabla} (codigo_matricula, estudiante_id, periodo_id, carrera_id,
+                INSERT INTO matriculas (codigo_matricula, estudiante_id, periodo_id, carrera_id,
                                      ciclo_id, turno_id, tipo_matricula_id, condicion, estado, etapa,
                                      voucher_ok, fecha_matricula, conforme_por, observaciones_cursos,
                                      tramite_reserva_id)
@@ -534,10 +517,10 @@ public class MatriculaturaService : IMatriculaturaService
         }
 
         var cerrar = """
-            UPDATE {TABLA}
+            UPDATE matriculas
             SET estado = 'Matriculado', etapa = 'Cerrada', actualizado_en = CURRENT_TIMESTAMP
             WHERE id = @Id;
-            """.Replace("{TABLA}", tabla);
+            """;
         await db.ExecuteAsync(cerrar, new { fila.Id }, tx);
 
         tx.Commit();
@@ -550,7 +533,6 @@ public class MatriculaturaService : IMatriculaturaService
     public async Task<FichaMatriculaDto?> ObtenerFichaAsync(int matriculaId)
     {
         using var db = CreateConnection();
-        var tabla = TablaMatriculas(db);
 
         var sql = """
             SELECT m.codigo_matricula AS CodigoMatricula,
@@ -566,7 +548,7 @@ public class MatriculaturaService : IMatriculaturaService
                    m.estado AS Estado,
                    t.nombre AS Turno,
                    tm.nombre AS TipoMatricula
-            FROM {TABLA} m
+            FROM matriculas m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
             JOIN carreras c ON c.id = m.carrera_id
@@ -574,7 +556,7 @@ public class MatriculaturaService : IMatriculaturaService
             LEFT JOIN turnos t ON t.id = m.turno_id
             LEFT JOIN tipos_matricula tm ON tm.id = m.tipo_matricula_id
             WHERE m.id = @Id;
-            """.Replace("{TABLA}", tabla);
+            """;
         var ficha = await db.QueryFirstOrDefaultAsync<FichaMatriculaDto>(sql, new { Id = matriculaId });
         if (ficha == null) return null;
 
@@ -673,7 +655,6 @@ public class MatriculaturaService : IMatriculaturaService
         dto.CicloProximo = idx >= 0 && idx < orden.Length - 1 ? orden[idx + 1] : ultimo ?? "";
 
         // ---- Timeline del flujo: trámite TM05 → voucher → matrícula ----
-        var tabla = TablaMatriculas(db);
         var reserva = await db.QueryFirstOrDefaultAsync<ReservaAlumnoRow>("""
             SELECT m.id AS MatriculaId,
                    m.codigo_matricula AS Codigo,
@@ -681,14 +662,14 @@ public class MatriculaturaService : IMatriculaturaService
                    COALESCE(pg.voucher_estado, '') AS Voucher,
                    COALESCE(t.estado, '') AS TramiteEstado,
                    COALESCE(t.codigo, '') AS TramiteCodigo
-            FROM matriculas_v2 m
+            FROM matriculas m
             LEFT JOIN mod09.tramites t ON t.id = m.tramite_reserva_id
-            LEFT JOIN mod09.pagos_v2 pg ON pg.id = t.pago_id
+            LEFT JOIN mod09.pagos pg ON pg.id = t.pago_id
             WHERE m.estudiante_id = @Id
             ORDER BY m.creado_en DESC
             LIMIT 1;
-            """.Replace("matriculas_v2", tabla)
-                .Replace("pagos_v2", tabla == "matriculas" ? "pagos" : "pagos_v2"),
+            """
+                ,
             new { Id = estudianteId }) ?? new ReservaAlumnoRow();
 
         var pasos = new List<PasoFlujoDto>();
@@ -734,7 +715,7 @@ public class MatriculaturaService : IMatriculaturaService
     public async Task<ResumenTesoreriaMatriculaDto> ResumenTesoreriaAsync()
     {
         using var db = CreateConnection();
-        var tablaPagos = TablaMatriculas(db) == "matriculas" ? "mod09.pagos" : "mod09.pagos_v2";
+        var tablaPagos = "mod09.pagos";
 
         var dto = await db.QueryFirstOrDefaultAsync<ResumenTesoreriaMatriculaDto>("""
             SELECT count(*) FILTER (WHERE pg.voucher_estado = 'Pendiente')   AS VouchersPendientes,
@@ -743,27 +724,26 @@ public class MatriculaturaService : IMatriculaturaService
                    COALESCE(sum(pg.monto) FILTER (WHERE pg.voucher_estado = 'Validado'), 0) AS RecaudadoReservas
             FROM mod09.tramites t
             JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
-            LEFT JOIN PAGOS_TM05 pg ON pg.id = t.pago_id
+            LEFT JOIN mod09.pagos pg ON pg.id = t.pago_id
             WHERE tt.codigo = 'TM05'
               AND t.estado NOT IN ('Rechazado', 'Entregado');
-            """.Replace("PAGOS_TM05", tablaPagos)) ?? new ResumenTesoreriaMatriculaDto();
+            """) ?? new ResumenTesoreriaMatriculaDto();
 
         // Reservas con voucher validado cuya matrícula aún no está cerrada:
         // el alumno pagó y Tesorería validó, pero Secretaría no ha matriculado.
-        var tablaMat = TablaMatriculas(db);
         const string sinMatricularSql = """
             SELECT count(*)
             FROM mod09.tramites t
             JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
-            LEFT JOIN PAGOS_TM05 pg ON pg.id = t.pago_id
-            LEFT JOIN matriculas_v2 m ON m.tramite_reserva_id = t.id
+            LEFT JOIN mod09.pagos pg ON pg.id = t.pago_id
+            LEFT JOIN matriculas m ON m.tramite_reserva_id = t.id
             WHERE tt.codigo = 'TM05'
               AND pg.voucher_estado = 'Validado'
               AND (m.id IS NULL OR m.estado <> 'Matriculado');
             """;
         dto.PagadasSinMatricular = await db.ExecuteScalarAsync<int>(
-            sinMatricularSql.Replace("PAGOS_TM05", tablaPagos)
-                             .Replace("matriculas_v2", tablaMat));
+            sinMatricularSql
+                             );
         return dto;
     }
 
@@ -775,8 +755,7 @@ public class MatriculaturaService : IMatriculaturaService
     public async Task<ResumenSecretariaMatriculaDto> ResumenSecretariaAsync()
     {
         using var db = CreateConnection();
-        var tablaMat = TablaMatriculas(db);
-        var tablaPagos = tablaMat == "matriculas" ? "mod09.pagos" : "mod09.pagos_v2";
+        var tablaPagos = "mod09.pagos";
 
         // Reservas listas para cerrar: voucher Validado + período habilitado
         // y sin matrícula cerrada todavía.
@@ -784,8 +763,8 @@ public class MatriculaturaService : IMatriculaturaService
             SELECT count(*)
             FROM mod09.tramites t
             JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
-            LEFT JOIN PAGOS_TM05 pg ON pg.id = t.pago_id
-            LEFT JOIN matriculas_v2 m ON m.tramite_reserva_id = t.id
+            LEFT JOIN mod09.pagos pg ON pg.id = t.pago_id
+            LEFT JOIN matriculas m ON m.tramite_reserva_id = t.id
             WHERE tt.codigo = 'TM05'
               AND t.estado NOT IN ('Rechazado', 'Entregado')
               AND pg.voucher_estado = 'Validado'
@@ -794,7 +773,7 @@ public class MatriculaturaService : IMatriculaturaService
             """;
         const string matriculadosSql = """
             SELECT count(*)
-            FROM matriculas_v2 m
+            FROM matriculas m
             WHERE m.estado = 'Matriculado'
               AND m.periodo_id IN (SELECT id FROM periodos_academicos WHERE permite_matricula);
             """;
@@ -802,8 +781,8 @@ public class MatriculaturaService : IMatriculaturaService
             SELECT count(*)
             FROM mod09.tramites t
             JOIN mod09.tipos_tramite tt ON tt.id = t.tipo_tramite_id
-            LEFT JOIN PAGOS_TM05 pg ON pg.id = t.pago_id
-            LEFT JOIN matriculas_v2 m ON m.tramite_reserva_id = t.id
+            LEFT JOIN mod09.pagos pg ON pg.id = t.pago_id
+            LEFT JOIN matriculas m ON m.tramite_reserva_id = t.id
             WHERE tt.codigo = 'TM05'
               AND t.estado NOT IN ('Rechazado', 'Entregado')
               AND COALESCE(pg.voucher_estado, '') <> 'Validado'
@@ -820,11 +799,11 @@ public class MatriculaturaService : IMatriculaturaService
         var dto = new ResumenSecretariaMatriculaDto
         {
             ListasParaCerrar = await db.ExecuteScalarAsync<int>(listasSql
-                .Replace("PAGOS_TM05", tablaPagos).Replace("matriculas_v2", tablaMat)),
+                ),
             MatriculadosPeriodo = await db.ExecuteScalarAsync<int>(matriculadosSql
-                .Replace("matriculas_v2", tablaMat)),
+                ),
             EsperandoVoucher = await db.ExecuteScalarAsync<int>(esperandoSql
-                .Replace("PAGOS_TM05", tablaPagos).Replace("matriculas_v2", tablaMat)),
+                ),
             TramitesActivos = await db.ExecuteScalarAsync<int>(activosSql)
         };
 
@@ -834,7 +813,7 @@ public class MatriculaturaService : IMatriculaturaService
                    c.nombre AS Nombre,
                    count(m.id) AS Cantidad
             FROM carreras c
-            LEFT JOIN matriculas_v2 m ON m.carrera_id = c.id
+            LEFT JOIN matriculas m ON m.carrera_id = c.id
                  AND m.estado = 'Matriculado'
                  AND m.periodo_id IN (SELECT id FROM periodos_academicos WHERE permite_matricula)
             GROUP BY c.codigo, c.nombre
@@ -842,7 +821,7 @@ public class MatriculaturaService : IMatriculaturaService
             ORDER BY 3 DESC;
             """;
         dto.PorCarrera = (await db.QueryAsync<MatriculasPorCarreraDto>(
-            porCarreraSql.Replace("matriculas_v2", tablaMat))).ToList();
+            porCarreraSql)).ToList();
         return dto;
     }
 }
