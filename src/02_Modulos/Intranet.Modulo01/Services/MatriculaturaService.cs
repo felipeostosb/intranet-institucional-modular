@@ -384,7 +384,7 @@ public class MatriculaturaService : IMatriculaturaService
             }
 
             var periodoId = await db.ExecuteScalarAsync<int?>(
-                "SELECT id FROM periodos_academicos WHERE permite_matricula ORDER BY id DESC LIMIT 1;", tx);
+                "SELECT id FROM periodos_academicos WHERE permite_matricula ORDER BY id DESC LIMIT 1;", transaction: tx);
             if (periodoId == null)
             {
                 tx.Rollback();
