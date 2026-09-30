@@ -138,7 +138,7 @@ ON CONFLICT (periodo_id, carrera_id, turno_id, ciclo_id) DO NOTHING;
 -- FLUJO DE MATRICULATURA DE SECRETARÍA (Reserva de Matrícula TM05 / CT13)
 -- Cierre: expediente por DNI → UDs del nuevo ciclo → ficha PDF al correo.
 -- En producción "matriculas" es legacy (owner postgres); la tabla viva del
--- equipo es matriculas_v2. El service detecta cuál usar; aquí se declara la
+-- equipo es matriculas (consolidada). El service usa el nombre canónico.
 -- estructura completa por si el schema se aplica en un entorno limpio.
 -- ============================================================================
 
@@ -168,10 +168,10 @@ CREATE TABLE IF NOT EXISTS mod01.oferta_ciclo (
     UNIQUE (carrera_id, ciclo, codigo)
 );
 
--- 3) Bitácora de envío de la ficha de matrícula por correo
---    (en producción referencia matriculas_v2; en el espejo local, matriculas)
-CREATE TABLE IF NOT EXISTS mod01.matriculas_v2 (LIKE mod01.matriculas INCLUDING ALL);
-ALTER TABLE mod01.matriculas_v2 ADD COLUMN IF NOT EXISTS tramite_reserva_id INT;
+-- 3) La tabla de matrículas es ÚNICA: mod01.matriculas (consolidada 2026-09-29,
+--    la era matriculas/matriculas_v2 terminó — la v2 fue renombrada al nombre
+--    canónico en producción y espejos). Solo asegurar la columna del trámite.
+ALTER TABLE mod01.matriculas ADD COLUMN IF NOT EXISTS tramite_reserva_id INT;
 
 -- 4) El detalle admite UDs del espejo oferta_ciclo mientras core.unidades_didacticas
 --    no tenga el ciclo (seed de ciclos IV–VI pendiente de merge PR #34)
@@ -180,7 +180,7 @@ ALTER TABLE mod01.detalles_matricula ALTER COLUMN unidad_didactica_id DROP NOT N
 
 CREATE TABLE IF NOT EXISTS mod01.fichas_enviadas (
     id           SERIAL PRIMARY KEY,
-    matricula_id INT NOT NULL REFERENCES mod01.matriculas_v2(id) ON DELETE CASCADE,
+    matricula_id INT NOT NULL REFERENCES mod01.matriculas(id) ON DELETE CASCADE,
     enviado_a    VARCHAR(150) NOT NULL,
     enviado_por  INT REFERENCES core.usuarios(id),
     enviado_en   TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
