@@ -298,12 +298,12 @@ public class TramiteService : ITramiteService
         if (tipo.ConceptoPagoId is int conceptoId)
         {
             var tipoPagoId = await db.ExecuteScalarAsync<int?>(
-                "SELECT id FROM tipos_pago WHERE activo ORDER BY id LIMIT 1;", tx);
+                "SELECT id FROM tipos_pago WHERE activo ORDER BY id LIMIT 1;", transaction: tx);
             if (tipoPagoId != null)
             {
                 var tablaPagos = "pagos";
                 var codigoPago = await db.ExecuteScalarAsync<string>(
-                    $"SELECT 'REC-' || lpad((count(*) + 1)::text, 4, '0') FROM {tablaPagos};", tx);
+                    $"SELECT 'REC-' || lpad((count(*) + 1)::text, 4, '0') FROM {tablaPagos};", transaction: tx);
                 var sqlPago = "INSERT INTO " + tablaPagos + @" (codigo, estudiante_id, concepto_pago_id, periodo_id,
                                   tipo_pago_id, monto, voucher_estado)
             VALUES (@Codigo, @EstudianteId, @ConceptoId, @PeriodoId,
