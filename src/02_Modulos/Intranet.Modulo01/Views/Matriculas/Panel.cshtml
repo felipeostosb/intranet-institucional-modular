@@ -149,10 +149,17 @@
                                 Foto <span class="badge badge-success badge-xs font-semibold text-white">Validada</span>
                             </div>
                         </div>
-                        <form method="post" asp-action="Registrar" asp-route-id="@m.Id">
-                            @Html.AntiForgeryToken()
-                            <button type="submit" class="btn btn-success btn-xs rounded-xl font-bold">Registrar matrícula</button>
-                        </form>
+                        @if (User.IsInRole("Secretaria") || User.IsInRole("Admin"))
+                        {
+                            <form method="post" asp-action="Registrar" asp-route-id="@m.Id">
+                                @Html.AntiForgeryToken()
+                                <button type="submit" class="btn btn-success btn-xs rounded-xl font-bold">Registrar matrícula</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span class="text-[10px] text-slate-400 italic">Solo Secretaría puede registrar la conformidad.</span>
+                        }
                     </div>
                 }
             </div>
