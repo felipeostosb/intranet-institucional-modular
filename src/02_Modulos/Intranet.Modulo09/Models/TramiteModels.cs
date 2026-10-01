@@ -73,6 +73,16 @@ public class RequisitoEstadoDto
     public string Requisito { get; set; } = "";
     public bool Presentado { get; set; }
     public string? Observacion { get; set; }
+    /// <summary>True si el requisito tiene archivo adjunto legible (para el visor del personal).</summary>
+    public bool TieneArchivo { get; set; }
+}
+
+/// <summary>Archivo adjunto de un requisito de trámite (visor del personal).</summary>
+public class ArchivoRequisitoDto
+{
+    public string Nombre { get; set; } = "";
+    public string Tipo { get; set; } = "";
+    public byte[] Contenido { get; set; } = [];
 }
 
 /// <summary>Detalle completo del trámite (ficha + requisitos).</summary>

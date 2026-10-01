@@ -22,6 +22,8 @@ public interface ITramiteService
     Task<IEnumerable<TramiteMesaDto>> ListarMesaAsync(string? estado);
     Task<TramiteDetalleDto?> ObtenerDetalleAsync(int tramiteId);
     Task<TramiteDetalleDto?> ObtenerPorCodigoAsync(string codigo);
+    /// <summary>Lee el archivo adjunto de un requisito de trámite (visor del personal).</summary>
+    Task<ArchivoRequisitoDto?> ObtenerArchivoRequisitoAsync(int tramiteId, int requisitoCatalogoId);
     Task<IEnumerable<TipoTramiteDto>> ListarTiposAsync();
     Task<TipoTramiteDto?> ObtenerTipoAsync(string codigo);
     Task<IEnumerable<RequisitoDto>> ListarRequisitosDeTipoAsync(string tipoCodigo);
@@ -170,6 +172,26 @@ public class TramiteService : ITramiteService
     }
 
     // ------------------------------------------------------------------
+    // PERSONAL (Secretaría/Tesorería/Admin): leer el archivo adjunto de un
+    // requisito del trámite — evidencia antes de validar/observar.
+    // ------------------------------------------------------------------
+    public async Task<ArchivoRequisitoDto?> ObtenerArchivoRequisitoAsync(int tramiteId, int requisitoCatalogoId)
+    {
+        using var db = CreateConnection();
+        const string sql = """
+            SELECT archivo_nombre AS Nombre,
+                   archivo_tipo   AS Tipo,
+                   archivo_contenido AS Contenido
+            FROM tramite_requisitos
+            WHERE tramite_id = @TramiteId
+              AND requisito_catalogo_id = @ReqId
+              AND archivo_contenido IS NOT NULL;
+            """;
+        return await db.QueryFirstOrDefaultAsync<ArchivoRequisitoDto>(sql,
+            new { TramiteId = tramiteId, ReqId = requisitoCatalogoId });
+    }
+
+    // ------------------------------------------------------------------
     // Catálogo: tipos TUPA y requisitos dinámicos por tipo (el AutoPostBack
     // del prototipo: al elegir tipo se cargan sus requisitos y ficha TUPA)
     // ------------------------------------------------------------------
@@ -220,7 +242,8 @@ public class TramiteService : ITramiteService
     {
         const string sql = """
             SELECT rc.id, rc.orden, rc.requisito,
-                   tr.presentado, tr.observacion
+                   tr.presentado, tr.observacion,
+                   (tr.archivo_contenido IS NOT NULL AND length(tr.archivo_contenido) > 0) AS TieneArchivo
             FROM tramite_requisitos tr
             JOIN requisitos_tipos_tramite rc ON rc.id = tr.requisito_catalogo_id
             WHERE tr.tramite_id = @Id

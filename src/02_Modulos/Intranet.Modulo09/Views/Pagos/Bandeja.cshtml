@@ -115,6 +115,11 @@
                         }
                         else if (p.VoucherEstado != "Pendiente")
                         {
+                            @if (p.TieneVoucher && (User.IsInRole("Tesoreria") || User.IsInRole("Admin")))
+                            {
+                                <a href="/Modulo09/Pagos/Voucher/@p.Id" target="_blank"
+                                   class="btn btn-ghost btn-xs rounded-lg font-bold text-slate-500" title="Ver el voucher PDF subido por el estudiante">📄 Ver PDF</a>
+                            }
                             <span class="text-slate-400 text-[11px]">Resuelto · intentos: @p.Intentos</span>
                         }
                     </div>
