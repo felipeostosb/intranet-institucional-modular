@@ -7,6 +7,7 @@
 
 -- 1. CREACIÓN DE ESQUEMAS SOBERANOS
 CREATE SCHEMA IF NOT EXISTS core;
+CREATE SCHEMA IF NOT EXISTS mod00; -- Seguridad & Roles / Login
 CREATE SCHEMA IF NOT EXISTS mod01; -- Matrícula
 CREATE SCHEMA IF NOT EXISTS mod02; -- Asistencia
 CREATE SCHEMA IF NOT EXISTS mod03; -- Calificaciones
@@ -25,7 +26,11 @@ BEGIN
         CREATE USER user_app_core WITH ENCRYPTED PASSWORD 'CHANGE_ME_PASSWORD_CORE';
     END IF;
 
-    -- Usuarios Modulares (Equipos 01 al 09)
+    -- Usuarios Modulares (Equipos 00 al 09)
+    IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo00') THEN
+        CREATE USER user_equipo00 WITH ENCRYPTED PASSWORD 'CHANGE_ME_PASSWORD_EQUIPO00';
+    END IF;
+
     IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'user_equipo01') THEN
         CREATE USER user_equipo01 WITH ENCRYPTED PASSWORD 'CHANGE_ME_PASSWORD_EQUIPO01';
     END IF;
@@ -64,17 +69,17 @@ BEGIN
 END $$;
 
 -- 3. ASIGNACIÓN DE PRIVILEGIOS DE BASE DE DATOS
-GRANT CONNECT ON DATABASE db_intranet_iestp TO user_app_core, user_equipo01, user_equipo02, user_equipo03, user_equipo04, user_equipo05, user_equipo06, user_equipo07, user_equipo08, user_equipo09;
+GRANT CONNECT ON DATABASE db_intranet_iestp TO user_app_core, user_equipo00, user_equipo01, user_equipo02, user_equipo03, user_equipo04, user_equipo05, user_equipo06, user_equipo07, user_equipo08, user_equipo09;
 
 -- A. Privilegios para user_app_core (Acceso Total a todos los esquemas)
-GRANT ALL ON SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public TO user_app_core;
-GRANT ALL ON ALL TABLES IN SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public TO user_app_core;
-GRANT ALL ON ALL SEQUENCES IN SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public TO user_app_core;
+GRANT ALL ON SCHEMA core, mod00, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public TO user_app_core;
+GRANT ALL ON ALL TABLES IN SCHEMA core, mod00, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public TO user_app_core;
+GRANT ALL ON ALL SEQUENCES IN SCHEMA core, mod00, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public TO user_app_core;
 
-ALTER DEFAULT PRIVILEGES IN SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public GRANT ALL ON TABLES TO user_app_core;
-ALTER DEFAULT PRIVILEGES IN SCHEMA core, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public GRANT ALL ON SEQUENCES TO user_app_core;
+ALTER DEFAULT PRIVILEGES IN SCHEMA core, mod00, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public GRANT ALL ON TABLES TO user_app_core;
+ALTER DEFAULT PRIVILEGES IN SCHEMA core, mod00, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09, public GRANT ALL ON SEQUENCES TO user_app_core;
 
-ALTER USER user_app_core SET search_path TO core, public, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09;
+ALTER USER user_app_core SET search_path TO core, public, mod00, mod01, mod02, mod03, mod04, mod05, mod06, mod07, mod08, mod09;
 
 -- B. Función auxiliar para blindaje y privilegios de cada equipo
 -- Cada user_equipoXX:
@@ -84,17 +89,17 @@ ALTER USER user_app_core SET search_path TO core, public, mod01, mod02, mod03, m
 
 DO $$
 DECLARE
-    schemas TEXT[] := ARRAY['mod01', 'mod02', 'mod03', 'mod04', 'mod05', 'mod06', 'mod07', 'mod08', 'mod09'];
-    users TEXT[] := ARRAY['user_equipo01', 'user_equipo02', 'user_equipo03', 'user_equipo04', 'user_equipo05', 'user_equipo06', 'user_equipo07', 'user_equipo08', 'user_equipo09'];
+    schemas TEXT[] := ARRAY['mod01', 'mod02', 'mod03', 'mod04', 'mod05', 'mod06', 'mod07', 'mod08', 'mod09'] || ARRAY['mod00'];
+    users TEXT[] := ARRAY['user_equipo01', 'user_equipo02', 'user_equipo03', 'user_equipo04', 'user_equipo05', 'user_equipo06', 'user_equipo07', 'user_equipo08', 'user_equipo09'] || ARRAY['user_equipo00'];
     i INT;
     j INT;
     curr_user TEXT;
     curr_schema TEXT;
     other_schema TEXT;
 BEGIN
-    FOR i IN 1..9 LOOP
-        curr_user := users[i];
-        curr_schema := schemas[i];
+    FOR i IN 0..9 LOOP
+        curr_user := users[i+1];
+        curr_schema := schemas[i+1];
 
         -- 1. Control total en su propio esquema
         EXECUTE format('GRANT USAGE, CREATE ON SCHEMA %I TO %I', curr_schema, curr_user);
@@ -111,9 +116,9 @@ BEGIN
         EXECUTE format('ALTER DEFAULT PRIVILEGES IN SCHEMA core GRANT SELECT ON SEQUENCES TO %I', curr_user);
 
         -- 3. Acceso de solo lectura a los demás esquemas modulares (Visibilidad del panorama completo)
-        FOR j IN 1..9 LOOP
+        FOR j IN 0..9 LOOP
             IF i <> j THEN
-                other_schema := schemas[j];
+                other_schema := schemas[j+1];
                 EXECUTE format('GRANT USAGE ON SCHEMA %I TO %I', other_schema, curr_user);
                 EXECUTE format('GRANT SELECT ON ALL TABLES IN SCHEMA %I TO %I', other_schema, curr_user);
                 EXECUTE format('GRANT SELECT ON ALL SEQUENCES IN SCHEMA %I TO %I', other_schema, curr_user);

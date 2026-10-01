@@ -45,3 +45,20 @@ jobs:
             docker compose up -d app
             echo ">>> DESPLIEGUE EXITOSO EN MILI3 (commit ${{ github.sha }}) <<<"
             echo ">>> Rollback: docker tag ghcr.io/${{ github.repository }}:<sha-anterior> ghcr.io/${{ github.repository }}:latest && docker compose up -d app <<<"
+
+      - name: 5. Health Check post-despliegue
+        run: |
+          echo "🔍 Verificando salud de la app en producción..."
+          HEALTH_URL="http://${{ secrets.MILI3_HOST }}:5000/Account/Login"
+          for i in $(seq 1 30); do
+            CODE=$(curl -s -o /dev/null -w "%{http_code}" --max-time 10 "$HEALTH_URL" || true)
+            if [ "$CODE" = "200" ]; then
+              echo "✅ App respondiendo (intento ${i}/30, HTTP $CODE)"
+              exit 0
+            fi
+            echo "⏳ Esperando... (intento ${i}/30, HTTP $CODE)"
+            sleep 10
+          done
+          echo "⛔ La app NO respondió tras 30 intentos (5 min). Posible crash post-arranque."
+          echo "   Revisar: ssh fob@${{ secrets.MILI3_HOST }} 'docker logs app-net-app-1 --tail 50'"
+          exit 1
