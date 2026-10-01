@@ -66,7 +66,9 @@
                     @foreach (var t in Model.Tramites)
                     {
                         <tr>
-                            <td class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@t.Codigo</td>
+                            <td class="font-mono font-bold text-emerald-600 dark:text-emerald-400">
+                                <a href="/Modulo09/Tramites/Detalle/@t.Id" class="hover:underline" title="Abrir la ficha del trámite con sus archivos adjuntos">@t.Codigo</a>
+                            </td>
                             <td>@t.TipoCodigo · @t.TipoNombre</td>
                             <td>
                                 <span class="font-medium text-slate-900 dark:text-slate-100">@t.Estudiante</span>

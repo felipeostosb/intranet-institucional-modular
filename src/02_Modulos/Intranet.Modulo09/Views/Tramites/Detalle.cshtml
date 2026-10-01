@@ -72,6 +72,11 @@
                     {
                         <span class="badge badge-ghost badge-xs">Falta</span>
                     }
+                    @if (r.TieneArchivo && !User.IsInRole("Alumno"))
+                    {
+                        <a href="/Modulo09/Tramites/Archivo/@Model.Id/@r.Id" target="_blank"
+                           class="btn btn-outline btn-xs rounded-lg font-bold" title="Ver el archivo adjunto por el estudiante">📄 Ver archivo</a>
+                    }
 
                     <!-- Corregir: solo si el trámite está Observado/Rechazado (rol alumno) -->
                     @if ((Model.Estado == "Observado" || Model.Estado == "Rechazado") && (User.IsInRole("Alumno") || User.IsInRole("Admin")))

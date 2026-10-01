@@ -191,6 +191,19 @@ public class TramitesController : ModuloBaseController
     }
 
     // ------------------------------------------------------------------
+    // PERSONAL (Mesa): ver el archivo adjunto de un requisito del trámite
+    // (evidencia para validar/observar). El alumno NO accede por aquí.
+    // ------------------------------------------------------------------
+    [HttpGet("Archivo/{id}/{requisitoId}")]
+    public async Task<IActionResult> Archivo(int id, int requisitoId)
+    {
+        if (EsAlumno) return Forbid();
+        var a = await _tramiteService.ObtenerArchivoRequisitoAsync(id, requisitoId);
+        if (a == null) return NotFound();
+        return File(a.Contenido, a.Tipo, a.Nombre);
+    }
+
+    // ------------------------------------------------------------------
     // MESA (Secretaría): avanzar el flujo del trámite
     // ------------------------------------------------------------------
     [HttpPost("Avanzar/{id}")]
