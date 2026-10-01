@@ -64,18 +64,22 @@
                                 {
                                     <span class="badge badge-warning badge-xs font-semibold text-white">Pendiente</span>
                                 }
+                                @* El alumno ve SIEMPRE el voucher que ya adjuntó (aunque esté
+                                   pendiente o rechazado): es su propia evidencia para corregirla. *@
+                                @if (p.TieneVoucher)
+                                {
+                                    <a href="/Modulo09/Pagos/Voucher/@p.Id" target="_blank" rel="noopener"
+                                       class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-success/30 bg-success/5 text-success hover:bg-success/10 transition text-[10px] font-bold mt-1"><span aria-hidden="true">↗</span> Ver voucher PDF</a>
+                                }
                                 @if (p.VoucherEstado != "Validado")
                                 {
                                     <form method="post" action="/Modulo09/Pagos/SubirVoucher/@p.Id" enctype="multipart/form-data" class="mt-1 flex items-center gap-1">
                                         @Html.AntiForgeryToken()
                                         <input type="file" name="voucher" accept="application/pdf" required
-                                               class="file-input file-input-bordered file-input-xs w-full max-w-[180px] text-[10px]" />
-                                        <button type="submit" class="btn btn-xs bg-slate-900 dark:bg-emerald-600 text-white border-0">Adjuntar PDF</button>
+                                               data-max-mb="2"
+                                               class="file-input file-input-bordered file-input-xs w-full max-w-[180px] text-[10px] voucher-input" />
+                                        <button type="submit" class="btn btn-xs bg-slate-900 dark:bg-emerald-600 text-white border-0">@(p.TieneVoucher ? "Reemplazar PDF" : "Adjuntar PDF")</button>
                                     </form>
-                                }
-                                else if (p.TieneVoucher)
-                                {
-                                    <a href="/Modulo09/Pagos/Voucher/@p.Id" target="_blank" class="inline-flex items-center gap-1 px-2 py-1 rounded-lg border border-success/30 bg-success/5 text-success hover:bg-success/10 transition text-[10px] font-bold mt-1"><span aria-hidden="true">↗</span> Ver voucher PDF</a>
                                 }
                             </td>
                         </tr>
