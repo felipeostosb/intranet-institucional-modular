@@ -1,7 +1,7 @@
 namespace Intranet.Modulo09.Models;
 
 /// <summary>Fila de "Mis trámites" del alumno.</summary>
-public class TramiteListaDto
+public class ModeloTramiteLista
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -30,7 +30,7 @@ public class TramiteListaDto
 }
 
 /// <summary>Fila de la Mesa de trámites (Secretaría).</summary>
-public class TramiteMesaDto
+public class ModeloTramiteMesa
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -45,7 +45,7 @@ public class TramiteMesaDto
 }
 
 /// <summary>Ficha TUPA del tipo de trámite.</summary>
-public class TipoTramiteDto
+public class ModeloTipoTramite
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -58,7 +58,7 @@ public class TipoTramiteDto
 }
 
 /// <summary>Requisito del catálogo (por tipo de trámite).</summary>
-public class RequisitoDto
+public class ModeloRequisito
 {
     public int Id { get; set; }
     public int Orden { get; set; }
@@ -66,7 +66,7 @@ public class RequisitoDto
 }
 
 /// <summary>Requisito de un trámite con su estado de presentación.</summary>
-public class RequisitoEstadoDto
+public class ModeloEstadoRequisito
 {
     public int Id { get; set; }
     public int Orden { get; set; }
@@ -78,7 +78,7 @@ public class RequisitoEstadoDto
 }
 
 /// <summary>Archivo adjunto de un requisito de trámite (visor del personal).</summary>
-public class ArchivoRequisitoDto
+public class ModeloArchivoRequisito
 {
     public string Nombre { get; set; } = "";
     public string Tipo { get; set; } = "";
@@ -86,7 +86,7 @@ public class ArchivoRequisitoDto
 }
 
 /// <summary>Detalle completo del trámite (ficha + requisitos).</summary>
-public class TramiteDetalleDto
+public class ModeloTramiteDetalle
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -104,11 +104,11 @@ public class TramiteDetalleDto
     public decimal PagoMonto { get; set; }
     public string Estudiante { get; set; } = "";
     public string CodigoEstudiante { get; set; } = "";
-    public IEnumerable<RequisitoEstadoDto> Requisitos { get; set; } = [];
+    public IEnumerable<ModeloEstadoRequisito> Requisitos { get; set; } = [];
 }
 
 /// <summary>Panel del puesto de Secretaría (mesa de partes TUPA).</summary>
-public class ResumenSecretariaDto
+public class ModeloResumenSecretaria
 {
     public int Recibidos { get; set; }                     // en mesa esperando evaluación
     public int EnEvaluacion { get; set; }
@@ -116,11 +116,11 @@ public class ResumenSecretariaDto
     public int Entregados { get; set; }
     public int Observados { get; set; }                    // el alumno debe corregir
     /// <summary>Top 5 tipos de trámite por volumen en mesa.</summary>
-    public List<TramitesPorTipoDto> PorTipo { get; set; } = [];
+    public List<ModeloTramitesPorTipo> PorTipo { get; set; } = [];
 }
 
 /// <summary>Fila del desglose de trámites por tipo TUPA.</summary>
-public class TramitesPorTipoDto
+public class ModeloTramitesPorTipo
 {
     public string Codigo { get; set; } = "";
     public string Nombre { get; set; } = "";

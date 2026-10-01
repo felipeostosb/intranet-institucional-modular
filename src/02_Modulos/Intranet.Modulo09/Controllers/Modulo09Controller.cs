@@ -15,13 +15,13 @@ namespace Intranet.Modulo09.Controllers;
 [Route("Modulo09")]
 public class Modulo09Controller : ModuloBaseController
 {
-    private readonly ITramiteService _tramiteService;
-    private readonly IPagoService _pagoService;
+    private readonly ITramiteServicio _servicioTramite;
+    private readonly IPagoServicio _servicioPago;
 
-    public Modulo09Controller(ITramiteService tramiteService, IPagoService pagoService)
+    public Modulo09Controller(ITramiteServicio servicioTramite, IPagoServicio servicioPago)
     {
-        _tramiteService = tramiteService;
-        _pagoService = pagoService;
+        _servicioTramite = servicioTramite;
+        _servicioPago = servicioPago;
     }
 
     [HttpGet("")]
@@ -36,18 +36,18 @@ public class Modulo09Controller : ModuloBaseController
         // multi-rol (p. ej. Director+Alumno) ve pestañas de staff estando en Modo Alumno.
         ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
 
-        var resumenPagos = await _pagoService.ResumenAsync();
+        var resumenPagos = await _servicioPago.ResumenAsync();
         var rolActivoVM = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
         var esAlumnoVM = rolActivoVM.Equals("Alumno", StringComparison.OrdinalIgnoreCase);
 
         // Alumno: SUS trámites y pagos — no la mesa/bandeja de todo el instituto.
-        IEnumerable<TramiteMesaDto> ultimosTramites;
-        IEnumerable<PagoBandejaDto> ultimosPagos;
+        IEnumerable<ModeloTramiteMesa> ultimosTramites;
+        IEnumerable<ModeloPagoBandeja> ultimosPagos;
         if (esAlumnoVM)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
-            var mios = await _tramiteService.ListarPorEstudianteAsync(estudianteId, null);
-            ultimosTramites = mios.Select(t => new TramiteMesaDto
+            var mios = await _servicioTramite.ListarPorEstudianteAsync(estudianteId, null);
+            ultimosTramites = mios.Select(t => new ModeloTramiteMesa
             {
                 Id = t.Id,
                 Codigo = t.Codigo,
@@ -56,8 +56,8 @@ public class Modulo09Controller : ModuloBaseController
                 TipoCodigo = t.TipoCodigo,
                 TipoNombre = t.TipoNombre
             });
-            var misPagos = await _pagoService.ListarPorEstudianteAsync(estudianteId);
-            ultimosPagos = misPagos.Select(p => new PagoBandejaDto
+            var misPagos = await _servicioPago.ListarPorEstudianteAsync(estudianteId);
+            ultimosPagos = misPagos.Select(p => new ModeloPagoBandeja
             {
                 Id = p.Id,
                 Codigo = p.Codigo,
@@ -70,8 +70,8 @@ public class Modulo09Controller : ModuloBaseController
         }
         else
         {
-            ultimosTramites = await _tramiteService.ListarMesaAsync(null);
-            ultimosPagos = await _pagoService.ListarBandejaAsync(null);
+            ultimosTramites = await _servicioTramite.ListarMesaAsync(null);
+            ultimosPagos = await _servicioPago.ListarBandejaAsync(null);
         }
 
         // Fix portada por rol ACTIVO: el usuario demo multi-rol (Alumno+Docente+Admin) en Modo
@@ -79,11 +79,11 @@ public class Modulo09Controller : ModuloBaseController
         // ActiveRole (modo elegido) el alumno ve SU portada aunque tenga otros roles dormidos.
         var rolActivo = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
         var esAlumnoActivo = rolActivo.Equals("Alumno", StringComparison.OrdinalIgnoreCase);
-        var vm = new Modulo09DashboardViewModel
+        var vm = new ModeloPanelModulo09Vista
         {
             EsAlumno = esAlumnoActivo,
             RolActivo = rolActivo,
-            TramitesPendientes = await _tramiteService.ContarPendientesAsync(),
+            TramitesPendientes = await _servicioTramite.ContarPendientesAsync(),
             ResumenPagos = resumenPagos,
             UltimosTramites = ultimosTramites.Take(5),
             UltimosPagos = ultimosPagos.Take(5),
@@ -97,11 +97,11 @@ public class Modulo09Controller : ModuloBaseController
         var esTesoreriaActiva = rolActivo.Equals("Tesoreria", StringComparison.OrdinalIgnoreCase);
         var esSecretariaActiva = rolActivo.Equals("Secretaria", StringComparison.OrdinalIgnoreCase);
         if (esTesoreriaActiva)
-            vm.ResumenTesoreria = await _pagoService.ResumenTesoreriaAsync();
+            vm.ResumenTesoreria = await _servicioPago.ResumenTesoreriaAsync();
         if (esSecretariaActiva)
-            vm.ResumenSecretaria = await _tramiteService.ResumenSecretariaAsync();
+            vm.ResumenSecretaria = await _servicioTramite.ResumenSecretariaAsync();
         if (esAlumnoActivo)
-            vm.ResumenAlumno = await _pagoService.ResumenAlumnoAsync(
+            vm.ResumenAlumno = await _servicioPago.ResumenAlumnoAsync(
                 await ObtenerEstudianteIdAsync());
         return View(vm);
     }
@@ -109,8 +109,8 @@ public class Modulo09Controller : ModuloBaseController
     /// <summary>claim PersonaId → core.estudiantes (misma vía que TramitesController).</summary>
     private async Task<int> ObtenerEstudianteIdAsync()
     {
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("09");
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("09");
         var id = await conn.ExecuteScalarAsync<int?>(
             "SELECT e.id FROM core.estudiantes e WHERE e.persona_id = @PersonaId;",
             new { PersonaId = PersonaActualId ?? 0 });
@@ -119,21 +119,21 @@ public class Modulo09Controller : ModuloBaseController
 }
 
 /// <summary>ViewModel de la portada del módulo.</summary>
-public class Modulo09DashboardViewModel
+public class ModeloPanelModulo09Vista
 {
     public bool EsAlumno { get; set; }
     /// <summary>Rol activo (modo del selector) — decide la portada que se muestra.</summary>
     public string RolActivo { get; set; } = "";
     public int TramitesPendientes { get; set; }
-    public PagosResumenDto ResumenPagos { get; set; } = new();
-    public IEnumerable<TramiteMesaDto> UltimosTramites { get; set; } = [];
-    public IEnumerable<PagoBandejaDto> UltimosPagos { get; set; } = [];
+    public ModeloResumenPagos ResumenPagos { get; set; } = new();
+    public IEnumerable<ModeloTramiteMesa> UltimosTramites { get; set; } = [];
+    public IEnumerable<ModeloPagoBandeja> UltimosPagos { get; set; } = [];
     public string NombreUsuario { get; set; } = "";
     public string RolUsuario { get; set; } = "";
     /// <summary>Panel financiero del puesto (solo rol activo Tesorería).</summary>
-    public ResumenTesoreriaDto? ResumenTesoreria { get; set; }
+    public ModeloResumenTesoreria? ResumenTesoreria { get; set; }
     /// <summary>Panel de mesa de partes (solo rol activo Secretaría).</summary>
-    public ResumenSecretariaDto? ResumenSecretaria { get; set; }
+    public ModeloResumenSecretaria? ResumenSecretaria { get; set; }
     /// <summary>Panel personal (solo rol activo Alumno).</summary>
-    public ResumenAlumnoDto? ResumenAlumno { get; set; }
+    public ModeloResumenAlumno? ResumenAlumno { get; set; }
 }

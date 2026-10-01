@@ -15,36 +15,36 @@ namespace Intranet.Modulo09.Services;
 /// Dominio real de voucher_estado: Pendiente | Validado | Rechazado
 /// (CHECK de coherencia: Validado exige fecha_validacion + validado_por).
 /// </summary>
-public interface IPagoService
+public interface IPagoServicio
 {
-    Task<IEnumerable<PagoListaDto>> ListarPorEstudianteAsync(int estudianteId);
-    Task<IEnumerable<PagoBandejaDto>> ListarBandejaAsync(string? voucherEstado);
-    Task<PagoBandejaDto?> ObtenerAsync(int pagoId);
+    Task<IEnumerable<ModeloPagoLista>> ListarPorEstudianteAsync(int estudianteId);
+    Task<IEnumerable<ModeloPagoBandeja>> ListarBandejaAsync(string? voucherEstado);
+    Task<ModeloPagoBandeja?> ObtenerAsync(int pagoId);
     Task<(bool Ok, string Mensaje)> RegistrarPagoEstudianteAsync(
         int estudianteId, int periodoId, string conceptoCodigo, string tipoPagoCodigo, decimal monto, string? nota);
     Task<(bool Ok, string Mensaje)> EmitirReciboDirectoAsync(
         int estudianteId, int periodoId, string conceptoCodigo, string tipoPagoCodigo, decimal monto, int cajeroId);
     Task<(bool Ok, string Mensaje)> ValidarVoucherAsync(int pagoId, bool aprobar, string? motivo, int validadorId);
     Task<(bool Ok, string Mensaje)> SubirVoucherAsync(int pagoId, int estudianteId, string nombre, string tipo, byte[] contenido);
-    Task<ArchivoVoucherDto?> ObtenerVoucherAsync(int pagoId);
+    Task<ModeloArchivoVoucher?> ObtenerVoucherAsync(int pagoId);
     Task<bool> PerteneceAlEstudianteAsync(int pagoId, int estudianteId);
-    Task<PagosResumenDto> ResumenAsync();
-    Task<ResumenTesoreriaDto> ResumenTesoreriaAsync();
-    Task<ResumenAlumnoDto> ResumenAlumnoAsync(int estudianteId);
-    Task<IEnumerable<ConceptoPagoDto>> ListarConceptosAsync();
-    Task<IEnumerable<TipoPagoDto>> ListarTiposPagoAsync();
+    Task<ModeloResumenPagos> ResumenAsync();
+    Task<ModeloResumenTesoreria> ResumenTesoreriaAsync();
+    Task<ModeloResumenAlumno> ResumenAlumnoAsync(int estudianteId);
+    Task<IEnumerable<ModeloConceptoPago>> ListarConceptosAsync();
+    Task<IEnumerable<ModeloTipoPago>> ListarTiposPagoAsync();
 }
 
-public class PagoService : IPagoService
+public class PagoServicio : IPagoServicio
 {
-    private readonly IModuleDbConnectionFactory _connectionFactory;
+    private readonly IModuleDbConnectionFactory _fabricaConexion;
 
-    public PagoService(IModuleDbConnectionFactory connectionFactory)
+    public PagoServicio(IModuleDbConnectionFactory fabricaConexion)
     {
-        _connectionFactory = connectionFactory;
+        _fabricaConexion = fabricaConexion;
     }
 
-    private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("09");
+    private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("09");
 
     private const string SqlNuevoRecibo =
         "SELECT 'REC-' || lpad((count(*) + 1)::text, 4, '0') FROM pagos;";
@@ -52,7 +52,7 @@ public class PagoService : IPagoService
     // ------------------------------------------------------------------
     // ALUMNO: sus pagos con el concepto y estado del voucher
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<PagoListaDto>> ListarPorEstudianteAsync(int estudianteId)
+    public async Task<IEnumerable<ModeloPagoLista>> ListarPorEstudianteAsync(int estudianteId)
     {
         using var db = CreateConnection();
         const string sql = """
@@ -74,13 +74,13 @@ public class PagoService : IPagoService
             WHERE p.estudiante_id = @EstudianteId
             ORDER BY p.fecha_pago DESC, p.id DESC;
             """;
-        return await db.QueryAsync<PagoListaDto>(sql, new { EstudianteId = estudianteId });
+        return await db.QueryAsync<ModeloPagoLista>(sql, new { EstudianteId = estudianteId });
     }
 
     // ------------------------------------------------------------------
     // BANDEJA DE TESORERÍA: todos los pagos con datos del estudiante
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<PagoBandejaDto>> ListarBandejaAsync(string? voucherEstado)
+    public async Task<IEnumerable<ModeloPagoBandeja>> ListarBandejaAsync(string? voucherEstado)
     {
         using var db = CreateConnection();
         const string sql = """
@@ -107,11 +107,11 @@ public class PagoService : IPagoService
             ORDER BY CASE p.voucher_estado WHEN 'Pendiente' THEN 0 ELSE 1 END,
                      p.fecha_pago DESC;
             """;
-        return await db.QueryAsync<PagoBandejaDto>(sql,
+        return await db.QueryAsync<ModeloPagoBandeja>(sql,
             new { Estado = string.IsNullOrWhiteSpace(voucherEstado) ? null : voucherEstado });
     }
 
-    public async Task<PagoBandejaDto?> ObtenerAsync(int pagoId)
+    public async Task<ModeloPagoBandeja?> ObtenerAsync(int pagoId)
     {
         using var db = CreateConnection();
         const string sql = """
@@ -136,7 +136,7 @@ public class PagoService : IPagoService
             JOIN personas pe ON pe.id = e.persona_id
             WHERE p.id = @Id;
             """;
-        return await db.QueryFirstOrDefaultAsync<PagoBandejaDto>(sql, new { Id = pagoId });
+        return await db.QueryFirstOrDefaultAsync<ModeloPagoBandeja>(sql, new { Id = pagoId });
     }
 
     // ------------------------------------------------------------------
@@ -344,10 +344,10 @@ public class PagoService : IPagoService
     // ------------------------------------------------------------------
     // PERSONAL: leer el voucher PDF de un pago (validación con evidencia)
     // ------------------------------------------------------------------
-    public async Task<ArchivoVoucherDto?> ObtenerVoucherAsync(int pagoId)
+    public async Task<ModeloArchivoVoucher?> ObtenerVoucherAsync(int pagoId)
     {
         using var db = CreateConnection();
-        return await db.QueryFirstOrDefaultAsync<ArchivoVoucherDto>("""
+        return await db.QueryFirstOrDefaultAsync<ModeloArchivoVoucher>("""
             SELECT archivo_nombre AS Nombre,
                    archivo_tipo AS Tipo,
                    archivo_contenido AS Contenido
@@ -371,7 +371,7 @@ public class PagoService : IPagoService
     // ------------------------------------------------------------------
     // Métricas del dashboard del módulo
     // ------------------------------------------------------------------
-    public async Task<PagosResumenDto> ResumenAsync()
+    public async Task<ModeloResumenPagos> ResumenAsync()
     {
         using var db = CreateConnection();
         const string sql = """
@@ -381,18 +381,18 @@ public class PagoService : IPagoService
                    COALESCE(sum(monto) FILTER (WHERE voucher_estado = 'Validado'), 0) AS Recaudado
             FROM pagos;
             """;
-        return await db.QueryFirstOrDefaultAsync<PagosResumenDto>(sql) ?? new PagosResumenDto();
+        return await db.QueryFirstOrDefaultAsync<ModeloResumenPagos>(sql) ?? new ModeloResumenPagos();
     }
 
     // ------------------------------------------------------------------
     // Panel del puesto de TESORERÍA (Resumen del módulo): vouchers y
     // recaudación — sin nada de la mesa de trámites (eso es de Secretaría).
     // ------------------------------------------------------------------
-    public async Task<ResumenTesoreriaDto> ResumenTesoreriaAsync()
+    public async Task<ModeloResumenTesoreria> ResumenTesoreriaAsync()
     {
         using var db = CreateConnection();
         var t = "pagos";
-        var dto = await db.QueryFirstOrDefaultAsync<ResumenTesoreriaDto>("""
+        var dto = await db.QueryFirstOrDefaultAsync<ModeloResumenTesoreria>("""
             SELECT count(*) FILTER (WHERE voucher_estado = 'Pendiente')   AS VouchersPendientes,
                    count(*) FILTER (WHERE voucher_estado = 'Rechazado')   AS VouchersRechazados,
                    count(*) FILTER (WHERE voucher_estado = 'Validado'
@@ -402,7 +402,7 @@ public class PagoService : IPagoService
                    COALESCE(sum(monto) FILTER (WHERE voucher_estado = 'Validado'), 0) AS RecaudadoPeriodo,
                    count(*) FILTER (WHERE voucher_estado = 'Validado')   AS RecibosValidados
             FROM pagos;
-            """.Replace("pagos", t)) ?? new ResumenTesoreriaDto();
+            """.Replace("pagos", t)) ?? new ModeloResumenTesoreria();
 
         const string porConceptoSql = """
             SELECT cp.codigo AS Codigo,
@@ -416,7 +416,7 @@ public class PagoService : IPagoService
             ORDER BY 3 DESC
             LIMIT 5;
             """;
-        dto.PorConcepto = (await db.QueryAsync<RecaudacionPorConceptoDto>(
+        dto.PorConcepto = (await db.QueryAsync<ModeloRecaudacionPorConcepto>(
             porConceptoSql.Replace("pagos", t))).ToList();
         return dto;
     }
@@ -425,14 +425,14 @@ public class PagoService : IPagoService
     // Panel personal del ALUMNO (Resumen del módulo): SUS trámites,
     // pagos y vouchers — cero cifras globales del instituto.
     // ------------------------------------------------------------------
-    public async Task<ResumenAlumnoDto> ResumenAlumnoAsync(int estudianteId)
+    public async Task<ModeloResumenAlumno> ResumenAlumnoAsync(int estudianteId)
     {
         using var db = CreateConnection();
         var t = "pagos";
-        var dto = new ResumenAlumnoDto();
+        var dto = new ModeloResumenAlumno();
 
         // Contadores de SUS trámites por estado (mesa de mod09)
-        dto = await db.QueryFirstOrDefaultAsync<ResumenAlumnoDto>("""
+        dto = await db.QueryFirstOrDefaultAsync<ModeloResumenAlumno>("""
             SELECT count(*) FILTER (WHERE tr.estado IN ('Recibido', 'En evaluación')) AS TramitesActivos,
                    count(*) FILTER (WHERE tr.estado = 'Observado')                    AS TramitesObservados,
                    count(*) FILTER (WHERE tr.estado IN ('Aprobado', 'Entregado'))     AS TramitesCerrados
@@ -467,23 +467,23 @@ public class PagoService : IPagoService
             ORDER BY tr.creado_en DESC
             LIMIT 5;
             """;
-        dto.Ultimos = (await db.QueryAsync<MiTramiteCardDto>(
+        dto.Ultimos = (await db.QueryAsync<ModeloTarjetaMiTramite>(
             ultimosSql.Replace("pagos", t), new { Id = estudianteId })).ToList();
         return dto;
     }
 
-    public async Task<IEnumerable<ConceptoPagoDto>> ListarConceptosAsync()
+    public async Task<IEnumerable<ModeloConceptoPago>> ListarConceptosAsync()
     {
         using var db = CreateConnection();
-        return await db.QueryAsync<ConceptoPagoDto>("""
+        return await db.QueryAsync<ModeloConceptoPago>("""
             SELECT id, codigo, nombre, monto FROM conceptos_pago WHERE activo ORDER BY codigo;
             """);
     }
 
-    public async Task<IEnumerable<TipoPagoDto>> ListarTiposPagoAsync()
+    public async Task<IEnumerable<ModeloTipoPago>> ListarTiposPagoAsync()
     {
         using var db = CreateConnection();
-        return await db.QueryAsync<TipoPagoDto>(
+        return await db.QueryAsync<ModeloTipoPago>(
             "SELECT id, codigo, nombre FROM tipos_pago ORDER BY id;");
     }
 }

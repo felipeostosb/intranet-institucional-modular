@@ -1,7 +1,7 @@
 namespace Intranet.Modulo09.Models;
 
 /// <summary>Pago del alumno (vista "Mis pagos").</summary>
-public class PagoListaDto
+public class ModeloPagoLista
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -17,7 +17,7 @@ public class PagoListaDto
 }
 
 /// <summary>Fila de la bandeja de vouchers de Tesorería.</summary>
-public class PagoBandejaDto
+public class ModeloPagoBandeja
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -36,7 +36,7 @@ public class PagoBandejaDto
 }
 
 /// <summary>Voucher PDF adjunto a un pago (evidencia para Tesorería).</summary>
-public class ArchivoVoucherDto
+public class ModeloArchivoVoucher
 {
     public string Nombre { get; set; } = "";
     public string Tipo { get; set; } = "";
@@ -44,7 +44,7 @@ public class ArchivoVoucherDto
 }
 
 /// <summary>Métricas de pagos del módulo.</summary>
-public class PagosResumenDto
+public class ModeloResumenPagos
 {
     public int PorValidar { get; set; }
     public int Validados { get; set; }
@@ -53,7 +53,7 @@ public class PagosResumenDto
 }
 
 /// <summary>Panel del puesto de Tesorería (vouchers y recaudación).</summary>
-public class ResumenTesoreriaDto
+public class ModeloResumenTesoreria
 {
     public int VouchersPendientes { get; set; }      // esperando validación
     public int VouchersRechazados { get; set; }      // el alumno debe re-subir
@@ -62,11 +62,11 @@ public class ResumenTesoreriaDto
     public decimal RecaudadoPeriodo { get; set; }
     public int RecibosValidados { get; set; }
     /// <summary>Top 5 conceptos por recaudación validada.</summary>
-    public List<RecaudacionPorConceptoDto> PorConcepto { get; set; } = [];
+    public List<ModeloRecaudacionPorConcepto> PorConcepto { get; set; } = [];
 }
 
 /// <summary>Fila del desglose de recaudación por concepto TUPA.</summary>
-public class RecaudacionPorConceptoDto
+public class ModeloRecaudacionPorConcepto
 {
     public string Codigo { get; set; } = "";
     public string Nombre { get; set; } = "";
@@ -75,18 +75,18 @@ public class RecaudacionPorConceptoDto
 }
 
 /// <summary>Panel personal del alumno (sus trámites, pagos y voucher pendiente).</summary>
-public class ResumenAlumnoDto
+public class ModeloResumenAlumno
 {
     public int TramitesActivos { get; set; }    // Recibido / En evaluación / Observado
     public int TramitesObservados { get; set; } // requieren corrección del alumno
     public int TramitesCerrados { get; set; }  // Aprobado / Entregado
     public int VouchersPorSubir { get; set; }  // pagos sin voucher PDF adjunto
     public decimal TotalPagado { get; set; }   // vouchers validados del alumno
-    public List<MiTramiteCardDto> Ultimos { get; set; } = [];
+    public List<ModeloTarjetaMiTramite> Ultimos { get; set; } = [];
 }
 
 /// <summary>Fila del listado de trámites del alumno en su panel.</summary>
-public class MiTramiteCardDto
+public class ModeloTarjetaMiTramite
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -98,7 +98,7 @@ public class MiTramiteCardDto
 }
 
 /// <summary>Concepto del catálogo TUPA para el formulario.</summary>
-public class ConceptoPagoDto
+public class ModeloConceptoPago
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -107,7 +107,7 @@ public class ConceptoPagoDto
 }
 
 /// <summary>Tipo de pago (Efectivo, Yape, Plin...).</summary>
-public class TipoPagoDto
+public class ModeloTipoPago
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -115,15 +115,15 @@ public class TipoPagoDto
 }
 
 /// <summary>ViewModel del formulario de recibo/registro de pago.</summary>
-public class RegistrarPagoViewModel
+public class ModeloRegistroPagoVista
 {
-    public IEnumerable<ConceptoPagoDto> Conceptos { get; set; } = [];
-    public IEnumerable<TipoPagoDto> TiposPago { get; set; } = [];
-    public IEnumerable<EstudianteSelectDto> Estudiantes { get; set; } = [];
+    public IEnumerable<ModeloConceptoPago> Conceptos { get; set; } = [];
+    public IEnumerable<ModeloTipoPago> TiposPago { get; set; } = [];
+    public IEnumerable<ModeloEstudianteSeleccion> Estudiantes { get; set; } = [];
 }
 
 /// <summary>Estudiante para el select de Tesorería (recibo directo).</summary>
-public class EstudianteSelectDto
+public class ModeloEstudianteSeleccion
 {
     public int Id { get; set; }
     public string CodigoEstudiante { get; set; } = "";
