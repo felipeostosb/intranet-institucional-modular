@@ -94,6 +94,11 @@
                             </div>
                         </div>
                         <div class="flex gap-1">
+                            @if (m.TramiteReservaId is int tid)
+                            {
+                                <a href="/Modulo09/Tramites/Detalle/@tid" target="_blank"
+                                   class="btn btn-ghost btn-xs rounded-lg font-bold text-slate-500" title="Ver el trámite de reserva con los archivos adjuntos (voucher, foto, documentos)">📁 Ver expediente</a>
+                            }
                             @if (!m.VoucherOk && (User.IsInRole("Tesoreria") || User.IsInRole("Admin")))
                             {
                                 <form method="post" asp-action="ValidarVoucher" asp-route-id="@m.Id">

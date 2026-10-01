@@ -53,6 +53,8 @@ public class MatriculaListaDto
     public string TipoMatricula { get; set; } = "";
     public string Estudiante { get; set; } = "";
     public string CodigoEstudiante { get; set; } = "";
+    /// <summary>Trámite TM05 de reserva vinculado (evidencia: voucher + adjuntos).</summary>
+    public int? TramiteReservaId { get; set; }
 }
 
 /// <summary>Zona C: matrículas trancadas que liberan su vacante (Art. 24 RI).</summary>

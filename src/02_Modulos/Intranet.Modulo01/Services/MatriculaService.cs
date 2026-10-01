@@ -60,7 +60,8 @@ public class MatriculaService : IMatriculaService
                    t.nombre AS Turno,
                    tm.nombre AS TipoMatricula,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
-                   e.codigo_estudiante AS CodigoEstudiante
+                   e.codigo_estudiante AS CodigoEstudiante,
+                   m.tramite_reserva_id AS TramiteReservaId
             FROM matriculas m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
@@ -96,7 +97,8 @@ public class MatriculaService : IMatriculaService
                    t.codigo AS Turno,
                    tm.codigo AS TipoMatricula,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
-                   e.codigo_estudiante AS CodigoEstudiante
+                   e.codigo_estudiante AS CodigoEstudiante,
+                   m.tramite_reserva_id AS TramiteReservaId
             FROM matriculas m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
@@ -131,7 +133,8 @@ public class MatriculaService : IMatriculaService
                    t.codigo AS Turno,
                    tm.codigo AS TipoMatricula,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
-                   e.codigo_estudiante AS CodigoEstudiante
+                   e.codigo_estudiante AS CodigoEstudiante,
+                   m.tramite_reserva_id AS TramiteReservaId
             FROM matriculas m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
@@ -167,7 +170,8 @@ public class MatriculaService : IMatriculaService
                    t.codigo AS Turno,
                    tm.codigo AS TipoMatricula,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
-                   e.codigo_estudiante AS CodigoEstudiante
+                   e.codigo_estudiante AS CodigoEstudiante,
+                   m.tramite_reserva_id AS TramiteReservaId
             FROM matriculas m
             JOIN estudiantes e ON e.id = m.estudiante_id
             JOIN personas p ON p.id = e.persona_id
