@@ -239,22 +239,17 @@ FROM (VALUES
 WHERE c.codigo = v.codigo
   AND c.monto IS DISTINCT FROM v.monto;
 
--- El carné NO figura en ninguna de las 23 secciones del TUPA-2026, así que no
--- puede exigir voucher. Se desvincula del concepto de pago y se retira el
--- requisito del recibo, conservando solicitud + foto.
+-- El carné no es un procedimiento del TUPA-2026 (ver nota del DELETE más abajo),
+-- así que el tipo de trámite queda sin concepto de pago: CrearTramiteAsync ya
+-- sólo genera recibo cuando ConceptoPagoId es un entero.
 UPDATE mod09.tipos_tramite SET concepto_pago_id = NULL WHERE codigo IN ('TT01','TM19');
-DELETE FROM mod09.requisitos_tipos_tramite r
-USING mod09.tipos_tramite t
-WHERE r.tipo_tramite_id = t.id
-  AND t.codigo IN ('TT01','TM19')
-  AND r.requisito ILIKE '%recibo de pago%';
 
 INSERT INTO mod09.requisitos_tipos_tramite (tipo_tramite_id, orden, requisito)
 SELECT tt.id, v.orden, v.requisito
 FROM (VALUES
   ('TT01', 1, 'Solicitud dirigida al Director'),
-  ('TT01', 2, 'Recibo de pago (CP03)'),
-  ('TT01', 3, 'Foto carné fondo blanco'),
+  -- El carné no exige recibo: no figura en el TUPA-2026 (ver nota más abajo).
+  ('TT01', 2, 'Foto carné fondo blanco'),
   ('TT02', 1, 'Solicitud dirigida al Director'),
   ('TT02', 2, 'Recibo de pago (CT05)'),
   ('TT02', 3, 'Record de notas'),
@@ -347,14 +342,30 @@ FROM (VALUES
  ('TM18',1,'Solicitud dirigida al Director General'),
  ('TM18',2,'Recibo de pago de carta de presentación'),
  ('TM19',1,'Solicitud dirigida al Director General'),
- ('TM19',2,'Recibo de pago de duplicado de carné'),
- ('TM19',3,'01 foto tamaño carné fondo blanco'),
+ -- El carné no exige recibo: no figura en el TUPA-2026 (ver nota más abajo).
+ ('TM19',2,'01 foto tamaño carné fondo blanco'),
  ('TM20',1,'Solicitud dirigida al Director General'),
  ('TM20',2,'01 foto tamaño carné'),
  ('TM20',3,'Recibo de pago de diploma de egresado')
 ) AS v(codigo, orden, requisito)
 JOIN mod09.tipos_tramite tt ON tt.codigo = v.codigo
 ON CONFLICT (tipo_tramite_id, orden, requisito) DO NOTHING;
+
+-- ---------------------------------------------------------------------------
+-- Carné sin voucher
+--
+-- El carné (TT01, TM19) no figura en ninguna de las 23 secciones del TUPA-2026:
+-- no hay procedimiento al que cobrar, así que su tipo de trámite queda sin
+-- concepto de pago y su catálogo de requisitos NO incluye el recibo (se quitó
+-- de las semillas de arriba, no se borra en runtime).
+--
+-- Importante: no conviene borrar el requisito con un DELETE en cada arranque.
+-- mod09.tramite_requisitos.requisito_catalogo_id es ON DELETE RESTRICT, así que
+-- en cuanto un alumno presentara ese requisito el DELETE revienta el
+-- schema.sql completo y la app deja de arrancar. Tampoco sirve "arreglarlo"
+-- borrando después del INSERT: el INSERT recrearía la fila con un id nuevo y
+-- dejaría huérfanos los tramite_requisitos que apuntaran al id anterior.
+-- ---------------------------------------------------------------------------
 
 -- ============================================================
 -- Flujo voucher: el trámite con costo genera el pago y el alumno
