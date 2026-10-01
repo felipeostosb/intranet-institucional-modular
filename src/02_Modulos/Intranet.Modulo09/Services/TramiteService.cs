@@ -159,6 +159,25 @@ public class TramiteService : ITramiteService
         if (detalle != null)
         {
             detalle.Requisitos = await ListarRequisitosDeTramiteAsync(db, tramiteId);
+
+            // Fallback: trámites creados fuera del flujo de la app (p. ej. seeds
+            // del dueño) no tienen filas en tramite_requisitos — la ficha quedaba
+            // con la sección "Requisitos presentados" vacía. En ese caso se
+            // muestra el catálogo del tipo con estado "Sin registro" para que
+            // la Mesa sepa QUÉ debía presentar el estudiante.
+            if (detalle.Requisitos == null || !detalle.Requisitos.Any())
+            {
+                detalle.Requisitos = (await db.QueryAsync<RequisitoEstadoDto>("""
+                    SELECT rc.id, rc.orden, rc.requisito,
+                           FALSE AS Presentado,
+                           'Sin registro en el sistema — trámite generado fuera del flujo de la app' AS Observacion,
+                           FALSE AS TieneArchivo
+                    FROM requisitos_tipos_tramite rc
+                    JOIN tramites t ON t.tipo_tramite_id = rc.tipo_tramite_id
+                    WHERE t.id = @Id
+                    ORDER BY rc.orden;
+                    """, new { Id = tramiteId })).ToList();
+            }
         }
         return detalle;
     }
