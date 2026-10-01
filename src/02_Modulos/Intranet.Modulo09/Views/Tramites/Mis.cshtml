@@ -114,6 +114,11 @@
                 </div>
             </div>
 
+            @* Feedback inmediato: cualquier problema del formulario se reporta acá, sin
+               esperar al servidor. Es lo que el alumno ve al instante. *@
+            <div id="avisoNuevo" class="hidden rounded-xl text-[11px] py-2 px-3 mb-3 font-semibold"></div>
+            <p id="pistaEnvio" class="text-[10px] text-slate-400 text-right mb-2 hidden"></p>
+
             <div class="flex gap-2 justify-end">
                 <button type="reset" class="btn btn-ghost btn-sm rounded-xl">Cancelar</button>
                 <button type="submit" class="btn btn-primary btn-sm rounded-xl font-bold" id="btnEnviar" disabled>Enviar solicitud</button>
@@ -124,37 +129,156 @@
 
 @section Scripts {
     <script>
-        const selTipo = document.getElementById('selTipo');
-        const ficha = document.getElementById('fichaTupa');
+        const selTipo   = document.getElementById('selTipo');
+        const ficha     = document.getElementById('fichaTupa');
         const btnEnviar = document.getElementById('btnEnviar');
+        const aviso     = document.getElementById('avisoNuevo');
+        const pista     = document.getElementById('pistaEnvio');
+        const form      = document.getElementById('formNuevoTramite');
+
+        const MAX_MB = 2;
+        const MAX_BYTES = MAX_MB * 1024 * 1024;
+        const TIPOS_OK = ['application/pdf', 'image/jpeg', 'image/png'];
+
+        // --- avisos instantáneos (nunca un botón muerto sin explicación) ---
+        function mostrarAviso(texto, tipo = 'error') {
+            aviso.textContent = texto;
+            aviso.className = tipo === 'error'
+                ? 'rounded-xl text-[11px] py-2 px-3 mb-3 font-semibold bg-rose-50 text-rose-700 border border-rose-200 dark:bg-rose-950/40 dark:text-rose-300 dark:border-rose-800'
+                : 'rounded-xl text-[11px] py-2 px-3 mb-3 font-semibold bg-sky-50 text-sky-700 border border-sky-200 dark:bg-sky-950/40 dark:text-sky-300 dark:border-sky-800';
+        }
+        function ocultarAviso() { aviso.classList.add('hidden'); }
+
+        function ponerPista(texto) {
+            pista.textContent = texto;
+            pista.classList.toggle('hidden', !texto);
+        }
+
+        // --- carga de la ficha TUPA: cualquier fallo se muestra, nunca se traga ---
         selTipo.addEventListener('change', async () => {
             const codigo = selTipo.value;
-            if (!codigo) { ficha.classList.add('hidden'); btnEnviar.disabled = true; return; }
-            const resp = await fetch(`/Modulo09/Tramites/Requisitos/${codigo}`);
-            if (!resp.ok) return;
-            const data = await resp.json();
+            ocultarAviso();
+            if (!codigo) {
+                ficha.classList.add('hidden');
+                btnEnviar.disabled = true;
+                ponerPista('');
+                return;
+            }
+
+            ficha.classList.remove('hidden');
+            ponerPista('Cargando requisitos…');
+            btnEnviar.disabled = true;
+
+            let data;
+            try {
+                const resp = await fetch(`/Modulo09/Tramites/Requisitos/${encodeURIComponent(codigo)}`,
+                                          { headers: { 'Accept': 'application/json' } });
+                if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                data = await resp.json();
+            } catch (err) {
+                // antes esto se quedaba mudo: ficha a medias y botón para siempre deshabilitado
+                document.getElementById('fRequisitos').innerHTML = '';
+                ponerPista('');
+                mostrarAviso(`No se pudieron cargar los requisitos de ${codigo}. Revisá tu conexión o recargá la página.`);
+                return;
+            }
+
+            if (!data || !data.tipo || !Array.isArray(data.requisitos)) {
+                mostrarAviso(`El tipo ${codigo} no tiene requisitos definidos. No se puede enviar el trámite.`);
+                return;
+            }
+
             document.getElementById('fNombre').textContent = data.tipo.nombre;
             document.getElementById('fCodigo').textContent = data.tipo.codigo;
             document.getElementById('fPlazo').textContent = data.tipo.diasHabiles;
             document.getElementById('fPago').textContent =
                 `${data.tipo.pagoCodigo} · ${data.tipo.pagoNombre} (S/ ${data.tipo.pagoMonto})`;
+
             const ul = document.getElementById('fRequisitos');
+            if (data.requisitos.length === 0) {
+                ul.innerHTML = '<li class="py-1.5 text-amber-600 dark:text-amber-400">Este tipo no declara requisitos en el catálogo TUPA.</li>';
+                mostrarAviso('Este tipo de trámite no tiene requisitos configurados. Comunicate con Secretaría.');
+                return;
+            }
+
             ul.innerHTML = data.requisitos.map(r =>
                 `<li class="flex items-center justify-between gap-3 py-1.5 border-b border-slate-100 dark:border-slate-800 last:border-0">
                     <span class="flex items-center gap-2"><span class="text-slate-400 font-mono">${r.orden}.</span> ${r.requisito}</span>
-                    <input type="file" name="req_${r.id}" accept="application/pdf,image/jpeg,image/png" required
-                           class="file-input file-input-bordered file-input-xs w-full max-w-[240px] rounded-xl dark:bg-slate-800 text-[10px]" />
+                    <span class="flex items-center gap-1">
+                        <input type="file" name="req_${r.id}" accept="application/pdf,image/jpeg,image/png" required
+                               data-requerimiento="${r.requisito}"
+                               class="file-input file-input-bordered file-input-xs w-full max-w-[240px] rounded-xl dark:bg-slate-800 text-[10px] archivo-input" />
+                        <span class="text-[10px] archivo-err hidden"></span>
+                    </span>
                  </li>`
             ).join('');
+
             ficha.classList.remove('hidden');
             validarArchivos();
         });
-        // sin TODOS los archivos adjuntos el trámite no se registra (regla del prototipo)
+
+        // --- validación de archivos ANTES de subir: tamaño y tipo ---
         function validarArchivos() {
             const inputs = [...ficha.querySelectorAll('input[type=file]')];
-            btnEnviar.disabled = !(inputs.length > 0 && inputs.every(i => i.files.length === 1));
+            if (inputs.length === 0) { btnEnviar.disabled = true; return false; }
+
+            let faltan = 0;
+            let problema = null;
+
+            for (const input of inputs) {
+                const err = input.parentElement.querySelector('.archivo-err');
+                const archivo = input.files[0];
+                input.classList.remove('file-input-error');
+
+                if (!archivo) { faltan++; err.classList.add('hidden'); continue; }
+
+                // el peso se chequea en el navegador: el alumno se entera al elegir el
+                // archivo, no después de subirlo entero
+                if (archivo.size > MAX_BYTES) {
+                    problema = `El archivo '${archivo.name}' pesa ${(archivo.size / 1048576).toFixed(1)} MB y supera los ${MAX_MB} MB permitidos.`;
+                    input.classList.add('file-input-error');
+                    err.textContent = `${(archivo.size / 1048576).toFixed(1)} MB > ${MAX_MB} MB`;
+                    err.className = 'text-[10px] archivo-err text-rose-500 font-bold';
+                } else if (TIPOS_OK.indexOf(archivo.type) === -1) {
+                    problema = `El archivo '${archivo.name}' no es un PDF, JPG ni PNG.`;
+                    input.classList.add('file-input-error');
+                    err.textContent = 'tipo no válido';
+                    err.className = 'text-[10px] archivo-err text-rose-500 font-bold';
+                } else {
+                    err.className = 'text-[10px] archivo-err text-emerald-600 dark:text-emerald-400 font-bold';
+                    err.textContent = `${(archivo.size / 1024).toFixed(0)} KB`;
+                }
+            }
+
+            if (problema) { mostrarAviso(problema); btnEnviar.disabled = true; return false; }
+            if (faltan > 0) {
+                ocultarAviso();
+                btnEnviar.disabled = true;
+                ponerPista(`Adjuntá ${faltan} archivo${faltan > 1 ? 's' : ''} más para poder enviar.`);
+                return false;
+            }
+
+            ocultarAviso();
+            ponerPista('Todos los archivos listos. Al enviar se registra el trámite.');
+            btnEnviar.disabled = false;
+            return true;
         }
-        document.getElementById('formNuevoTramite').addEventListener('change', validarArchivos);
+
+        form.addEventListener('change', ev => {
+            if (ev.target.matches('input[type=file]')) validarArchivos();
+        });
+
+        // --- envío: feedback inmediato + bloqueo de reenvíos ---
+        form.addEventListener('submit', ev => {
+            if (!validarArchivos()) {
+                ev.preventDefault();   // no se sube nada si falta o excede
+                return;
+            }
+            const nombres = [...ficha.querySelectorAll('input[type=file]')].map(i => i.files[0].name);
+            btnEnviar.disabled = true;
+            btnEnviar.innerHTML = '<span class="loading loading-spinner loading-xs"></span> Enviando…';
+            ponerPista(`Subiendo ${nombres.length} archivo${nombres.length > 1 ? 's' : ''}: no cierres la página.`);
+        });
     </script>
 }
 
