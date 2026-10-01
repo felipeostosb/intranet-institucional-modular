@@ -16,11 +16,11 @@ namespace Intranet.Modulo01.Controllers;
 [Route("Modulo01/[controller]")]
 public class MatriculasController : ModuloBaseController
 {
-    private readonly IMatriculaService _matriculaService;
+    private readonly IMatriculaServicio _servicioMatricula;
 
-    public MatriculasController(IMatriculaService matriculaService)
+    public MatriculasController(IMatriculaServicio servicioMatricula)
     {
-        _matriculaService = matriculaService;
+        _servicioMatricula = servicioMatricula;
     }
 
     /// <summary>Expone los roles del usuario a las vistas (tabs rol-aware).</summary>
@@ -44,21 +44,21 @@ public class MatriculasController : ModuloBaseController
 
         if (EsAlumno)
         {
-            var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
+            var activa = await _servicioMatricula.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
             return View("MiMatricula", activa);
         }
 
         // Vista personal (Secretaría / Admin / Tesorería)
-        var model = new MatriculasPanelViewModel
+        var modelo = new ModeloPanelMatriculasVista
         {
-            Resumen = await _matriculaService.ObtenerResumenAsync(),
-            ListasParaRegistrar = await _matriculaService.ListarListasParaRegistrarAsync(),
-            EnEspera = await _matriculaService.ListarEnEsperaAsync(),
-            PorLiberar = await _matriculaService.ListarVacantesPorLiberarAsync(),
-            Todas = await _matriculaService.ListarPorPeriodoAsync(estado),
+            Resumen = await _servicioMatricula.ObtenerResumenAsync(),
+            ListasParaRegistrar = await _servicioMatricula.ListarListasParaRegistrarAsync(),
+            EnEspera = await _servicioMatricula.ListarEnEsperaAsync(),
+            PorLiberar = await _servicioMatricula.ListarVacantesPorLiberarAsync(),
+            Todas = await _servicioMatricula.ListarPorPeriodoAsync(estado),
             FiltroEstado = estado
         };
-        return View("Panel", model);
+        return View("Panel", modelo);
     }
 
     /// <summary>Ruta explícita de "Mi Matrícula" (tab del alumno).</summary>
@@ -71,7 +71,7 @@ public class MatriculasController : ModuloBaseController
 
         ViewData["Title"] = "Mi Matrícula";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
-        var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
+        var activa = await _servicioMatricula.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
         return View("MiMatricula", activa);
     }
 
@@ -85,7 +85,7 @@ public class MatriculasController : ModuloBaseController
         if (!EsTesoreria && !EsDirector)
             return Forbid();
 
-        var ok = await _matriculaService.ValidarVoucherAsync(id, aprobar);
+        var ok = await _servicioMatricula.ValidarVoucherAsync(id, aprobar);
         if (ok) MostrarAlertaExito(aprobar
             ? "Voucher validado. Si la foto ya está validada, la matrícula pasa a conformidad."
             : "Voucher rechazado: queda pendiente de corrección del estudiante.");
@@ -100,7 +100,7 @@ public class MatriculasController : ModuloBaseController
         if (!EsSecretaria && !EsDirector)
             return Forbid();
 
-        var ok = await _matriculaService.ValidarFotoAsync(id, aprobar);
+        var ok = await _servicioMatricula.ValidarFotoAsync(id, aprobar);
         if (ok) MostrarAlertaExito(aprobar
             ? "Foto validada. Si el voucher ya está validado, la matrícula pasa a conformidad."
             : "Foto rechazada: queda pendiente de que el estudiante la corrija.");
@@ -118,7 +118,7 @@ public class MatriculasController : ModuloBaseController
         if (!EsSecretaria && !EsAdmin)
             return Forbid();
 
-        var (ok, mensaje) = await _matriculaService.RegistrarMatriculaAsync(id, UsuarioActualId ?? 0);
+        var (ok, mensaje) = await _servicioMatricula.RegistrarMatriculaAsync(id, UsuarioActualId ?? 0);
         if (ok) MostrarAlertaExito(mensaje);
         else MostrarAlertaError(mensaje);
         return RedirectToAction(nameof(Index));
@@ -134,12 +134,12 @@ public class MatriculasController : ModuloBaseController
         // Mismo tratamiento que Index: se le muestra su propia matrícula.
         if (EsAlumno)
         {
-            var activa = await _matriculaService.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
+            var activa = await _servicioMatricula.ObtenerMatriculaActivaAsync(await ObtenerEstudianteIdAsync());
             return View("MiMatricula", activa);
         }
 
         ViewData["Title"] = "01. Vacantes por Carrera";
-        var vacantes = await _matriculaService.ListarVacantesAsync();
+        var vacantes = await _servicioMatricula.ListarVacantesAsync();
         return View(vacantes);
     }
 
@@ -149,8 +149,8 @@ public class MatriculasController : ModuloBaseController
     private async Task<int> ObtenerEstudianteIdAsync()
     {
         // claim PersonaId → core.estudiantes (UsuarioActualId es id de USUARIO, no de estudiante)
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("01");
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("01");
         var id = await conn.ExecuteScalarAsync<int?>(
             "SELECT e.id FROM core.estudiantes e WHERE e.persona_id = @PersonaId;",
             new { PersonaId = PersonaActualId ?? 0 });
@@ -159,12 +159,12 @@ public class MatriculasController : ModuloBaseController
 }
 
 /// <summary>ViewModel del puesto de trabajo del personal.</summary>
-public class MatriculasPanelViewModel
+public class ModeloPanelMatriculasVista
 {
-    public ResumenMatriculaDto Resumen { get; set; } = new();
-    public IEnumerable<MatriculaListaDto> ListasParaRegistrar { get; set; } = [];
-    public IEnumerable<MatriculaListaDto> EnEspera { get; set; } = [];
-    public IEnumerable<MatriculaPorLiberarDto> PorLiberar { get; set; } = [];
-    public IEnumerable<MatriculaListaDto> Todas { get; set; } = [];
+    public ModeloResumenMatricula Resumen { get; set; } = new();
+    public IEnumerable<ModeloMatriculaLista> ListasParaRegistrar { get; set; } = [];
+    public IEnumerable<ModeloMatriculaLista> EnEspera { get; set; } = [];
+    public IEnumerable<ModeloMatriculaPorLiberar> PorLiberar { get; set; } = [];
+    public IEnumerable<ModeloMatriculaLista> Todas { get; set; } = [];
     public string? FiltroEstado { get; set; }
 }

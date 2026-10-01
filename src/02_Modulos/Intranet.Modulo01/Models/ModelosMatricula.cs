@@ -1,7 +1,7 @@
 namespace Intranet.Modulo01.Models;
 
 /// <summary>Matrícula vigente del alumno (vista "Mi matrícula").</summary>
-public class MatriculaActivaDto
+public class ModeloMatriculaActiva
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -36,7 +36,7 @@ public class MatriculaActivaDto
 }
 
 /// <summary>Fila de los listados del personal.</summary>
-public class MatriculaListaDto
+public class ModeloMatriculaLista
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -58,7 +58,7 @@ public class MatriculaListaDto
 }
 
 /// <summary>Zona C: matrículas trancadas que liberan su vacante (Art. 24 RI).</summary>
-public class MatriculaPorLiberarDto
+public class ModeloMatriculaPorLiberar
 {
     public int Id { get; set; }
     public string Codigo { get; set; } = "";
@@ -71,7 +71,7 @@ public class MatriculaPorLiberarDto
 }
 
 /// <summary>Métricas del módulo.</summary>
-public class ResumenMatriculaDto
+public class ModeloResumenMatricula
 {
     public int Matriculados { get; set; }
     public int EnTramite { get; set; }
@@ -85,7 +85,7 @@ public class ResumenMatriculaDto
 // =====================================================================
 
 /// <summary>Panel del puesto de Tesorería: vouchers de reserva (CT13/TM05).</summary>
-public class ResumenTesoreriaMatriculaDto
+public class ModeloResumenTesoreriaMatricula
 {
     public int VouchersPendientes { get; set; }     // TM05 con pago Pendiente
     public int VouchersValidados { get; set; }      // TM05 con pago Validado
@@ -96,18 +96,18 @@ public class ResumenTesoreriaMatriculaDto
 }
 
 /// <summary>Panel del puesto de Secretaría: cierre de matrículas.</summary>
-public class ResumenSecretariaMatriculaDto
+public class ModeloResumenSecretariaMatricula
 {
     public int ListasParaCerrar { get; set; }       // voucher Validado + período habilitado, sin cerrar
     public int MatriculadosPeriodo { get; set; }    // ya cerradas del período habilitado
     public int EsperandoVoucher { get; set; }       // TM05 activo con voucher no validado
     public int TramitesActivos { get; set; }        // TM05 en mesa (Recibido/En evaluación)
     /// <summary>Matrículas cerradas por carrera (mini-gráfico).</summary>
-    public List<MatriculasPorCarreraDto> PorCarrera { get; set; } = [];
+    public List<ModeloMatriculasPorCarrera> PorCarrera { get; set; } = [];
 }
 
 /// <summary>Fila del desglose de matrículas cerradas por carrera.</summary>
-public class MatriculasPorCarreraDto
+public class ModeloMatriculasPorCarrera
 {
     public string Codigo { get; set; } = "";   // DSI, CONT, ADM
     public string Nombre { get; set; } = "";
@@ -115,7 +115,7 @@ public class MatriculasPorCarreraDto
 }
 
 /// <summary>Tablero de vacantes por carril.</summary>
-public class VacanteDto
+public class ModeloVacante
 {
     public string CarreraCodigo { get; set; } = "";
     public string Carrera { get; set; } = "";
@@ -126,7 +126,7 @@ public class VacanteDto
 }
 
 /// <summary>Resultado del RETURNING al registrar conformidad (para consumir vacante).</summary>
-public class VacanteConsumoDto
+public class ModeloVacanteConsumo
 {
     public int CarreraId { get; set; }
     public int CicloId { get; set; }
@@ -140,7 +140,7 @@ public class VacanteConsumoDto
 // =====================================================================
 
 /// <summary>Expediente del alumno listo para matricular (búsqueda por DNI).</summary>
-public class ExpedienteMatriculaDto
+public class ModeloExpedienteMatricula
 {
     public int EstudianteId { get; set; }
     public string CodigoEstudiante { get; set; } = "";
@@ -159,18 +159,18 @@ public class ExpedienteMatriculaDto
     public string Condicion { get; set; } = "";          // Promovido | Promovido con curso a cargo | Repitente
     public int CursosDesaprobados { get; set; }
     public string CursosDesaprobadosNombres { get; set; } = "";
-    public List<HistorialFilaDto> Historial { get; set; } = [];
-    public List<UnidadOfertaDto> OfertaProximoCiclo { get; set; } = [];
+    public List<ModeloHistorialFila> Historial { get; set; } = [];
+    public List<ModeloUnidadOferta> OfertaProximoCiclo { get; set; } = [];
 
     // reserva TUPA y su voucher
-    public ReservaDto? Reserva { get; set; }
+    public ModeloReserva? Reserva { get; set; }
     public bool PuedeMatricular { get; set; }
     /// <summary>Id de una matrícula ya cerrada en el período destino (no se abre otra).</summary>
     public int YaMatriculadoId { get; set; }
 }
 
 /// <summary>Fila del historial académico (aprobado/desaprobado por UD).</summary>
-public class HistorialFilaDto
+public class ModeloHistorialFila
 {
     public string UnidadCodigo { get; set; } = "";
     public string UnidadNombre { get; set; } = "";
@@ -184,7 +184,7 @@ public class HistorialFilaDto
 // =====================================================================
 
 /// <summary>Mini-dashboard personal del alumno para la pestaña Resumen.</summary>
-public class PanelAlumnoDto
+public class ModeloPanelAlumno
 {
     public string CodigoEstudiante { get; set; } = "";
     public string Estudiante { get; set; } = "";
@@ -196,14 +196,14 @@ public class PanelAlumnoDto
     public string CursosDesaprobadosNombres { get; set; } = "";
     public decimal Promedio { get; set; }               // ponderado del historial
     public int CreditosAprobados { get; set; }
-    public List<HistorialFilaDto> Historial { get; set; } = [];
+    public List<ModeloHistorialFila> Historial { get; set; } = [];
 
     /// <summary>Pasos del flujo de reserva de matrícula para el timeline.</summary>
-    public List<PasoFlujoDto> PasosFlujo { get; set; } = [];
+    public List<ModeloPasoFlujo> PasosFlujo { get; set; } = [];
 }
 
 /// <summary>Paso del timeline del flujo (trámite → voucher → matrícula → ficha).</summary>
-public class PasoFlujoDto
+public class ModeloPasoFlujo
 {
     public string Titulo { get; set; } = "";
     public string Detalle { get; set; } = "";
@@ -223,7 +223,7 @@ public class ReservaAlumnoRow
 }
 
 /// <summary>UD matriculable del próximo ciclo (core o espejo oferta_ciclo).</summary>
-public class UnidadOfertaDto
+public class ModeloUnidadOferta
 {
     public int Id { get; set; }
     /// <summary>Origen del Id: "core" (unidades_didacticas) o "espejo" (mod01.oferta_ciclo).</summary>
@@ -239,7 +239,7 @@ public class UnidadOfertaDto
 }
 
 /// <summary>Estado del trámite de reserva y su voucher (para Secretaría).</summary>
-public class ReservaDto
+public class ModeloReserva
 {
     public int MatriculaId { get; set; }
     public string CodigoMatricula { get; set; } = "";
@@ -255,7 +255,7 @@ public class ReservaDto
 }
 
 /// <summary>RETURNING interno al cerrar la matrícula (consumo de vacante).</summary>
-public class MatriculaCierreDto
+public class ModeloMatriculaCierre
 {
     public int Id { get; set; }
     public int EstudianteId { get; set; }
@@ -268,7 +268,7 @@ public class MatriculaCierreDto
 /// <summary>
 /// Datos de la ficha de matrícula PDF (QuestPDF) que se envía al estudiante.
 /// </summary>
-public class FichaMatriculaDto
+public class ModeloFichaMatricula
 {
     public string CodigoMatricula { get; set; } = "";
     public string Periodo { get; set; } = "";
@@ -285,5 +285,5 @@ public class FichaMatriculaDto
     public string TipoMatricula { get; set; } = "";
     public DateTime? FechaMatricula { get; set; }
     public string Estado { get; set; } = "";
-    public List<UnidadOfertaDto> Unidades { get; set; } = [];
+    public List<ModeloUnidadOferta> Unidades { get; set; } = [];
 }

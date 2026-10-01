@@ -14,7 +14,7 @@ namespace Intranet.Modulo01.Services;
 /// sin SMTP configurado, el envío queda registrado en mod01.fichas_enviadas
 /// y la ficha es descargable desde la vista de Secretaría.
 /// </summary>
-public interface IEmailFichaService
+public interface IServicioCorreoFicha
 {
     /// <summary>Envía (o registra) la ficha. Devuelve mensaje de resultado.</summary>
     Task<(bool Ok, string Mensaje)> EnviarFichaAsync(
@@ -22,16 +22,16 @@ public interface IEmailFichaService
         byte[] pdf, string codigoMatricula, int usuarioId);
 }
 
-public class EmailFichaService : IEmailFichaService
+public class ServicioCorreoFicha : IServicioCorreoFicha
 {
-    private readonly IModuleDbConnectionFactory _connectionFactory;
+    private readonly IModuleDbConnectionFactory _fabricaConexion;
     private readonly IConfiguration _configuration;
-    private readonly ILogger<EmailFichaService> _logger;
+    private readonly ILogger<ServicioCorreoFicha> _logger;
 
-    public EmailFichaService(IModuleDbConnectionFactory connectionFactory,
-        IConfiguration configuration, ILogger<EmailFichaService> logger)
+    public ServicioCorreoFicha(IModuleDbConnectionFactory fabricaConexion,
+        IConfiguration configuration, ILogger<ServicioCorreoFicha> logger)
     {
-        _connectionFactory = connectionFactory;
+        _fabricaConexion = fabricaConexion;
         _configuration = configuration;
         _logger = logger;
     }
@@ -45,22 +45,22 @@ public class EmailFichaService : IEmailFichaService
         if (destino == null)
             return (false, "El estudiante no tiene correo registrado.");
 
-        var host = _configuration["Smtp:Host"];
+        var anfitrion = _configuration["Smtp:Host"];
         var puerto = _configuration.GetValue<int?>("Smtp:Port");
         var usuario = _configuration["Smtp:User"];
         var clave = _configuration["Smtp:Pass"];
         var remitente = _configuration["Smtp:From"] ?? usuario ?? "secretaria@iestpargentina.edu.pe";
 
         var enviado = false;
-        if (!string.IsNullOrWhiteSpace(host) && puerto is > 0)
+        if (!string.IsNullOrWhiteSpace(anfitrion) && puerto is > 0)
         {
             try
             {
                 using var smtp = new SmtpClient();
-                await smtp.ConnectAsync(host, puerto.Value, SecureSocketOptions.StartTlsWhenAvailable);
+                await smtp.ConnectAsync(anfitrion, puerto.Value, SecureSocketOptions.StartTlsWhenAvailable);
                 if (!string.IsNullOrWhiteSpace(usuario))
                     await smtp.AuthenticateAsync(usuario, clave ?? "");
-                var mime = new MimePart("application", "pdf")
+                var tipoMime = new MimePart("application", "pdf")
                 {
                     FileName = $"Ficha-{codigoMatricula}.pdf",
                     Content = new MimeContent(new MemoryStream(pdf)),
@@ -74,7 +74,7 @@ public class EmailFichaService : IEmailFichaService
                         ficha de matrícula en PDF con las unidades didácticas inscritas.</p>
                         <p>Secretaría Académica — IESTP "Argentina"</p>
                         """ },
-                    mime
+                    tipoMime
                 };
                 var msg = new MimeMessage();
                 msg.From.Add(MailboxAddress.Parse(remitente));
@@ -92,7 +92,7 @@ public class EmailFichaService : IEmailFichaService
         }
 
         // Bitácora del envío (o del intento) — la matrícula queda trazada siempre
-        using var db = _connectionFactory.CreateConnection("01");
+        using var db = _fabricaConexion.CreateConnection("01");
         await db.ExecuteAsync("""
             INSERT INTO mod01.fichas_enviadas (matricula_id, enviado_a, enviado_por)
             VALUES (@MatriculaId, @EnviadoA, @UsuarioId);

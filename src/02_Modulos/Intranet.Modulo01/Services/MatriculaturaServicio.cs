@@ -16,30 +16,30 @@ namespace Intranet.Modulo01.Services;
 /// Domina las tablas mod01: matriculas, historial_academico,
 /// oferta_ciclo, detalles_matricula, fichas_enviadas + mod09 solo-lectura.
 /// </summary>
-public interface IMatriculaturaService
+public interface IMatriculaturaServicio
 {
     /// <summary>Busca al estudiante por DNI con su situación académica para matricular.</summary>
-    Task<ExpedienteMatriculaDto?> BuscarPorDniAsync(string dni);
+    Task<ModeloExpedienteMatricula?> BuscarPorDniAsync(string dni);
 
     /// <summary>Matricula: crea/actualiza la matrícula con las UDs elegidas del próximo ciclo.</summary>
     Task<(bool Ok, string Mensaje, int MatriculaId)> MatricularAsync(
-        MatricularCommand cmd, int usuarioId);
+        MatricularComando cmd, int usuarioId);
 
     /// <summary> Datos de la ficha PDF de una matrícula cerrada (para descargar/reenviar).</summary>
-    Task<FichaMatriculaDto?> ObtenerFichaAsync(int matriculaId);
+    Task<ModeloFichaMatricula?> ObtenerFichaAsync(int matriculaId);
 
     /// <summary>Mini-dashboard personal del alumno para el Resumen del módulo.</summary>
-    Task<PanelAlumnoDto?> PanelAlumnoAsync(int estudianteId);
+    Task<ModeloPanelAlumno?> PanelAlumnoAsync(int estudianteId);
 
     /// <summary>Panel del puesto de Tesorería: vouchers de reserva (CT13/TM05).</summary>
-    Task<ResumenTesoreriaMatriculaDto> ResumenTesoreriaAsync();
+    Task<ModeloResumenTesoreriaMatricula> ResumenTesoreriaAsync();
 
     /// <summary>Panel del puesto de Secretaría: cierre de matrículas del período.</summary>
-    Task<ResumenSecretariaMatriculaDto> ResumenSecretariaAsync();
+    Task<ModeloResumenSecretariaMatricula> ResumenSecretariaAsync();
 }
 
 /// <summary>Comando de matrícula desde el puesto de Secretaría.</summary>
-public record MatricularCommand(
+public record MatricularComando(
     string Dni,
     int? MatriculaId,          // matrícula "En trámite" existente (reserva), si la hay
     int? TramiteId,            // o el trámite TM05 del módulo 09 (matrícula se crea aquí)
@@ -50,22 +50,22 @@ public record MatricularCommand(
     string CursosDesaprobadosNombres,  // para observaciones de la ficha
     IEnumerable<string> UnidadesDidacticasIds);  // "core:5" | "espejo:1"
 
-public class MatriculaturaService : IMatriculaturaService
+public class MatriculaturaServicio : IMatriculaturaServicio
 {
-    private readonly IModuleDbConnectionFactory _connectionFactory;
+    private readonly IModuleDbConnectionFactory _fabricaConexion;
 
-    public MatriculaturaService(IModuleDbConnectionFactory connectionFactory)
+    public MatriculaturaServicio(IModuleDbConnectionFactory fabricaConexion)
     {
-        _connectionFactory = connectionFactory;
+        _fabricaConexion = fabricaConexion;
     }
 
-    private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("01");
+    private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("01");
 
-    // Mismo patrón que MatriculaService: en producción "matriculas" es
+    // Mismo patrón que MatriculaServicio: en producción "matriculas" es
     // ------------------------------------------------------------------
     // BUSCAR POR DNI: ficha del alumno lista para matricular
     // ------------------------------------------------------------------
-    public async Task<ExpedienteMatriculaDto?> BuscarPorDniAsync(string dni)
+    public async Task<ModeloExpedienteMatricula?> BuscarPorDniAsync(string dni)
     {
         using var db = CreateConnection();
         var sql = """
@@ -86,7 +86,7 @@ public class MatriculaturaService : IMatriculaturaService
             WHERE p.dni = @Dni
             LIMIT 1;
             """;
-        var dto = await db.QueryFirstOrDefaultAsync<ExpedienteMatriculaDto>(sql, new { Dni = dni.Trim() });
+        var dto = await db.QueryFirstOrDefaultAsync<ModeloExpedienteMatricula>(sql, new { Dni = dni.Trim() });
         if (dto == null) return null;
 
         // Historial académico del último período cursado → aprobados/desaprobados
@@ -101,7 +101,7 @@ public class MatriculaturaService : IMatriculaturaService
             WHERE h.estudiante_id = @EstudianteId
             ORDER BY ud.ciclo, ud.codigo;
             """;
-        var hist = (await db.QueryAsync<HistorialFilaDto>(histSql,
+        var hist = (await db.QueryAsync<ModeloHistorialFila>(histSql,
             new { dto.EstudianteId })).ToList();
         dto.Historial = hist;
 
@@ -141,7 +141,7 @@ public class MatriculaturaService : IMatriculaturaService
             WHERE ud.carrera_id = @CarreraId AND ud.ciclo = @Ciclo
             ORDER BY ud.codigo;
             """;
-        var oferta = (await db.QueryAsync<UnidadOfertaDto>(ofertaCore,
+        var oferta = (await db.QueryAsync<ModeloUnidadOferta>(ofertaCore,
             new { dto.CarreraId, Ciclo = dto.CicloProximo })).ToList();
         if (oferta.Count == 0)
         {
@@ -158,7 +158,7 @@ public class MatriculaturaService : IMatriculaturaService
                 WHERE oc.carrera_id = @CarreraId AND oc.ciclo = @Ciclo
                 ORDER BY oc.codigo;
                 """;
-            oferta = (await db.QueryAsync<UnidadOfertaDto>(ofertaEspejo,
+            oferta = (await db.QueryAsync<ModeloUnidadOferta>(ofertaEspejo,
                 new { dto.CarreraId, Ciclo = dto.CicloProximo })).ToList();
         }
 
@@ -176,7 +176,7 @@ public class MatriculaturaService : IMatriculaturaService
             var udId = await db.ExecuteScalarAsync<int?>(
                 "SELECT id FROM unidades_didacticas WHERE codigo = @Cod LIMIT 1;",
                 new { Cod = d.UnidadCodigo });
-            oferta.Add(new UnidadOfertaDto
+            oferta.Add(new ModeloUnidadOferta
             {
                 Id = udId ?? 0,
                 Origen = "core",
@@ -214,7 +214,7 @@ public class MatriculaturaService : IMatriculaturaService
             ORDER BY m.creado_en DESC
             LIMIT 1;
             """;
-        var voucher = await db.QueryFirstOrDefaultAsync<ReservaDto>(
+        var voucher = await db.QueryFirstOrDefaultAsync<ModeloReserva>(
             voucherSql
                       ,
             new { dto.EstudianteId });
@@ -243,7 +243,7 @@ public class MatriculaturaService : IMatriculaturaService
                 ORDER BY t.creado_en DESC
                 LIMIT 1;
                 """;
-            voucher = await db.QueryFirstOrDefaultAsync<ReservaDto>(
+            voucher = await db.QueryFirstOrDefaultAsync<ModeloReserva>(
                 tramiteSql, new { dto.EstudianteId });
         }
 
@@ -252,7 +252,7 @@ public class MatriculaturaService : IMatriculaturaService
         // Regla del sistema (uq_matricula_vigente): un estudiante tiene UNA sola
         // matrícula no anulada por período. Si ya está Matriculado en un período
         // habilitado, no se abre otra — esa es SU matrícula del período.
-        var yaMatriculado = await db.QueryFirstOrDefaultAsync<ReservaDto>("""
+        var yaMatriculado = await db.QueryFirstOrDefaultAsync<ModeloReserva>("""
             SELECT m.id AS MatriculaId,
                    m.codigo_matricula AS CodigoMatricula,
                    'Matriculado' AS Estado
@@ -299,7 +299,7 @@ public class MatriculaturaService : IMatriculaturaService
     // ------------------------------------------------------------------
     // MATRICULAR: cierra la matrícula del período con las UDs elegidas
     // ------------------------------------------------------------------
-    public async Task<(bool, string, int)> MatricularAsync(MatricularCommand cmd, int usuarioId)
+    public async Task<(bool, string, int)> MatricularAsync(MatricularComando cmd, int usuarioId)
     {
         using var db = CreateConnection();
         db.Open();
@@ -318,7 +318,7 @@ public class MatriculaturaService : IMatriculaturaService
 
         // 1) La reserva: matrícula "En trámite" existente, o el propio trámite TM05
         //    con voucher Validado (la matrícula se crea aquí mismo en la transacción).
-        MatriculaCierreDto? fila = null;
+        ModeloMatriculaCierre? fila = null;
         if (cmd.MatriculaId is int mid)
         {
             var upd = """
@@ -341,7 +341,7 @@ public class MatriculaturaService : IMatriculaturaService
                           turno_id AS TurnoId,
                           periodo_id AS PeriodoId;
                 """;
-            fila = await db.QueryFirstOrDefaultAsync<MatriculaCierreDto>(upd, new
+            fila = await db.QueryFirstOrDefaultAsync<ModeloMatriculaCierre>(upd, new
             {
                 Id = mid,
                 TurnoId = cmd.TurnoId,
@@ -440,7 +440,7 @@ public class MatriculaturaService : IMatriculaturaService
                 UsuarioId = usuarioId,
                 TramiteId = tramId
             }, tx);
-            fila = new MatriculaCierreDto
+            fila = new ModeloMatriculaCierre
             {
                 Id = nuevoId,
                 EstudianteId = estudiante.Id,
@@ -530,7 +530,7 @@ public class MatriculaturaService : IMatriculaturaService
     // ------------------------------------------------------------------
     // FICHA PDF: datos de la matrícula cerrada para el PDF y el reenvío
     // ------------------------------------------------------------------
-    public async Task<FichaMatriculaDto?> ObtenerFichaAsync(int matriculaId)
+    public async Task<ModeloFichaMatricula?> ObtenerFichaAsync(int matriculaId)
     {
         using var db = CreateConnection();
 
@@ -557,7 +557,7 @@ public class MatriculaturaService : IMatriculaturaService
             LEFT JOIN tipos_matricula tm ON tm.id = m.tipo_matricula_id
             WHERE m.id = @Id;
             """;
-        var ficha = await db.QueryFirstOrDefaultAsync<FichaMatriculaDto>(sql, new { Id = matriculaId });
+        var ficha = await db.QueryFirstOrDefaultAsync<ModeloFichaMatricula>(sql, new { Id = matriculaId });
         if (ficha == null) return null;
 
         // UDs inscritas: de core (unidad_didactica_id) o del espejo mod01.oferta_ciclo
@@ -578,7 +578,7 @@ public class MatriculaturaService : IMatriculaturaService
             ) x
             ORDER BY x.Codigo;
             """;
-        ficha.Unidades = (await db.QueryAsync<UnidadOfertaDto>(uds, new { Id = matriculaId })).ToList();
+        ficha.Unidades = (await db.QueryAsync<ModeloUnidadOferta>(uds, new { Id = matriculaId })).ToList();
 
         // Ciclo culminado/próximo: el mayor ciclo de las UDs inscritas menos uno,
         // o el del historial del estudiante
@@ -595,12 +595,12 @@ public class MatriculaturaService : IMatriculaturaService
     // del propio estudiante — historial con notas, promedio, condición y
     // el estado de SU flujo de reserva (trámite → voucher → matrícula).
     // ------------------------------------------------------------------
-    public async Task<PanelAlumnoDto?> PanelAlumnoAsync(int estudianteId)
+    public async Task<ModeloPanelAlumno?> PanelAlumnoAsync(int estudianteId)
     {
         using var db = CreateConnection();
 
         // Datos base del estudiante
-        var dto = await db.QueryFirstOrDefaultAsync<PanelAlumnoDto>("""
+        var dto = await db.QueryFirstOrDefaultAsync<ModeloPanelAlumno>("""
             SELECT e.codigo_estudiante AS CodigoEstudiante,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
                    c.nombre AS Carrera,
@@ -624,7 +624,7 @@ public class MatriculaturaService : IMatriculaturaService
             WHERE h.estudiante_id = @Id
             ORDER BY ud.ciclo, ud.codigo;
             """;
-        dto.Historial = (await db.QueryAsync<HistorialFilaDto>(histSql,
+        dto.Historial = (await db.QueryAsync<ModeloHistorialFila>(histSql,
             new { Id = estudianteId })).ToList();
 
         // Promedio ponderado y créditos aprobados (del historial + UDs oficiales)
@@ -672,10 +672,10 @@ public class MatriculaturaService : IMatriculaturaService
                 ,
             new { Id = estudianteId }) ?? new ReservaAlumnoRow();
 
-        var pasos = new List<PasoFlujoDto>();
+        var pasos = new List<ModeloPasoFlujo>();
         // Paso 1: trámite TM05 (mod09) — existe si hay reserva o trámite directo
         var tramiteExiste = reserva.TramiteCodigo != "" || reserva.MatriculaId > 0;
-        pasos.Add(new PasoFlujoDto
+        pasos.Add(new ModeloPasoFlujo
         {
             Titulo = "Trámite de Reserva (TM05)",
             Detalle = reserva.TramiteCodigo != "" ? $"{reserva.TramiteCodigo} — {reserva.TramiteEstado}"
@@ -684,7 +684,7 @@ public class MatriculaturaService : IMatriculaturaService
         });
         // Paso 2: voucher validado por Tesorería
         var voucherOk = reserva.Voucher == "Validado" || reserva.Estado == "Matriculado";
-        pasos.Add(new PasoFlujoDto
+        pasos.Add(new ModeloPasoFlujo
         {
             Titulo = "Voucher validado por Tesorería",
             Detalle = voucherOk ? "Tu voucher fue validado ✅"
@@ -695,7 +695,7 @@ public class MatriculaturaService : IMatriculaturaService
         });
         // Paso 3: matrícula cerrada por Secretaría
         var cerrada = reserva.Estado == "Matriculado";
-        pasos.Add(new PasoFlujoDto
+        pasos.Add(new ModeloPasoFlujo
         {
             Titulo = "Matrícula cerrada por Secretaría",
             Detalle = cerrada ? $"{reserva.Codigo} — matriculado en el ciclo {dto.CicloProximo}"
@@ -712,12 +712,12 @@ public class MatriculaturaService : IMatriculaturaService
     // Matrícula (TM05/CT13). El puesto de Tesorería valida vouchers en
     // el módulo 09 — este panel le muestra el estado económico del flujo.
     // ------------------------------------------------------------------
-    public async Task<ResumenTesoreriaMatriculaDto> ResumenTesoreriaAsync()
+    public async Task<ModeloResumenTesoreriaMatricula> ResumenTesoreriaAsync()
     {
         using var db = CreateConnection();
         var tablaPagos = "mod09.pagos";
 
-        var dto = await db.QueryFirstOrDefaultAsync<ResumenTesoreriaMatriculaDto>("""
+        var dto = await db.QueryFirstOrDefaultAsync<ModeloResumenTesoreriaMatricula>("""
             SELECT count(*) FILTER (WHERE pg.voucher_estado = 'Pendiente')   AS VouchersPendientes,
                    count(*) FILTER (WHERE pg.voucher_estado = 'Validado')    AS VouchersValidados,
                    count(*) FILTER (WHERE pg.voucher_estado = 'Rechazado')   AS VouchersRechazados,
@@ -727,7 +727,7 @@ public class MatriculaturaService : IMatriculaturaService
             LEFT JOIN mod09.pagos pg ON pg.id = t.pago_id
             WHERE tt.codigo = 'TM05'
               AND t.estado NOT IN ('Rechazado', 'Entregado');
-            """) ?? new ResumenTesoreriaMatriculaDto();
+            """) ?? new ModeloResumenTesoreriaMatricula();
 
         // Reservas con voucher validado cuya matrícula aún no está cerrada:
         // el alumno pagó y Tesorería validó, pero Secretaría no ha matriculado.
@@ -752,7 +752,7 @@ public class MatriculaturaService : IMatriculaturaService
     // SU puesto. Listas para cerrar, ya cerradas del período y el estado
     // de las reservas que esperan algo (voucher de Tesorería).
     // ------------------------------------------------------------------
-    public async Task<ResumenSecretariaMatriculaDto> ResumenSecretariaAsync()
+    public async Task<ModeloResumenSecretariaMatricula> ResumenSecretariaAsync()
     {
         using var db = CreateConnection();
         var tablaPagos = "mod09.pagos";
@@ -796,7 +796,7 @@ public class MatriculaturaService : IMatriculaturaService
               AND t.estado IN ('Recibido', 'En evaluación');
             """;
 
-        var dto = new ResumenSecretariaMatriculaDto
+        var dto = new ModeloResumenSecretariaMatricula
         {
             ListasParaCerrar = await db.ExecuteScalarAsync<int>(listasSql
                 ),
@@ -820,7 +820,7 @@ public class MatriculaturaService : IMatriculaturaService
             HAVING count(m.id) > 0
             ORDER BY 3 DESC;
             """;
-        dto.PorCarrera = (await db.QueryAsync<MatriculasPorCarreraDto>(
+        dto.PorCarrera = (await db.QueryAsync<ModeloMatriculasPorCarrera>(
             porCarreraSql)).ToList();
         return dto;
     }
