@@ -16,7 +16,7 @@ public static class FichaMatriculaPdf
     static FichaMatriculaPdf() => QuestPDF.Settings.License = LicenseType.Community;
 
     /// <summary>Genera la ficha en bytes lista para descargar o adjuntar.</summary>
-    public static byte[] Generar(FichaMatriculaDto ficha)
+    public static byte[] Generar(ModeloFichaMatricula ficha)
     {
         var doc = Document.Create(container =>
         {

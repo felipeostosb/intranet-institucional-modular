@@ -15,14 +15,14 @@ namespace Intranet.Modulo01.Controllers;
 [Route("Modulo01")]
 public class Modulo01Controller : ModuloBaseController
 {
-    private readonly IMatriculaService _matriculaService;
-    private readonly IMatriculaturaService _matriculaturaService;
+    private readonly IMatriculaServicio _servicioMatricula;
+    private readonly IMatriculaturaServicio _servicioMatriculatura;
 
-    public Modulo01Controller(IMatriculaService matriculaService,
-        IMatriculaturaService matriculaturaService)
+    public Modulo01Controller(IMatriculaServicio servicioMatricula,
+        IMatriculaturaServicio servicioMatriculatura)
     {
-        _matriculaService = matriculaService;
-        _matriculaturaService = matriculaturaService;
+        _servicioMatricula = servicioMatricula;
+        _servicioMatriculatura = servicioMatriculatura;
     }
 
     [HttpGet("")]
@@ -39,12 +39,12 @@ public class Modulo01Controller : ModuloBaseController
 
         var esAlumno = EsAlumno; // ActiveRole-aware: demo 87654321 multi-rol en Modo Alumno
 
-        var vm = new Modulo01DashboardViewModel
+        var vm = new ModeloPanelModulo01Vista
         {
             EsAlumno = esAlumno,
-            Resumen = await _matriculaService.ObtenerResumenAsync(),
-            Ultimas = (await _matriculaService.ListarPorPeriodoAsync(null)).Take(5),
-            VacantesCriticas = (await _matriculaService.ListarVacantesAsync())
+            Resumen = await _servicioMatricula.ObtenerResumenAsync(),
+            Ultimas = (await _servicioMatricula.ListarPorPeriodoAsync(null)).Take(5),
+            VacantesCriticas = (await _servicioMatricula.ListarVacantesAsync())
                 .OrderBy(v => v.Disponibles).Take(4),
             NombreUsuario = UsuarioActualNombre,
             RolUsuario = UsuarioActualRol
@@ -52,13 +52,13 @@ public class Modulo01Controller : ModuloBaseController
         // Mini-dashboard personal del alumno: historial, promedio y estado de SU flujo.
         if (esAlumno)
         {
-            var factory = HttpContext.RequestServices
+            var fabrica = HttpContext.RequestServices
                 .GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-            using var conn = factory.CreateConnection("01");
+            using var conn = fabrica.CreateConnection("01");
             var estudianteId = await conn.ExecuteScalarAsync<int?>(
                 "SELECT e.id FROM core.estudiantes e WHERE e.persona_id = @PersonaId;",
                 new { PersonaId = PersonaActualId ?? 0 }) ?? 0;
-            vm.Panel = await _matriculaturaService.PanelAlumnoAsync(estudianteId);
+            vm.Panel = await _servicioMatriculatura.PanelAlumnoAsync(estudianteId);
         }
 
         // Resumen POR PUESTO (rol activo) — anti-confusión Tesorería/Secretaría:
@@ -66,26 +66,26 @@ public class Modulo01Controller : ModuloBaseController
         // Secretaría ve SU trabajo (cierres de matrícula). Jefaturas: vista general.
         var rolActivo = ViewData["RolesUsuario"]?.ToString() ?? "";
         if (rolActivo.Equals("Tesoreria", StringComparison.OrdinalIgnoreCase))
-            vm.ResumenTesoreria = await _matriculaturaService.ResumenTesoreriaAsync();
+            vm.ResumenTesoreria = await _servicioMatriculatura.ResumenTesoreriaAsync();
         if (rolActivo.Equals("Secretaria", StringComparison.OrdinalIgnoreCase))
-            vm.ResumenSecretaria = await _matriculaturaService.ResumenSecretariaAsync();
+            vm.ResumenSecretaria = await _servicioMatriculatura.ResumenSecretariaAsync();
         return View(vm);
     }
 }
 
 /// <summary>ViewModel de la portada del módulo.</summary>
-public class Modulo01DashboardViewModel
+public class ModeloPanelModulo01Vista
 {
     public bool EsAlumno { get; set; }
-    public ResumenMatriculaDto Resumen { get; set; } = new();
-    public IEnumerable<MatriculaListaDto> Ultimas { get; set; } = [];
-    public IEnumerable<VacanteDto> VacantesCriticas { get; set; } = [];
+    public ModeloResumenMatricula Resumen { get; set; } = new();
+    public IEnumerable<ModeloMatriculaLista> Ultimas { get; set; } = [];
+    public IEnumerable<ModeloVacante> VacantesCriticas { get; set; } = [];
     public string NombreUsuario { get; set; } = "";
     public string RolUsuario { get; set; } = "";
     /// <summary>Mini-dashboard personal (solo rol activo Alumno).</summary>
-    public PanelAlumnoDto? Panel { get; set; }
+    public ModeloPanelAlumno? Panel { get; set; }
     /// <summary>Panel de vouchers de reserva (solo rol activo Tesorería).</summary>
-    public ResumenTesoreriaMatriculaDto? ResumenTesoreria { get; set; }
+    public ModeloResumenTesoreriaMatricula? ResumenTesoreria { get; set; }
     /// <summary>Panel de cierre de matrículas (solo rol activo Secretaría).</summary>
-    public ResumenSecretariaMatriculaDto? ResumenSecretaria { get; set; }
+    public ModeloResumenSecretariaMatricula? ResumenSecretaria { get; set; }
 }

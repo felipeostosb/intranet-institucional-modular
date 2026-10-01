@@ -17,10 +17,10 @@ namespace Intranet.Modulo01.Controllers;
 [Route("Modulo01/[controller]")]
 public class MatriculaturaController : ModuloBaseController
 {
-    private readonly IMatriculaturaService _matriculatura;
-    private readonly IEmailFichaService _emailFicha;
+    private readonly IMatriculaturaServicio _matriculatura;
+    private readonly IServicioCorreoFicha _emailFicha;
 
-    public MatriculaturaController(IMatriculaturaService matriculatura, IEmailFichaService emailFicha)
+    public MatriculaturaController(IMatriculaturaServicio matriculatura, IServicioCorreoFicha emailFicha)
     {
         _matriculatura = matriculatura;
         _emailFicha = emailFicha;
@@ -42,7 +42,7 @@ public class MatriculaturaController : ModuloBaseController
     {
         if (!EsSecretaria && !EsDirector) return Forbid();
         ViewData["Title"] = "01. Matriculatura (Secretaría)";
-        return View("Buscar", new MatriculaturaBuscarViewModel { Dni = dni ?? "" });
+        return View("Buscar", new ModeloBusquedaMatriculaturaVista { Dni = dni ?? "" });
     }
 
     /// <summary>Busca el expediente del alumno por DNI y muestra su situación.</summary>
@@ -64,7 +64,7 @@ public class MatriculaturaController : ModuloBaseController
         }
 
         var turnosTipos = await ObtenerTurnosTiposAsync();
-        var vm = new MatriculaturaExpedienteViewModel
+        var vm = new ModeloExpedienteMatriculaturaVista
         {
             Expediente = expediente,
             Turnos = turnosTipos.Turnos,
@@ -78,7 +78,7 @@ public class MatriculaturaController : ModuloBaseController
     // ------------------------------------------------------------------
     [HttpPost("Matricular")]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Matricular(MatricularFormViewModel form)
+    public async Task<IActionResult> Matricular(ModeloFormularioMatricularVista form)
     {
         if (!EsSecretaria && !EsDirector) return Forbid();
 
@@ -98,7 +98,7 @@ public class MatriculaturaController : ModuloBaseController
             return RedirectToAction(nameof(Expediente), new { dni = form.Dni });
         }
 
-        var cmd = new MatricularCommand(
+        var cmd = new MatricularComando(
             form.Dni, form.MatriculaId, form.TramiteId, form.CicloProximo ?? "",
             form.TurnoId, form.TipoMatriculaId,
             form.Condicion ?? "", form.CursosDesaprobadosNombres ?? "",
@@ -158,21 +158,21 @@ public class MatriculaturaController : ModuloBaseController
     // ------------------------------------------------------------------
     // Helpers de contexto
     // ------------------------------------------------------------------
-    private async Task<(IEnumerable<TurnoDto> Turnos, IEnumerable<TipoMatriculaDto> Tipos)> ObtenerTurnosTiposAsync()
+    private async Task<(IEnumerable<ModeloTurno> Turnos, IEnumerable<ModeloTipoMatricula> Tipos)> ObtenerTurnosTiposAsync()
     {
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("01");
-        var turnos = await conn.QueryAsync<TurnoDto>(
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("01");
+        var turnos = await conn.QueryAsync<ModeloTurno>(
             "SELECT id AS Id, nombre AS Nombre FROM turnos ORDER BY id;");
-        var tipos = await conn.QueryAsync<TipoMatriculaDto>(
+        var tipos = await conn.QueryAsync<ModeloTipoMatricula>(
             "SELECT id AS Id, nombre AS Nombre FROM tipos_matricula ORDER BY id;");
         return (turnos, tipos);
     }
 
     private async Task<(string? Inst, string? Pers)> ObtenerCorreosAsync(string codigoEstudiante)
     {
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("01");
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("01");
         var row = await conn.QueryFirstOrDefaultAsync<(string?, string?)>(
             """
             SELECT u.email, p.email_personal
@@ -190,21 +190,21 @@ public class MatriculaturaController : ModuloBaseController
 // ---------------------------------------------------------------------
 
 /// <summary>Pantalla de búsqueda por DNI.</summary>
-public class MatriculaturaBuscarViewModel
+public class ModeloBusquedaMatriculaturaVista
 {
     public string Dni { get; set; } = "";
 }
 
 /// <summary>Expediente del alumno listo para cerrar su matrícula.</summary>
-public class MatriculaturaExpedienteViewModel
+public class ModeloExpedienteMatriculaturaVista
 {
-    public ExpedienteMatriculaDto Expediente { get; set; } = new();
-    public IEnumerable<TurnoDto> Turnos { get; set; } = [];
-    public IEnumerable<TipoMatriculaDto> TiposMatricula { get; set; } = [];
+    public ModeloExpedienteMatricula Expediente { get; set; } = new();
+    public IEnumerable<ModeloTurno> Turnos { get; set; } = [];
+    public IEnumerable<ModeloTipoMatricula> TiposMatricula { get; set; } = [];
 }
 
 /// <summary>Form del cierre de matrícula (checkboxes de UDs).</summary>
-public class MatricularFormViewModel
+public class ModeloFormularioMatricularVista
 {
     public string Dni { get; set; } = "";
     public int? MatriculaId { get; set; }
@@ -218,14 +218,14 @@ public class MatricularFormViewModel
 }
 
 /// <summary>Turno para el select de la vista.</summary>
-public class TurnoDto
+public class ModeloTurno
 {
     public int Id { get; set; }
     public string Nombre { get; set; } = "";
 }
 
 /// <summary>Tipo de matrícula para el select de la vista.</summary>
-public class TipoMatriculaDto
+public class ModeloTipoMatricula
 {
     public int Id { get; set; }
     public string Nombre { get; set; } = "";

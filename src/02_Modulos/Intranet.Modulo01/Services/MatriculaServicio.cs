@@ -13,35 +13,35 @@ namespace Intranet.Modulo01.Services;
 ///   etapa:   Validación | Conformidad | Cerrada
 ///   condicion: Ingresante | Promovido | Promovido con curso a cargo | Repitente | Reingresante | Traslado
 /// </summary>
-public interface IMatriculaService
+public interface IMatriculaServicio
 {
-    Task<MatriculaActivaDto?> ObtenerMatriculaActivaAsync(int estudianteId);
-    Task<IEnumerable<MatriculaListaDto>> ListarPorPeriodoAsync(string? filtroEstado);
-    Task<IEnumerable<MatriculaListaDto>> ListarListasParaRegistrarAsync();
-    Task<IEnumerable<MatriculaListaDto>> ListarEnEsperaAsync();
-    Task<IEnumerable<MatriculaPorLiberarDto>> ListarVacantesPorLiberarAsync(int diasLimite = 20);
-    Task<ResumenMatriculaDto> ObtenerResumenAsync();
+    Task<ModeloMatriculaActiva?> ObtenerMatriculaActivaAsync(int estudianteId);
+    Task<IEnumerable<ModeloMatriculaLista>> ListarPorPeriodoAsync(string? filtroEstado);
+    Task<IEnumerable<ModeloMatriculaLista>> ListarListasParaRegistrarAsync();
+    Task<IEnumerable<ModeloMatriculaLista>> ListarEnEsperaAsync();
+    Task<IEnumerable<ModeloMatriculaPorLiberar>> ListarVacantesPorLiberarAsync(int diasLimite = 20);
+    Task<ModeloResumenMatricula> ObtenerResumenAsync();
     Task<bool> ValidarVoucherAsync(int matriculaId, bool aprobar);
     Task<bool> ValidarFotoAsync(int matriculaId, bool aprobar);
     Task<(bool Ok, string Mensaje)> RegistrarMatriculaAsync(int matriculaId, int usuarioId);
-    Task<IEnumerable<VacanteDto>> ListarVacantesAsync();
+    Task<IEnumerable<ModeloVacante>> ListarVacantesAsync();
 }
 
-public class MatriculaService : IMatriculaService
+public class MatriculaServicio : IMatriculaServicio
 {
-    private readonly IModuleDbConnectionFactory _connectionFactory;
+    private readonly IModuleDbConnectionFactory _fabricaConexion;
 
-    public MatriculaService(IModuleDbConnectionFactory connectionFactory)
+    public MatriculaServicio(IModuleDbConnectionFactory fabricaConexion)
     {
-        _connectionFactory = connectionFactory;
+        _fabricaConexion = fabricaConexion;
     }
 
-    private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("01");
+    private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("01");
 
     // ------------------------------------------------------------------
     // Vista ALUMNO: su matrícula vigente con el avance del proceso
     // ------------------------------------------------------------------
-    public async Task<MatriculaActivaDto?> ObtenerMatriculaActivaAsync(int estudianteId)
+    public async Task<ModeloMatriculaActiva?> ObtenerMatriculaActivaAsync(int estudianteId)
     {
         using var db = CreateConnection();
         var sql = """
@@ -74,13 +74,13 @@ public class MatriculaService : IMatriculaService
             ORDER BY m.creado_en DESC
             LIMIT 1;
             """;
-        return await db.QueryFirstOrDefaultAsync<MatriculaActivaDto>(sql, new { EstudianteId = estudianteId });
+        return await db.QueryFirstOrDefaultAsync<ModeloMatriculaActiva>(sql, new { EstudianteId = estudianteId });
     }
 
     // ------------------------------------------------------------------
     // Vista PERSONAL: tabla general del semestre con filtro por estado
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<MatriculaListaDto>> ListarPorPeriodoAsync(string? filtroEstado)
+    public async Task<IEnumerable<ModeloMatriculaLista>> ListarPorPeriodoAsync(string? filtroEstado)
     {
         using var db = CreateConnection();
         var sql = """
@@ -109,14 +109,14 @@ public class MatriculaService : IMatriculaService
             WHERE (@Estado IS NULL OR m.estado = @Estado)
             ORDER BY m.creado_en DESC;
             """;
-        return await db.QueryAsync<MatriculaListaDto>(sql,
+        return await db.QueryAsync<ModeloMatriculaLista>(sql,
             new { Estado = string.IsNullOrWhiteSpace(filtroEstado) ? null : filtroEstado });
     }
 
     // ------------------------------------------------------------------
     // Zona A del puesto de trabajo: doble validación completa → conformidad
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<MatriculaListaDto>> ListarListasParaRegistrarAsync()
+    public async Task<IEnumerable<ModeloMatriculaLista>> ListarListasParaRegistrarAsync()
     {
         using var db = CreateConnection();
         var sql = """
@@ -147,13 +147,13 @@ public class MatriculaService : IMatriculaService
               AND m.foto_ok = TRUE
             ORDER BY m.creado_en;
             """;
-        return await db.QueryAsync<MatriculaListaDto>(sql);
+        return await db.QueryAsync<ModeloMatriculaLista>(sql);
     }
 
     // ------------------------------------------------------------------
     // Zona B: esperando alguna de las dos validaciones
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<MatriculaListaDto>> ListarEnEsperaAsync()
+    public async Task<IEnumerable<ModeloMatriculaLista>> ListarEnEsperaAsync()
     {
         using var db = CreateConnection();
         var sql = """
@@ -183,7 +183,7 @@ public class MatriculaService : IMatriculaService
               AND (m.voucher_ok = FALSE OR m.foto_ok = FALSE)
             ORDER BY m.creado_en;
             """;
-        return await db.QueryAsync<MatriculaListaDto>(sql);
+        return await db.QueryAsync<ModeloMatriculaLista>(sql);
     }
 
     // ------------------------------------------------------------------
@@ -191,7 +191,7 @@ public class MatriculaService : IMatriculaService
     // Nota: días naturales (el cálculo en días hábiles con feriados
     // pertenece a mod09 — soberanía de esquemas; se coordina por evento).
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<MatriculaPorLiberarDto>> ListarVacantesPorLiberarAsync(int diasLimite = 20)
+    public async Task<IEnumerable<ModeloMatriculaPorLiberar>> ListarVacantesPorLiberarAsync(int diasLimite = 20)
     {
         using var db = CreateConnection();
         var sql = """
@@ -213,13 +213,13 @@ public class MatriculaService : IMatriculaService
               AND m.creado_en::date < CURRENT_DATE - @DiasLimite
             ORDER BY m.creado_en;
             """;
-        return await db.QueryAsync<MatriculaPorLiberarDto>(sql, new { DiasLimite = diasLimite });
+        return await db.QueryAsync<ModeloMatriculaPorLiberar>(sql, new { DiasLimite = diasLimite });
     }
 
     // ------------------------------------------------------------------
     // Métricas del dashboard del módulo
     // ------------------------------------------------------------------
-    public async Task<ResumenMatriculaDto> ObtenerResumenAsync()
+    public async Task<ModeloResumenMatricula> ObtenerResumenAsync()
     {
         using var db = CreateConnection();
         var sql = """
@@ -232,8 +232,8 @@ public class MatriculaService : IMatriculaService
                    count(*) FILTER (WHERE estado = 'Reservada')                  AS Reservadas
             FROM matriculas;
             """;
-        return await db.QueryFirstOrDefaultAsync<ResumenMatriculaDto>(sql)
-               ?? new ResumenMatriculaDto();
+        return await db.QueryFirstOrDefaultAsync<ModeloResumenMatricula>(sql)
+               ?? new ModeloResumenMatricula();
     }
 
     // ------------------------------------------------------------------
@@ -294,7 +294,7 @@ public class MatriculaService : IMatriculaService
             RETURNING carrera_id AS CarreraId, ciclo_id AS CicloId,
                       turno_id AS TurnoId, periodo_id AS PeriodoId;
             """;
-        var fila = await db.QueryFirstOrDefaultAsync<VacanteConsumoDto>(upd,
+        var fila = await db.QueryFirstOrDefaultAsync<ModeloVacanteConsumo>(upd,
             new { Id = matriculaId, UsuarioId = usuarioId }, tx);
 
         if (fila == null || fila.CarreraId == 0)
@@ -329,7 +329,7 @@ public class MatriculaService : IMatriculaService
     // ------------------------------------------------------------------
     // Tablero de vacantes por carril (periodo activo)
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<VacanteDto>> ListarVacantesAsync()
+    public async Task<IEnumerable<ModeloVacante>> ListarVacantesAsync()
     {
         using var db = CreateConnection();
         var sql = """
@@ -350,6 +350,6 @@ public class MatriculaService : IMatriculaService
             JOIN ciclos ci ON ci.id = v.ciclo_id
             ORDER BY c.codigo, t.codigo, ci.codigo;
             """;
-        return await db.QueryAsync<VacanteDto>(sql);
+        return await db.QueryAsync<ModeloVacante>(sql);
     }
 }
