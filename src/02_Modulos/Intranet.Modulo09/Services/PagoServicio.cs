@@ -46,8 +46,10 @@ public class PagoServicio : IPagoServicio
 
     private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("09");
 
-    private const string SqlNuevoRecibo =
-        "SELECT 'REC-' || lpad((count(*) + 1)::text, 4, '0') FROM pagos;";
+    private const string SqlNuevoRecibo = """
+        SELECT 'REC-' || lpad((COALESCE((SELECT MAX(right(codigo, 4)::int)
+                                         FROM pagos WHERE codigo ~ '^REC-[0-9]{4}$'), 0) + 1)::text, 4, '0');
+        """;
 
     // ------------------------------------------------------------------
     // ALUMNO: sus pagos con el concepto y estado del voucher
@@ -145,8 +147,14 @@ public class PagoServicio : IPagoServicio
     public async Task<(bool, string)> RegistrarPagoEstudianteAsync(
         int estudianteId, int periodoId, string conceptoCodigo, string tipoPagoCodigo, decimal monto, string? nota)
     {
+        // El importe lo manda SIEMPRE el catálogo TUPA, nunca el formulario.
+        // Se conserva el parámetro por compatibilidad de firma, pero el alumno
+        // no tiene autoridad para decidir cuánto se paga: antes el valor que
+        // posteaba el navegadorganaba siempre que fuera un número válido
+        // (S/ 0.01 para una Reserva de Matrícula de S/ 30), y eso habilitaba
+        // matricular sin pagar.
         return await InsertarPagoAsync(estudianteId, periodoId, conceptoCodigo,
-            tipoPagoCodigo, monto, "Pendiente", null, nota);
+            tipoPagoCodigo, monto, "Pendiente", null, nota, usarMontoDelCatalogo: true);
     }
 
     // ------------------------------------------------------------------
@@ -155,13 +163,18 @@ public class PagoServicio : IPagoServicio
     public async Task<(bool, string)> EmitirReciboDirectoAsync(
         int estudianteId, int periodoId, string conceptoCodigo, string tipoPagoCodigo, decimal monto, int cajeroId)
     {
+        // El cajero SÍ tiene autoridad sobre el importe cobrado en caja (pago
+        // parcial, ajuste, recargo), pero se le avisa cuando lo que cobra no
+        // coincide con el importe del TUPA para que la diferencia quede
+        // registrada en la bitácora y no pase inadvertida.
         return await InsertarPagoAsync(estudianteId, periodoId, conceptoCodigo,
-            tipoPagoCodigo, monto, "Validado", cajeroId, null);
+            tipoPagoCodigo, monto, "Validado", cajeroId, null, usarMontoDelCatalogo: false);
     }
 
     private async Task<(bool, string)> InsertarPagoAsync(
         int estudianteId, int periodoId, string conceptoCodigo, string tipoPagoCodigo,
-        decimal monto, string estadoInicial, int? validadorId, string? nota)
+        decimal monto, string estadoInicial, int? validadorId, string? nota,
+        bool usarMontoDelCatalogo)
     {
         using var db = CreateConnection();
         db.Open();
@@ -191,6 +204,13 @@ public class PagoServicio : IPagoServicio
             return (false, "El monto debe ser mayor que cero.");
         }
 
+        // El catálogo es la autoridad del importe. Si el flujo no delega en él
+        // (recibo de caja), se avisa de la diferencia en vez de ignorarla.
+        decimal montoFinal = usarMontoDelCatalogo ? concepto.Monto : monto;
+        string? avisoDiferencia = (!usarMontoDelCatalogo && monto != concepto.Monto)
+            ? $" Ojo: el importe cobrado (S/ {monto:0.00}) difiere del TUPA (S/ {concepto.Monto:0.00})."
+            : null;
+
         var codigo = await db.ExecuteScalarAsync<string>(SqlNuevoRecibo, transaction: tx);
 
         var filas = await db.ExecuteAsync("""
@@ -208,7 +228,7 @@ public class PagoServicio : IPagoServicio
             ConceptoId = concepto.Id,
             PeriodoId = periodoId,
             TipoId = tipoId.Value,
-            Monto = monto,
+            Monto = montoFinal,
             Estado = estadoInicial,
             Validador = validadorId,
             Nota = nota
@@ -216,7 +236,7 @@ public class PagoServicio : IPagoServicio
 
         tx.Commit();
         return filas > 0
-            ? (true, $"Recibo {codigo} registrado por S/ {monto:0.00}.")
+            ? (true, $"Recibo {codigo} registrado por S/ {montoFinal:0.00}.{avisoDiferencia}")
             : (false, "No se pudo registrar el pago.");
     }
 

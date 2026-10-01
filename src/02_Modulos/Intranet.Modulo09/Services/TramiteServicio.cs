@@ -59,8 +59,17 @@ public class TramiteServicio : ITramiteServicio
     // producción: "pagos" es una tabla antigua de otro dueño; la
     // nuestra es pagos hasta que el DBA restaure el nombre oficial).
     // ------------------------------------------------------------------
-    // número correlativo de trámite: T0001, T0002... según el diseño del prototipo
-    private const string SqlNuevoCodigo = "SELECT 'T' || lpad((count(*) + 1)::text, 4, '0') FROM tramites;";
+    // Número correlativo de trámite: T0001, T0002... según el diseño del prototipo.
+    // El correlativo se deriva del MÁXIMO del sufijo numérico, NO de count(*)+1.
+    // Con count(*) cualquier borrado (un cajero anula un trámite, una prueba en
+    // espejo) deja huecos y el siguiente INSERT choca con el UNIQUE de codigo y
+    // revienta con 500. Solo se consideran los códigos con el formato propio
+    // 'T####': en producción conviven con los 'TRA-2026-####' de las semillas
+    // heredadas del core, que son otra serie.
+    private const string SqlNuevoCodigo = """
+        SELECT 'T' || lpad((COALESCE((SELECT MAX(right(codigo, 4)::int)
+                                       FROM tramites WHERE codigo ~ '^T[0-9]{4}$'), 0) + 1)::text, 4, '0');
+        """;
 
     // ------------------------------------------------------------------
     // ALUMNO: sus trámites con días transcurridos y estado de pago
@@ -111,12 +120,14 @@ public class TramiteServicio : ITramiteServicio
                    p.nombres || ' ' || p.apellidos AS Estudiante,
                    e.codigo_estudiante AS CodigoEstudiante,
                    t.resolucion,
-                   (SELECT b.voucher_estado
-                      FROM pagos b
-                     WHERE b.estudiante_id = t.estudiante_id
-                       AND b.concepto_pago_id = tt.concepto_pago_id
-                       AND b.periodo_id = t.periodo_id
-                     ORDER BY b.fecha_pago DESC LIMIT 1) AS VoucherEstado
+                   (SELECT CASE WHEN tt.concepto_pago_id IS NULL THEN 'Sin costo'
+                                ELSE COALESCE((SELECT b.voucher_estado
+                                                 FROM pagos b
+                                                WHERE b.estudiante_id = t.estudiante_id
+                                                  AND b.concepto_pago_id = tt.concepto_pago_id
+                                                  AND b.periodo_id = t.periodo_id
+                                                ORDER BY b.fecha_pago DESC LIMIT 1), 'Pendiente')
+                           END) AS VoucherEstado
             FROM tramites t
             JOIN tipos_tramite tt ON tt.id = t.tipo_tramite_id
             JOIN estudiantes e ON e.id = t.estudiante_id
@@ -419,19 +430,34 @@ public class TramiteServicio : ITramiteServicio
 
         if (nuevoEstado == "Aprobado")
         {
-            const string checkPago = """
-                SELECT count(*)
-                FROM pagos b
-                JOIN tramites t ON t.id = @Id
-                JOIN tipos_tramite tt ON tt.id = t.tipo_tramite_id
-                WHERE b.estudiante_id = t.estudiante_id
-                  AND b.concepto_pago_id = tt.concepto_pago_id
-                  AND b.periodo_id = t.periodo_id
-                  AND b.voucher_estado = 'Validado';
+            // El doble control de Tesorería solo aplica a los trámites CON costo.
+            // El carné (TT01, TM19) no figura en el TUPA-2026 y quedó sin concepto
+            // de pago, así que no genera recibo: exigirle un voucher Validado lo
+            // dejaba imposible de aprobar para siempre. Se comprueba primero si el
+            // tipo tiene concepto; si no tiene, el trámite se aprueba directo.
+            const string tieneConcepto = """
+                SELECT count(*) FROM tipos_tramite tt
+                JOIN tramites t ON t.tipo_tramite_id = tt.id
+                WHERE t.id = @Id AND tt.concepto_pago_id IS NOT NULL;
                 """;
-            var pagado = await db.ExecuteScalarAsync<int>(checkPago, new { Id = tramiteId });
-            if (pagado == 0)
-                return (false, "Tesorería aún no validó el voucher de pago de este trámite.");
+            var requierePago = await db.ExecuteScalarAsync<int>(tieneConcepto, new { Id = tramiteId }) > 0;
+
+            if (requierePago)
+            {
+                const string checkPago = """
+                    SELECT count(*)
+                    FROM pagos b
+                    JOIN tramites t ON t.id = @Id
+                    JOIN tipos_tramite tt ON tt.id = t.tipo_tramite_id
+                    WHERE b.estudiante_id = t.estudiante_id
+                      AND b.concepto_pago_id = tt.concepto_pago_id
+                      AND b.periodo_id = t.periodo_id
+                      AND b.voucher_estado = 'Validado';
+                    """;
+                var pagado = await db.ExecuteScalarAsync<int>(checkPago, new { Id = tramiteId });
+                if (pagado == 0)
+                    return (false, "Tesorería aún no validó el voucher de pago de este trámite.");
+            }
         }
 
         if ((nuevoEstado == "Observado" || nuevoEstado == "Rechazado")

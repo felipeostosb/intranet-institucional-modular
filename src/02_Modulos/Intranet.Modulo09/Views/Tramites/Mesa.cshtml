@@ -28,7 +28,9 @@
     <!-- Aviso de flujo -->
     <div class="alert alert-info rounded-2xl text-[11px] py-2.5">
         📋 Flujo TUPA: Recibido → En evaluación → Aprobado / Observado → Entregado.
-        Antes de aprobar, verifica que Tesorería haya validado el voucher (columna Pago).
+        @(Model.Tramites.Any(t => t.VoucherEstado == "Sin costo")
+            ? "Los trámites sin costo (columna Pago = Sin costo) no requieren voucher: se aprueban directo."
+            : "Antes de aprobar, verifica que Tesorería haya validado el voucher (columna Pago).")
     </div>
 
     <!-- Filtro -->

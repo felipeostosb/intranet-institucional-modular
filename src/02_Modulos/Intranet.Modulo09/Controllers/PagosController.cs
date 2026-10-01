@@ -81,16 +81,29 @@ public class PagosController : ModuloBaseController
             var estudianteId = await ObtenerEstudianteIdAsync();
             var periodoId = await ObtenerPeriodoActivoIdAsync();
 
-            // el monto lo fija el concepto TUPA (se muestra en el form);
-            // si viene vacío se toma del catálogo
-            decimal montoValor = 0;
+            // El importe NO se toma del formulario: el catálogo TUPA es la única
+            // autoridad. Antes el código hacía
+            //   if (!decimal.TryParse(monto, out m) && concepto != null) m = concepto.Monto;
+            // o sea que el catálogo solo se usaba si el campo venía vacío o con
+            // basura, y cualquier número válido que posteara el navegador se
+            // guardaba tal cual (S/ 0.01 por una Reserva de Matrícula de S/ 30).
+            // Ahora se resuelve contra el catálogo y el valor posteado se ignora.
             var conceptos = await _servicioPago.ListarConceptosAsync();
             var conceptoModelo = conceptos.FirstOrDefault(c => c.Codigo == concepto);
-            if (!decimal.TryParse(monto, out montoValor) && conceptoModelo != null)
-                montoValor = conceptoModelo.Monto;
+            if (conceptoModelo == null)
+            {
+                MostrarAlertaError("El concepto de pago no existe o está inactivo.");
+                return RedirectToAction(nameof(Index));
+            }
+
+            if (decimal.TryParse(monto, out var posted) && posted != conceptoModelo.Monto)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[Pagos] monto posteado {posted} ignorado; el catálogo manda ({conceptoModelo.Monto}).");
+            }
 
             var (ok, mensaje) = await _servicioPago.RegistrarPagoEstudianteAsync(
-                estudianteId, periodoId, concepto, tipoPago, montoValor, nota);
+                estudianteId, periodoId, concepto, tipoPago, conceptoModelo.Monto, nota);
             if (ok) MostrarAlertaExito(mensaje);
             else MostrarAlertaError(mensaje);
         }
