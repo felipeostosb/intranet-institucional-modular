@@ -64,10 +64,27 @@ JOIN core.carreras c ON c.id = h.carrera_id;
 Si tu módulo necesita datos calculados o validar un estado gestionado por otro módulo (ejemplo: *¿El alumno tiene matrícula activa antes de registrar su asistencia?*), se utiliza **Inyección de Dependencias en C#**:
 
 #### Paso 1: Definir el Contrato en `01_Core` (`Intranet.Core/Contracts/`)
+
+> **Convención de nombres (obligatoria desde 2026-10-01, PRs #69 y #70):** los
+> identificadores de código van en español. `IMatriculaService` se escribe
+> `IMatriculaServicio`, un `*Dto` se escribe `Modelo*`, un `*ViewModel` se
+> escribe `Modelo*Vista`, y los archivos siguen al tipo:
+> `Services/MatriculaService.cs` → `Services/MatriculaServicio.cs`.
+>
+> **Excepciones que no se renombran**, porque el framework o el aislamiento
+> modular lo impiden:
+> - Sufijo `*Controller` — ASP.NET Core descubre los controladores por ese
+>   sufijo y de ahí deriva las rutas de URL.
+> - `IModuleDbConnectionFactory` y `ModuloBaseController` — son de Core y los
+>   usan los 10 módulos.
+>
+> *El ejemplo de abajo es ilustrativo del patrón: `IMatriculaServicio`
+> todavía no existe en `Intranet.Core/Contracts/`.*
+
 ```csharp
 namespace Intranet.Core.Contracts;
 
-public interface IMatriculaService
+public interface IMatriculaServicio
 {
     Task<bool> EstaEstudianteMatriculadoAsync(int estudianteId, int periodoId);
     Task<IReadOnlyList<int>> ObtenerEstudiantesMatriculadosAsync(int carreraId, int semestre);
@@ -76,19 +93,19 @@ public interface IMatriculaService
 
 #### Paso 2: Implementar la Lógica en el Módulo Propietario (`Intranet.Modulo01`)
 ```csharp
-// src/02_Modulos/Intranet.Modulo01/Services/MatriculaService.cs
-public class MatriculaService : IMatriculaService
+// src/02_Modulos/Intranet.Modulo01/Services/MatriculaServicio.cs
+public class MatriculaServicio : IMatriculaServicio
 {
-    private readonly IModuleDbConnectionFactory _db;
+    private readonly IModuleDbConnectionFactory _fabricaConexion;
 
-    public MatriculaService(IModuleDbConnectionFactory db)
+    public MatriculaServicio(IModuleDbConnectionFactory fabricaConexion)
     {
-        _db = db;
+        _fabricaConexion = fabricaConexion;
     }
 
     public async Task<bool> EstaEstudianteMatriculadoAsync(int estudianteId, int periodoId)
     {
-        using var conn = _db.CreateConnection("01");
+        using var conn = _fabricaConexion.CreateConnection("01");
         return await conn.ExecuteScalarAsync<bool>(
             "SELECT COUNT(1) > 0 FROM mod01.matriculas WHERE estudiante_id = @estudianteId AND periodo_id = @periodoId AND estado = 'ACTIVO'",
             new { estudianteId, periodoId });
@@ -101,17 +118,17 @@ public class MatriculaService : IMatriculaService
 // src/02_Modulos/Intranet.Modulo02/Controllers/AsistenciaController.cs
 public class AsistenciaController : ModuloBaseController
 {
-    private readonly IMatriculaService _matriculaService;
+    private readonly IMatriculaServicio _servicioMatricula;
 
-    public AsistenciaController(IMatriculaService matriculaService)
+    public AsistenciaController(IMatriculaServicio servicioMatricula)
     {
-        _matriculaService = matriculaService;
+        _servicioMatricula = servicioMatricula;
     }
 
     [HttpPost]
     public async Task<IActionResult> Registrar(int estudianteId, string estado)
     {
-        var matriculado = await _matriculaService.EstaEstudianteMatriculadoAsync(estudianteId, PeriodoActualId);
+        var matriculado = await _servicioMatricula.EstaEstudianteMatriculadoAsync(estudianteId, PeriodoActualId);
         if (!matriculado)
         {
             MostrarAlertaError("El alumno no se encuentra matriculado en este periodo.");
