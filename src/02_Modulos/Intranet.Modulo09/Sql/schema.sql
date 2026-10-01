@@ -153,10 +153,19 @@ FROM (VALUES
   ('TT03','Constancia de Matrícula', 'CT24', 3),
   ('TT04','Duplicado de Carné',      'CP04', 5),
   ('TA05','Traslado interno (cambio de turno)', 'CT05', 5),
-  ('TA14','Reserva de matrícula',    'CT13', 5)
+  -- NOTA: TA14 'Reserva de matrícula' fue RETIRADO del seed: duplicaba a TM05
+  -- ('Reserva de Matrícula' en el catálogo oficial del TUPA-2026). El trámite
+  -- histórico T0003 que nació como TA14 fue re-etiquetado a TM05 en producción
+  -- (2026-10-01) y TA14 quedó activo=false. No re-insertar aquí.
+  ('TA14','[RETIRADO] Reserva de matrícula (usar TM05)', 'CT13', 5)
 ) AS v(codigo, nombre, concepto, dias)
 JOIN mod09.conceptos_pago cp ON cp.codigo = v.concepto
 ON CONFLICT (codigo) DO NOTHING;
+
+-- Alineación idempotente: TA14 siempre inactivo (la Reserva de Matrícula es
+-- exclusiva de TM05 en el TUPA-2026) y TM05 siempre activo.
+UPDATE mod09.tipos_tramite SET activo = FALSE WHERE codigo = 'TA14';
+UPDATE mod09.tipos_tramite SET activo = TRUE  WHERE codigo = 'TM05';
 
 INSERT INTO mod09.requisitos_tipos_tramite (tipo_tramite_id, orden, requisito)
 SELECT tt.id, v.orden, v.requisito
