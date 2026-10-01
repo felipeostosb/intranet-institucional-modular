@@ -167,6 +167,88 @@ ON CONFLICT (codigo) DO NOTHING;
 UPDATE mod09.tipos_tramite SET activo = FALSE WHERE codigo = 'TA14';
 UPDATE mod09.tipos_tramite SET activo = TRUE  WHERE codigo = 'TM05';
 
+-- ---------------------------------------------------------------------------
+-- MONTOS DEL TUPA-2026 —pineados por código
+--
+-- El catálogo de conceptos_pago lo carga el dueño a mano, así que los importes
+-- se derivaban del prototipo y ya no coincidían con la columna "IMPORTE A PAGAR
+-- S/" del TUPA-2026.pdf (50 de 55 discrepantes; el caso visible era
+-- "Fraccionamiento de matrícula" a S/ 10.00 en vez de S/ 100.00). Este bloque
+-- los fija al TUPA para que no vuelvan a derivar.
+--
+-- Se actualiza SOLO el catálogo: mod09.pagos.monto es una copia del importe al
+-- momento del cobro, así que los recibos ya emitidos conservan su monto.
+-- Los conceptos marcados 0.00 son "GRATUITO" en el TUPA.
+-- ---------------------------------------------------------------------------
+UPDATE mod09.conceptos_pago c SET monto = v.monto
+FROM (VALUES
+  ('CT01',  20.00),  -- 1.1  Carpeta de postulante (prospecto)
+  ('CT02', 130.00),  -- 2.1  Examen de admisión ordinario
+  ('CT03', 130.00),  -- 2.2  Examen de admisión exonerados/traslado
+  ('CT04', 200.00),  -- 3.1  Traslado interno (de carrera a carrera)
+  ('CT05', 120.00),  -- 3.2  Traslado interno (cambio de turno)
+  ('CT06', 250.00),  -- 3.3  Traslado externo
+  ('CT07', 200.00),  -- 4.1  Matrícula ingresante
+  ('CT08', 100.00),  -- 4.2  Matrícula traslado externo e interno
+  ('CT09', 200.00),  -- 4.3  Ratificación de matrícula
+  ('CT10', 100.00),  -- 4.4/4.5 Fraccionamiento de matrícula (ambas variantes)
+  ('CT11', 100.00),  -- 4.6  Ratificación media beca 50% (rendimiento)
+  ('CT12', 100.00),  -- 4.7  Ratificación media beca 50% (trabajador/familiar)
+  ('CT13',  30.00),  -- 4.8  Reserva de matrícula
+  ('CT14', 100.00),  -- 7.1  Derecho de convalidación de estudios
+  ('CT15',  50.00),  -- 8.1  Repitencia de unidad didáctica (estudiante)
+  ('CT16',  70.00),  -- 8.2  Repitencia de unidad didáctica (egresado)
+  ('CT17', 200.00),  -- 8.3  Repitencia de módulo
+  ('CT18',  50.00),  -- 8.4  Reingreso
+  ('CT19',  25.00),  -- 9.1  Evaluación extraordinaria
+  ('CT20',  60.00),  -- 10.1 Reporte record de notas (hasta 1998)
+  ('CT21',  60.00),  -- 10.2 Reporte record de notas (desde 1999)
+  ('CT22',  20.00),  -- 11.1 Constancia de ingreso
+  ('CT23',  60.00),  -- 11.2 Constancia de estudios (hasta 1998)
+  ('CT24',  60.00),  -- 11.3 Constancia de estudios (a partir de 1999)
+  ('CT25',  30.00),  -- 11.4 Constancia de primera matrícula
+  ('CT26',  60.00),  -- 11.5/11.6 Constancia de egresado
+  ('CT27',  60.00),  -- 11.7 Constancia de título en trámite
+  ('CT28',  30.00),  -- 11.8 Constancia de tercio superior o conducta
+  ('CT29',  15.00),  -- 11.9 Carta de presentación
+  ('CT30', 180.00),  -- 12.3 Expedición de certificado + formato (6 sem), 2ª vez o más
+  ('CT31',  15.00),  -- 12.2 Formato de certificado de estudios
+  ('CT32',  30.00),  -- 12.4 Expedición de certificado (1 semestre)
+  ('CT33',  30.00),  -- 13.1 Carpeta de prácticas preprofesionales
+  ('CT34',  30.00),  -- 13.2 Constancia de prácticas por todos los módulos
+  ('CT35',  50.00),  -- 13.3 Certificado por módulo
+  ('CT36', 120.00),  -- 13.4 Certificado por 03 módulos
+  ('CT37',  50.00),  -- 14.1 Carpeta de titulación (egresados del instituto)
+  ('CT38',  70.00),  -- 14.2 Carpeta de titulación (egresados de otros institutos)
+  ('CT39', 100.00),  -- 15.1 Examen de suficiencia de inglés
+  ('CT40', 150.00),  -- 16.1 Titulación egresados de nuestro instituto
+  ('CT41', 250.00),  -- 16.2 Titulación egresados de otros institutos
+  ('CT42', 250.00),  -- 17.1 Expedición de título (egresados del instituto)
+  ('CT43', 300.00),  -- 17.2 Expedición de título (egresados de otros institutos)
+  ('CT44', 250.00),  -- 18.1 Duplicado de título técnico profesional
+  ('CT45',  50.00),  -- 19.1 Diploma de egresado
+  ('CT46',  50.00),  -- 19.2 Sílabus (egresado de nuestro instituto)
+  ('CT47',  60.00),  -- 19.3 Sílabus (egresado de otro instituto)
+  ('CT48',   0.00),  -- 20.1 Duplicado de recibo de caja — GRATUITO
+  ('CT49',  15.00),  -- 20.2 Duplicado de boleta de notas
+  ('CT50',  30.00),  -- 21.2 Rectificación de nombre y apellido
+  ('CT51',   0.00),  -- 21.1 Fedateo de documentos — GRATUITO
+  ('CT52',   0.00),  -- 22.1 Copia simple de documento por hoja — GRATUITO
+  ('CT53',  60.00)   -- 23.1 Venta de bases para licitación
+) AS v(codigo, monto)
+WHERE c.codigo = v.codigo
+  AND c.monto IS DISTINCT FROM v.monto;
+
+-- El carné NO figura en ninguna de las 23 secciones del TUPA-2026, así que no
+-- puede exigir voucher. Se desvincula del concepto de pago y se retira el
+-- requisito del recibo, conservando solicitud + foto.
+UPDATE mod09.tipos_tramite SET concepto_pago_id = NULL WHERE codigo IN ('TT01','TM19');
+DELETE FROM mod09.requisitos_tipos_tramite r
+USING mod09.tipos_tramite t
+WHERE r.tipo_tramite_id = t.id
+  AND t.codigo IN ('TT01','TM19')
+  AND r.requisito ILIKE '%recibo de pago%';
+
 INSERT INTO mod09.requisitos_tipos_tramite (tipo_tramite_id, orden, requisito)
 SELECT tt.id, v.orden, v.requisito
 FROM (VALUES
