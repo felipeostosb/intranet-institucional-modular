@@ -166,12 +166,21 @@ public class PagosController : ModuloBaseController
     }
 
     // ------------------------------------------------------------------
-    // PERSONAL (Tesorería/Secretaría): ver el voucher PDF del pago
+    // Voucher PDF del pago.
+    //   Alumno    → solo los pagos de SU estudiante_id (anti-suplantación:
+    //                un404, no un403, para no revelar que el id existe).
+    //   Personal  → cualquier pago de la bandeja.
     // ------------------------------------------------------------------
     [HttpGet("Voucher/{id}")]
     public async Task<IActionResult> Voucher(int id)
     {
-        if (EsAlumno) return Forbid();
+        if (EsAlumno)
+        {
+            var estudianteId = await ObtenerEstudianteIdAsync();
+            if (estudianteId <= 0 || !await _pagoService.PerteneceAlEstudianteAsync(id, estudianteId))
+                return NotFound();
+        }
+
         var v = await _pagoService.ObtenerVoucherAsync(id);
         if (v == null) return NotFound();
         return File(v.Contenido, v.Tipo, v.Nombre);

@@ -27,6 +27,7 @@ public interface IPagoService
     Task<(bool Ok, string Mensaje)> ValidarVoucherAsync(int pagoId, bool aprobar, string? motivo, int validadorId);
     Task<(bool Ok, string Mensaje)> SubirVoucherAsync(int pagoId, int estudianteId, string nombre, string tipo, byte[] contenido);
     Task<ArchivoVoucherDto?> ObtenerVoucherAsync(int pagoId);
+    Task<bool> PerteneceAlEstudianteAsync(int pagoId, int estudianteId);
     Task<PagosResumenDto> ResumenAsync();
     Task<ResumenTesoreriaDto> ResumenTesoreriaAsync();
     Task<ResumenAlumnoDto> ResumenAlumnoAsync(int estudianteId);
@@ -352,6 +353,19 @@ public class PagoService : IPagoService
                    archivo_contenido AS Contenido
             FROM voucher_archivos WHERE pago_id = @Id;
             """, new { Id = pagoId });
+    }
+
+    // ------------------------------------------------------------------
+    // ALUMNO: el voucher solo si el pago le pertenece. Se usa desde
+    // PagosController.Voucher para que el alumno vea SU propio PDF sin
+    // abrirle la bandeja de Tesorería.
+    // ------------------------------------------------------------------
+    public async Task<bool> PerteneceAlEstudianteAsync(int pagoId, int estudianteId)
+    {
+        using var db = CreateConnection();
+        return await db.ExecuteScalarAsync<int>(
+            "SELECT count(*) FROM pagos WHERE id = @PagoId AND estudiante_id = @EstudianteId;",
+            new { PagoId = pagoId, EstudianteId = estudianteId }) > 0;
     }
 
     // ------------------------------------------------------------------
