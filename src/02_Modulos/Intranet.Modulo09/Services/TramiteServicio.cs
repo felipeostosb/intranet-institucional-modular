@@ -16,17 +16,17 @@ namespace Intranet.Modulo09.Services;
 /// Dominios reales (CHECK en servidor): Recibido | En evaluación |
 ///   Aprobado | Observado | Rechazado | Entregado
 /// </summary>
-public interface ITramiteService
+public interface ITramiteServicio
 {
-    Task<IEnumerable<TramiteListaDto>> ListarPorEstudianteAsync(int estudianteId, string? estado);
-    Task<IEnumerable<TramiteMesaDto>> ListarMesaAsync(string? estado);
-    Task<TramiteDetalleDto?> ObtenerDetalleAsync(int tramiteId);
-    Task<TramiteDetalleDto?> ObtenerPorCodigoAsync(string codigo);
+    Task<IEnumerable<ModeloTramiteLista>> ListarPorEstudianteAsync(int estudianteId, string? estado);
+    Task<IEnumerable<ModeloTramiteMesa>> ListarMesaAsync(string? estado);
+    Task<ModeloTramiteDetalle?> ObtenerDetalleAsync(int tramiteId);
+    Task<ModeloTramiteDetalle?> ObtenerPorCodigoAsync(string codigo);
     /// <summary>Lee el archivo adjunto de un requisito de trámite (visor del personal).</summary>
-    Task<ArchivoRequisitoDto?> ObtenerArchivoRequisitoAsync(int tramiteId, int requisitoCatalogoId);
-    Task<IEnumerable<TipoTramiteDto>> ListarTiposAsync();
-    Task<TipoTramiteDto?> ObtenerTipoAsync(string codigo);
-    Task<IEnumerable<RequisitoDto>> ListarRequisitosDeTipoAsync(string tipoCodigo);
+    Task<ModeloArchivoRequisito?> ObtenerArchivoRequisitoAsync(int tramiteId, int requisitoCatalogoId);
+    Task<IEnumerable<ModeloTipoTramite>> ListarTiposAsync();
+    Task<ModeloTipoTramite?> ObtenerTipoAsync(string codigo);
+    Task<IEnumerable<ModeloRequisito>> ListarRequisitosDeTipoAsync(string tipoCodigo);
     Task<(bool Ok, string Mensaje, string? Codigo)> CrearTramiteAsync(
         int estudianteId, int periodoId, string tipoCodigo, string? datos,
         IReadOnlyDictionary<int, (string Nombre, string Tipo, byte[] Contenido)>? archivos = null);
@@ -36,19 +36,19 @@ public interface ITramiteService
     Task<(bool Ok, string Mensaje)> AvanzarEstadoAsync(
         int tramiteId, string nuevoEstado, string? resolucion, int usuarioId);
     Task<int> ContarPendientesAsync();
-    Task<ResumenSecretariaDto> ResumenSecretariaAsync();
+    Task<ModeloResumenSecretaria> ResumenSecretariaAsync();
 }
 
-public class TramiteService : ITramiteService
+public class TramiteServicio : ITramiteServicio
 {
-    private readonly IModuleDbConnectionFactory _connectionFactory;
+    private readonly IModuleDbConnectionFactory _fabricaConexion;
 
-    public TramiteService(IModuleDbConnectionFactory connectionFactory)
+    public TramiteServicio(IModuleDbConnectionFactory fabricaConexion)
     {
-        _connectionFactory = connectionFactory;
+        _fabricaConexion = fabricaConexion;
     }
 
-    private IDbConnection CreateConnection() => _connectionFactory.CreateConnection("09");
+    private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("09");
 
     // ------------------------------------------------------------------
     // Nombres reales de tablas de pago (producción usa pagos porque
@@ -65,7 +65,7 @@ public class TramiteService : ITramiteService
     // ------------------------------------------------------------------
     // ALUMNO: sus trámites con días transcurridos y estado de pago
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<TramiteListaDto>> ListarPorEstudianteAsync(int estudianteId, string? estado)
+    public async Task<IEnumerable<ModeloTramiteLista>> ListarPorEstudianteAsync(int estudianteId, string? estado)
     {
         using var db = CreateConnection();
         const string sql = """
@@ -91,14 +91,14 @@ public class TramiteService : ITramiteService
               AND (@Estado IS NULL OR t.estado = @Estado)
             ORDER BY t.fecha_solicitud DESC;
             """;
-        return await db.QueryAsync<TramiteListaDto>(sql,
+        return await db.QueryAsync<ModeloTramiteLista>(sql,
             new { EstudianteId = estudianteId, Estado = string.IsNullOrWhiteSpace(estado) ? null : estado });
     }
 
     // ------------------------------------------------------------------
     // MESA (Secretaría): todos los trámites con su estado de pago
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<TramiteMesaDto>> ListarMesaAsync(string? estado)
+    public async Task<IEnumerable<ModeloTramiteMesa>> ListarMesaAsync(string? estado)
     {
         using var db = CreateConnection();
         const string sql = """
@@ -124,11 +124,11 @@ public class TramiteService : ITramiteService
             WHERE (@Estado IS NULL OR t.estado = @Estado)
             ORDER BY t.fecha_solicitud;
             """;
-        return await db.QueryAsync<TramiteMesaDto>(sql,
+        return await db.QueryAsync<ModeloTramiteMesa>(sql,
             new { Estado = string.IsNullOrWhiteSpace(estado) ? null : estado });
     }
 
-    public async Task<TramiteDetalleDto?> ObtenerDetalleAsync(int tramiteId)
+    public async Task<ModeloTramiteDetalle?> ObtenerDetalleAsync(int tramiteId)
     {
         using var db = CreateConnection();
         const string sql = """
@@ -155,7 +155,7 @@ public class TramiteService : ITramiteService
             JOIN personas p ON p.id = e.persona_id
             WHERE t.id = @Id;
             """;
-        var detalle = await db.QueryFirstOrDefaultAsync<TramiteDetalleDto>(sql, new { Id = tramiteId });
+        var detalle = await db.QueryFirstOrDefaultAsync<ModeloTramiteDetalle>(sql, new { Id = tramiteId });
         if (detalle != null)
         {
             detalle.Requisitos = await ListarRequisitosDeTramiteAsync(db, tramiteId);
@@ -167,7 +167,7 @@ public class TramiteService : ITramiteService
             // la Mesa sepa QUÉ debía presentar el estudiante.
             if (detalle.Requisitos == null || !detalle.Requisitos.Any())
             {
-                detalle.Requisitos = (await db.QueryAsync<RequisitoEstadoDto>("""
+                detalle.Requisitos = (await db.QueryAsync<ModeloEstadoRequisito>("""
                     SELECT rc.id, rc.orden, rc.requisito,
                            FALSE AS Presentado,
                            'Sin registro en el sistema — trámite generado fuera del flujo de la app' AS Observacion,
@@ -182,7 +182,7 @@ public class TramiteService : ITramiteService
         return detalle;
     }
 
-    public async Task<TramiteDetalleDto?> ObtenerPorCodigoAsync(string codigo)
+    public async Task<ModeloTramiteDetalle?> ObtenerPorCodigoAsync(string codigo)
     {
         using var db = CreateConnection();
         const string sqlId = "SELECT id FROM tramites WHERE codigo = @Codigo;";
@@ -194,7 +194,7 @@ public class TramiteService : ITramiteService
     // PERSONAL (Secretaría/Tesorería/Admin): leer el archivo adjunto de un
     // requisito del trámite — evidencia antes de validar/observar.
     // ------------------------------------------------------------------
-    public async Task<ArchivoRequisitoDto?> ObtenerArchivoRequisitoAsync(int tramiteId, int requisitoCatalogoId)
+    public async Task<ModeloArchivoRequisito?> ObtenerArchivoRequisitoAsync(int tramiteId, int requisitoCatalogoId)
     {
         using var db = CreateConnection();
         const string sql = """
@@ -206,7 +206,7 @@ public class TramiteService : ITramiteService
               AND requisito_catalogo_id = @ReqId
               AND archivo_contenido IS NOT NULL;
             """;
-        return await db.QueryFirstOrDefaultAsync<ArchivoRequisitoDto>(sql,
+        return await db.QueryFirstOrDefaultAsync<ModeloArchivoRequisito>(sql,
             new { TramiteId = tramiteId, ReqId = requisitoCatalogoId });
     }
 
@@ -214,7 +214,7 @@ public class TramiteService : ITramiteService
     // Catálogo: tipos TUPA y requisitos dinámicos por tipo (el AutoPostBack
     // del prototipo: al elegir tipo se cargan sus requisitos y ficha TUPA)
     // ------------------------------------------------------------------
-    public async Task<IEnumerable<TipoTramiteDto>> ListarTiposAsync()
+    public async Task<IEnumerable<ModeloTipoTramite>> ListarTiposAsync()
     {
         using var db = CreateConnection();
         const string sql = """
@@ -227,10 +227,10 @@ public class TramiteService : ITramiteService
             WHERE tt.activo
             ORDER BY tt.codigo;
             """;
-        return await db.QueryAsync<TipoTramiteDto>(sql);
+        return await db.QueryAsync<ModeloTipoTramite>(sql);
     }
 
-    public async Task<TipoTramiteDto?> ObtenerTipoAsync(string codigo)
+    public async Task<ModeloTipoTramite?> ObtenerTipoAsync(string codigo)
     {
         using var db = CreateConnection();
         const string sql = """
@@ -242,10 +242,10 @@ public class TramiteService : ITramiteService
             LEFT JOIN conceptos_pago cp ON cp.id = tt.concepto_pago_id
             WHERE tt.codigo = @Codigo AND tt.activo;
             """;
-        return await db.QueryFirstOrDefaultAsync<TipoTramiteDto>(sql, new { Codigo = codigo });
+        return await db.QueryFirstOrDefaultAsync<ModeloTipoTramite>(sql, new { Codigo = codigo });
     }
 
-    public async Task<IEnumerable<RequisitoDto>> ListarRequisitosDeTipoAsync(string tipoCodigo)
+    public async Task<IEnumerable<ModeloRequisito>> ListarRequisitosDeTipoAsync(string tipoCodigo)
     {
         using var db = CreateConnection();
         const string sql = """
@@ -255,10 +255,10 @@ public class TramiteService : ITramiteService
             WHERE tt.codigo = @Codigo
             ORDER BY r.orden;
             """;
-        return await db.QueryAsync<RequisitoDto>(sql, new { Codigo = tipoCodigo });
+        return await db.QueryAsync<ModeloRequisito>(sql, new { Codigo = tipoCodigo });
     }
 
-    private static async Task<IEnumerable<RequisitoEstadoDto>> ListarRequisitosDeTramiteAsync(
+    private static async Task<IEnumerable<ModeloEstadoRequisito>> ListarRequisitosDeTramiteAsync(
         IDbConnection db, int tramiteId)
     {
         const string sql = """
@@ -270,7 +270,7 @@ public class TramiteService : ITramiteService
             WHERE tr.tramite_id = @Id
             ORDER BY rc.orden;
             """;
-        return await db.QueryAsync<RequisitoEstadoDto>(sql, new { Id = tramiteId });
+        return await db.QueryAsync<ModeloEstadoRequisito>(sql, new { Id = tramiteId });
     }
 
     // ------------------------------------------------------------------
@@ -287,7 +287,7 @@ public class TramiteService : ITramiteService
         db.Open();
         using var tx = db.BeginTransaction();
 
-        var tipo = await db.QueryFirstOrDefaultAsync<TipoTramiteDto>("""
+        var tipo = await db.QueryFirstOrDefaultAsync<ModeloTipoTramite>("""
             SELECT tt.id, tt.codigo, tt.nombre, tt.dias_habiles AS DiasHabiles,
                    tt.concepto_pago_id AS ConceptoPagoId
             FROM tipos_tramite tt WHERE tt.codigo = @Codigo AND tt.activo;
@@ -468,17 +468,17 @@ public class TramiteService : ITramiteService
     // Panel del puesto de SECRETARÍA (Resumen del módulo): mesa de partes
     // TUPA — trámites por estado y por tipo. Cero datos financieros.
     // ------------------------------------------------------------------
-    public async Task<ResumenSecretariaDto> ResumenSecretariaAsync()
+    public async Task<ModeloResumenSecretaria> ResumenSecretariaAsync()
     {
         using var db = CreateConnection();
-        var dto = await db.QueryFirstOrDefaultAsync<ResumenSecretariaDto>("""
+        var dto = await db.QueryFirstOrDefaultAsync<ModeloResumenSecretaria>("""
             SELECT count(*) FILTER (WHERE estado = 'Recibido')   AS Recibidos,
                    count(*) FILTER (WHERE estado = 'En evaluación') AS EnEvaluacion,
                    count(*) FILTER (WHERE estado = 'Aprobado')   AS AprobadosPendientesEntrega,
                    count(*) FILTER (WHERE estado = 'Entregado')   AS Entregados,
                    count(*) FILTER (WHERE estado = 'Observado')  AS Observados
             FROM mod09.tramites;
-            """) ?? new ResumenSecretariaDto();
+            """) ?? new ModeloResumenSecretaria();
 
         const string porTipoSql = """
             SELECT tt.codigo AS Codigo,
@@ -491,7 +491,7 @@ public class TramiteService : ITramiteService
             ORDER BY 3 DESC
             LIMIT 5;
             """;
-        dto.PorTipo = (await db.QueryAsync<TramitesPorTipoDto>(porTipoSql)).ToList();
+        dto.PorTipo = (await db.QueryAsync<ModeloTramitesPorTipo>(porTipoSql)).ToList();
         return dto;
     }
 }

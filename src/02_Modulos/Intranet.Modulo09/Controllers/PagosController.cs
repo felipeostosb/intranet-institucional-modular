@@ -18,11 +18,11 @@ namespace Intranet.Modulo09.Controllers;
 [Route("Modulo09/[controller]")]
 public class PagosController : ModuloBaseController
 {
-    private readonly IPagoService _pagoService;
+    private readonly IPagoServicio _servicioPago;
 
-    public PagosController(IPagoService pagoService)
+    public PagosController(IPagoServicio servicioPago)
     {
-        _pagoService = pagoService;
+        _servicioPago = servicioPago;
     }
 
     /// <summary>Expone los roles del usuario a las vistas (tabs rol-aware).</summary>
@@ -47,23 +47,23 @@ public class PagosController : ModuloBaseController
         if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
-            return View("Mis", new MisPagosViewModel
+            return View("Mis", new ModeloMisPagosVista
             {
-                Pagos = await _pagoService.ListarPorEstudianteAsync(estudianteId),
-                Conceptos = await _pagoService.ListarConceptosAsync(),
-                TiposPago = await _pagoService.ListarTiposPagoAsync()
+                Pagos = await _servicioPago.ListarPorEstudianteAsync(estudianteId),
+                Conceptos = await _servicioPago.ListarConceptosAsync(),
+                TiposPago = await _servicioPago.ListarTiposPagoAsync()
             });
         }
 
-        return View("Bandeja", new BandejaPagosViewModel
+        return View("Bandeja", new ModeloBandejaPagosVista
         {
-            Pagos = await _pagoService.ListarBandejaAsync(voucher),
-            Resumen = await _pagoService.ResumenAsync(),
+            Pagos = await _servicioPago.ListarBandejaAsync(voucher),
+            Resumen = await _servicioPago.ResumenAsync(),
             FiltroVoucher = voucher,
-            FormRecibo = new RegistrarPagoViewModel
+            FormRecibo = new ModeloRegistroPagoVista
             {
-                Conceptos = await _pagoService.ListarConceptosAsync(),
-                TiposPago = await _pagoService.ListarTiposPagoAsync(),
+                Conceptos = await _servicioPago.ListarConceptosAsync(),
+                TiposPago = await _servicioPago.ListarTiposPagoAsync(),
                 Estudiantes = await ListarEstudiantesAsync()
             }
         });
@@ -84,12 +84,12 @@ public class PagosController : ModuloBaseController
             // el monto lo fija el concepto TUPA (se muestra en el form);
             // si viene vacío se toma del catálogo
             decimal montoValor = 0;
-            var conceptos = await _pagoService.ListarConceptosAsync();
-            var conceptoDto = conceptos.FirstOrDefault(c => c.Codigo == concepto);
-            if (!decimal.TryParse(monto, out montoValor) && conceptoDto != null)
-                montoValor = conceptoDto.Monto;
+            var conceptos = await _servicioPago.ListarConceptosAsync();
+            var conceptoModelo = conceptos.FirstOrDefault(c => c.Codigo == concepto);
+            if (!decimal.TryParse(monto, out montoValor) && conceptoModelo != null)
+                montoValor = conceptoModelo.Monto;
 
-            var (ok, mensaje) = await _pagoService.RegistrarPagoEstudianteAsync(
+            var (ok, mensaje) = await _servicioPago.RegistrarPagoEstudianteAsync(
                 estudianteId, periodoId, concepto, tipoPago, montoValor, nota);
             if (ok) MostrarAlertaExito(mensaje);
             else MostrarAlertaError(mensaje);
@@ -108,7 +108,7 @@ public class PagosController : ModuloBaseController
             return Forbid();
 
         var periodoId = await ObtenerPeriodoActivoIdAsync();
-        var (ok, mensaje) = await _pagoService.EmitirReciboDirectoAsync(
+        var (ok, mensaje) = await _servicioPago.EmitirReciboDirectoAsync(
             estudianteId, periodoId, concepto, tipoPago, monto, UsuarioActualId ?? 0);
         if (ok) MostrarAlertaExito(mensaje);
         else MostrarAlertaError(mensaje);
@@ -125,7 +125,7 @@ public class PagosController : ModuloBaseController
         if (!EsTesoreria && !EsAdmin)
             return Forbid();
 
-        var (ok, mensaje) = await _pagoService.ValidarVoucherAsync(
+        var (ok, mensaje) = await _servicioPago.ValidarVoucherAsync(
             id, aprobar, motivo, UsuarioActualId ?? 0);
         if (ok) MostrarAlertaExito(mensaje);
         else MostrarAlertaError(mensaje);
@@ -144,22 +144,22 @@ public class PagosController : ModuloBaseController
         if (!EsAlumno) return Forbid();
         var estudianteId = await ObtenerEstudianteIdAsync();
 
-        var file = Request.Form.Files.FirstOrDefault(f => f.Name == "voucher" && f.Length > 0);
-        if (file == null)
+        var archivoAdjunto = Request.Form.Files.FirstOrDefault(f => f.Name == "voucher" && f.Length > 0);
+        if (archivoAdjunto == null)
         {
             MostrarAlertaError("Adjunta el voucher en PDF.");
             return RedirectToAction(nameof(Index));
         }
-        if (file.Length > 2_097_152)
+        if (archivoAdjunto.Length > 2_097_152)
         {
             MostrarAlertaError("El voucher supera los 2 MB permitidos.");
             return RedirectToAction(nameof(Index));
         }
 
         using var ms = new MemoryStream();
-        await file.CopyToAsync(ms);
-        var (ok, mensaje) = await _pagoService.SubirVoucherAsync(
-            id, estudianteId, file.FileName, file.ContentType, ms.ToArray());
+        await archivoAdjunto.CopyToAsync(ms);
+        var (ok, mensaje) = await _servicioPago.SubirVoucherAsync(
+            id, estudianteId, archivoAdjunto.FileName, archivoAdjunto.ContentType, ms.ToArray());
         if (ok) MostrarAlertaExito(mensaje);
         else MostrarAlertaError(mensaje);
         return RedirectToAction(nameof(Index));
@@ -177,11 +177,11 @@ public class PagosController : ModuloBaseController
         if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
-            if (estudianteId <= 0 || !await _pagoService.PerteneceAlEstudianteAsync(id, estudianteId))
+            if (estudianteId <= 0 || !await _servicioPago.PerteneceAlEstudianteAsync(id, estudianteId))
                 return NotFound();
         }
 
-        var v = await _pagoService.ObtenerVoucherAsync(id);
+        var v = await _servicioPago.ObtenerVoucherAsync(id);
         if (v == null) return NotFound();
         return File(v.Contenido, v.Tipo, v.Nombre);
     }
@@ -191,8 +191,8 @@ public class PagosController : ModuloBaseController
     // ------------------------------------------------------------------
     private async Task<int> ObtenerEstudianteIdAsync()
     {
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("09");
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("09");
         var id = await conn.ExecuteScalarAsync<int?>(
             "SELECT e.id FROM core.estudiantes e WHERE e.persona_id = @PersonaId;",
             new { PersonaId = PersonaActualId ?? 0 });
@@ -201,17 +201,17 @@ public class PagosController : ModuloBaseController
 
     private async Task<int> ObtenerPeriodoActivoIdAsync()
     {
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("09");
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("09");
         return await conn.ExecuteScalarAsync<int>(
             "SELECT id FROM core.periodos_academicos WHERE es_activo ORDER BY id DESC LIMIT 1;");
     }
 
-    private async Task<IEnumerable<EstudianteSelectDto>> ListarEstudiantesAsync()
+    private async Task<IEnumerable<ModeloEstudianteSeleccion>> ListarEstudiantesAsync()
     {
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("09");
-        return await conn.QueryAsync<EstudianteSelectDto>("""
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("09");
+        return await conn.QueryAsync<ModeloEstudianteSeleccion>("""
             SELECT e.id, e.codigo_estudiante AS CodigoEstudiante,
                    p.nombres || ' ' || p.apellidos AS NombreCompleto
             FROM core.estudiantes e
@@ -224,17 +224,17 @@ public class PagosController : ModuloBaseController
 // ---------------------------------------------------------------------
 // ViewModels
 // ---------------------------------------------------------------------
-public class MisPagosViewModel
+public class ModeloMisPagosVista
 {
-    public IEnumerable<PagoListaDto> Pagos { get; set; } = [];
-    public IEnumerable<ConceptoPagoDto> Conceptos { get; set; } = [];
-    public IEnumerable<TipoPagoDto> TiposPago { get; set; } = [];
+    public IEnumerable<ModeloPagoLista> Pagos { get; set; } = [];
+    public IEnumerable<ModeloConceptoPago> Conceptos { get; set; } = [];
+    public IEnumerable<ModeloTipoPago> TiposPago { get; set; } = [];
 }
 
-public class BandejaPagosViewModel
+public class ModeloBandejaPagosVista
 {
-    public IEnumerable<PagoBandejaDto> Pagos { get; set; } = [];
-    public PagosResumenDto Resumen { get; set; } = new();
+    public IEnumerable<ModeloPagoBandeja> Pagos { get; set; } = [];
+    public ModeloResumenPagos Resumen { get; set; } = new();
     public string? FiltroVoucher { get; set; }
-    public RegistrarPagoViewModel FormRecibo { get; set; } = new();
+    public ModeloRegistroPagoVista FormRecibo { get; set; } = new();
 }

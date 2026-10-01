@@ -18,11 +18,11 @@ namespace Intranet.Modulo09.Controllers;
 [Route("Modulo09/[controller]")]
 public class TramitesController : ModuloBaseController
 {
-    private readonly ITramiteService _tramiteService;
+    private readonly ITramiteServicio _servicioTramite;
 
-    public TramitesController(ITramiteService tramiteService)
+    public TramitesController(ITramiteServicio servicioTramite)
     {
-        _tramiteService = tramiteService;
+        _servicioTramite = servicioTramite;
     }
 
     /// <summary>Expone los roles del usuario a las vistas (tabs rol-aware).</summary>
@@ -51,21 +51,21 @@ public class TramitesController : ModuloBaseController
         if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
-            var mios = await _tramiteService.ListarPorEstudianteAsync(estudianteId, estado);
-            return View("Mis", new MisTramitesViewModel
+            var mios = await _servicioTramite.ListarPorEstudianteAsync(estudianteId, estado);
+            return View("Mis", new ModeloMisTramitesVista
             {
                 Tramites = mios,
-                Tipos = await _tramiteService.ListarTiposAsync(),
+                Tipos = await _servicioTramite.ListarTiposAsync(),
                 FiltroEstado = estado
             });
         }
 
-        var mesa = await _tramiteService.ListarMesaAsync(estado);
-        return View("Mesa", new MesaTramitesViewModel
+        var mesa = await _servicioTramite.ListarMesaAsync(estado);
+        return View("Mesa", new ModeloMesaTramitesVista
         {
             Tramites = mesa,
             FiltroEstado = estado,
-            Pendientes = await _tramiteService.ContarPendientesAsync()
+            Pendientes = await _servicioTramite.ContarPendientesAsync()
         });
     }
 
@@ -76,9 +76,9 @@ public class TramitesController : ModuloBaseController
     [HttpGet("Requisitos/{tipoCodigo}")]
     public async Task<IActionResult> Requisitos(string tipoCodigo)
     {
-        var tipo = await _tramiteService.ObtenerTipoAsync(tipoCodigo);
+        var tipo = await _servicioTramite.ObtenerTipoAsync(tipoCodigo);
         if (tipo == null) return NotFound();
-        var requisitos = await _tramiteService.ListarRequisitosDeTipoAsync(tipoCodigo);
+        var requisitos = await _servicioTramite.ListarRequisitosDeTipoAsync(tipoCodigo);
         return Json(new { tipo, requisitos });
     }
 
@@ -88,7 +88,7 @@ public class TramitesController : ModuloBaseController
     [HttpGet("Detalle/{id}")]
     public async Task<IActionResult> Detalle(int id)
     {
-        var t = await _tramiteService.ObtenerDetalleAsync(id);
+        var t = await _servicioTramite.ObtenerDetalleAsync(id);
         if (t == null) return NotFound();
 
         // Zero-Blast-Radius de datos: el alumno SOLO puede abrir SU ficha. Antes el id
@@ -105,8 +105,8 @@ public class TramitesController : ModuloBaseController
     /// <summary>Código del estudiante (mod09.tramites.c_estudiante) para cotejar autoría.</summary>
     private async Task<string> ObtenerCodigoEstudianteAsync(int estudianteId)
     {
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("09");
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("09");
         return await conn.ExecuteScalarAsync<string>(
             "SELECT e.codigo_estudiante FROM core.estudiantes e WHERE e.id = @Id;",
             new { Id = estudianteId }) ?? "";
@@ -126,27 +126,27 @@ public class TramitesController : ModuloBaseController
             var estudianteId = await ObtenerEstudianteIdAsync();
             var periodoId = await ObtenerPeriodoActivoIdAsync();
 
-            // archivos por requisito: inputs file llamados req_<catalogoId> (PDF/JPG/PNG, máx 2MB)
+            // archivos por requisito: inputs archivoAdjunto llamados req_<catalogoId> (PDF/JPG/PNG, máx 2MB)
             var archivos = new Dictionary<int, (string Nombre, string Tipo, byte[] Contenido)>();
-            foreach (var file in Request.Form.Files)
+            foreach (var archivoAdjunto in Request.Form.Files)
             {
-                if (file.Length == 0 || !file.Name.StartsWith("req_")) continue;
-                if (!int.TryParse(file.Name["req_".Length..], out var reqId)) continue;
-                if (file.Length > 2_097_152)
+                if (archivoAdjunto.Length == 0 || !archivoAdjunto.Name.StartsWith("req_")) continue;
+                if (!int.TryParse(archivoAdjunto.Name["req_".Length..], out var reqId)) continue;
+                if (archivoAdjunto.Length > 2_097_152)
                 {
-                    MostrarAlertaError($"El archivo '{file.FileName}' supera los 2 MB permitidos.");
+                    MostrarAlertaError($"El archivo '{archivoAdjunto.FileName}' supera los 2 MB permitidos.");
                     return RedirectToAction(nameof(Index));
                 }
                 using var ms = new MemoryStream();
-                await file.CopyToAsync(ms);
-                archivos[reqId] = (file.FileName, file.ContentType, ms.ToArray());
+                await archivoAdjunto.CopyToAsync(ms);
+                archivos[reqId] = (archivoAdjunto.FileName, archivoAdjunto.ContentType, ms.ToArray());
             }
 
             string? datos = null;
             if (!string.IsNullOrWhiteSpace(observaciones))
                 datos = JsonSerializer.Serialize(new { observaciones });
 
-            var (ok, mensaje, codigo) = await _tramiteService.CrearTramiteAsync(
+            var (ok, mensaje, codigo) = await _servicioTramite.CrearTramiteAsync(
                 estudianteId, periodoId, tipoTramite, datos, archivos);
 
             if (ok) MostrarAlertaExito(mensaje);
@@ -167,7 +167,7 @@ public class TramitesController : ModuloBaseController
         if (EsAlumno)
         {
             var estudianteId = await ObtenerEstudianteIdAsync();
-            var t = await _tramiteService.ObtenerDetalleAsync(id);
+            var t = await _servicioTramite.ObtenerDetalleAsync(id);
             if (t == null) return NotFound();
             if (estudianteId == 0 || t.CodigoEstudiante != await ObtenerCodigoEstudianteAsync(estudianteId))
                 return Forbid();
@@ -175,15 +175,15 @@ public class TramitesController : ModuloBaseController
 
         // el alumno re-sube el archivo del requisito observado (PDF obligatorio en el prototipo)
         (string Nombre, string Tipo, byte[] Contenido)? archivo = null;
-        var file = Request.Form.Files.FirstOrDefault(f => f.Name == "req_" + requisitoId && f.Length > 0);
-        if (file != null)
+        var archivoAdjunto = Request.Form.Files.FirstOrDefault(f => f.Name == "req_" + requisitoId && f.Length > 0);
+        if (archivoAdjunto != null)
         {
             using var ms = new MemoryStream();
-            await file.CopyToAsync(ms);
-            archivo = (file.FileName, file.ContentType, ms.ToArray());
+            await archivoAdjunto.CopyToAsync(ms);
+            archivo = (archivoAdjunto.FileName, archivoAdjunto.ContentType, ms.ToArray());
         }
 
-        var (ok, mensaje) = await _tramiteService.CorregirRequisitoAsync(
+        var (ok, mensaje) = await _servicioTramite.CorregirRequisitoAsync(
             id, requisitoId, nota ?? "Corregido por el estudiante", archivo);
         if (ok) MostrarAlertaExito(mensaje);
         else MostrarAlertaError(mensaje);
@@ -198,7 +198,7 @@ public class TramitesController : ModuloBaseController
     public async Task<IActionResult> Archivo(int id, int requisitoId)
     {
         if (EsAlumno) return Forbid();
-        var a = await _tramiteService.ObtenerArchivoRequisitoAsync(id, requisitoId);
+        var a = await _servicioTramite.ObtenerArchivoRequisitoAsync(id, requisitoId);
         if (a == null) return NotFound();
         return File(a.Contenido, a.Tipo, a.Nombre);
     }
@@ -213,7 +213,7 @@ public class TramitesController : ModuloBaseController
         if (!EsSecretaria && !EsDirector)
             return Forbid();
 
-        var (ok, mensaje) = await _tramiteService.AvanzarEstadoAsync(
+        var (ok, mensaje) = await _servicioTramite.AvanzarEstadoAsync(
             id, nuevoEstado, resolucion, UsuarioActualId ?? 0);
         if (ok) MostrarAlertaExito(mensaje);
         else MostrarAlertaError(mensaje);
@@ -225,9 +225,9 @@ public class TramitesController : ModuloBaseController
     // ------------------------------------------------------------------
     private async Task<int> ObtenerEstudianteIdAsync()
     {
-        // claim PersonaId → core.estudiantes (vía la connection factory del módulo 09)
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("09");
+        // claim PersonaId → core.estudiantes (vía la connection fabrica del módulo 09)
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("09");
         var id = await conn.ExecuteScalarAsync<int?>(
             "SELECT e.id FROM core.estudiantes e WHERE e.persona_id = @PersonaId;",
             new { PersonaId = PersonaActualId ?? 0 });
@@ -236,8 +236,8 @@ public class TramitesController : ModuloBaseController
 
     private async Task<int> ObtenerPeriodoActivoIdAsync()
     {
-        var factory = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
-        using var conn = factory.CreateConnection("09");
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("09");
         return await conn.ExecuteScalarAsync<int>(
             "SELECT id FROM core.periodos_academicos WHERE es_activo ORDER BY id DESC LIMIT 1;");
     }
@@ -246,16 +246,16 @@ public class TramitesController : ModuloBaseController
 // ---------------------------------------------------------------------
 // ViewModels
 // ---------------------------------------------------------------------
-public class MisTramitesViewModel
+public class ModeloMisTramitesVista
 {
-    public IEnumerable<TramiteListaDto> Tramites { get; set; } = [];
-    public IEnumerable<TipoTramiteDto> Tipos { get; set; } = [];
+    public IEnumerable<ModeloTramiteLista> Tramites { get; set; } = [];
+    public IEnumerable<ModeloTipoTramite> Tipos { get; set; } = [];
     public string? FiltroEstado { get; set; }
 }
 
-public class MesaTramitesViewModel
+public class ModeloMesaTramitesVista
 {
-    public IEnumerable<TramiteMesaDto> Tramites { get; set; } = [];
+    public IEnumerable<ModeloTramiteMesa> Tramites { get; set; } = [];
     public string? FiltroEstado { get; set; }
     public int Pendientes { get; set; }
 }
