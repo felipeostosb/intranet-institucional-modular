@@ -102,3 +102,46 @@
 
 
 <partial name="~/Views/Modulo09/_TabsModulo.cshtml" />
+
+@section Scripts {
+    <script>
+        // Mismo criterio que en Trámites: el peso se valida en el navegador para que
+        // el alumno se entere al elegir el archivo y no después de subirlo entero.
+        const MAX_BYTES_V = 2 * 1024 * 1024;
+        for (const input of document.querySelectorAll('input.voucher-input')) {
+            const form = input.closest('form');
+            const btn  = form.querySelector('button[type=submit]');
+            const pista = document.createElement('p');
+            pista.className = 'text-[10px] mt-0.5';
+            form.appendChild(pista);
+
+            const revisar = () => {
+                const f = input.files[0];
+                pista.textContent = '';
+                pista.className = 'text-[10px] mt-0.5';
+                btn.disabled = false;
+                if (!f) return;
+                if (f.size > MAX_BYTES_V) {
+                    pista.textContent = `${(f.size / 1048576).toFixed(1)} MB supera los 2 MB — elegí un PDF más liviano.`;
+                    pista.className = 'text-[10px] mt-0.5 text-rose-500 font-bold';
+                    btn.disabled = true;
+                } else if (f.type !== 'application/pdf') {
+                    pista.textContent = 'El voucher debe ser un PDF.';
+                    pista.className = 'text-[10px] mt-0.5 text-rose-500 font-bold';
+                    btn.disabled = true;
+                } else {
+                    pista.textContent = `${(f.size / 1024).toFixed(0)} KB — listo para enviar.`;
+                    pista.className = 'text-[10px] mt-0.5 text-emerald-600 dark:text-emerald-400 font-bold';
+                }
+            };
+
+            input.addEventListener('change', revisar);
+            form.addEventListener('submit', ev => {
+                revisar();
+                if (btn.disabled) { ev.preventDefault(); return; }
+                btn.disabled = true;
+                btn.innerHTML = '<span class="loading loading-spinner loading-xs"></span> Subiendo…';
+            });
+        }
+    </script>
+}
