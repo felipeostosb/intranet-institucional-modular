@@ -77,16 +77,16 @@ public class TramiteService : ITramiteService
                    CURRENT_DATE - t.fecha_solicitud AS Dias,
                    tt.codigo AS TipoCodigo,
                    tt.nombre AS TipoNombre,
-                   cp.codigo AS PagoCodigo,
-                   cp.nombre AS PagoNombre,
-                   cp.monto AS PagoMonto,
+                   COALESCE(cp.codigo, 'GRATUITO')  AS PagoCodigo,
+                   COALESCE(cp.nombre, 'Trámite sin costo') AS PagoNombre,
+                   COALESCE(cp.monto, 0) AS PagoMonto,
                    (SELECT count(*) FROM tramite_requisitos tr
                      WHERE tr.tramite_id = t.id AND tr.presentado)  AS RequisitosOk,
                    (SELECT count(*) FROM tramite_requisitos tr
                      WHERE tr.tramite_id = t.id)                      AS RequisitosTotal
             FROM tramites t
             JOIN tipos_tramite tt ON tt.id = t.tipo_tramite_id
-            JOIN conceptos_pago cp ON cp.id = tt.concepto_pago_id
+            LEFT JOIN conceptos_pago cp ON cp.id = tt.concepto_pago_id
             WHERE t.estudiante_id = @EstudianteId
               AND (@Estado IS NULL OR t.estado = @Estado)
             ORDER BY t.fecha_solicitud DESC;
@@ -143,14 +143,14 @@ public class TramiteService : ITramiteService
                    tt.codigo AS TipoCodigo,
                    tt.nombre AS TipoNombre,
                    tt.dias_habiles AS DiasHabiles,
-                   cp.codigo AS PagoCodigo,
-                   cp.nombre AS PagoNombre,
-                   cp.monto AS PagoMonto,
+                   COALESCE(cp.codigo, 'GRATUITO')  AS PagoCodigo,
+                   COALESCE(cp.nombre, 'Trámite sin costo') AS PagoNombre,
+                   COALESCE(cp.monto, 0) AS PagoMonto,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
                    e.codigo_estudiante AS CodigoEstudiante
             FROM tramites t
             JOIN tipos_tramite tt ON tt.id = t.tipo_tramite_id
-            JOIN conceptos_pago cp ON cp.id = tt.concepto_pago_id
+            LEFT JOIN conceptos_pago cp ON cp.id = tt.concepto_pago_id
             JOIN estudiantes e ON e.id = t.estudiante_id
             JOIN personas p ON p.id = e.persona_id
             WHERE t.id = @Id;
@@ -219,10 +219,11 @@ public class TramiteService : ITramiteService
         using var db = CreateConnection();
         const string sql = """
             SELECT tt.id, tt.codigo, tt.nombre, tt.dias_habiles AS DiasHabiles,
-                   cp.codigo AS PagoCodigo, cp.nombre AS PagoNombre,
-                   cp.monto AS PagoMonto
+                   COALESCE(cp.codigo, 'GRATUITO') AS PagoCodigo,
+                   COALESCE(cp.nombre, 'Trámite sin costo') AS PagoNombre,
+                   COALESCE(cp.monto, 0) AS PagoMonto
             FROM tipos_tramite tt
-            JOIN conceptos_pago cp ON cp.id = tt.concepto_pago_id
+            LEFT JOIN conceptos_pago cp ON cp.id = tt.concepto_pago_id
             WHERE tt.activo
             ORDER BY tt.codigo;
             """;
@@ -234,10 +235,11 @@ public class TramiteService : ITramiteService
         using var db = CreateConnection();
         const string sql = """
             SELECT tt.id, tt.codigo, tt.nombre, tt.dias_habiles AS DiasHabiles,
-                   cp.codigo AS PagoCodigo, cp.nombre AS PagoNombre,
-                   cp.monto AS PagoMonto
+                   COALESCE(cp.codigo, 'GRATUITO') AS PagoCodigo,
+                   COALESCE(cp.nombre, 'Trámite sin costo') AS PagoNombre,
+                   COALESCE(cp.monto, 0) AS PagoMonto
             FROM tipos_tramite tt
-            JOIN conceptos_pago cp ON cp.id = tt.concepto_pago_id
+            LEFT JOIN conceptos_pago cp ON cp.id = tt.concepto_pago_id
             WHERE tt.codigo = @Codigo AND tt.activo;
             """;
         return await db.QueryFirstOrDefaultAsync<TipoTramiteDto>(sql, new { Codigo = codigo });
