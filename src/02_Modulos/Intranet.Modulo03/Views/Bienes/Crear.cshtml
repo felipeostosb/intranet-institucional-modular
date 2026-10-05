@@ -1,0 +1,23 @@
+@model Intranet.Modulo03.Models.BienFormModel
+@{ ViewData["Title"] = "Registrar bien"; }
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-5xl mx-auto">
+    <div class="flex items-center justify-between mb-5"><div><h1 class="text-3xl font-bold">Registrar bien</h1><p class="text-base-content/60">Completa los datos patrimoniales del equipo.</p></div><a href="/Modulo03/Bienes" class="btn btn-ghost">← Volver</a></div>
+    <div asp-validation-summary="ModelOnly" class="alert alert-error mb-4"></div>
+    <form method="post" action="/Modulo03/Bienes/Crear" class="card bg-base-100 shadow-xl"><div class="card-body grid grid-cols-1 md:grid-cols-2 gap-4">
+        @Html.AntiForgeryToken()
+        <input type="hidden" name="IdBien" value="0" />
+        <div><label class="label">CBI *</label><input asp-for="Cbi" class="input input-bordered w-full" /></div>
+        <div><label class="label">Código de inventario</label><input asp-for="CodigoInventario" class="input input-bordered w-full" /></div>
+        <div class="md:col-span-2"><label class="label">Descripción *</label><input asp-for="Descripcion" class="input input-bordered w-full" placeholder="Ej. Laptop HP" /></div>
+        <div><label class="label">Clasificación *</label><select asp-for="IdClasificacion" class="select select-bordered w-full"><option value="">Seleccione</option>@foreach(var c in Model.Clasificaciones){<option value="@c.IdClasificacion">@c.Nombre</option>}</select></div>
+        <div><label class="label">Almacén *</label><select asp-for="IdAlmacen" class="select select-bordered w-full"><option value="">Seleccione</option>@foreach(var a in Model.Almacenes){<option value="@a.IdAlmacen">@a.Nombre</option>}</select></div>
+        <div><label class="label">Marca</label><input asp-for="Marca" class="input input-bordered w-full" /></div>
+        <div><label class="label">Modelo</label><input asp-for="Modelo" class="input input-bordered w-full" /></div>
+        <div><label class="label">Serie</label><input asp-for="Serie" class="input input-bordered w-full" /></div>
+        <div><label class="label">Procedencia</label><select asp-for="Procedencia" class="select select-bordered w-full"><option>Donación</option><option>Adquisición</option><option>Transferencia</option><option>Otro</option></select></div>
+        <div><label class="label">Fecha de ingreso *</label><input asp-for="FechaIngreso" type="date" class="input input-bordered w-full" /></div>
+        <div><label class="label">Estado *</label><select asp-for="Estado" class="select select-bordered w-full"><option>Bueno</option><option>Regular</option><option>Malo</option><option>En reparación</option><option>Inoperativo</option><option>Baja en trámite</option><option>De baja</option></select></div>
+        <div class="md:col-span-2"><label class="label">Observación</label><textarea asp-for="Observacion" class="textarea textarea-bordered w-full" rows="4"></textarea></div>
+        <div class="md:col-span-2 flex justify-end gap-2"><a href="/Modulo03/Bienes" class="btn btn-ghost">Cancelar</a><button class="btn btn-primary">Registrar bien</button></div>
+    </div></form>
+</div></div>

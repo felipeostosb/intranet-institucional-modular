@@ -1,0 +1,7 @@
+@model IEnumerable<Intranet.Modulo03.Models.AsignacionModel>
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-7xl mx-auto">
+<div class="flex justify-between items-center mb-5"><div><h1 class="text-3xl font-bold">Asignaciones</h1><p class="text-base-content/60">Bienes asignados a ambientes.</p></div><div class="flex gap-2"><a href="/Modulo03/Asignaciones/Crear" class="btn btn-primary">+ Asignar bien</a><a href="/Modulo03" class="btn btn-ghost">Panel</a></div></div>
+@if (TempData["Ok"] is not null) { <div class="alert alert-success mb-4">@TempData["Ok"]</div> }
+@if (TempData["Error"] is not null) { <div class="alert alert-error mb-4">@TempData["Error"]</div> }
+<div class="card bg-base-100 shadow-xl"><div class="card-body overflow-x-auto"><table class="table table-zebra"><thead><tr><th>CBI</th><th>Bien</th><th>Ambiente</th><th>Especialidad</th><th>Responsable</th><th>Fecha</th><th>Estado</th><th></th></tr></thead><tbody>@foreach(var a in Model){<tr><td class="font-semibold">@a.Cbi</td><td>@a.Descripcion</td><td>@a.Ambiente</td><td>@(a.Especialidad ?? "-")</td><td>@(a.Responsable ?? "-")</td><td>@a.FechaAsignacion.ToString("dd/MM/yyyy")</td><td><span class="badge @(a.Estado=="Activa"?"badge-success":"badge-ghost")">@a.Estado</span></td><td>@if(a.Estado=="Activa"){<form method="post" action="/Modulo03/Asignaciones/Finalizar/@a.IdAsignacion" onsubmit="return confirm('¿Finalizar esta asignación?');">@Html.AntiForgeryToken()<button class="btn btn-xs btn-warning">Finalizar</button></form>}</td></tr>}</tbody></table></div></div>
+</div></div>

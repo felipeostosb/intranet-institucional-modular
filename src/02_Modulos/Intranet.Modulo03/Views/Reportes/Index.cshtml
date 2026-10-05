@@ -1,0 +1,14 @@
+@model IEnumerable<Intranet.Modulo03.Models.BienInventario>
+@{
+    var bienes = Model.ToList();
+    var estados = bienes.GroupBy(x => x.Estado).OrderByDescending(x => x.Count()).ToList();
+    var clasificaciones = bienes.GroupBy(x => x.Clasificacion).OrderByDescending(x => x.Count()).ToList();
+}
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-7xl mx-auto">
+<div class="flex flex-col md:flex-row md:justify-between md:items-center gap-3 mb-5"><div><h1 class="text-3xl font-bold">Reportes de inventario</h1><p class="text-base-content/60">Resumen y exportación de la información actual.</p></div><div class="flex gap-2"><a href="/Modulo03/Reportes/Excel" class="btn btn-success">↓ Descargar Excel</a><a href="/Modulo03" class="btn btn-ghost">Panel</a></div></div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-5 mb-5">
+<div class="card bg-base-100 shadow-xl"><div class="card-body"><h2 class="card-title">Por estado</h2><div class="overflow-x-auto"><table class="table table-sm"><thead><tr><th>Estado</th><th>Total</th></tr></thead><tbody>@foreach(var g in estados){<tr><td>@g.Key</td><td class="font-bold">@g.Count()</td></tr>}</tbody></table></div></div></div>
+<div class="card bg-base-100 shadow-xl"><div class="card-body"><h2 class="card-title">Por clasificación</h2><div class="overflow-x-auto"><table class="table table-sm"><thead><tr><th>Clasificación</th><th>Total</th></tr></thead><tbody>@foreach(var g in clasificaciones){<tr><td>@g.Key</td><td class="font-bold">@g.Count()</td></tr>}</tbody></table></div></div></div>
+</div>
+<div class="card bg-base-100 shadow-xl"><div class="card-body"><h2 class="card-title">Exportación</h2><p>El botón genera un archivo <strong>.xlsx</strong> con todos los bienes y sus datos de almacén, ambiente y estado.</p><div class="mt-2"><a href="/Modulo03/Reportes/Excel" class="btn btn-primary">Generar Excel ahora</a></div></div></div>
+</div></div>

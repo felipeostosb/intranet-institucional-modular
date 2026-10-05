@@ -1,0 +1,11 @@
+@model Intranet.Modulo03.Models.AsignacionFormModel
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-4xl mx-auto"><div class="flex justify-between items-center mb-5"><div><h1 class="text-3xl font-bold">Nueva asignación</h1><p class="text-base-content/60">Asigna un bien a un ambiente.</p></div><a href="/Modulo03/Asignaciones" class="btn btn-ghost">← Volver</a></div>
+<div asp-validation-summary="ModelOnly" class="alert alert-error mb-4"></div>
+<form method="post" action="/Modulo03/Asignaciones/Crear" class="card bg-base-100 shadow-xl"><div class="card-body grid grid-cols-1 md:grid-cols-2 gap-4">@Html.AntiForgeryToken()
+<div class="md:col-span-2"><label class="label">Bien *</label><select asp-for="IdBien" class="select select-bordered w-full"><option value="">Seleccione un bien sin asignación activa</option>@foreach(var b in Model.Bienes){<option value="@b.IdBien">@b.Cbi - @b.Descripcion - @b.AlmacenActual</option>}</select></div>
+<div><label class="label">Ambiente *</label><select asp-for="IdAmbiente" class="select select-bordered w-full"><option value="">Seleccione</option>@foreach(var a in Model.Ambientes){<option value="@a.IdAmbiente">@(a.Especialidad ?? "") - @a.Nombre</option>}</select></div>
+<div><label class="label">Responsable</label><input asp-for="Responsable" class="input input-bordered w-full" /></div>
+<div><label class="label">Fecha *</label><input asp-for="FechaAsignacion" type="date" class="input input-bordered w-full" /></div>
+<div class="md:col-span-2"><label class="label">Observación</label><textarea asp-for="Observacion" class="textarea textarea-bordered w-full"></textarea></div>
+<div class="md:col-span-2 flex justify-end gap-2"><a href="/Modulo03/Asignaciones" class="btn btn-ghost">Cancelar</a><button class="btn btn-primary">Guardar asignación</button></div>
+</div></form></div></div>

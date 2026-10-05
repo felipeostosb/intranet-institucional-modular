@@ -1,0 +1,14 @@
+@model Intranet.Modulo03.Models.TransferenciaFormModel
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-4xl mx-auto"><div class="flex justify-between items-center mb-5"><div><h1 class="text-3xl font-bold">Nueva transferencia</h1><p class="text-base-content/60">Registra el movimiento de un bien entre almacenes.</p></div><a href="/Modulo03/Transferencias" class="btn btn-ghost">← Volver</a></div>
+<div asp-validation-summary="ModelOnly" class="alert alert-error mb-4"></div>
+<form method="post" action="/Modulo03/Transferencias/Crear" class="card bg-base-100 shadow-xl"><div class="card-body grid grid-cols-1 md:grid-cols-2 gap-4">@Html.AntiForgeryToken()
+<div class="md:col-span-2"><label class="label">Bien *</label><select asp-for="IdBien" class="select select-bordered w-full"><option value="">Seleccione</option>@foreach(var b in Model.Bienes){<option value="@b.IdBien">@b.Cbi - @b.Descripcion - @b.AlmacenActual</option>}</select></div>
+<div><label class="label">Almacén origen *</label><select asp-for="IdAlmacenOrigen" class="select select-bordered w-full"><option value="">Seleccione</option>@foreach(var a in Model.Almacenes){<option value="@a.IdAlmacen">@a.Nombre</option>}</select></div>
+<div><label class="label">Almacén destino *</label><select asp-for="IdAlmacenDestino" class="select select-bordered w-full"><option value="">Seleccione</option>@foreach(var a in Model.Almacenes){<option value="@a.IdAlmacen">@a.Nombre</option>}</select></div>
+<div class="md:col-span-2"><label class="label">Motivo *</label><input asp-for="Motivo" class="input input-bordered w-full" placeholder="Ej. Reubicación por requerimiento" /></div>
+<div><label class="label">Responsable origen</label><input asp-for="ResponsableOrigen" class="input input-bordered w-full" /></div>
+<div><label class="label">Responsable destino</label><input asp-for="ResponsableDestino" class="input input-bordered w-full" /></div>
+<div><label class="label">Documento</label><input asp-for="Documento" class="input input-bordered w-full" /></div>
+<div class="md:col-span-2"><label class="label">Observación</label><textarea asp-for="Observacion" class="textarea textarea-bordered w-full"></textarea></div>
+<div class="md:col-span-2 flex justify-end gap-2"><a href="/Modulo03/Transferencias" class="btn btn-ghost">Cancelar</a><button class="btn btn-primary">Registrar transferencia</button></div>
+</div></form></div></div>
