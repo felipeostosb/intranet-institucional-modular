@@ -1,0 +1,11 @@
+@model Intranet.Modulo03.Models.InventarioAnualFormModel
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-4xl mx-auto"><div class="flex justify-between items-center mb-5"><div><h1 class="text-3xl font-bold">Registrar inventario anual</h1><p class="text-base-content/60">Guarda el resultado de la verificación física.</p></div><a href="/Modulo03/InventarioAnual" class="btn btn-ghost">← Volver</a></div>
+<div asp-validation-summary="ModelOnly" class="alert alert-error mb-4"></div>
+<form method="post" action="/Modulo03/InventarioAnual/Crear" class="card bg-base-100 shadow-xl"><div class="card-body grid grid-cols-1 md:grid-cols-2 gap-4">@Html.AntiForgeryToken()
+<div class="md:col-span-2"><label class="label">Bien *</label><select asp-for="IdBien" class="select select-bordered w-full"><option value="">Seleccione</option>@foreach(var b in Model.Bienes){<option value="@b.IdBien">@b.Cbi - @b.Descripcion - @b.Serie</option>}</select></div>
+<div><label class="label">Año *</label><input asp-for="Anio" type="number" min="2000" max="2100" class="input input-bordered w-full" /></div>
+<div><label class="label">Fecha *</label><input asp-for="FechaVerificacion" type="date" class="input input-bordered w-full" /></div>
+<div><label class="label">Resultado *</label><select asp-for="Resultado" class="select select-bordered w-full"><option>Físico</option><option>Faltante</option><option>Sobrante</option></select></div>
+<div class="md:col-span-2"><label class="label">Observación</label><textarea asp-for="Observacion" class="textarea textarea-bordered w-full"></textarea></div>
+<div class="md:col-span-2 flex justify-end gap-2"><a href="/Modulo03/InventarioAnual" class="btn btn-ghost">Cancelar</a><button class="btn btn-primary">Registrar</button></div>
+</div></form></div></div>

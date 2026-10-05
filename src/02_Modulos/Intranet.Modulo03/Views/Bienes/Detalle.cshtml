@@ -1,0 +1,19 @@
+@model Intranet.Modulo03.Models.BienInventario
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-5xl mx-auto">
+    <div class="flex justify-between items-center mb-5"><div><h1 class="text-3xl font-bold">Detalle del bien</h1><p class="text-base-content/60">Ficha completa del activo.</p></div><div class="flex gap-2"><a href="/Modulo03/Bienes/Editar/@Model.IdBien" class="btn btn-primary">Editar</a><a href="/Modulo03/Bienes" class="btn btn-ghost">Volver</a></div></div>
+    <div class="card bg-base-100 shadow-xl"><div class="card-body grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div><div class="text-sm text-base-content/50">CBI</div><div class="font-bold text-lg">@Model.Cbi</div></div>
+        <div><div class="text-sm text-base-content/50">Código de inventario</div><div>@(Model.CodigoInventario ?? "-")</div></div>
+        <div><div class="text-sm text-base-content/50">Descripción</div><div>@Model.Descripcion</div></div>
+        <div><div class="text-sm text-base-content/50">Clasificación</div><div>@Model.Clasificacion</div></div>
+        <div><div class="text-sm text-base-content/50">Marca</div><div>@(Model.Marca ?? "-")</div></div>
+        <div><div class="text-sm text-base-content/50">Modelo</div><div>@(Model.Modelo ?? "-")</div></div>
+        <div><div class="text-sm text-base-content/50">Serie</div><div>@(Model.Serie ?? "-")</div></div>
+        <div><div class="text-sm text-base-content/50">Estado</div><div class="badge badge-outline">@Model.Estado</div></div>
+        <div><div class="text-sm text-base-content/50">Procedencia</div><div>@Model.Procedencia</div></div>
+        <div><div class="text-sm text-base-content/50">Fecha de ingreso</div><div>@Model.FechaIngreso.ToString("dd/MM/yyyy")</div></div>
+        <div><div class="text-sm text-base-content/50">Almacén</div><div>@Model.AlmacenActual</div></div>
+        <div><div class="text-sm text-base-content/50">Ambiente</div><div>@(Model.AmbienteActual ?? "Sin asignar")</div></div>
+        <div class="md:col-span-2"><div class="text-sm text-base-content/50">Observación</div><div>@(Model.Observacion ?? "-")</div></div>
+    </div></div>
+</div></div>

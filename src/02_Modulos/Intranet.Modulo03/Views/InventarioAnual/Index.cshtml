@@ -1,0 +1,6 @@
+@model IEnumerable<Intranet.Modulo03.Models.InventarioAnualModel>
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-7xl mx-auto">
+<div class="flex justify-between items-center mb-5"><div><h1 class="text-3xl font-bold">Inventario anual</h1><p class="text-base-content/60">Verificaciones físicas por año.</p></div><div class="flex gap-2"><a href="/Modulo03/InventarioAnual/Crear" class="btn btn-primary">+ Registrar verificación</a><a href="/Modulo03" class="btn btn-ghost">Panel</a></div></div>
+@if (TempData["Ok"] is not null) { <div class="alert alert-success mb-4">@TempData["Ok"]</div> }
+<div class="card bg-base-100 shadow-xl"><div class="card-body overflow-x-auto"><table class="table table-zebra"><thead><tr><th>Año</th><th>Fecha</th><th>CBI</th><th>Bien</th><th>Serie</th><th>Almacén</th><th>Resultado</th><th>Observación</th></tr></thead><tbody>@foreach(var i in Model){<tr><td>@i.Anio</td><td>@i.FechaVerificacion.ToString("dd/MM/yyyy")</td><td class="font-semibold">@i.Cbi</td><td>@i.Descripcion</td><td>@(i.Serie ?? "-")</td><td>@i.Almacen</td><td><span class="badge @(i.Resultado=="Físico"?"badge-success":i.Resultado=="Faltante"?"badge-error":"badge-warning")">@i.Resultado</span></td><td>@(i.Observacion ?? "-")</td></tr>}</tbody></table></div></div>
+</div></div>

@@ -1,0 +1,24 @@
+@model Intranet.Modulo03.Models.InventarioFiltroModel
+@{
+    ViewData["Title"] = "Bienes";
+}
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-[1700px] mx-auto">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
+        <div><h1 class="text-3xl font-bold">Bienes registrados</h1><p class="text-base-content/60">CRUD del inventario.</p></div>
+        <div class="flex gap-2"><a href="/Modulo03" class="btn btn-ghost">← Panel</a><a href="/Modulo03/Bienes/Crear" class="btn btn-primary">+ Registrar bien</a></div>
+    </div>
+    @if (TempData["Ok"] is not null) { <div class="alert alert-success mb-4">@TempData["Ok"]</div> }
+    @if (TempData["Error"] is not null) { <div class="alert alert-error mb-4">@TempData["Error"]</div> }
+    <div class="card bg-base-100 shadow-xl"><div class="card-body">
+        <form method="get" class="grid grid-cols-1 md:grid-cols-4 gap-3 items-end">
+            <div><label class="label">Buscar</label><input name="Q" value="@Model.Q" class="input input-bordered w-full" placeholder="CBI / serie / descripción" /></div>
+            <div><label class="label">Estado</label><select name="Estado" class="select select-bordered w-full"><option value="">Todos</option>@foreach(var e in new[]{"Bueno","Regular","Malo","En reparación","Inoperativo","Baja en trámite","De baja"}){<option selected="@(Model.Estado==e)">@e</option>}</select></div>
+            <div><label class="label">Clasificación</label><select name="IdClasificacion" class="select select-bordered w-full"><option value="">Todas</option>@foreach(var c in Model.Clasificaciones){<option value="@c.IdClasificacion" selected="@(Model.IdClasificacion==c.IdClasificacion)">@c.Nombre</option>}</select></div>
+            <div><label class="label">Almacén</label><select name="IdAlmacen" class="select select-bordered w-full"><option value="">Todos</option>@foreach(var a in Model.Almacenes){<option value="@a.IdAlmacen" selected="@(Model.IdAlmacen==a.IdAlmacen)">@a.Nombre</option>}</select></div>
+            <div class="md:col-span-4 flex gap-2"><button class="btn btn-primary">Aplicar</button><a href="/Modulo03/Bienes" class="btn btn-ghost">Limpiar</a></div>
+        </form>
+        <div class="overflow-x-auto mt-5"><table class="table table-zebra"><thead><tr><th>CBI</th><th>Descripción</th><th>Clasificación</th><th>Serie</th><th>Estado</th><th>Almacén</th><th></th></tr></thead><tbody>
+        @foreach (var b in Model.Resultados){<tr><td class="font-semibold">@b.Cbi</td><td>@b.Descripcion</td><td>@b.Clasificacion</td><td>@(b.Serie ?? "-")</td><td>@b.Estado</td><td>@b.AlmacenActual</td><td class="flex gap-1"><a href="/Modulo03/Bienes/Detalle/@b.IdBien" class="btn btn-xs btn-ghost">Ver</a><a href="/Modulo03/Bienes/Editar/@b.IdBien" class="btn btn-xs btn-outline">Editar</a></td></tr>}
+        </tbody></table></div>
+    </div></div>
+</div></div>

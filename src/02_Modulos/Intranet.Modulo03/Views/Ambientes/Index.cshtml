@@ -1,0 +1,5 @@
+@model IEnumerable<Intranet.Modulo03.Models.AmbienteModel>
+<div class="min-h-screen bg-base-200 p-6"><div class="max-w-6xl mx-auto">
+<div class="flex justify-between items-center mb-5"><div><h1 class="text-3xl font-bold">Ambientes</h1><p class="text-base-content/60">Talleres, laboratorios y oficinas.</p></div><a href="/Modulo03" class="btn btn-ghost">← Panel</a></div>
+<div class="card bg-base-100 shadow-xl"><div class="card-body overflow-x-auto"><table class="table table-zebra"><thead><tr><th>Especialidad</th><th>Ambiente</th><th>Estado</th></tr></thead><tbody>@foreach(var a in Model){<tr><td>@(a.Especialidad ?? "-")</td><td class="font-semibold">@a.Nombre</td><td><span class="badge @(a.Estado=="Activo"?"badge-success":"badge-ghost")">@a.Estado</span></td></tr>}</tbody></table></div></div>
+</div></div>
