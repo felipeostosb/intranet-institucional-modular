@@ -10,6 +10,8 @@
 -- ==============================================================================
 
 -- Registro genérico del módulo (provision del dueño)
+CREATE SCHEMA IF NOT EXISTS mod06;
+
 CREATE TABLE IF NOT EXISTS mod06.t_modulo06_registros (
     id SERIAL PRIMARY KEY,
     codigo VARCHAR(50) NOT NULL UNIQUE,
@@ -58,5 +60,38 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_audit_expedientes_06') THEN
         CREATE TRIGGER trg_audit_expedientes_06 AFTER INSERT OR DELETE OR UPDATE ON mod06.expedientes_06
             FOR EACH ROW EXECUTE FUNCTION core.fn_audit_trigger();
+    END IF;
+END $$;
+
+-- ------------------------------------------------------------------
+-- EGRESOS — tabla real de producción ( estaba faltando en este schema.sql:
+-- drift detectado; el flujo de titulación del módulo escribe aquí y el
+-- core la escucha con trg_titular_al_egresar definido en core_schema.sql ).
+-- Estructura exacta de producción (2026-10-06).
+-- ------------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS mod06.egresos (
+    id SERIAL PRIMARY KEY,
+    codigo VARCHAR(20) NOT NULL UNIQUE,
+    estudiante_id INT NOT NULL REFERENCES core.estudiantes(id) ON DELETE RESTRICT,
+    carrera_id INT NOT NULL REFERENCES core.carreras(id) ON DELETE RESTRICT,
+    periodo_fin_id INT NULL REFERENCES core.periodos_academicos(id) ON DELETE SET NULL,
+    promedio NUMERIC(4,2) NOT NULL CHECK (promedio >= 0 AND promedio <= 20),
+    fecha_egreso DATE NOT NULL,
+    confirmado_por_id INT NULL REFERENCES core.usuarios(id) ON DELETE SET NULL,
+    obs TEXT NULL,
+    creado_en TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE (estudiante_id, carrera_id)
+);
+CREATE INDEX IF NOT EXISTS idx_egresos_estudiante ON mod06.egresos (estudiante_id);
+
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_audit_egresos') THEN
+        CREATE TRIGGER trg_audit_egresos AFTER INSERT OR DELETE OR UPDATE ON mod06.egresos
+            FOR EACH ROW EXECUTE FUNCTION core.fn_audit_trigger();
+    END IF;
+    IF NOT EXISTS (SELECT 1 FROM pg_trigger WHERE tgname = 'trg_titular_al_egresar') THEN
+        CREATE TRIGGER trg_titular_al_egresar AFTER INSERT ON mod06.egresos
+            FOR EACH ROW EXECUTE FUNCTION core.fn_titular_al_egresar();
     END IF;
 END $$;
