@@ -365,7 +365,10 @@ INSERT INTO core.roles (id, nombre, descripcion) VALUES
 (4, 'Secretaria', 'Secretaría Académica y Trámites'),
 (5, 'Tesoreria', 'Área de Tesorería, Facturación y Caja'),
 (6, 'Docente', 'Plana Docente'),
-(7, 'Alumno', 'Estudiante de Carrera Profesional')
+(7, 'Alumno', 'Estudiante de Carrera Profesional'),
+(8, 'Jefe General', 'Jefatura General de Almacén e Inventario (control total del inventario)'),
+(9, 'Jefe de Especialidad', 'Jefe de carrera: gestiona los bienes y ambientes de SU especialidad'),
+(10, 'OTIS', 'Oficina Técnica: mantenimiento, reparación y estado técnico de equipos')
 ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre, descripcion = EXCLUDED.descripcion;
 
 SELECT setval('core.roles_id_seq', (SELECT MAX(id) FROM core.roles));
@@ -421,7 +424,12 @@ INSERT INTO core.personas (id, dni, nombres, apellidos, email_personal, telefono
 (6, '12345678', 'Roberto', 'Sánchez Benítez', 'rsanchez.prof@gmail.com', '999123456', 'M'),
 (7, '87654321', 'Felipe', 'Ostos', 'felipe.ostos@gmail.com', '999876543', 'M'),
 (8, '77654321', 'Ana', 'García Flores', 'ana.garcia@gmail.com', '999776543', 'F'),
-(9, '66554433', 'Luis', 'Torres Quispe', 'luis.torres@gmail.com', '999665544', 'M')
+(9, '66554433', 'Luis', 'Torres Quispe', 'luis.torres@gmail.com', '999665544', 'M'),
+(10, '51000001', 'Jorge', 'Ramírez Salazar', 'jorge.ramirez@iestpargentina.edu.pe', '999510001', 'M'),
+(11, '51000002', 'María', 'Torres Vega', 'maria.torres@iestpargentina.edu.pe', '999510002', 'F'),
+(12, '51000003', 'Carlos', 'Huamán Ríos', 'carlos.huaman@iestpargentina.edu.pe', '999510003', 'M'),
+(13, '51000004', 'Rosa', 'Vargas Muñoz', 'rosa.vargas@iestpargentina.edu.pe', '999510004', 'F'),
+(14, '51000005', 'Luis', 'Chávez Paredes', 'luis.chavez@iestpargentina.edu.pe', '999510005', 'M')
 ON CONFLICT (id) DO UPDATE SET dni = EXCLUDED.dni, nombres = EXCLUDED.nombres, apellidos = EXCLUDED.apellidos;
 
 SELECT setval('core.personas_id_seq', (SELECT MAX(id) FROM core.personas));
@@ -433,10 +441,15 @@ INSERT INTO core.usuarios (id, persona_id, codigo_institucional, email, password
 (3, 3, 'COORD-DSI', 'coord.sistemas@ieargentina.edu.pe', '123456', TRUE),
 (4, 4, 'SEC-ACAD', 'secretaria.academica@ieargentina.edu.pe', '123456', TRUE),
 (5, 5, 'TES-2026', 'tesoreria@ieargentina.edu.pe', '123456', TRUE),
-(6, 6, 'DOC-DSI-01', 'rsanchez@ieargentina.edu.pe', '123456', TRUE),
-(7, 7, 'EST-DSI-001', 'felipe.ostos@ieargentina.edu.pe', '123456', TRUE),
+(6, 6, 'DOC-DSI-01', 'rsanchez@iestpargentina.edu.pe', '123456', TRUE),
+(7, 7, 'EST-DSI-001', 'felipe.ostos@iestpargentina.edu.pe', '123456', TRUE),
 (8, 8, 'EST-DSI-002', 'ana.garcia@ieargentina.edu.pe', '123456', TRUE),
-(9, 9, 'EST-CONT-001', 'luis.torres@ieargentina.edu.pe', '123456', TRUE)
+(9, 9, 'EST-CONT-001', 'luis.torres@ieargentina.edu.pe', '123456', TRUE),
+(10, 10, '51000001', 'jefe.general@iestpargentina.edu.pe', '123456', TRUE),
+(11, 11, '51000002', 'jefe.esp.dsi@iestpargentina.edu.pe', '123456', TRUE),
+(12, 12, '51000003', 'jefe.esp.cont@iestpargentina.edu.pe', '123456', TRUE),
+(13, 13, '51000004', 'jefe.esp.adm@iestpargentina.edu.pe', '123456', TRUE),
+(14, 14, '51000005', 'otis@iestpargentina.edu.pe', '123456', TRUE)
 ON CONFLICT (id) DO UPDATE SET codigo_institucional = EXCLUDED.codigo_institucional;
 
 SELECT setval('core.usuarios_id_seq', (SELECT MAX(id) FROM core.usuarios));
@@ -453,7 +466,12 @@ INSERT INTO core.usuario_roles (id, usuario_id, rol_id) VALUES
 (8, 7, 6),
 (9, 7, 1),
 (10, 8, 7),
-(11, 9, 7)
+(11, 9, 7),
+(12, 10, 8),   -- Jefe General: Jorge Ramírez 51000001
+(13, 11, 9),   -- Jefe de Especialidad: María Torres (DSI) 51000002
+(14, 12, 9),   -- Jefe de Especialidad: Carlos Huamán (CONT) 51000003
+(15, 13, 9),   -- Jefe de Especialidad: Rosa Vargas (ADM) 51000004
+(16, 14, 10)   -- OTIS: Luis Chávez 51000005
 ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('core.usuario_roles_id_seq', (SELECT MAX(id) FROM core.usuario_roles));
@@ -478,7 +496,12 @@ SELECT setval('core.docentes_id_seq', (SELECT MAX(id) FROM core.docentes));
 -- Administrativos
 INSERT INTO core.administrativos (id, persona_id, codigo_staff, cargo, area) VALUES
 (1, 4, 'ADM-SEC-01', 'Secretaria Académica', 'Secretaría General'),
-(2, 5, 'ADM-TES-01', 'Jefa de Caja y Tesorería', 'Tesorería')
+(2, 5, 'ADM-TES-01', 'Jefa de Caja y Tesorería', 'Tesorería'),
+(3, 10, 'JEF-GRAL-01', 'Jefe General de Almacén e Inventario', 'Almacén e Inventario'),
+(4, 11, 'JEF-ESP-DSI', 'Jefe de Especialidad - DSI', 'Departamento Académico'),
+(5, 12, 'JEF-ESP-CONT', 'Jefe de Especialidad - Contabilidad', 'Departamento Académico'),
+(6, 13, 'JEF-ESP-ADM', 'Jefe de Especialidad - Administración', 'Departamento Académico'),
+(7, 14, 'OTIS-01', 'Técnico OTIS', 'Oficina Técnica')
 ON CONFLICT (id) DO UPDATE SET codigo_staff = EXCLUDED.codigo_staff;
 
 SELECT setval('core.administrativos_id_seq', (SELECT MAX(id) FROM core.administrativos));

@@ -305,7 +305,10 @@ INSERT INTO core.roles (id, nombre, descripcion) VALUES
 (4, 'Secretaria', 'Secretaría Académica y Trámites'),
 (5, 'Tesoreria', 'Área de Tesorería, Facturación y Caja'),
 (6, 'Docente', 'Plana Docente'),
-(7, 'Alumno', 'Estudiante de Carrera Profesional')
+(7, 'Alumno', 'Estudiante de Carrera Profesional'),
+(8, 'Jefe General', 'Jefatura General de Almacén e Inventario (control total del inventario)'),
+(9, 'Jefe de Especialidad', 'Jefe de carrera: gestiona los bienes y ambientes de SU especialidad'),
+(10, 'OTIS', 'Oficina Técnica: mantenimiento, reparación y estado técnico de equipos')
 ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre, descripcion = EXCLUDED.descripcion;
 
 SELECT setval('core.roles_id_seq', (SELECT MAX(id) FROM core.roles));
@@ -365,7 +368,12 @@ INSERT INTO core.personas (id, dni, nombres, apellidos, email_personal, telefono
 (8,  '77654321', 'Ana',              'García Flores',        'ana.garcia@gmail.com',           '999776543', 'F'),
 (9,  '66554433', 'Luis',             'Torres Quispe',        'luis.torres@gmail.com',          '999665544', 'M'),
 (10, '10000003', 'Docente',          'Montero',              'montero@iestpargentina.edu.pe',  '999100003', 'M'),
-(11, '47915633', 'Felipe Pedro Jose','Ostos Bermudez',       'fpedro.ostos@gmail.com',         '999479156', 'M')
+(11, '47915633', 'Felipe Pedro Jose','Ostos Bermudez',       'fpedro.ostos@gmail.com',        '999479156', 'M'),
+(12, '51000001', 'Jorge',            'Ramírez Salazar',      'jorge.ramirez@iestpargentina.edu.pe',  '999510001', 'M'),
+(13, '51000002', 'María',            'Torres Vega',          'maria.torres@iestpargentina.edu.pe',   '999510002', 'F'),
+(14, '51000003', 'Carlos',           'Huamán Ríos',          'carlos.huaman@iestpargentina.edu.pe', '999510003', 'M'),
+(15, '51000004', 'Rosa',             'Vargas Muñoz',         'rosa.vargas@iestpargentina.edu.pe',   '999510004', 'F'),
+(16, '51000005', 'Luis',             'Chávez Paredes',       'luis.chavez@iestpargentina.edu.pe',   '999510005', 'M')
 ON CONFLICT (id) DO UPDATE SET dni = EXCLUDED.dni, nombres = EXCLUDED.nombres, apellidos = EXCLUDED.apellidos;
 
 -- Asegurar que Montero y Felipe existan por DNI aunque los IDs difieran
@@ -378,8 +386,11 @@ SELECT setval('core.personas_id_seq', (SELECT MAX(id) FROM core.personas));
 
 -- 7. Cuentas de Acceso (core.usuarios)
 -- IMPORTANTE: codigo_institucional = DNI para que los botones del login rápido funcionen en producción
+-- FIX 2026-10-07: la fila del Admin General de TI decía '10000001' (duplicado con el Director,
+-- volaba el UNIQUE y abortaba TODO el batch de seeds en BD vírgenes). Alineado con producción
+-- y con provision_postgresql_master.sql: 'ADMIN-2026'.
 INSERT INTO core.usuarios (id, persona_id, codigo_institucional, email, password_hash, estado) VALUES
-(1,  1,  '10000001', 'director@iestpargentina.edu.pe',      '123456', TRUE),
+(1,  1,  'ADMIN-2026', 'admin.ti@ieargentina.edu.pe',         '123456', TRUE),
 (2,  2,  '10000001', 'director@iestpargentina.edu.pe',      '123456', TRUE),
 (3,  3,  '20000001', 'coordinacion@iestpargentina.edu.pe',  '123456', TRUE),
 (4,  4,  '30000001', 'secretaria@iestpargentina.edu.pe',    '123456', TRUE),
@@ -389,7 +400,12 @@ INSERT INTO core.usuarios (id, persona_id, codigo_institucional, email, password
 (8,  8,  'EST-DSI-002', 'ana.garcia@ieargentina.edu.pe',   '123456', TRUE),
 (9,  9,  'EST-CONT-001','luis.torres@ieargentina.edu.pe',  '123456', TRUE),
 (10, 10, '10000003', 'montero@iestpargentina.edu.pe',       '123456', TRUE),
-(11, 11, '47915633', 'felipe.ostos@iestpargentina.edu.pe',  '123456', TRUE)
+(11, 11, '47915633', 'felipe.ostos@iestpargentina.edu.pe',  '123456', TRUE),
+(12, 12, '51000001', 'jefe.general@iestpargentina.edu.pe',  '123456', TRUE),
+(13, 13, '51000002', 'jefe.esp.dsi@iestpargentina.edu.pe',  '123456', TRUE),
+(14, 14, '51000003', 'jefe.esp.cont@iestpargentina.edu.pe', '123456', TRUE),
+(15, 15, '51000004', 'jefe.esp.adm@iestpargentina.edu.pe',   '123456', TRUE),
+(16, 16, '51000005', 'otis@iestpargentina.edu.pe',           '123456', TRUE)
 ON CONFLICT (id) DO UPDATE SET
     codigo_institucional = EXCLUDED.codigo_institucional,
     email = EXCLUDED.email,
@@ -430,7 +446,12 @@ INSERT INTO core.usuario_roles (id, usuario_id, rol_id) VALUES
 (14, 11, 7),  -- Alumno: Felipe
 (15, 11, 3),  -- Coordinador: Felipe
 (16, 11, 4),  -- Secretaria: Felipe
-(17, 11, 5)   -- Tesoreria: Felipe
+(17, 11, 5),  -- Tesoreria: Felipe
+(18, 12, 8),  -- Jefe General: Jorge Ramírez 51000001
+(19, 13, 9),  -- Jefe de Especialidad: María Torres (DSI) 51000002
+(20, 14, 9),  -- Jefe de Especialidad: Carlos Huamán (CONT) 51000003
+(21, 15, 9),  -- Jefe de Especialidad: Rosa Vargas (ADM) 51000004
+(22, 16, 10)  -- OTIS: Luis Chávez 51000005
 ON CONFLICT (id) DO NOTHING;
 
 -- Asegurar rol Docente para Montero (robusto contra id diferente en producción)
@@ -478,7 +499,12 @@ SELECT setval('core.docentes_id_seq', (SELECT MAX(id) FROM core.docentes));
 -- 11. Perfiles Administrativos
 INSERT INTO core.administrativos (id, persona_id, codigo_staff, cargo, area) VALUES
 (1, 4, 'ADM-SEC-01', 'Secretaria Académica', 'Secretaría General'),
-(2, 5, 'ADM-TES-01', 'Jefa de Caja y Tesorería', 'Tesorería')
+(2, 5, 'ADM-TES-01', 'Jefa de Caja y Tesorería', 'Tesorería'),
+(3, 12, 'JEF-GRAL-01', 'Jefe General de Almacén e Inventario', 'Almacén e Inventario'),
+(4, 13, 'JEF-ESP-DSI', 'Jefe de Especialidad - DSI', 'Departamento Académico'),
+(5, 14, 'JEF-ESP-CONT', 'Jefe de Especialidad - Contabilidad', 'Departamento Académico'),
+(6, 15, 'JEF-ESP-ADM', 'Jefe de Especialidad - Administración', 'Departamento Académico'),
+(7, 16, 'OTIS-01', 'Técnico OTIS', 'Oficina Técnica')
 ON CONFLICT (id) DO UPDATE SET codigo_staff = EXCLUDED.codigo_staff;
 
 SELECT setval('core.administrativos_id_seq', (SELECT MAX(id) FROM core.administrativos));
