@@ -43,8 +43,7 @@
             <table class="table table-zebra w-full text-xs">
                 <thead>
                     <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
-                        <th>Código</th>
-                        <th>Tipo</th>
+                        <th>Trámite</th>
                         <th>F. solicitud</th>
                         <th>Estado</th>
                         <th class="text-right">Días</th>
@@ -55,13 +54,12 @@
                 <tbody class="text-slate-700 dark:text-slate-300">
                     @if (!Model.Tramites.Any())
                     {
-                        <tr><td colspan="7" class="text-center text-slate-400 italic py-6">Sin trámites aún. Crea uno abajo.</td></tr>
+                        <tr><td colspan="6" class="text-center text-slate-400 italic py-6">Sin trámites aún. Crea uno abajo.</td></tr>
                     }
                     @foreach (var t in Model.Tramites)
                     {
                         <tr>
-                            <td class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@t.Codigo</td>
-                            <td>@t.TipoCodigo · @t.TipoNombre</td>
+                            <td>@t.TipoNombre</td>
                             <td class="text-slate-400 font-mono">@t.FechaSolicitud.ToString("dd/MM/yyyy")</td>
                             <td><span class="badge @t.ColorChip badge-xs font-semibold text-white">@t.Estado</span></td>
                             <td class="text-right font-mono @(t.Dias > 15 ? "text-rose-500 font-bold" : "text-slate-400")">@t.Dias</td>
@@ -87,7 +85,7 @@
                         <option value="">Selecciona…</option>
                         @foreach (var t in Model.Tipos)
                         {
-                            <option value="@t.Codigo">@t.Codigo · @t.Nombre</option>
+                            <option value="@t.Codigo">@t.Nombre</option>
                         }
                     </select>
                 </div>
@@ -101,7 +99,6 @@
             <div id="fichaTupa" class="hidden bg-slate-50 dark:bg-slate-900/50 rounded-xl border border-slate-200 dark:border-slate-700 p-4 mb-4 text-xs">
                 <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
                     <div><span class="text-slate-400 block text-[10px] uppercase font-bold">Procedimiento</span><span id="fNombre" class="font-semibold text-slate-800 dark:text-slate-200"></span></div>
-                    <div><span class="text-slate-400 block text-[10px] uppercase font-bold">Cód. TUPA</span><span id="fCodigo" class="font-mono font-semibold text-emerald-600 dark:text-emerald-400"></span></div>
                     <div><span class="text-slate-400 block text-[10px] uppercase font-bold">Plazo</span><span id="fPlazo" class="font-mono font-semibold"></span> <span class="text-slate-400 text-[10px]">días hábiles</span></div>
                     <div><span class="text-slate-400 block text-[10px] uppercase font-bold">Derecho de pago</span><span id="fPago" class="font-semibold text-slate-800 dark:text-slate-200"></span></div>
                 </div>
@@ -189,10 +186,9 @@
             }
 
             document.getElementById('fNombre').textContent = data.tipo.nombre;
-            document.getElementById('fCodigo').textContent = data.tipo.codigo;
             document.getElementById('fPlazo').textContent = data.tipo.diasHabiles;
             document.getElementById('fPago').textContent =
-                `${data.tipo.pagoCodigo} · ${data.tipo.pagoNombre} (S/ ${data.tipo.pagoMonto})`;
+                `${data.tipo.pagoNombre} (S/ ${data.tipo.pagoMonto})`;
 
             const ul = document.getElementById('fRequisitos');
             if (data.requisitos.length === 0) {
