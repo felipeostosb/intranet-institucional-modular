@@ -677,8 +677,8 @@ public class MatriculaturaServicio : IMatriculaturaServicio
         var tramiteExiste = reserva.TramiteCodigo != "" || reserva.MatriculaId > 0;
         pasos.Add(new ModeloPasoFlujo
         {
-            Titulo = "Trámite de Reserva (TM05)",
-            Detalle = reserva.TramiteCodigo != "" ? $"{reserva.TramiteCodigo} — {reserva.TramiteEstado}"
+            Titulo = "Solicitud de Reserva de Matrícula",
+            Detalle = reserva.TramiteCodigo != "" ? $"Estado: {reserva.TramiteEstado}"
                 : tramiteExiste ? "Vinculado a tu matrícula" : "Aún no iniciado — hazlo en Trámites TUPA",
             Estado = tramiteExiste ? "Completado" : "Pendiente"
         });
