@@ -114,7 +114,7 @@ public class MatriculaturaServicio : IMatriculaturaServicio
             : hist.All(h => h.Estado == "Desaprobado") ? "Repitente"
             : "Promovido con curso a cargo";
         dto.CursosDesaprobadosNombres = string.Join(", ",
-            desprobados.Select(h => $"{h.UnidadCodigo} ({h.Nota:0.0})"));
+            desprobados.Select(h => $"{h.UnidadNombre} (nota {h.Nota:0.0})"));
 
         // Próximo ciclo: el que sigue al último con historial (o al actual)
         var ordenCiclo = new[] { "I", "II", "III", "IV", "V", "VI" };
@@ -645,7 +645,7 @@ public class MatriculaturaServicio : IMatriculaturaServicio
             : dto.Historial.All(h => h.Estado == "Desaprobado") ? "Repitente"
             : "Promovido con curso a cargo";
         dto.CursosDesaprobadosNombres = string.Join(", ",
-            desprobados.Select(h => $"{h.UnidadCodigo} ({h.Nota:0.0})"));
+            desprobados.Select(h => $"{h.UnidadNombre} (nota {h.Nota:0.0})"));
 
         var orden = new[] { "I", "II", "III", "IV", "V", "VI" };
         var ultimo = dto.Historial.Select(h => h.Ciclo).Distinct()
