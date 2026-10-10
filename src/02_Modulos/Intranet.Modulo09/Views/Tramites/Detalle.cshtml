@@ -1,6 +1,6 @@
 @model Intranet.Modulo09.Models.ModeloTramiteDetalle
 @{
-    ViewData["Title"] = $"Trámite {Model.Codigo}";
+    ViewData["Title"] = $"Trámite: {Model.TipoNombre}";
 }
 
 <div class="space-y-6">
@@ -16,7 +16,7 @@
             <div>
                 <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">Ficha del Trámite</h1>
                                 <p class="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                    @Model.TipoCodigo · @Model.TipoNombre — @Model.Estudiante (@Model.CodigoEstudiante)
+                    @Model.TipoNombre — @Model.Estudiante
                 </p>
             </div>
             <span class="badge @(Model.Estado == "Aprobado" ? "badge-success" : Model.Estado == "Rechazado" ? "badge-error" : Model.Estado == "Entregado" ? "badge-accent" : "badge-warning") badge-sm font-semibold text-white">@Model.Estado</span>
@@ -33,7 +33,7 @@
             </div>
             <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3">
                 <span class="text-[10px] font-bold text-slate-400 uppercase block">Derecho de pago</span>
-                <span class="font-semibold text-slate-800 dark:text-slate-200">@Model.PagoCodigo · S/ @Model.PagoMonto</span>
+                <span class="font-semibold text-slate-800 dark:text-slate-200">S/ @Model.PagoMonto</span>
             </div>
             <div class="border border-slate-200 dark:border-slate-700 rounded-xl p-3">
                 <span class="text-[10px] font-bold text-slate-400 uppercase block">Resolución</span>

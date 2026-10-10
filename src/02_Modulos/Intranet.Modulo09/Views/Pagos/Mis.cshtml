@@ -26,7 +26,6 @@
             <table class="table table-zebra w-full text-xs">
                 <thead>
                     <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
-                        <th>Recibo</th>
                         <th>Concepto</th>
                         <th class="text-right">Monto</th>
                         <th>Fecha</th>
@@ -37,13 +36,12 @@
                 <tbody class="text-slate-700 dark:text-slate-300">
                     @if (!Model.Pagos.Any())
                     {
-                        <tr><td colspan="6" class="text-center text-slate-400 italic py-6">Aún no tienes pagos registrados.</td></tr>
+                        <tr><td colspan="5" class="text-center text-slate-400 italic py-6">Aún no tienes pagos registrados.</td></tr>
                     }
                     @foreach (var p in Model.Pagos)
                     {
                         <tr>
-                            <td class="font-mono font-bold text-emerald-600 dark:text-emerald-400">@p.Codigo</td>
-                            <td>@p.ConceptoCodigo · @p.ConceptoNombre</td>
+                            <td>@p.ConceptoNombre</td>
                             <td class="text-right font-mono">S/ @p.Monto.ToString("0.00")</td>
                             <td class="text-slate-400 font-mono">@p.FechaPago.ToString("dd/MM/yyyy")</td>
                             <td class="text-slate-400 font-mono">@p.Periodo</td>
