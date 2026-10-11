@@ -49,6 +49,28 @@
         </div>
     </div>
 
+    <!-- Banner de plazo de corrección: el alumno ve CUÁNDO debe corregir -->
+    @if (Model.Estado == "Observado" && Model.FechaLimiteCorreccion != null)
+    {
+        <div class="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900/60 rounded-2xl p-4 mb-4 flex items-start gap-3">
+            <span class="text-lg" aria-hidden="true">⏳</span>
+            <div class="text-xs text-amber-800 dark:text-amber-200">
+                <strong>Tienes hasta el @Model.FechaLimiteCorreccion?.ToString("dd/MM/yyyy")</strong> (15 días hábiles) para subir la corrección.
+                Si el plazo vence, el trámite se cierra y deberás iniciar uno nuevo.
+            </div>
+        </div>
+    }
+    @if (Model.Estado == "Vencido")
+    {
+        <div class="bg-rose-50 dark:bg-rose-950/30 border border-rose-200 dark:border-rose-900/60 rounded-2xl p-4 mb-4 flex items-start gap-3">
+            <span class="text-lg" aria-hidden="true">⛔</span>
+            <div class="text-xs text-rose-800 dark:text-rose-200">
+                <strong>El plazo de corrección venció.</strong>
+                Ya no puedes corregir este trámite: inicia uno nuevo (con su derecho de pago si aplica) o acude a Secretaría.
+            </div>
+        </div>
+    }
+
     <!-- Requisitos con su estado -->
     <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-6">
         <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-4">📎 Requisitos presentados</h2>
@@ -78,8 +100,8 @@
                            class="btn btn-outline btn-xs rounded-lg font-bold" title="Ver el archivo adjunto por el estudiante">📄 Ver archivo</a>
                     }
 
-                    <!-- Corregir: solo si el trámite está Observado/Rechazado (rol alumno) -->
-                    @if ((Model.Estado == "Observado" || Model.Estado == "Rechazado") && (User.IsInRole("Alumno") || User.IsInRole("Admin")))
+                    <!-- Corregir: solo si el trámite está Observado/Rechazado y NO vencido (rol alumno) -->
+                    @if ((Model.Estado == "Observado" || Model.Estado == "Rechazado") && Model.Estado != "Vencido" && (User.IsInRole("Alumno") || User.IsInRole("Admin")))
                     {
                         <form method="post" asp-controller="Tramites" asp-action="Corregir" asp-route-id="@Model.Id" enctype="multipart/form-data" class="flex items-center gap-2 rounded-lg border border-amber-200 dark:border-amber-900/60 bg-amber-50/60 dark:bg-amber-950/20 p-1.5">
                             @Html.AntiForgeryToken()

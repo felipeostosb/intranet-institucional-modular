@@ -38,10 +38,12 @@ public interface IPagoServicio
 public class PagoServicio : IPagoServicio
 {
     private readonly IModuleDbConnectionFactory _fabricaConexion;
+    private readonly ITramiteServicio _servicioTramite;
 
-    public PagoServicio(IModuleDbConnectionFactory fabricaConexion)
+    public PagoServicio(IModuleDbConnectionFactory fabricaConexion, ITramiteServicio servicioTramite)
     {
         _fabricaConexion = fabricaConexion;
+        _servicioTramite = servicioTramite;
     }
 
     private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("09");
@@ -292,8 +294,10 @@ public class PagoServicio : IPagoServicio
                                 THEN 'Voucher validado por Tesorería.'
                                 ELSE 'Voucher rechazado: ' || @Motivo END,
                     fecha_resolucion = CURRENT_DATE,
+                    fecha_limite_correccion = CASE WHEN @Aprobado
+                                THEN NULL ELSE mod09.fecha_limite_correccion() END,
                     actualizado_en = CURRENT_TIMESTAMP
-                WHERE id = @Tid AND estado NOT IN ('Aprobado','Entregado','Rechazado');
+                WHERE id = @Tid AND estado NOT IN ('Aprobado','Entregado','Rechazado','Vencido');
                 """, new { Aprobado = aprobar, Motivo = motivo, Tid = tid });
         }
 
@@ -447,6 +451,9 @@ public class PagoServicio : IPagoServicio
     // ------------------------------------------------------------------
     public async Task<ModeloResumenAlumno> ResumenAlumnoAsync(int estudianteId)
     {
+        // Cerrar vencidos primero: los trámites cuyo plazo de corrección expiró
+        // dejan de contar como Observados en el panel del alumno.
+        await _servicioTramite.CerrarVencidosAsync();
         using var db = CreateConnection();
         var t = "pagos";
         var dto = new ModeloResumenAlumno();
