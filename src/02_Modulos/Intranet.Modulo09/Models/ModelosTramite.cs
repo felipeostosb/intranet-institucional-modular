@@ -8,6 +8,8 @@ public class ModeloTramiteLista
     public string Estado { get; set; } = "";
     public DateTime FechaSolicitud { get; set; }
     public DateTime? FechaLimite { get; set; }
+    /// <summary>Plazo del alumno para corregir un trámite Observado (15 días hábiles).</summary>
+    public DateTime? FechaLimiteCorreccion { get; set; }
     public int Dias { get; set; }
     public string TipoCodigo { get; set; } = "";
     public string TipoNombre { get; set; } = "";
@@ -25,6 +27,7 @@ public class ModeloTramiteLista
         "Observado" => "badge-warning",
         "Rechazado" => "badge-error",
         "Entregado" => "badge-accent",
+        "Vencido" => "badge-error",
         _ => "badge-ghost"
     };
 }
@@ -36,6 +39,8 @@ public class ModeloTramiteMesa
     public string Codigo { get; set; } = "";
     public string Estado { get; set; } = "";
     public DateTime FechaSolicitud { get; set; }
+    /// <summary>Plazo de corrección del alumno (solo en trámites Observados).</summary>
+    public DateTime? FechaLimiteCorreccion { get; set; }
     public string TipoCodigo { get; set; } = "";
     public string TipoNombre { get; set; } = "";
     public string Estudiante { get; set; } = "";
@@ -93,6 +98,8 @@ public class ModeloTramiteDetalle
     public string Estado { get; set; } = "";
     public DateTime FechaSolicitud { get; set; }
     public DateTime? FechaLimite { get; set; }
+    /// <summary>Plazo del alumno para corregir un trámite Observado (15 días hábiles).</summary>
+    public DateTime? FechaLimiteCorreccion { get; set; }
     public string? Resolucion { get; set; }
     public DateTime? FechaResolucion { get; set; }
     public string? DatosJson { get; set; }
@@ -115,6 +122,7 @@ public class ModeloResumenSecretaria
     public int AprobadosPendientesEntrega { get; set; }    // falta entregar al alumno
     public int Entregados { get; set; }
     public int Observados { get; set; }                    // el alumno debe corregir
+    public int Vencidos { get; set; }                      // el plazo de corrección expiró
     /// <summary>Top 5 tipos de trámite por volumen en mesa.</summary>
     public List<ModeloTramitesPorTipo> PorTipo { get; set; } = [];
 }
