@@ -466,6 +466,24 @@ else if (isAuth)
 
                 <!-- Menú de Navegación ERP: Directo, 1 sola línea por módulo -->
                 <nav class="flex-1 p-3 space-y-1 overflow-y-auto text-xs">
+                    @{
+                        // Menú filtrado por rol activo (el "sombrero" del selector de contexto):
+                        // cada módulo lista los roles con funciones reales dentro. Un Docente no
+                        // ve 01/09 en su menú — y si fuerza la URL, los guards lo mandan a la
+                        // página SinAcceso. Otros equipos pueden sumarse con la misma macro.
+                        var rolActivoMenu = User.FindFirst("ActiveRole")?.Value ?? User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value ?? "Alumno";
+                        bool VeModulo(string mod)
+                        {
+                            if (rolActivoMenu.Equals("Admin", StringComparison.OrdinalIgnoreCase) ||
+                                rolActivoMenu.Equals("Director", StringComparison.OrdinalIgnoreCase)) return true;
+                            return mod switch
+                            {
+                                "01" => rolActivoMenu is "Alumno" or "Secretaria" or "Tesoreria",
+                                "09" => rolActivoMenu is "Alumno" or "Secretaria" or "Tesoreria",
+                                _ => true // módulos de otros equipos: sin filtrar (no es nuestro)
+                            };
+                        }
+                    }
                     <!-- Dashboard Principal -->
                     <a href="/" class="flex items-center gap-2.5 px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="text-slate-400">🏠</span>
@@ -500,7 +518,9 @@ else if (isAuth)
                         <span class="text-[9px] text-slate-400 font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">mod00</span>
                     </a>
 
-                    <!-- Módulo 01 - Matrícula (Ismael) -->
+                    <!-- Módulo 01 - Matrícula (Ismael): solo roles con funciones aquí -->
+                    @if (VeModulo("01"))
+                    {
                     <a href="/Modulo01" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="flex items-center gap-2">
                             <span>📝</span>
@@ -508,6 +528,7 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300 font-semibold px-1.5 py-0.5 rounded" title="Responsable BD: Ismael">Ismael</span>
                     </a>
+                    }
 
                     <!-- Módulo 02 - Asistencia & DPI (Sheyla) -->
                     <a href="/Modulo02" class="flex items-center justify-between px-3 py-2 rounded-xl text-indigo-700 dark:text-indigo-300 bg-indigo-50/60 dark:bg-indigo-950/40 font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition">
@@ -572,7 +593,9 @@ else if (isAuth)
                         <span class="text-[9px] bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300 font-semibold px-1.5 py-0.5 rounded" title="Responsable BD: Toro">Toro</span>
                     </a>
 
-                    <!-- Módulo 09 - Tesorería & Pagos -->
+                    <!-- Módulo 09 - Tesorería & Pagos: solo roles con funciones aquí -->
+                    @if (VeModulo("09"))
+                    {
                     <a href="/Modulo09" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="flex items-center gap-2">
                             <span>💳</span>
@@ -580,6 +603,7 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] bg-cyan-100 dark:bg-cyan-950 text-cyan-700 dark:text-cyan-300 font-semibold px-1.5 py-0.5 rounded" title="Responsable BD: Equipo 09">Eq 09</span>
                     </a>
+                    }
                 </nav>
 
                 <!-- Pie del Sidebar ERP -->
