@@ -478,9 +478,26 @@ else if (isAuth)
                                 rolActivoMenu.Equals("Director", StringComparison.OrdinalIgnoreCase)) return true;
                             return mod switch
                             {
+                                // 01 Matrícula y 09 Trámites/Pagos (PRs #88/#89/#90)
                                 "01" => rolActivoMenu is "Alumno" or "Secretaria" or "Tesoreria",
                                 "09" => rolActivoMenu is "Alumno" or "Secretaria" or "Tesoreria",
-                                _ => true // módulos de otros equipos: sin filtrar (no es nuestro)
+                                // 00 Seguridad/Auditoría: solo jefaturas (Admin/Director ya pasan arriba)
+                                "00" => false,
+                                // 02 Asistencia & DPI: docente pasa lista, alumno consulta la suya
+                                "02" => rolActivoMenu is "Docente" or "Secretaria" or "Alumno",
+                                // 03 Inventario: jefaturas de inventario + OTIS + Secretaría receptora
+                                "03" => rolActivoMenu is "Jefe General" or "Jefe de Especialidad" or "OTIS" or "Secretaria",
+                                // 04 Repositorio de Proyectos: alumno entrega, docente evalúa
+                                "04" => rolActivoMenu is "Alumno" or "Docente",
+                                // 05 Incidencias TI: personal reporta (sin funciones de alumno)
+                                "05" => rolActivoMenu is "Docente" or "Secretaria" or "Tesoreria",
+                                // 06 Egresados & Titulación: trámite del egresado con Secretaría
+                                "06" => rolActivoMenu is "Secretaria" or "Alumno",
+                                // 07 Encuestas: alumno evalúa, docente ve sus resultados
+                                "07" => rolActivoMenu is "Alumno" or "Docente",
+                                // 08 Login & Roles: gestión de cuentas, solo Admin (Director pasa arriba)
+                                "08" => false,
+                                _ => true
                             };
                         }
                     }
@@ -510,6 +527,8 @@ else if (isAuth)
                     </div>
 
                     <!-- Módulo 00 - Seguridad Core -->
+                    @if (VeModulo("00"))
+                    {
                     <a href="/Modulo00" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="flex items-center gap-2">
                             <span>🛡️</span>
@@ -517,6 +536,7 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] text-slate-400 font-mono bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded">mod00</span>
                     </a>
+                    }
 
                     <!-- Módulo 01 - Matrícula (Ismael): solo roles con funciones aquí -->
                     @if (VeModulo("01"))
@@ -531,6 +551,8 @@ else if (isAuth)
                     }
 
                     <!-- Módulo 02 - Asistencia & DPI (Sheyla) -->
+                    @if (VeModulo("02"))
+                    {
                     <a href="/Modulo02" class="flex items-center justify-between px-3 py-2 rounded-xl text-indigo-700 dark:text-indigo-300 bg-indigo-50/60 dark:bg-indigo-950/40 font-semibold hover:bg-indigo-100 dark:hover:bg-indigo-900/40 transition">
                         <span class="flex items-center gap-2">
                             <span>📅</span>
@@ -538,8 +560,11 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] bg-indigo-200 dark:bg-indigo-800 text-indigo-800 dark:text-indigo-100 font-bold px-1.5 py-0.5 rounded" title="Responsable BD: Sheyla">Sheyla</span>
                     </a>
+                    }
 
                     <!-- Módulo 03 - Inventario (Brenda) -->
+                    @if (VeModulo("03"))
+                    {
                     <a href="/Modulo03" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="flex items-center gap-2">
                             <span>📦</span>
@@ -547,8 +572,11 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] bg-emerald-100 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-300 font-semibold px-1.5 py-0.5 rounded" title="Responsable BD: Brenda">Brenda</span>
                     </a>
+                    }
 
                     <!-- Módulo 04 -->
+                    @if (VeModulo("04"))
+                    {
                     <a href="/Modulo04" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="flex items-center gap-2">
                             <span>📦</span>
@@ -556,8 +584,11 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-semibold px-1.5 py-0.5 rounded" title="Responsable BD: Equipo 04">Eq 04</span>
                     </a>
+                    }
 
                     <!-- Módulo 05 - Incidencias & Requerimientos (Oliva) -->
+                    @if (VeModulo("05"))
+                    {
                     <a href="/Modulo05" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="flex items-center gap-2">
                             <span>🛠️</span>
@@ -565,8 +596,11 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] bg-purple-100 dark:bg-purple-950 text-purple-700 dark:text-purple-300 font-semibold px-1.5 py-0.5 rounded" title="Responsable BD: Oliva">Oliva</span>
                     </a>
+                    }
 
                     <!-- Módulo 06 - Egresados & Titulación (Sandra) -->
+                    @if (VeModulo("06"))
+                    {
                     <a href="/Modulo06" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="flex items-center gap-2">
                             <span>🎓</span>
@@ -574,8 +608,11 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] bg-rose-100 dark:bg-rose-950 text-rose-700 dark:text-rose-300 font-semibold px-1.5 py-0.5 rounded" title="Responsable BD: Sandra">Sandra</span>
                     </a>
+                    }
 
                     <!-- Módulo 07 - Encuestas (Brayan) -->
+                    @if (VeModulo("07"))
+                    {
                     <a href="/Modulo07" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="flex items-center gap-2">
                             <span>📊</span>
@@ -583,8 +620,11 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] bg-teal-100 dark:bg-teal-950 text-teal-700 dark:text-teal-300 font-semibold px-1.5 py-0.5 rounded" title="Responsable BD: Brayan">Brayan</span>
                     </a>
+                    }
 
                     <!-- Módulo 08 - Login & Roles (Toro) -->
+                    @if (VeModulo("08"))
+                    {
                     <a href="/Modulo08" class="flex items-center justify-between px-3 py-2 rounded-xl text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 font-medium transition">
                         <span class="flex items-center gap-2">
                             <span>🔐</span>
@@ -592,6 +632,7 @@ else if (isAuth)
                         </span>
                         <span class="text-[9px] bg-orange-100 dark:bg-orange-950 text-orange-700 dark:text-orange-300 font-semibold px-1.5 py-0.5 rounded" title="Responsable BD: Toro">Toro</span>
                     </a>
+                    }
 
                     <!-- Módulo 09 - Tesorería & Pagos: solo roles con funciones aquí -->
                     @if (VeModulo("09"))
