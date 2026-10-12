@@ -39,6 +39,9 @@ public class PagosController : Modulo09BaseController
     [HttpGet("Index")]
     public async Task<IActionResult> Index(string? voucher)
     {
+        // Puerta por rol (misma regla de la portada): sin funciones aquí → SinAcceso.
+        if (!AccedeAlModulo) return View("SinAcceso");
+
         ViewData["Title"] = "09. Pagos y Recibos";
         ViewData["TeamName"] = "Equipo 09";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;

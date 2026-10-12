@@ -42,6 +42,9 @@ public class TramitesController : Modulo09BaseController
     [HttpGet("Index")]
     public async Task<IActionResult> Index(string? estado)
     {
+        // Puerta por rol (misma regla de la portada): sin funciones aquí → SinAcceso.
+        if (!AccedeAlModulo) return View("SinAcceso");
+
         ViewData["Title"] = "09. Trámites TUPA";
         ViewData["TeamName"] = "Equipo 09";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
