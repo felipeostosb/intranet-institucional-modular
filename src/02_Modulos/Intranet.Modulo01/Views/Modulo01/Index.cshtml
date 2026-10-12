@@ -1,6 +1,7 @@
 @model Intranet.Modulo01.Controllers.ModeloPanelModulo01Vista
 @{
     ViewData["Title"] = "01. Matrícula Académica";
+    var rolActivo = User.FindFirst("ActiveRole")?.Value ?? "";
 }
 
 <div class="space-y-6">
@@ -33,11 +34,11 @@
                     Matrícula Académica — Proceso Cero Filas
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
-                    @if (User.IsInRole("Tesoreria") && !User.IsInRole("Admin"))
+                    @if (string.Equals(rolActivo, "Tesoreria", System.StringComparison.OrdinalIgnoreCase) && !string.Equals(rolActivo, "Admin", System.StringComparison.OrdinalIgnoreCase))
                     {
                         <span>Tu puesto: <strong>validar vouchers de matrícula</strong> (cotejo DRELM). Sin tu validación no hay conformidad.</span>
                     }
-                    else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
+                    else if (string.Equals(rolActivo, "Secretaria", System.StringComparison.OrdinalIgnoreCase) && !string.Equals(rolActivo, "Admin", System.StringComparison.OrdinalIgnoreCase))
                     {
                         <span>Tu puesto: <strong>validar fotos y dar la conformidad</strong> que consume la vacante.</span>
                     }
@@ -53,7 +54,7 @@
             {
                 <a href="/Modulo01/Matriculas/MiMatricula" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">🎓 Mi Matrícula</a>
             }
-            else if (User.IsInRole("Tesoreria") && !User.IsInRole("Admin"))
+            else if (string.Equals(rolActivo, "Tesoreria", System.StringComparison.OrdinalIgnoreCase) && !string.Equals(rolActivo, "Admin", System.StringComparison.OrdinalIgnoreCase))
             {
                 <a href="/Modulo01/Matriculas" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">
                     💳 Tu Bandeja de Vouchers
@@ -64,7 +65,7 @@
                 </a>
                 <a href="/Modulo01/Matriculas/Vacantes" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">📊 Vacantes <span aria-hidden="true">↗</span></a>
             }
-            else if (User.IsInRole("Secretaria") && !User.IsInRole("Admin"))
+            else if (string.Equals(rolActivo, "Secretaria", System.StringComparison.OrdinalIgnoreCase) && !string.Equals(rolActivo, "Admin", System.StringComparison.OrdinalIgnoreCase))
             {
                 <a href="/Modulo01/Matriculatura" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">🗂️ Matricular estudiante (Reserva de Matrícula)</a>
                 <a href="/Modulo01/Matriculas" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">

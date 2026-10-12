@@ -15,7 +15,7 @@ namespace Intranet.Modulo01.Controllers;
 /// (consume vacante) y emite la ficha PDF que se envía al correo del estudiante.
 /// </summary>
 [Route("Modulo01/[controller]")]
-public class MatriculaturaController : ModuloBaseController
+public class MatriculaturaController : Modulo01BaseController
 {
     private readonly IMatriculaturaServicio _matriculatura;
     private readonly IServicioCorreoFicha _emailFicha;
