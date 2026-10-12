@@ -40,6 +40,8 @@ public class MatriculaturaController : Modulo01BaseController
     [HttpGet("Index")]
     public IActionResult Index(string? dni)
     {
+        // Puerta por rol (misma regla de la portada): sin funciones aquí → SinAcceso.
+        if (!AccedeAlModulo) return View("SinAcceso");
         if (!EsSecretaria && !EsDirector) return Forbid();
         ViewData["Title"] = "01. Matriculatura (Secretaría)";
         return View("Buscar", new ModeloBusquedaMatriculaturaVista { Dni = dni ?? "" });
