@@ -37,6 +37,9 @@ public class MatriculasController : Modulo01BaseController
     [HttpGet("Index")]
     public async Task<IActionResult> Index(string? estado)
     {
+        // Puerta por rol (misma regla de la portada): sin funciones aquí → SinAcceso.
+        if (!AccedeAlModulo) return View("SinAcceso");
+
         ViewData["Title"] = "01. Matrícula Académica";
         ViewData["TeamName"] = "Equipo 01";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
