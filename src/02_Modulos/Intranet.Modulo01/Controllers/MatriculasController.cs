@@ -14,7 +14,7 @@ namespace Intranet.Modulo01.Controllers;
 ///   Secretaría/Admin → puesto de trabajo con las 4 zonas
 /// </summary>
 [Route("Modulo01/[controller]")]
-public class MatriculasController : ModuloBaseController
+public class MatriculasController : Modulo01BaseController
 {
     private readonly IMatriculaServicio _servicioMatricula;
 
