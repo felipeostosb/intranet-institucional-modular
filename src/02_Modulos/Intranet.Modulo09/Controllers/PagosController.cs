@@ -16,7 +16,7 @@ namespace Intranet.Modulo09.Controllers;
 ///               + emisión de recibos directos de caja
 /// </summary>
 [Route("Modulo09/[controller]")]
-public class PagosController : ModuloBaseController
+public class PagosController : Modulo09BaseController
 {
     private readonly IPagoServicio _servicioPago;
 

@@ -13,7 +13,7 @@ namespace Intranet.Modulo01.Controllers;
 /// sub-vistas del equipo (Mi Matrícula, Panel de trabajo, Vacantes).
 /// </summary>
 [Route("Modulo01")]
-public class Modulo01Controller : ModuloBaseController
+public class Modulo01Controller : Modulo01BaseController
 {
     private readonly IMatriculaServicio _servicioMatricula;
     private readonly IMatriculaturaServicio _servicioMatriculatura;

@@ -1,6 +1,7 @@
 @model Intranet.Modulo09.Controllers.ModeloMesaTramitesVista
 @{
     ViewData["Title"] = "Mesa de Trámites";
+    var rolActivo = User.FindFirst("ActiveRole")?.Value ?? "";
 }
 
 <div class="space-y-6">
@@ -105,7 +106,7 @@
                             </td>
                             <td>
                                 <div class="flex gap-1 flex-wrap">
-                                    @if (User.IsInRole("Secretaria") || User.IsInRole("Admin") || User.IsInRole("Director"))
+                                    @if (string.Equals(rolActivo, "Secretaria", System.StringComparison.OrdinalIgnoreCase) || string.Equals(rolActivo, "Admin", System.StringComparison.OrdinalIgnoreCase) || string.Equals(rolActivo, "Director", System.StringComparison.OrdinalIgnoreCase))
                                     {
                                         if (t.Estado == "Recibido")
                                         {

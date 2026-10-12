@@ -13,7 +13,7 @@ namespace Intranet.Modulo09.Controllers;
 /// sub-vistas del equipo (Trámites TUPA, Pagos/Bandeja de vouchers).
 /// </summary>
 [Route("Modulo09")]
-public class Modulo09Controller : ModuloBaseController
+public class Modulo09Controller : Modulo09BaseController
 {
     private readonly ITramiteServicio _servicioTramite;
     private readonly IPagoServicio _servicioPago;

@@ -16,7 +16,7 @@ namespace Intranet.Modulo09.Controllers;
 ///   Secretaría → "Mesa de trámites" (seguimiento y avance del flujo)
 /// </summary>
 [Route("Modulo09/[controller]")]
-public class TramitesController : ModuloBaseController
+public class TramitesController : Modulo09BaseController
 {
     private readonly ITramiteServicio _servicioTramite;
 
