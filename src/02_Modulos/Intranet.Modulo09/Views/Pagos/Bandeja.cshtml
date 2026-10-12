@@ -1,6 +1,7 @@
 @model Intranet.Modulo09.Controllers.ModeloBandejaPagosVista
 @{
     ViewData["Title"] = "Bandeja de Vouchers";
+    var rolActivo = User.FindFirst("ActiveRole")?.Value ?? "";
 }
 
 <div class="space-y-6">
@@ -90,7 +91,7 @@
                                 <div class="text-[11px] text-rose-600 dark:text-rose-400 mt-1 bg-rose-100 dark:bg-rose-950/50 rounded-lg px-2 py-1">⚠️ @p.MotivoRechazo</div>
                             }
                         </div>
-                        @if (p.VoucherEstado == "Pendiente" && (User.IsInRole("Tesoreria") || User.IsInRole("Admin")))
+                        @if (p.VoucherEstado == "Pendiente" && (string.Equals(rolActivo, "Tesoreria", System.StringComparison.OrdinalIgnoreCase) || string.Equals(rolActivo, "Admin", System.StringComparison.OrdinalIgnoreCase)))
                         {
                             <div class="flex gap-1">
                                 @if (p.TieneVoucher)
@@ -115,7 +116,7 @@
                         }
                         else if (p.VoucherEstado != "Pendiente")
                         {
-                            @if (p.TieneVoucher && (User.IsInRole("Tesoreria") || User.IsInRole("Admin")))
+                            @if (p.TieneVoucher && (string.Equals(rolActivo, "Tesoreria", System.StringComparison.OrdinalIgnoreCase) || string.Equals(rolActivo, "Admin", System.StringComparison.OrdinalIgnoreCase)))
                             {
                                 <a href="/Modulo09/Pagos/Voucher/@p.Id" target="_blank"
                                    class="btn btn-ghost btn-xs rounded-lg font-bold text-slate-500" title="Ver el voucher PDF subido por el estudiante">📄 Ver PDF</a>
@@ -129,7 +130,7 @@
     </div>
 
     <!-- Recibo directo de caja (Tesorería) -->
-    @if (User.IsInRole("Tesoreria") || User.IsInRole("Admin"))
+    @if (string.Equals(rolActivo, "Tesoreria", System.StringComparison.OrdinalIgnoreCase) || string.Equals(rolActivo, "Admin", System.StringComparison.OrdinalIgnoreCase))
     {
         <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-6">
             <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider mb-4">💰 Registrar recibo directo</h2>
