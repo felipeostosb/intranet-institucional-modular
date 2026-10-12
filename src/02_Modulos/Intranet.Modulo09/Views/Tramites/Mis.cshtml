@@ -29,7 +29,7 @@
     <form method="get" class="flex gap-2 items-center">
         <select name="estado" class="select select-sm select-bordered rounded-xl dark:bg-slate-800 text-xs">
             <option value="">Todos los estados</option>
-            @foreach (var e in new[] { "Recibido", "En evaluación", "Aprobado", "Observado", "Rechazado", "Entregado" })
+            @foreach (var e in new[] { "Recibido", "En evaluación", "Aprobado", "Observado", "Rechazado", "Entregado", "Vencido" })
             {
                 <option value="@e" selected="@(Model.FiltroEstado == e)">@e</option>
             }
@@ -61,7 +61,13 @@
                         <tr>
                             <td>@t.TipoNombre</td>
                             <td class="text-slate-400 font-mono">@t.FechaSolicitud.ToString("dd/MM/yyyy")</td>
-                            <td><span class="badge @t.ColorChip badge-xs font-semibold text-white">@t.Estado</span></td>
+                            <td>
+                                <span class="badge @t.ColorChip badge-xs font-semibold text-white">@t.Estado</span>
+                                @if (t.Estado == "Observado" && t.FechaLimiteCorreccion != null)
+                                {
+                                    <div class="text-[10px] mt-1 font-semibold text-amber-600 dark:text-amber-400">Corrige antes del @t.FechaLimiteCorreccion?.ToString("dd/MM/yyyy")</div>
+                                }
+                            </td>
                             <td class="text-right font-mono @(t.Dias > 15 ? "text-rose-500 font-bold" : "text-slate-400")">@t.Dias</td>
                             <td class="font-mono">@t.RequisitosOk/@t.RequisitosTotal</td>
                             <td><a class="btn btn-outline btn-xs rounded-lg font-bold whitespace-nowrap" asp-action="Detalle" asp-route-id="@t.Id"><span aria-hidden="true">↗</span> Abrir ficha</a></td>

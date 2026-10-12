@@ -27,7 +27,7 @@
 
     <!-- Aviso de flujo -->
     <div class="alert alert-info rounded-2xl text-[11px] py-2.5">
-        📋 Flujo TUPA: Recibido → En evaluación → Aprobado / Observado → Entregado.
+        📋 Flujo TUPA: Recibido → En evaluación → Aprobado / Observado (el alumno tiene 15 días hábiles para corregir) → Entregado / Vencido.
         @(Model.Tramites.Any(t => t.VoucherEstado == "Sin costo")
             ? "Los trámites sin costo (columna Pago = Sin costo) no requieren voucher: se aprueban directo."
             : "Antes de aprobar, verifica que Tesorería haya validado el voucher (columna Pago).")
@@ -37,7 +37,7 @@
     <form method="get" class="flex gap-2 items-center">
         <select name="estado" class="select select-sm select-bordered rounded-xl dark:bg-slate-800 text-xs">
             <option value="">Todos los estados</option>
-            @foreach (var e in new[] { "Recibido", "En evaluación", "Aprobado", "Observado", "Rechazado", "Entregado" })
+            @foreach (var e in new[] { "Recibido", "En evaluación", "Aprobado", "Observado", "Rechazado", "Entregado", "Vencido" })
             {
                 <option value="@e" selected="@(Model.FiltroEstado == e)">@e</option>
             }
@@ -92,10 +92,15 @@
                                 }
                             </td>
                             <td>
-                                <span class="badge @(t.Estado == "Aprobado" ? "badge-success" : t.Estado == "Rechazado" ? "badge-error" : t.Estado == "Entregado" ? "badge-accent" : "badge-warning") badge-xs font-semibold text-white">@t.Estado</span>
+                                <span class="badge @(t.Estado == "Aprobado" ? "badge-success" : t.Estado == "Rechazado" || t.Estado == "Vencido" ? "badge-error" : t.Estado == "Entregado" ? "badge-accent" : "badge-warning") badge-xs font-semibold text-white">@t.Estado</span>
                                 @if (!string.IsNullOrEmpty(t.Resolucion))
                                 {
                                     <span class="text-[10px] text-slate-400 block mt-0.5 italic">"@t.Resolucion"</span>
+                                }
+                                @if (t.Estado == "Observado" && t.FechaLimiteCorreccion != null)
+                                {
+                                    var dias = (t.FechaLimiteCorreccion.Value.Date - DateTime.Today).Days;
+                                    <span class="text-[10px] block mt-0.5 font-semibold @(dias <= 3 ? "text-rose-500" : "text-amber-600 dark:text-amber-400")">vence @t.FechaLimiteCorreccion?.ToString("dd/MM")</span>
                                 }
                             </td>
                             <td>
@@ -137,6 +142,14 @@
                                     else if (t.Estado == "Observado")
                                     {
                                         <span class="text-slate-400 italic">Esperando corrección del alumno</span>
+                                    }
+                                    else if (t.Estado == "Vencido")
+                                    {
+                                        <form method="post" asp-action="Avanzar" asp-route-id="@t.Id">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden" name="nuevoEstado" value="En evaluación" />
+                                            <button type="submit" class="btn btn-outline btn-xs rounded-xl" title="Reabrir el trámite vencido: vuelve a evaluación sin plazo (decisión de la mesa)">Reabrir</button>
+                                        </form>
                                     }
                                         else
                                         {

@@ -650,9 +650,38 @@ public class MatriculaturaServicio : IMatriculaturaServicio
         var orden = new[] { "I", "II", "III", "IV", "V", "VI" };
         var ultimo = dto.Historial.Select(h => h.Ciclo).Distinct()
             .OrderByDescending(x => Array.IndexOf(orden, x)).FirstOrDefault();
+
+        // INGRESANTE (sin historial académico): el ciclo y la condición salen de SU
+        // matrícula activa, no del historial vacío. Sin esto, un alumno recién
+        // matriculado ve "Ciclo [vacío]" y "Avance 0%" en su Resumen aunque
+        // esté matriculado en el ciclo I.
+        if (string.IsNullOrEmpty(ultimo))
+        {
+            var activa = await db.QueryFirstOrDefaultAsync<(string Ciclo, string Condicion, string Estado)>("""
+                SELECT ci.codigo AS Ciclo, m.condicion AS Condicion, m.estado AS Estado
+                FROM matriculas m
+                JOIN ciclos ci ON ci.id = m.ciclo_id
+                WHERE m.estudiante_id = @Id AND m.estado <> 'Anulada'
+                ORDER BY m.creado_en DESC
+                LIMIT 1;
+                """, new { Id = estudianteId });
+            if (activa.Ciclo != null)
+            {
+                ultimo = activa.Ciclo;
+                // La condición de la matrícula es la palabra institucional real
+                // (Ingresante/Promovido/...); solo sobreescribir si hay una.
+                if (!string.IsNullOrEmpty(activa.Condicion))
+                    dto.Condicion = activa.Condicion;
+            }
+        }
+
         dto.CicloActual = ultimo ?? "";
         var idx = string.IsNullOrEmpty(ultimo) ? -1 : Array.IndexOf(orden, ultimo);
-        dto.CicloProximo = idx >= 0 && idx < orden.Length - 1 ? orden[idx + 1] : ultimo ?? "";
+        // Con historial: el próximo ciclo es el que sigue al último culminado.
+        // Ingresante (sin historial): el ciclo que cursa es el de SU matrícula.
+        dto.CicloProximo = dto.Historial.Count > 0
+            ? (idx >= 0 && idx < orden.Length - 1 ? orden[idx + 1] : ultimo ?? "")
+            : ultimo ?? "";
 
         // ---- Timeline del flujo: trámite TM05 → voucher → matrícula ----
         var reserva = await db.QueryFirstOrDefaultAsync<ReservaAlumnoRow>("""

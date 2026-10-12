@@ -35,6 +35,8 @@ public interface ITramiteServicio
         (string Nombre, string Tipo, byte[] Contenido)? archivo = null);
     Task<(bool Ok, string Mensaje)> AvanzarEstadoAsync(
         int tramiteId, string nuevoEstado, string? resolucion, int usuarioId);
+    /// <summary>Cierra los trámites Observados cuyo plazo de corrección expiró (lazy, idempotente).</summary>
+    Task<int> CerrarVencidosAsync();
     Task<int> ContarPendientesAsync();
     Task<ModeloResumenSecretaria> ResumenSecretariaAsync();
 }
@@ -49,6 +51,27 @@ public class TramiteServicio : ITramiteServicio
     }
 
     private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("09");
+
+    // ------------------------------------------------------------------
+    // Cierre por vencimiento (lazy, idempotente): trámites Observados cuyo
+    // plazo de corrección (15 días hábiles) expiró pasan a 'Vencido'.
+    // No hay scheduler en el deploy (docker compose), así que se evalúa
+    // al entrar a Mis trámites / Detalle / Mesa / resúmenes y antes de
+    // Corregir. Usa idx_tramites_estado; seguro correrlo mil veces.
+    // ------------------------------------------------------------------
+    public async Task<int> CerrarVencidosAsync()
+    {
+        using var db = CreateConnection();
+        return await db.ExecuteAsync("""
+            UPDATE tramites
+            SET estado = 'Vencido',
+                fecha_resolucion = CURRENT_DATE,
+                actualizado_en = CURRENT_TIMESTAMP
+            WHERE estado = 'Observado'
+              AND fecha_limite_correccion IS NOT NULL
+              AND CURRENT_DATE > fecha_limite_correccion;
+            """);
+    }
 
     // ------------------------------------------------------------------
     // Nombres reales de tablas de pago (producción usa pagos porque
@@ -76,6 +99,7 @@ public class TramiteServicio : ITramiteServicio
     // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloTramiteLista>> ListarPorEstudianteAsync(int estudianteId, string? estado)
     {
+        await CerrarVencidosAsync();
         using var db = CreateConnection();
         const string sql = """
             SELECT t.id,
@@ -83,6 +107,7 @@ public class TramiteServicio : ITramiteServicio
                    t.estado,
                    t.fecha_solicitud AS FechaSolicitud,
                    t.fecha_limite AS FechaLimite,
+                   t.fecha_limite_correccion AS FechaLimiteCorreccion,
                    CURRENT_DATE - t.fecha_solicitud AS Dias,
                    tt.codigo AS TipoCodigo,
                    tt.nombre AS TipoNombre,
@@ -109,12 +134,14 @@ public class TramiteServicio : ITramiteServicio
     // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloTramiteMesa>> ListarMesaAsync(string? estado)
     {
+        await CerrarVencidosAsync();
         using var db = CreateConnection();
         const string sql = """
             SELECT t.id,
                    t.codigo,
                    t.estado,
                    t.fecha_solicitud AS FechaSolicitud,
+                   t.fecha_limite_correccion AS FechaLimiteCorreccion,
                    tt.codigo AS TipoCodigo,
                    tt.nombre AS TipoNombre,
                    p.nombres || ' ' || p.apellidos AS Estudiante,
@@ -141,6 +168,7 @@ public class TramiteServicio : ITramiteServicio
 
     public async Task<ModeloTramiteDetalle?> ObtenerDetalleAsync(int tramiteId)
     {
+        await CerrarVencidosAsync();
         using var db = CreateConnection();
         const string sql = """
             SELECT t.id,
@@ -148,6 +176,7 @@ public class TramiteServicio : ITramiteServicio
                    t.estado,
                    t.fecha_solicitud AS FechaSolicitud,
                    t.fecha_limite AS FechaLimite,
+                   t.fecha_limite_correccion AS FechaLimiteCorreccion,
                    t.resolucion,
                    t.fecha_resolucion AS FechaResolucion,
                    t.datos::text AS DatosJson,
@@ -392,6 +421,18 @@ public class TramiteServicio : ITramiteServicio
         (string Nombre, string Tipo, byte[] Contenido)? archivo = null)
     {
         using var db = CreateConnection();
+
+        // Guard de vencimiento (server-side): cerrar los vencidos primero y
+        // rechazar la corrección de un trámite cuyo plazo expiró — aunque el
+        // formulario esté oculto en la vista, la ruta queda protegida.
+        await CerrarVencidosAsync();
+        var tramite = await db.QueryFirstOrDefaultAsync<(string Estado, DateTime? Limite)>("""
+            SELECT estado AS Estado, fecha_limite_correccion AS Limite
+            FROM tramites WHERE id = @Id;
+            """, new { Id = tramiteId });
+        if (tramite.Estado == "Vencido")
+            return (false, "El plazo de corrección de 15 días hábiles venció. Inicia un trámite nuevo o acude a Secretaría.");
+
         var filas = await db.ExecuteAsync("""
             UPDATE tramite_requisitos
             SET presentado = TRUE,
@@ -404,12 +445,15 @@ public class TramiteServicio : ITramiteServicio
                        Nombre = archivo?.Nombre, Tipo = archivo?.Tipo, Contenido = archivo?.Contenido });
         if (filas == 0) return (false, "El requisito no pertenece a ese trámite.");
 
-        // el trámite observado vuelve a evaluación (corrección del prototipo)
+        // el trámite observado vuelve a evaluación (corrección del prototipo);
+        // la corrección a tiempo LIMPIA el reloj: si vuelve a observarse,
+        // el plazo se fija de nuevo desde esa observación.
         await db.ExecuteAsync("""
             UPDATE tramites
             SET estado = 'En evaluación',
                 resolucion = NULL,
                 fecha_resolucion = NULL,
+                fecha_limite_correccion = NULL,
                 actualizado_en = CURRENT_TIMESTAMP
             WHERE id = @Id AND estado IN ('Observado','Rechazado');
             """, new { Id = tramiteId });
@@ -472,10 +516,14 @@ public class TramiteServicio : ITramiteServicio
                 resolucion = @Resolucion,
                 fecha_resolucion = CASE WHEN @Estado IN ('Aprobado','Rechazado','Entregado')
                                         THEN CURRENT_DATE ELSE NULL END,
+                fecha_limite_correccion = CASE WHEN @Estado = 'Observado'
+                                        THEN mod09.fecha_limite_correccion()
+                                        ELSE NULL END,
                 actualizado_en = CURRENT_TIMESTAMP
             WHERE id = @Id
               AND estado <> 'Entregado'
-              AND (@Estado = 'En evaluación' OR estado = 'Recibido' OR estado = 'En evaluación' OR estado = 'Observado');
+              AND (@Estado = 'En evaluación'
+                   OR estado IN ('Recibido','En evaluación','Observado','Vencido'));
             """, new { Id = tramiteId, Estado = nuevoEstado, Resolucion = resolucion });
 
         return filas > 0
@@ -485,6 +533,7 @@ public class TramiteServicio : ITramiteServicio
 
     public async Task<int> ContarPendientesAsync()
     {
+        await CerrarVencidosAsync();
         using var db = CreateConnection();
         return await db.ExecuteScalarAsync<int>(
             "SELECT count(*) FROM tramites WHERE estado IN ('Recibido','En evaluación');");
@@ -496,13 +545,15 @@ public class TramiteServicio : ITramiteServicio
     // ------------------------------------------------------------------
     public async Task<ModeloResumenSecretaria> ResumenSecretariaAsync()
     {
+        await CerrarVencidosAsync();
         using var db = CreateConnection();
         var dto = await db.QueryFirstOrDefaultAsync<ModeloResumenSecretaria>("""
             SELECT count(*) FILTER (WHERE estado = 'Recibido')   AS Recibidos,
                    count(*) FILTER (WHERE estado = 'En evaluación') AS EnEvaluacion,
                    count(*) FILTER (WHERE estado = 'Aprobado')   AS AprobadosPendientesEntrega,
                    count(*) FILTER (WHERE estado = 'Entregado')   AS Entregados,
-                   count(*) FILTER (WHERE estado = 'Observado')  AS Observados
+                   count(*) FILTER (WHERE estado = 'Observado')  AS Observados,
+                   count(*) FILTER (WHERE estado = 'Vencido')    AS Vencidos
             FROM mod09.tramites;
             """) ?? new ModeloResumenSecretaria();
 

@@ -70,6 +70,43 @@ CREATE TABLE IF NOT EXISTS mod09.tramites (
 CREATE INDEX IF NOT EXISTS idx_tramites_estudiante ON mod09.tramites (estudiante_id);
 CREATE INDEX IF NOT EXISTS idx_tramites_estado ON mod09.tramites (estado);
 
+-- 6b. Plazo del ALUMNO para corregir un trámite Observado: 15 días hábiles
+--     (L-V, excluyendo mod09.feriados). Distinto de fecha_limite, que es el
+--     plazo TUPA de la mesa. Se fija al observar el trámite (mesa o rechazo
+--     de voucher de Tesorería); la corrección a tiempo lo limpia.
+ALTER TABLE mod09.tramites
+    ADD COLUMN IF NOT EXISTS fecha_limite_correccion DATE NULL;
+
+-- Estado terminal 'Vencido': el alumno no corrigió dentro del plazo.
+-- Idempotente para el auto-runner (DROP IF EXISTS + ADD en cada arranque).
+ALTER TABLE mod09.tramites DROP CONSTRAINT IF EXISTS tramites_estado_check;
+ALTER TABLE mod09.tramites ADD CONSTRAINT tramites_estado_check
+    CHECK (estado IN ('Recibido','En evaluación','Aprobado','Observado',
+                      'Rechazado','Entregado','Vencido'));
+
+-- Función de días hábiles: N días L-V después de `desde`, excluyendo
+-- feriados del calendario TUPA. Única fuente de verdad del criterio.
+CREATE OR REPLACE FUNCTION mod09.fecha_limite_correccion(
+    desde DATE DEFAULT CURRENT_DATE, dias INT DEFAULT 15)
+RETURNS DATE
+LANGUAGE sql STABLE AS $$
+    SELECT MAX(d::date)
+    FROM (
+        SELECT d
+        FROM generate_series(desde + 1, desde + 60, interval '1 day') AS g(d)
+        WHERE EXTRACT(ISODOW FROM g.d) < 6
+          AND g.d::date NOT IN (SELECT fecha FROM mod09.feriados)
+        LIMIT dias
+    ) s;
+$$;
+
+-- Backfill idempotente: observados previos a esta versión reciben plazo
+-- desde su fecha de observación (solo filas sin plazo; luego el código lo fija).
+UPDATE mod09.tramites
+   SET fecha_limite_correccion =
+       mod09.fecha_limite_correccion(COALESCE(fecha_resolucion, actualizado_en::date))
+ WHERE estado = 'Observado' AND fecha_limite_correccion IS NULL;
+
 -- 7. Requisitos presentados por trámite (instancia del checklist)
 CREATE TABLE IF NOT EXISTS mod09.tramite_requisitos (
     id SERIAL PRIMARY KEY,
