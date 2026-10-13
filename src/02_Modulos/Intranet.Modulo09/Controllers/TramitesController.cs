@@ -35,9 +35,7 @@ public class TramitesController : Modulo09BaseController
         base.OnActionExecuting(context);
     }
 
-    // ------------------------------------------------------------------
     // Mis trámites (alumno) / Mesa de trámites (personal)
-    // ------------------------------------------------------------------
     [HttpGet("")]
     [HttpGet("Index")]
     public async Task<IActionResult> Index(string? estado)
@@ -72,10 +70,8 @@ public class TramitesController : Modulo09BaseController
         });
     }
 
-    // ------------------------------------------------------------------
     // Requisitos dinámicos por tipo (el AutoPostBack del prototipo):
     // devuelve JSON para el select del formulario de nuevo trámite.
-    // ------------------------------------------------------------------
     [HttpGet("Requisitos/{tipoCodigo}")]
     public async Task<IActionResult> Requisitos(string tipoCodigo)
     {
@@ -85,9 +81,7 @@ public class TramitesController : Modulo09BaseController
         return Json(new { tipo, requisitos });
     }
 
-    // ------------------------------------------------------------------
     // Ficha de un trámite
-    // ------------------------------------------------------------------
     [HttpGet("Detalle/{id}")]
     public async Task<IActionResult> Detalle(int id)
     {
@@ -115,10 +109,8 @@ public class TramitesController : Modulo09BaseController
             new { Id = estudianteId }) ?? "";
     }
 
-    // ------------------------------------------------------------------
     // ALUMNO: crear trámite (los archivos se adjuntan en el form;
     // en esta fase se registran los requisitos como presentados)
-    // ------------------------------------------------------------------
     [HttpPost("Crear")]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(10_485_760)] // 10 MB total: PDFs ≤2MB por requisito (regla del prototipo)
@@ -158,9 +150,7 @@ public class TramitesController : Modulo09BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    // ------------------------------------------------------------------
     // ALUMNO: corregir requisito observado (sin crear trámite nuevo)
-    // ------------------------------------------------------------------
     [HttpPost("Corregir/{id}")]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(10_485_760)]
@@ -193,10 +183,8 @@ public class TramitesController : Modulo09BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    // ------------------------------------------------------------------
     // PERSONAL (Mesa): ver el archivo adjunto de un requisito del trámite
     // (evidencia para validar/observar). El alumno NO accede por aquí.
-    // ------------------------------------------------------------------
     [HttpGet("Archivo/{id}/{requisitoId}")]
     public async Task<IActionResult> Archivo(int id, int requisitoId)
     {
@@ -206,9 +194,7 @@ public class TramitesController : Modulo09BaseController
         return File(a.Contenido, a.Tipo, a.Nombre);
     }
 
-    // ------------------------------------------------------------------
     // MESA (Secretaría): avanzar el flujo del trámite
-    // ------------------------------------------------------------------
     [HttpPost("Avanzar/{id}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Avanzar(int id, string nuevoEstado, string? resolucion)
@@ -223,9 +209,7 @@ public class TramitesController : Modulo09BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    // ------------------------------------------------------------------
     // Helpers de contexto
-    // ------------------------------------------------------------------
     private async Task<int> ObtenerEstudianteIdAsync()
     {
         // claim PersonaId → core.estudiantes (vía la connection fabrica del módulo 09)
@@ -246,9 +230,7 @@ public class TramitesController : Modulo09BaseController
     }
 }
 
-// ---------------------------------------------------------------------
 // ViewModels
-// ---------------------------------------------------------------------
 public class ModeloMisTramitesVista
 {
     public IEnumerable<ModeloTramiteLista> Tramites { get; set; } = [];
