@@ -72,9 +72,7 @@ public class PagosController : Modulo09BaseController
         });
     }
 
-    // ------------------------------------------------------------------
     // ALUMNO: registrar pago con voucher (queda Pendiente para la bandeja)
-    // ------------------------------------------------------------------
     [HttpPost("Registrar")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Registrar(string concepto, string tipoPago, string? monto, string? nota)
@@ -113,9 +111,7 @@ public class PagosController : Modulo09BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    // ------------------------------------------------------------------
     // TESORERÍA: emitir recibo directo de caja
-    // ------------------------------------------------------------------
     [HttpPost("EmitirRecibo")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> EmitirRecibo(int estudianteId, string concepto, string tipoPago, decimal monto)
@@ -131,9 +127,7 @@ public class PagosController : Modulo09BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    // ------------------------------------------------------------------
     // TESORERÍA: validar voucher desde la bandeja (aprobar / rechazar)
-    // ------------------------------------------------------------------
     [HttpPost("Validar/{id}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Validar(int id, bool aprobar, string? motivo)
@@ -148,10 +142,8 @@ public class PagosController : Modulo09BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    // ------------------------------------------------------------------
     // ALUMNO: subir el voucher PDF de SU pago (recibo generado por un
     // trámite o registrado a mano). Sin esto Tesorería validaba "a ciegas".
-    // ------------------------------------------------------------------
     [HttpPost("SubirVoucher/{id}")]
     [ValidateAntiForgeryToken]
     [RequestSizeLimit(10_485_760)]
@@ -181,12 +173,10 @@ public class PagosController : Modulo09BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    // ------------------------------------------------------------------
     // Voucher PDF del pago.
     //   Alumno    → solo los pagos de SU estudiante_id (anti-suplantación:
     //                un404, no un403, para no revelar que el id existe).
     //   Personal  → cualquier pago de la bandeja.
-    // ------------------------------------------------------------------
     [HttpGet("Voucher/{id}")]
     public async Task<IActionResult> Voucher(int id)
     {
@@ -202,9 +192,7 @@ public class PagosController : Modulo09BaseController
         return File(v.Contenido, v.Tipo, v.Nombre);
     }
 
-    // ------------------------------------------------------------------
     // Helpers de contexto
-    // ------------------------------------------------------------------
     private async Task<int> ObtenerEstudianteIdAsync()
     {
         var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
@@ -237,9 +225,7 @@ public class PagosController : Modulo09BaseController
     }
 }
 
-// ---------------------------------------------------------------------
 // ViewModels
-// ---------------------------------------------------------------------
 public class ModeloMisPagosVista
 {
     public IEnumerable<ModeloPagoLista> Pagos { get; set; } = [];
