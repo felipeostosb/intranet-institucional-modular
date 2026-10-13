@@ -38,9 +38,7 @@ public class MatriculaServicio : IMatriculaServicio
 
     private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("01");
 
-    // ------------------------------------------------------------------
     // Vista ALUMNO: su matrícula vigente con el avance del proceso
-    // ------------------------------------------------------------------
     public async Task<ModeloMatriculaActiva?> ObtenerMatriculaActivaAsync(int estudianteId)
     {
         using var db = CreateConnection();
@@ -77,9 +75,7 @@ public class MatriculaServicio : IMatriculaServicio
         return await db.QueryFirstOrDefaultAsync<ModeloMatriculaActiva>(sql, new { EstudianteId = estudianteId });
     }
 
-    // ------------------------------------------------------------------
     // Vista PERSONAL: tabla general del semestre con filtro por estado
-    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloMatriculaLista>> ListarPorPeriodoAsync(string? filtroEstado)
     {
         using var db = CreateConnection();
@@ -113,9 +109,7 @@ public class MatriculaServicio : IMatriculaServicio
             new { Estado = string.IsNullOrWhiteSpace(filtroEstado) ? null : filtroEstado });
     }
 
-    // ------------------------------------------------------------------
     // Zona A del puesto de trabajo: doble validación completa → conformidad
-    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloMatriculaLista>> ListarListasParaRegistrarAsync()
     {
         using var db = CreateConnection();
@@ -150,9 +144,7 @@ public class MatriculaServicio : IMatriculaServicio
         return await db.QueryAsync<ModeloMatriculaLista>(sql);
     }
 
-    // ------------------------------------------------------------------
     // Zona B: esperando alguna de las dos validaciones
-    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloMatriculaLista>> ListarEnEsperaAsync()
     {
         using var db = CreateConnection();
@@ -186,11 +178,9 @@ public class MatriculaServicio : IMatriculaServicio
         return await db.QueryAsync<ModeloMatriculaLista>(sql);
     }
 
-    // ------------------------------------------------------------------
     // Zona C (Art. 24 RI): En trámite con más de N días sin completar.
     // Nota: días naturales (el cálculo en días hábiles con feriados
     // pertenece a mod09 — soberanía de esquemas; se coordina por evento).
-    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloMatriculaPorLiberar>> ListarVacantesPorLiberarAsync(int diasLimite = 20)
     {
         using var db = CreateConnection();
@@ -216,9 +206,7 @@ public class MatriculaServicio : IMatriculaServicio
         return await db.QueryAsync<ModeloMatriculaPorLiberar>(sql, new { DiasLimite = diasLimite });
     }
 
-    // ------------------------------------------------------------------
     // Métricas del dashboard del módulo
-    // ------------------------------------------------------------------
     public async Task<ModeloResumenMatricula> ObtenerResumenAsync()
     {
         using var db = CreateConnection();
@@ -236,13 +224,11 @@ public class MatriculaServicio : IMatriculaServicio
                ?? new ModeloResumenMatricula();
     }
 
-    // ------------------------------------------------------------------
     // Validaciones (doble validación Cero Filas).
     // Aprobar marca el booleano y avanza la etapa a Conformidad cuando
     // ambas validaciones están completas. El rechazo CON MOTIVO se
     // registra en mod09 (pagos.motivo_rechazo / trámite Observado):
     // aquí solo se deja el booleano en FALSE.
-    // ------------------------------------------------------------------
     public async Task<bool> ValidarVoucherAsync(int matriculaId, bool aprobar)
     {
         using var db = CreateConnection();
@@ -269,10 +255,8 @@ public class MatriculaServicio : IMatriculaServicio
         return await db.ExecuteAsync(sql, new { Id = matriculaId, Aprobar = aprobar }) > 0;
     }
 
-    // ------------------------------------------------------------------
     // Conformidad: registrar la matrícula y consumir 1 vacante,
     // atómicamente (o ninguna de las dos).
-    // ------------------------------------------------------------------
     public async Task<(bool Ok, string Mensaje)> RegistrarMatriculaAsync(int matriculaId, int usuarioId)
     {
         using var db = CreateConnection();
@@ -326,9 +310,7 @@ public class MatriculaServicio : IMatriculaServicio
         return (true, "Matrícula registrada y vacante consumida.");
     }
 
-    // ------------------------------------------------------------------
     // Tablero de vacantes por carril (periodo activo)
-    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloVacante>> ListarVacantesAsync()
     {
         using var db = CreateConnection();
