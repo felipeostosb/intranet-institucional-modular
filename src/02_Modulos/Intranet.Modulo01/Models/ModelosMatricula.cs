@@ -80,9 +80,7 @@ public class ModeloResumenMatricula
     public int Reservadas { get; set; }
 }
 
-// =====================================================================
 // Resumen del Módulo 01 por puesto (rol activo)
-// =====================================================================
 
 /// <summary>Panel del puesto de Tesorería: vouchers de reserva (CT13/TM05).</summary>
 public class ModeloResumenTesoreriaMatricula
@@ -135,9 +133,7 @@ public class ModeloVacanteConsumo
 }
 
 
-// =====================================================================
 // Matriculatura de Secretaría (flujo Reserva de Matrícula TM05/CT13)
-// =====================================================================
 
 /// <summary>Expediente del alumno listo para matricular (búsqueda por DNI).</summary>
 public class ModeloExpedienteMatricula
@@ -179,9 +175,7 @@ public class ModeloHistorialFila
     public string Estado { get; set; } = "";   // Aprobado | Desaprobado | Retirado
 }
 
-// =====================================================================
 // Panel del alumno (Resumen del Módulo 01)
-// =====================================================================
 
 /// <summary>Mini-dashboard personal del alumno para la pestaña Resumen.</summary>
 public class ModeloPanelAlumno
