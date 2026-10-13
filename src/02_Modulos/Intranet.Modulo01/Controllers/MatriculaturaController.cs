@@ -33,9 +33,7 @@ public class MatriculaturaController : Modulo01BaseController
         base.OnActionExecuting(context);
     }
 
-    // ------------------------------------------------------------------
     // Puesto de trabajo: búsqueda por DNI
-    // ------------------------------------------------------------------
     [HttpGet("")]
     [HttpGet("Index")]
     public IActionResult Index(string? dni)
@@ -75,9 +73,7 @@ public class MatriculaturaController : Modulo01BaseController
         return View("Expediente", vm);
     }
 
-    // ------------------------------------------------------------------
     // Cierre de la matrícula (transaccional: consume vacante)
-    // ------------------------------------------------------------------
     [HttpPost("Matricular")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Matricular(ModeloFormularioMatricularVista form)
@@ -157,9 +153,7 @@ public class MatriculaturaController : Modulo01BaseController
         return RedirectToAction(nameof(Expediente), new { dni = ficha.Dni });
     }
 
-    // ------------------------------------------------------------------
     // Helpers de contexto
-    // ------------------------------------------------------------------
     private async Task<(IEnumerable<ModeloTurno> Turnos, IEnumerable<ModeloTipoMatricula> Tipos)> ObtenerTurnosTiposAsync()
     {
         var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
@@ -187,9 +181,7 @@ public class MatriculaturaController : Modulo01BaseController
     }
 }
 
-// ---------------------------------------------------------------------
 // ViewModels de las vistas de Secretaría
-// ---------------------------------------------------------------------
 
 /// <summary>Pantalla de búsqueda por DNI.</summary>
 public class ModeloBusquedaMatriculaturaVista

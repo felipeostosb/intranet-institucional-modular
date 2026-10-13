@@ -78,9 +78,7 @@ public class MatriculasController : Modulo01BaseController
         return View("MiMatricula", activa);
     }
 
-    // ------------------------------------------------------------------
     // Validaciones (Bandejas)
-    // ------------------------------------------------------------------
     [HttpPost("ValidarVoucher/{id}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> ValidarVoucher(int id, bool aprobar = true)
@@ -111,9 +109,7 @@ public class MatriculasController : Modulo01BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    // ------------------------------------------------------------------
     // Conformidad: registrar matrícula (consume vacante, atómico)
-    // ------------------------------------------------------------------
     [HttpPost("Registrar/{id}")]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Registrar(int id)
@@ -127,9 +123,7 @@ public class MatriculasController : Modulo01BaseController
         return RedirectToAction(nameof(Index));
     }
 
-    // ------------------------------------------------------------------
     // Tablero de vacantes
-    // ------------------------------------------------------------------
     [HttpGet("Vacantes")]
     public async Task<IActionResult> Vacantes()
     {
@@ -146,9 +140,7 @@ public class MatriculasController : Modulo01BaseController
         return View(vacantes);
     }
 
-    // ------------------------------------------------------------------
     // Helpers de contexto
-    // ------------------------------------------------------------------
     private async Task<int> ObtenerEstudianteIdAsync()
     {
         // claim PersonaId → core.estudiantes (UsuarioActualId es id de USUARIO, no de estudiante)

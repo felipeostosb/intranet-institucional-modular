@@ -62,9 +62,7 @@ public class MatriculaturaServicio : IMatriculaturaServicio
     private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("01");
 
     // Mismo patrón que MatriculaServicio: en producción "matriculas" es
-    // ------------------------------------------------------------------
     // BUSCAR POR DNI: ficha del alumno lista para matricular
-    // ------------------------------------------------------------------
     public async Task<ModeloExpedienteMatricula?> BuscarPorDniAsync(string dni)
     {
         using var db = CreateConnection();
@@ -296,9 +294,7 @@ public class MatriculaturaServicio : IMatriculaturaServicio
         return dto;
     }
 
-    // ------------------------------------------------------------------
     // MATRICULAR: cierra la matrícula del período con las UDs elegidas
-    // ------------------------------------------------------------------
     public async Task<(bool, string, int)> MatricularAsync(MatricularComando cmd, int usuarioId)
     {
         using var db = CreateConnection();
@@ -527,9 +523,7 @@ public class MatriculaturaServicio : IMatriculaturaServicio
         return (true, $"Matrícula cerrada: {inscritas} unidad(es) inscritas y vacante consumida.", fila.Id);
     }
 
-    // ------------------------------------------------------------------
     // FICHA PDF: datos de la matrícula cerrada para el PDF y el reenvío
-    // ------------------------------------------------------------------
     public async Task<ModeloFichaMatricula?> ObtenerFichaAsync(int matriculaId)
     {
         using var db = CreateConnection();
@@ -590,11 +584,9 @@ public class MatriculaturaServicio : IMatriculaturaServicio
         return ficha;
     }
 
-    // ------------------------------------------------------------------
     // PANEL DEL ALUMNO (pestaña Resumen): mini-dashboard con datos reales
     // del propio estudiante — historial con notas, promedio, condición y
     // el estado de SU flujo de reserva (trámite → voucher → matrícula).
-    // ------------------------------------------------------------------
     public async Task<ModeloPanelAlumno?> PanelAlumnoAsync(int estudianteId)
     {
         using var db = CreateConnection();
@@ -683,7 +675,6 @@ public class MatriculaturaServicio : IMatriculaturaServicio
             ? (idx >= 0 && idx < orden.Length - 1 ? orden[idx + 1] : ultimo ?? "")
             : ultimo ?? "";
 
-        // ---- Timeline del flujo: trámite TM05 → voucher → matrícula ----
         var reserva = await db.QueryFirstOrDefaultAsync<ReservaAlumnoRow>("""
             SELECT m.id AS MatriculaId,
                    m.codigo_matricula AS Codigo,
@@ -736,11 +727,9 @@ public class MatriculaturaServicio : IMatriculaturaServicio
         return dto;
     }
 
-    // ------------------------------------------------------------------
     // PANEL TESORERÍA (Resumen del módulo): vouchers de la Reserva de
     // Matrícula (TM05/CT13). El puesto de Tesorería valida vouchers en
     // el módulo 09 — este panel le muestra el estado económico del flujo.
-    // ------------------------------------------------------------------
     public async Task<ModeloResumenTesoreriaMatricula> ResumenTesoreriaAsync()
     {
         using var db = CreateConnection();
@@ -776,11 +765,9 @@ public class MatriculaturaServicio : IMatriculaturaServicio
         return dto;
     }
 
-    // ------------------------------------------------------------------
     // PANEL SECRETARÍA (Resumen del módulo): el cierre de matrículas es
     // SU puesto. Listas para cerrar, ya cerradas del período y el estado
     // de las reservas que esperan algo (voucher de Tesorería).
-    // ------------------------------------------------------------------
     public async Task<ModeloResumenSecretariaMatricula> ResumenSecretariaAsync()
     {
         using var db = CreateConnection();
