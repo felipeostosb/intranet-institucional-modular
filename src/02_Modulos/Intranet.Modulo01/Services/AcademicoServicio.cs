@@ -54,17 +54,22 @@ public class AcademicoServicio
     public async Task<List<PeriodoAcademico>> RecordPorPeriodoAsync(int estudianteId)
     {
         using var connection = _factory.CreateConnection("01");
-        // Períodos de la trayectoria: desde el de ingreso hasta el último con notas
-        // (el estudiante no debe ver períodos anteriores a su ingreso).
+        // Períodos de la trayectoria: todos los que iniciaron en/after el período de
+        // ingreso del estudiante, cronológicamente POR FECHA (el id NO es cronológico:
+        // los períodos históricos pueden tener ids mayores con fechas anteriores).
         const string sqlPeriodos = """
             SELECT p.id     AS PeriodoId,
                    p.codigo AS Codigo
             FROM core.periodos_academicos p
-            WHERE p.id >= COALESCE((SELECT e.periodo_ingreso_id FROM core.estudiantes e WHERE e.id = @EstudianteId), 1)
+            WHERE p.fecha_inicio >= COALESCE(
+                      (SELECT pi.fecha_inicio
+                       FROM core.estudiantes e
+                       JOIN core.periodos_academicos pi ON pi.id = e.periodo_ingreso_id
+                       WHERE e.id = @EstudianteId), DATE '1900-01-01')
               AND (p.es_activo
                    OR EXISTS (SELECT 1 FROM mod01.historial_academico h
                               WHERE h.periodo_id = p.id AND h.estudiante_id = @EstudianteId))
-            ORDER BY p.id
+            ORDER BY p.fecha_inicio
             """;
         var periodos = (await connection.QueryAsync<(int PeriodoId, string Codigo)>(
             sqlPeriodos, new { EstudianteId = estudianteId })).ToList();
