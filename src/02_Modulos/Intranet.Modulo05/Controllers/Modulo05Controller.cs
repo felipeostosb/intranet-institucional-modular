@@ -10,10 +10,11 @@ public class Modulo05Controller : ModuloBaseController
     [HttpGet("Index")]
     public IActionResult Index()
     {
-        ViewData["Title"] = "Módulo 05 - Panel Principal";
-        ViewData["TeamName"] = "Equipo 05";
+        ViewData["Title"]        = "05. Incidencias & Requerimientos";
+        ViewData["TeamName"]     = "Equipo 05";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
-        ViewData["UsuarioRol"] = UsuarioActualRol;
+        ViewData["UsuarioRol"]   = UsuarioActualRol;
+        ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
 
         return View();
     }
