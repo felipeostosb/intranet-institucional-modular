@@ -45,21 +45,25 @@ public class AcademicoServicio
 
     // ---------------------------------------------------------------
     // 2) Record académico por período (tabla del SIGA)
-    //    Por período: cursos con código, créditos, nota, estado;
-    //    al pie: promedio ponderado (Σ nota×créditos / Σ créditos),
-    //    créditos matriculados y aprobados.
+    //    Trayectoria COMPLETA desde el período de ingreso del estudiante:
+    //    todos sus períodos aparecen (aunque aún no tengan notas) para que
+    //    el filtro por período siempre tenga opciones. Cursos con código,
+    //    créditos, nota, estado; al pie: promedio ponderado (Σ nota×créditos /
+    //    Σ créditos), créditos matriculados y aprobados.
     // ---------------------------------------------------------------
     public async Task<List<PeriodoAcademico>> RecordPorPeriodoAsync(int estudianteId)
     {
         using var connection = _factory.CreateConnection("01");
+        // Períodos de la trayectoria: desde el de ingreso hasta el último con notas
+        // (el estudiante no debe ver períodos anteriores a su ingreso).
         const string sqlPeriodos = """
             SELECT p.id     AS PeriodoId,
                    p.codigo AS Codigo
             FROM core.periodos_academicos p
-            WHERE EXISTS (
-                SELECT 1 FROM mod01.historial_academico h
-                WHERE h.periodo_id = p.id AND h.estudiante_id = @EstudianteId
-            )
+            WHERE p.id >= COALESCE((SELECT e.periodo_ingreso_id FROM core.estudiantes e WHERE e.id = @EstudianteId), 1)
+              AND (p.es_activo
+                   OR EXISTS (SELECT 1 FROM mod01.historial_academico h
+                              WHERE h.periodo_id = p.id AND h.estudiante_id = @EstudianteId))
             ORDER BY p.id
             """;
         var periodos = (await connection.QueryAsync<(int PeriodoId, string Codigo)>(
@@ -90,6 +94,7 @@ public class AcademicoServicio
                 PeriodoId = periodoId,
                 Codigo = codigo,
                 Cursos = cursos,
+                TieneNotas = cursos.Count > 0,
                 CreditosMatriculados = creditosMatriculados,
                 CreditosAprobados = cursos.Where(c => c.Estado == "Aprobado").Sum(c => c.Creditos),
                 PromedioPonderado = creditosMatriculados > 0

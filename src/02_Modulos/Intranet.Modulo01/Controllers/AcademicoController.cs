@@ -31,7 +31,7 @@ public class AcademicoController : Modulo01BaseController
 
     [HttpGet("")]
     [HttpGet("Index")]
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(int? periodo)
     {
         // Puerta por rol (misma regla de la portada).
         if (!AccedeAlModulo) return View("SinAcceso");
@@ -54,11 +54,27 @@ public class AcademicoController : Modulo01BaseController
                 "SELECT e.id FROM core.estudiantes e WHERE e.persona_id = @PersonaId;",
                 new { PersonaId = PersonaActualId ?? 0 }) ?? 0;
 
+            var record = await _servicio.RecordPorPeriodoAsync(estudianteId);
+
+            // Filtro de período: por defecto el último con notas (o el único/activo).
+            PeriodoAcademico seleccionado;
+            if (periodo.HasValue && record.Any(p => p.PeriodoId == periodo.Value))
+            {
+                seleccionado = record.First(p => p.PeriodoId == periodo.Value);
+            }
+            else
+            {
+                seleccionado = record.LastOrDefault(p => p.TieneNotas)
+                               ?? record.LastOrDefault()
+                               ?? new PeriodoAcademico();
+            }
+
             var modelo = new AcademicoVista
             {
                 Resumen = await _servicio.ResumenAcademicoAsync(estudianteId),
                 Rendimiento = await _servicio.RendimientoPorCicloAsync(estudianteId),
-                Record = await _servicio.RecordPorPeriodoAsync(estudianteId),
+                Record = record,
+                PeriodoSeleccionado = seleccionado,
                 EstudianteNombre = UsuarioActualNombre
             };
             return View("Academico", modelo);
