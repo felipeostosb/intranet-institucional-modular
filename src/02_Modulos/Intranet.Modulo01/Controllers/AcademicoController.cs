@@ -1,3 +1,4 @@
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
 using Intranet.Modulo01.Services;
 using Intranet.Modulo01.Models;
@@ -43,14 +44,23 @@ public class AcademicoController : Modulo01BaseController
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;
 
-        var estudianteId = await _servicio.ResolverEstudianteIdAsync(User);
-        var modelo = new AcademicoVista
+        // claim PersonaId → core.estudiantes (UsuarioActualId es id de USUARIO, no de estudiante)
+        // Patrón probado del módulo (MatriculasController.MiMatricula): PersonaActualId del base.
+        var fabrica = HttpContext.RequestServices.GetRequiredService<Intranet.Core.Contracts.IModuleDbConnectionFactory>();
+        using (var conn = fabrica.CreateConnection("01"))
         {
-            Resumen = await _servicio.ResumenAcademicoAsync(estudianteId),
-            Rendimiento = await _servicio.RendimientoPorCicloAsync(estudianteId),
-            Record = await _servicio.RecordPorPeriodoAsync(estudianteId),
-            EstudianteNombre = UsuarioActualNombre
-        };
-        return View("Academico", modelo);
+            var estudianteId = await conn.ExecuteScalarAsync<int?>(
+                "SELECT e.id FROM core.estudiantes e WHERE e.persona_id = @PersonaId;",
+                new { PersonaId = PersonaActualId ?? 0 }) ?? 0;
+
+            var modelo = new AcademicoVista
+            {
+                Resumen = await _servicio.ResumenAcademicoAsync(estudianteId),
+                Rendimiento = await _servicio.RendimientoPorCicloAsync(estudianteId),
+                Record = await _servicio.RecordPorPeriodoAsync(estudianteId),
+                EstudianteNombre = UsuarioActualNombre
+            };
+            return View("Academico", modelo);
+        }
     }
 }
