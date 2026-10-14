@@ -19,5 +19,7 @@ public class Modulo01Startup : IModuloStartup
         services.AddScoped<IMatriculaturaServicio, MatriculaturaServicio>();
         // Envío de la ficha PDF al correo del estudiante (MailKit; bitácora en fichas_enviadas)
         services.AddScoped<IServicioCorreoFicha, ServicioCorreoFicha>();
+        // Pestaña Académico del alumno: rendimiento por ciclo + record SIGA
+        services.AddScoped<AcademicoServicio>();
     }
 }
