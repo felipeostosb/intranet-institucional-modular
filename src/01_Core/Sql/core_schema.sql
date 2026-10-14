@@ -354,7 +354,16 @@ INSERT INTO core.unidades_didacticas (id, carrera_id, ciclo, codigo, nombre, cre
 (5, 1, 'III', 'DSI-301', 'Desarrollo de Aplicaciones Web y Servicios', 4, 6, 'Formativa'),
 (6, 1, 'III', 'DSI-302', 'Ingeniería de Requerimientos y Casos de Uso', 3, 4, 'Formativa'),
 (7, 2, 'I', 'CONT-101', 'Contabilidad Básica y Principios Contables', 4, 6, 'Formativa'),
-(8, 2, 'I', 'CONT-102', 'Legislación Tributaria y Laboral', 3, 4, 'Transversal')
+(8, 2, 'I', 'CONT-102', 'Legislación Tributaria y Laboral', 3, 4, 'Transversal'),
+(18, 1, 'I',   'DSI-103', 'Matemática Básica', 3, 4, 'Transversal'),
+(19, 1, 'I',   'DSI-104', 'Comunicación Oral y Escrita', 2, 2, 'Transversal'),
+(20, 1, 'I',   'DSI-105', 'Desarrollo Personal y Ciudadanía', 2, 2, 'Transversal'),
+(21, 1, 'II',  'DSI-203', 'Estadística Aplicada', 3, 4, 'Transversal'),
+(22, 1, 'II',  'DSI-204', 'Estructuras de Datos y Algoritmos', 4, 6, 'Formativa'),
+(23, 1, 'II',  'DSI-205', 'Inglés Técnico I', 2, 2, 'Transversal'),
+(24, 1, 'III', 'DSI-303', 'Programación de Base de Datos', 4, 6, 'Formativa'),
+(25, 1, 'III', 'DSI-304', 'Metodologías Ágiles de Desarrollo', 3, 4, 'Formativa'),
+(26, 1, 'III', 'DSI-305', 'Inglés Técnico II', 2, 2, 'Transversal')
 ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
 
 SELECT setval('core.unidades_didacticas_id_seq', (SELECT MAX(id) FROM core.unidades_didacticas));
