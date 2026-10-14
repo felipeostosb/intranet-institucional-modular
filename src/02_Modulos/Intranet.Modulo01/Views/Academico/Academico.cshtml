@@ -125,8 +125,7 @@
                                 <th class="px-3 py-2.5 font-bold">Curso</th>
                                 <th class="px-3 py-2.5 font-bold text-right">Créditos</th>
                                 <th class="px-3 py-2.5 font-bold text-right">Nota</th>
-                                <th class="px-3 py-2.5 font-bold">Estado</th>
-                                <th class="px-5 py-2.5 font-bold">Fecha</th>
+                                <th class="px-5 py-2.5 font-bold">Estado</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -139,13 +138,12 @@
                                     <td class="px-3 py-2.5 text-right">
                                         <span class="font-black @(c.Estado == "Desaprobado" ? "text-rose-500" : "text-slate-800 dark:text-slate-100")">@c.Nota.ToString("0.0")</span>
                                     </td>
-                                    <td class="px-3 py-2.5">
+                                    <td class="px-5 py-2.5">
                                         <span class="inline-flex items-center gap-1.5 font-bold @(c.Estado == "Desaprobado" ? "text-rose-500" : c.Estado == "Aprobado" ? "text-emerald-600 dark:text-emerald-400" : "text-slate-400")">
                                             <span class="w-1.5 h-1.5 rounded-full @(notaColor.TryGetValue(c.Estado, out var dot) ? dot : "bg-slate-400")"></span>
                                             @c.Estado
                                         </span>
                                     </td>
-                                    <td class="px-5 py-2.5 text-slate-400 whitespace-nowrap">@(c.Fecha == default ? "—" : c.Fecha.ToString("dd/MM/yyyy"))</td>
                                 </tr>
                             }
                         </tbody>
@@ -154,7 +152,7 @@
                                 <td colspan="2" class="px-5 py-3 uppercase tracking-wider text-[10px]">Promedio ponderado del Ciclo @cicloSel.Ciclo</td>
                                 <td class="px-3 py-3 text-right">@cicloSel.CreditosMatriculados.ToString("0.0")</td>
                                 <td class="px-3 py-3 text-right text-sky-600 dark:text-sky-400">@cicloSel.PromedioPonderado.ToString("0.00")</td>
-                                <td colspan="2" class="px-5 py-3 text-[10px] font-bold text-slate-400 normal-case">Cred. aprobados: @cicloSel.CreditosAprobados.ToString("0.0") de @cicloSel.CreditosMatriculados.ToString("0.0")</td>
+                                <td class="px-5 py-3 text-[10px] font-bold text-slate-400 normal-case">Cred. aprobados: @cicloSel.CreditosAprobados.ToString("0.0") de @cicloSel.CreditosMatriculados.ToString("0.0")</td>
                             </tr>
                         </tfoot>
                     </table>
