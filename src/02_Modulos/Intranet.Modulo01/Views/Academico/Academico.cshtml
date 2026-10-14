@@ -83,39 +83,39 @@
             </div>
         </div>
 
-        <!-- Record académico: filtro por período + tabla del seleccionado (formato SIGA) -->
+        <!-- Record académico: filtro por CICLO + tabla del seleccionado (formato SIGA) -->
         <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
             <div class="flex flex-wrap items-center justify-between gap-3 px-5 py-3 bg-slate-50 dark:bg-slate-800/60 border-b border-slate-200/80 dark:border-slate-800">
                 <h2 class="text-xs font-black text-slate-800 dark:text-slate-200 uppercase tracking-wider">📄 Record académico</h2>
-                <!-- Filtro de período: pills, cada una mantiene el resto de la URL -->
+                <!-- Filtro por ciclo: solo los ciclos CON notas (un ciclo en curso aún no tiene notas finales) -->
                 <div class="flex flex-wrap gap-1.5">
-                    @foreach (var p in Model.Record)
+                    @foreach (var c in Model.Record)
                     {
-                        var activo = p.PeriodoId == Model.PeriodoSeleccionado.PeriodoId;
-                        <a href="/Modulo01/Academico?periodo=@p.PeriodoId"
+                        var activo = c.Ciclo == Model.CicloSeleccionado.Ciclo;
+                        <a href="/Modulo01/Academico?ciclo=@c.Ciclo"
                            class="px-3 py-1.5 rounded-xl text-[11px] font-bold border transition @(activo
                                 ? "bg-sky-600 text-white border-sky-600 shadow-sm"
                                 : "bg-white dark:bg-slate-800 text-slate-500 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-sky-400 hover:text-sky-600")">
-                            @p.Codigo @(p.TieneNotas ? "" : "· sin notas")
+                            Ciclo @c.Ciclo
                         </a>
                     }
                 </div>
             </div>
             @{
-                var periodo = Model.PeriodoSeleccionado;
+                var cicloSel = Model.CicloSeleccionado;
             }
-            @if (!periodo.TieneNotas)
+            @if (string.IsNullOrEmpty(cicloSel.Ciclo))
             {
                 <div class="px-5 py-8 text-center">
                     <p class="text-2xl">🗂️</p>
-                    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mt-2">Sin notas registradas en @periodo.Codigo</h3>
-                    <p class="text-xs text-slate-400 mt-1">Cuando Secretaría registre tus notas de este periodo aparecerán aquí con tu promedio ponderado.</p>
+                    <h3 class="text-sm font-bold text-slate-700 dark:text-slate-200 mt-2">Aún no tienes historial académico registrado</h3>
+                    <p class="text-xs text-slate-400 mt-1">Cuando Secretaría registre tus notas aparecerán aquí tu rendimiento por ciclo y tu record con el promedio ponderado.</p>
                 </div>
             }
             else
             {
                 <div class="px-5 py-3 text-[11px] font-bold text-slate-400">
-                    @periodo.Cursos.Count cursos · @periodo.CreditosMatriculados.ToString("0.0") créditos matriculados
+                    @cicloSel.Cursos.Count cursos · @cicloSel.CreditosMatriculados.ToString("0.0") créditos · cursado en @cicloSel.PeriodoCodigo
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full text-xs">
@@ -130,7 +130,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var c in periodo.Cursos)
+                            @foreach (var c in cicloSel.Cursos)
                             {
                                 <tr class="border-b border-slate-50 dark:border-slate-800/60 hover:bg-slate-50/60 dark:hover:bg-slate-800/40 transition">
                                     <td class="px-5 py-2.5 font-mono font-bold text-sky-600 dark:text-sky-400 whitespace-nowrap">@c.Codigo</td>
@@ -151,10 +151,10 @@
                         </tbody>
                         <tfoot>
                             <tr class="bg-slate-50 dark:bg-slate-800/60 text-[11px] font-black text-slate-700 dark:text-slate-200">
-                                <td colspan="2" class="px-5 py-3 uppercase tracking-wider text-[10px]">Promedio ponderado de @periodo.Codigo</td>
-                                <td class="px-3 py-3 text-right">@periodo.CreditosMatriculados.ToString("0.0")</td>
-                                <td class="px-3 py-3 text-right text-sky-600 dark:text-sky-400">@periodo.PromedioPonderado.ToString("0.00")</td>
-                                <td colspan="2" class="px-5 py-3 text-[10px] font-bold text-slate-400 normal-case">Cred. aprobados: @periodo.CreditosAprobados.ToString("0.0") de @periodo.CreditosMatriculados.ToString("0.0")</td>
+                                <td colspan="2" class="px-5 py-3 uppercase tracking-wider text-[10px]">Promedio ponderado del Ciclo @cicloSel.Ciclo</td>
+                                <td class="px-3 py-3 text-right">@cicloSel.CreditosMatriculados.ToString("0.0")</td>
+                                <td class="px-3 py-3 text-right text-sky-600 dark:text-sky-400">@cicloSel.PromedioPonderado.ToString("0.00")</td>
+                                <td colspan="2" class="px-5 py-3 text-[10px] font-bold text-slate-400 normal-case">Cred. aprobados: @cicloSel.CreditosAprobados.ToString("0.0") de @cicloSel.CreditosMatriculados.ToString("0.0")</td>
                             </tr>
                         </tfoot>
                     </table>

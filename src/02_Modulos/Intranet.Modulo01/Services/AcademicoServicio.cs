@@ -44,70 +44,65 @@ public class AcademicoServicio
     }
 
     // ---------------------------------------------------------------
-    // 2) Record académico por período (tabla del SIGA)
-    //    Trayectoria COMPLETA desde el período de ingreso del estudiante:
-    //    todos sus períodos aparecen (aunque aún no tengan notas) para que
-    //    el filtro por período siempre tenga opciones. Cursos con código,
-    //    créditos, nota, estado; al pie: promedio ponderado (Σ nota×créditos /
-    //    Σ créditos), créditos matriculados y aprobados.
+    // 2) Record académico por CICLO (tabla del SIGA)
+    //    Agrupa el historial por el ciclo de cada unidad didáctica (I–VI):
+    //    las pills son los ciclos CON notas del alumno (nunca hay
+    //    "sin notas" — un ciclo en curso todavía no tiene notas finales).
+    //    Cada bloque muestra el período-año de fondo (p. ej. "Ciclo III · 2026-I").
+    //    Si un curso fue re-llevado en otro período, cuenta el intento más
+    //    reciente (una fila por unidad didáctica por ciclo).
     // ---------------------------------------------------------------
-    public async Task<List<PeriodoAcademico>> RecordPorPeriodoAsync(int estudianteId)
+    public async Task<List<CicloAcademico>> RecordPorCicloAsync(int estudianteId)
     {
         using var connection = _factory.CreateConnection("01");
-        // Períodos de la trayectoria: todos los que iniciaron en/after el período de
-        // ingreso del estudiante, cronológicamente POR FECHA (el id NO es cronológico:
-        // los períodos históricos pueden tener ids mayores con fechas anteriores).
-        const string sqlPeriodos = """
-            SELECT p.id     AS PeriodoId,
-                   p.codigo AS Codigo
-            FROM core.periodos_academicos p
-            WHERE p.fecha_inicio >= COALESCE(
-                      (SELECT pi.fecha_inicio
-                       FROM core.estudiantes e
-                       JOIN core.periodos_academicos pi ON pi.id = e.periodo_ingreso_id
-                       WHERE e.id = @EstudianteId), DATE '1900-01-01')
-              AND (p.es_activo
-                   OR EXISTS (SELECT 1 FROM mod01.historial_academico h
-                              WHERE h.periodo_id = p.id AND h.estudiante_id = @EstudianteId))
-            ORDER BY p.fecha_inicio
-            """;
-        var periodos = (await connection.QueryAsync<(int PeriodoId, string Codigo)>(
-            sqlPeriodos, new { EstudianteId = estudianteId })).ToList();
-
-        const string sqlCursos = """
-            SELECT ud.codigo   AS Codigo,
-                   ud.nombre   AS UnidadNombre,
+        const string sql = """
+            SELECT ud.ciclo   AS Ciclo,
+                   pr.codigo  AS PeriodoCodigo,
+                   h.periodo_id AS PeriodoId,
+                   ud.id      AS UnidadId,
+                   ud.codigo  AS Codigo,
+                   ud.nombre  AS UnidadNombre,
                    ud.creditos AS Creditos,
-                   h.nota      AS Nota,
-                   h.estado    AS Estado,
+                   h.nota     AS Nota,
+                   h.estado   AS Estado,
                    h.creado_en AS Fecha
             FROM mod01.historial_academico h
             JOIN core.unidades_didacticas ud ON ud.id = h.unidad_didactica_id
-            WHERE h.estudiante_id = @EstudianteId AND h.periodo_id = @PeriodoId
-            ORDER BY ud.id
+            JOIN core.periodos_academicos pr ON pr.id = h.periodo_id
+            WHERE h.estudiante_id = @EstudianteId
+            ORDER BY ud.ciclo, ud.id, h.periodo_id
             """;
+        var filas = (await connection.QueryAsync<CursoHistorial>(
+            sql, new { EstudianteId = estudianteId })).ToList();
 
-        var resultado = new List<PeriodoAcademico>();
-        foreach (var (periodoId, codigo) in periodos)
-        {
-            var cursos = (await connection.QueryAsync<CursoRecord>(
-                sqlCursos, new { EstudianteId = estudianteId, PeriodoId = periodoId })).ToList();
+        // Una fila por unidad didáctica (intento más reciente) — evita duplicar
+        // un curso re-llevado dentro del mismo ciclo.
+        var cursos = filas
+            .GroupBy(f => f.UnidadId)
+            .Select(g => g.OrderByDescending(x => x.PeriodoId).First())
+            .ToList();
 
-            var creditosMatriculados = cursos.Sum(c => c.Creditos);
-            resultado.Add(new PeriodoAcademico
+        var ordenCiclo = new[] { "I", "II", "III", "IV", "V", "VI" };
+        var ciclos = cursos
+            .GroupBy(c => c.Ciclo)
+            .Select(g =>
             {
-                PeriodoId = periodoId,
-                Codigo = codigo,
-                Cursos = cursos,
-                TieneNotas = cursos.Count > 0,
-                CreditosMatriculados = creditosMatriculados,
-                CreditosAprobados = cursos.Where(c => c.Estado == "Aprobado").Sum(c => c.Creditos),
-                PromedioPonderado = creditosMatriculados > 0
-                    ? Math.Round(cursos.Sum(c => c.Nota * c.Creditos) / creditosMatriculados, 2)
-                    : 0
-            });
-        }
-        return resultado;
+                var creditos = g.Sum(c => c.Creditos);
+                return new CicloAcademico
+                {
+                    Ciclo = g.Key,
+                    PeriodoCodigo = string.Join(" · ", g.Select(x => x.PeriodoCodigo).Distinct()),
+                    Cursos = g.OrderBy(c => c.Codigo).ToList(),
+                    CreditosMatriculados = creditos,
+                    CreditosAprobados = g.Where(c => c.Estado == "Aprobado").Sum(c => c.Creditos),
+                    PromedioPonderado = creditos > 0
+                        ? Math.Round(g.Sum(c => c.Nota * c.Creditos) / creditos, 2)
+                        : 0
+                };
+            })
+            .OrderBy(b => Array.IndexOf(ordenCiclo, b.Ciclo))
+            .ToList();
+        return ciclos;
     }
 
     /// <summary>Resumen académico global del alumno (cards de arriba).</summary>
