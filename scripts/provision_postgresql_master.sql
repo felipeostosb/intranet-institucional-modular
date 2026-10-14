@@ -366,7 +366,7 @@ INSERT INTO core.roles (id, nombre, descripcion) VALUES
 (5, 'Tesoreria', 'Área de Tesorería, Facturación y Caja'),
 (6, 'Docente', 'Plana Docente'),
 (7, 'Alumno', 'Estudiante de Carrera Profesional'),
-(8, 'Jefe General', 'Jefatura General de Almacén e Inventario (control total del inventario)'),
+(8, 'Jefe Patrimonial', 'Jefatura Patrimonial de Almacén e Inventario (control total del inventario)'),
 (9, 'Coordinador de Carrera', 'Coordinador de carrera: gestiona los bienes y ambientes de SU carrera'),
 (10, 'OTIS', 'Oficina Técnica: mantenimiento, reparación y estado técnico de equipos')
 ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre, descripcion = EXCLUDED.descripcion;
@@ -467,7 +467,7 @@ INSERT INTO core.usuario_roles (id, usuario_id, rol_id) VALUES
 (9, 7, 1),
 (10, 8, 7),
 (11, 9, 7),
-(12, 10, 8),   -- Jefe General: Jorge Ramírez 51000001
+(12, 10, 8),   -- Jefe Patrimonial: Jorge Ramírez 51000001
 (13, 11, 9),   -- Coordinador de Carrera: María Torres (DSI) 51000002
 (14, 12, 9),   -- Coordinador de Carrera: Carlos Huamán (CONT) 51000003
 (15, 13, 9),   -- Coordinador de Carrera: Rosa Vargas (ADM) 51000004
@@ -497,7 +497,7 @@ SELECT setval('core.docentes_id_seq', (SELECT MAX(id) FROM core.docentes));
 INSERT INTO core.administrativos (id, persona_id, codigo_staff, cargo, area) VALUES
 (1, 4, 'ADM-SEC-01', 'Secretaria Académica', 'Secretaría General'),
 (2, 5, 'ADM-TES-01', 'Jefa de Caja y Tesorería', 'Tesorería'),
-(3, 10, 'JEF-GRAL-01', 'Jefe General de Almacén e Inventario', 'Almacén e Inventario'),
+(3, 10, 'JEF-GRAL-01', 'Jefe Patrimonial de Almacén e Inventario', 'Almacén e Inventario'),
 (4, 11, 'JEF-ESP-DSI', 'Coordinador de Carrera - DSI', 'Departamento Académico'),
 (5, 12, 'JEF-ESP-CONT', 'Coordinador de Carrera - Contabilidad', 'Departamento Académico'),
 (6, 13, 'JEF-ESP-ADM', 'Coordinador de Carrera - Administración', 'Departamento Académico'),
