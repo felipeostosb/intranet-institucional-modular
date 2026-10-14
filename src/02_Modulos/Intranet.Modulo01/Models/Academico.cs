@@ -27,6 +27,7 @@ public class PeriodoAcademico
 {
     public int PeriodoId { get; set; }
     public string Codigo { get; set; } = "";
+    public bool TieneNotas { get; set; }
     public List<CursoRecord> Cursos { get; set; } = new();
     public decimal CreditosMatriculados { get; set; }
     public decimal CreditosAprobados { get; set; }
@@ -48,5 +49,6 @@ public class AcademicoVista
     public ResumenAcademico Resumen { get; set; } = new();
     public List<RendimientoCiclo> Rendimiento { get; set; } = new();
     public List<PeriodoAcademico> Record { get; set; } = new();
+    public PeriodoAcademico PeriodoSeleccionado { get; set; } = new();
     public string EstudianteNombre { get; set; } = "";
 }
