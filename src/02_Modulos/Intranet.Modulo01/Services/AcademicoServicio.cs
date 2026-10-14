@@ -19,20 +19,8 @@ public class AcademicoServicio
         _factory = factory;
     }
 
-    /// <summary>EstudianteId desde el claim PersonaId (UsuarioActualId es core.usuarios, no estudiantes).</summary>
-    public async Task<int> ResolverEstudianteIdAsync(System.Security.Claims.ClaimsPrincipal user)
-    {
-        var personaId = Convert.ToInt32(user.FindFirst("PersonaId")?.Value ?? "0");
-        if (personaId == 0) return 0;
-        using var connection = _factory.CreateConnection("01");
-        const string sql = """
-            SELECT e.id
-            FROM core.estudiantes e
-            WHERE e.persona_id = @PersonaId
-            LIMIT 1
-            """;
-        return await connection.ExecuteScalarAsync<int>(sql, new { PersonaId = personaId });
-    }
+    // (resolución del estudiante movida al controller: PersonaActualId del base,
+    //  patrón de MatriculasController — el service solo consulta por estudianteId)
 
     // ---------------------------------------------------------------
     // 1) Rendimiento por ciclo — barras (promedio vigesimal por ciclo I-VI)
