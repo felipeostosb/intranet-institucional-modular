@@ -191,6 +191,9 @@ public class ModeloPanelAlumno
     public decimal Promedio { get; set; }               // ponderado del historial
     public int CreditosAprobados { get; set; }
     public List<ModeloHistorialFila> Historial { get; set; } = [];
+    /// <summary>Notas SOLO del último ciclo culminado (las barras del Resumen;
+    /// el historial completo vive en Mi académico — aquí satura el panel).</summary>
+    public List<ModeloHistorialFila> NotasUltimoCiclo { get; set; } = [];
 
     /// <summary>Pasos del flujo de reserva de matrícula para el timeline.</summary>
     public List<ModeloPasoFlujo> PasosFlujo { get; set; } = [];

@@ -675,6 +675,12 @@ public class MatriculaturaServicio : IMatriculaturaServicio
             ? (idx >= 0 && idx < orden.Length - 1 ? orden[idx + 1] : ultimo ?? "")
             : ultimo ?? "";
 
+        // Barras del Resumen: solo el ÚLTIMO ciclo culminado (el completo está en Mi académico).
+        if (!string.IsNullOrEmpty(ultimo))
+        {
+            dto.NotasUltimoCiclo = dto.Historial.Where(h => h.Ciclo == ultimo).ToList();
+        }
+
         var reserva = await db.QueryFirstOrDefaultAsync<ReservaAlumnoRow>("""
             SELECT m.id AS MatriculaId,
                    m.codigo_matricula AS Codigo,
