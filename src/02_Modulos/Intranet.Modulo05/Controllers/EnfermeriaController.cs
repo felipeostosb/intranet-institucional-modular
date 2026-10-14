@@ -1,226 +1,232 @@
+using Dapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
-using Microsoft.AspNetCore.Http;
-using System;
-using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
+using Intranet.Core.Contracts;
+using Intranet.Core.Controllers;
 using Intranet.Modulo05.Models;
+using System.Collections.Generic;
 
-namespace Intranet.Modulo05.Controllers
+namespace Intranet.Modulo05.Controllers;
+
+[Route("Modulo05/[controller]")]
+public class EnfermeriaController : ModuloBaseController
 {
-    [Area("Modulo05")]
-    [Route("Modulo05/[controller]")]
-    public class EnfermeriaController : Microsoft.AspNetCore.Mvc.Controller
+    // GET: /Modulo05/Enfermeria   o   /Modulo05/Enfermeria/Panel
+    [HttpGet("")]
+    [HttpGet("Panel")]
+    [HttpGet("PanelEnfermeria")]
+    public IActionResult Panel()
     {
-        private readonly IConfiguration _configuration;
-        private readonly AtencionMedicaRepository _repo;
+        ViewData["Title"]        = "Tópico / Enfermería";
+        ViewData["UsuarioNombre"] = UsuarioActualNombre;
+        ViewData["UsuarioRol"]   = UsuarioActualRol;
+        ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
+        return View("~/Views/enfermeria/panel_enfermeria.cshtml");
+    }
 
-        public EnfermeriaController(IConfiguration configuration)
+    // GET: /Modulo05/Enfermeria/FormAtencion
+    [HttpGet("Create")]
+    [HttpGet("FormAtencion")]
+    public async Task<IActionResult> FormAtencion()
+    {
+        ViewData["Title"]        = "Registro de Atención Médica";
+        ViewData["UsuarioNombre"] = UsuarioActualNombre;
+        ViewData["UsuarioRol"]   = UsuarioActualRol;
+        ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
+
+        var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+        using var conn = fabrica.CreateConnection("05");
+        var medicamentos = (await conn.QueryAsync<MedicamentoItem>(
+            "SELECT id, nombre, presentacion, stock_actual, fecha_vencimiento, estado " +
+            "FROM mod05.botica_medicamentos WHERE estado = 'Disponible' ORDER BY nombre")).AsList();
+        ViewBag.Medicamentos = medicamentos;
+
+        return View("~/Views/enfermeria/form_atencion.cshtml");
+    }
+
+    // GET: /Modulo05/Enfermeria/HistorialPaciente
+    [HttpGet("HistorialPaciente")]
+    public async Task<IActionResult> HistorialPaciente(string? dni = null)
+    {
+        ViewData["Title"]        = "Historial Clínico del Paciente";
+        ViewData["UsuarioNombre"] = UsuarioActualNombre;
+        ViewData["UsuarioRol"]   = UsuarioActualRol;
+        ViewData["RolesUsuario"] = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
+
+        var lista = new List<AtencionMedicaItem>();
+        if (!string.IsNullOrWhiteSpace(dni))
         {
-            _configuration = configuration;
-            string conn = _configuration.GetConnectionString("DefaultConnection") ?? "";
-            _repo = new AtencionMedicaRepository(conn);
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+            lista = (await conn.QueryAsync<AtencionMedicaItem>(
+                @"SELECT a.id AS IdAtencionTop, a.persona_id AS PersonaId, a.atendido_por AS AtendidoPorId,
+                         a.fecha_hora AS FechaHora, a.motivo AS Motivo,
+                         a.medicamento_id AS MedicamentoId, a.es_alergico AS EsAlergico,
+                         a.detalle_alergia AS DetalleAlergia, a.seguro_salud AS SeguroSalud,
+                         a.observacion AS Observacion,
+                         p.dni AS NumeroDocumento,
+                         p.nombres AS PacienteNombres, p.apellidos AS PacienteApellidos,
+                         m.nombre AS MedicamentoNombre
+                  FROM mod05.atenciones_topico a
+                  INNER JOIN core.personas p ON a.persona_id = p.id
+                  LEFT JOIN mod05.botica_medicamentos m ON a.medicamento_id = m.id
+                  WHERE p.dni = @dni
+                  ORDER BY a.fecha_hora DESC",
+                new { dni = dni.Trim() })).AsList();
         }
 
-        // GET: /Modulo05/Enfermeria o /Modulo05/Enfermeria/Panel
-        // Redirige al panel centralizado en la raíz (Vista/Dashboard/Topico.cshtml)
-        [HttpGet("")]
-        [HttpGet("Panel")]
-        public IActionResult Panel()
+        ViewBag.DniBuscado = dni;
+        return View("~/Views/enfermeria/historial_paciente.cshtml", lista);
+    }
+
+    // GET: /Modulo05/Enfermeria/BuscarPaciente?dni=...
+    [HttpGet("BuscarPaciente")]
+    public async Task<IActionResult> BuscarPaciente(string dni)
+    {
+        if (string.IsNullOrWhiteSpace(dni))
+            return Json(new { success = false, message = "Ingrese un número de DNI válido." });
+
+        try
         {
-            return Redirect("/Dashboard/Topico");
-        }
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+            var paciente = await conn.QueryFirstOrDefaultAsync<PacienteBusquedaDto>(
+                "SELECT id AS IdPersona, dni AS NumeroDocumento, nombres AS Nombres, apellidos AS Apellidos " +
+                "FROM core.personas WHERE dni = @dni LIMIT 1",
+                new { dni = dni.Trim() });
 
-        // GET: /Modulo05/Enfermeria/Create o /Modulo05/Enfermeria/FormAtencion
-        [HttpGet("Create")]
-        [HttpGet("FormAtencion")]
-        public IActionResult FormAtencion(bool partial = false)
-        {
-            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
-            ViewData["Title"] = "Registro de Atención Médica";
-            ViewData["Role"] = "Enfermería (Tópico)";
-            ViewBag.Medicamentos = _repo.ListarMedicamentos();
-
-            if (partial || isAjax)
-            {
-                return PartialView("~/Views/enfermeria/form_atencion.cshtml");
-            }
-
-            return View("~/Views/enfermeria/form_atencion.cshtml");
-        }
-
-        // GET: /Modulo05/Enfermeria/HistorialPaciente
-        [HttpGet("HistorialPaciente")]
-        public IActionResult HistorialPaciente(string? dni = null, bool partial = false)
-        {
-            bool isAjax = Request.Headers["X-Requested-With"] == "XMLHttpRequest";
-            ViewData["Title"] = "Historial Clínico del Paciente";
-            ViewData["Role"] = "Enfermería (Tópico)";
-            var lista = !string.IsNullOrWhiteSpace(dni) 
-                ? _repo.ObtenerHistorialPorDni(dni) 
-                : new List<AtencionMedicaItem>();
-
-            ViewBag.DniBuscado = dni;
-            if (partial || isAjax)
-            {
-                return PartialView("~/Views/enfermeria/historial_paciente.cshtml", lista);
-            }
-            return View("~/Views/enfermeria/historial_paciente.cshtml", lista);
-        }
-
-        // GET: /Modulo05/Enfermeria/BuscarPaciente?dni=...
-        [HttpGet("BuscarPaciente")]
-        public IActionResult BuscarPaciente(string dni)
-        {
-            if (string.IsNullOrWhiteSpace(dni))
-            {
-                return Json(new { success = false, message = "Ingrese un número de DNI válido." });
-            }
-
-            try
-            {
-                var paciente = _repo.BuscarPacientePorDni(dni);
-                if (paciente != null)
-                {
-                    return Json(new
-                    {
-                        success = true,
-                        idPersona = paciente.IdPersona,
-                        nombres = paciente.Nombres,
-                        apellidos = paciente.Apellidos,
-                        tipoSeguro = "SIS Gratuito / EsSalud",
-                        alergiasConocidas = "Ninguna reportada en el padrón"
-                    });
-                }
-
+            if (paciente != null)
                 return Json(new
                 {
-                    success = false,
-                    message = $"No se encontró paciente con DNI {dni} en el padrón institucional."
+                    success    = true,
+                    idPersona  = paciente.IdPersona,
+                    nombres    = paciente.Nombres,
+                    apellidos  = paciente.Apellidos,
+                    tipoSeguro = "SIS Gratuito / EsSalud",
+                    alergiasConocidas = "Ninguna reportada en el padrón"
                 });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al consultar paciente: " + ex.Message });
-            }
+
+            return Json(new { success = false, message = $"No se encontró paciente con DNI {dni}." });
         }
-
-        // POST: /Modulo05/Enfermeria/GuardarAtencion
-        [HttpPost("GuardarAtencion")]
-        public IActionResult GuardarAtencion([FromForm] IFormCollection form)
+        catch (Exception ex)
         {
-            try
-            {
-                string? dni = form["buscarDni"].ToString();
-                if (string.IsNullOrWhiteSpace(dni)) dni = form["dni"].ToString();
-
-                string? motivo = form["motivoAtencion"].ToString();
-                if (string.IsNullOrWhiteSpace(motivo)) motivo = form["motivo"].ToString();
-
-                string? fechaHoraStr = form["fechaHora"].ToString();
-                string? medicamentosStr = form["medicamentosAdministrados"].ToString();
-                string? observaciones = form["observacionesTratamiento"].ToString();
-                string? seguro = form["tipoSeguroSalud"].ToString();
-                bool esAlergico = !string.IsNullOrEmpty(form["reportaAlergias"]) || form["esAlergico"] == "true";
-                string? detalleAlergia = form["especificarAlergias"].ToString();
-
-                if (string.IsNullOrWhiteSpace(dni))
-                {
-                    return Json(new { success = false, message = "Debe buscar y validar un DNI primero." });
-                }
-
-                if (string.IsNullOrWhiteSpace(motivo))
-                {
-                    return Json(new { success = false, message = "El motivo de atención es obligatorio." });
-                }
-
-                var paciente = _repo.BuscarPacientePorDni(dni);
-                if (paciente == null)
-                {
-                    return Json(new { success = false, message = "El paciente no está registrado en el sistema." });
-                }
-
-                DateTime fechaHora = DateTime.Now;
-                if (!string.IsNullOrEmpty(fechaHoraStr) && DateTime.TryParse(fechaHoraStr, out DateTime parsed))
-                {
-                    fechaHora = parsed;
-                }
-
-                int? medicamentoId = null;
-                if (int.TryParse(form["medicamentoId"].ToString(), out int medId) && medId > 0)
-                {
-                    medicamentoId = medId;
-                }
-
-                string obsCompleta = observaciones ?? "";
-                if (!string.IsNullOrWhiteSpace(medicamentosStr))
-                {
-                    obsCompleta = $"Medicamento recetado: {medicamentosStr}\n{obsCompleta}".Trim();
-                }
-
-                var item = new AtencionMedicaItem
-                {
-                    PersonaId = paciente.IdPersona,
-                    AtendidoPorId = 1,
-                    FechaHora = fechaHora,
-                    Motivo = motivo,
-                    MedicamentoId = medicamentoId,
-                    EsAlergico = esAlergico,
-                    DetalleAlergia = detalleAlergia,
-                    SeguroSalud = string.IsNullOrWhiteSpace(seguro) ? "SIS" : seguro,
-                    Observacion = obsCompleta
-                };
-
-                bool ok = _repo.RegistrarAtencion(item);
-                if (ok)
-                {
-                    return Json(new
-                    {
-                        success = true,
-                        message = "¡Atención clínica registrada exitosamente en el sistema de Tópico!"
-                    });
-                }
-
-                return Json(new { success = false, message = "No se pudo registrar la atención." });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al procesar registro: " + ex.Message });
-            }
+            return Json(new { success = false, message = "Error al consultar paciente: " + ex.Message });
         }
+    }
 
-        // GET: /Modulo05/Enfermeria/Historial?dni=...
-        [HttpGet("Historial")]
-        public IActionResult Historial(string dni)
+    // POST: /Modulo05/Enfermeria/GuardarAtencion
+    [HttpPost("GuardarAtencion")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GuardarAtencion(
+        string? buscarDni, string? motivoAtencion, string? fechaHora,
+        string? medicamentosAdministrados, string? observacionesTratamiento,
+        string? tipoSeguroSalud, string? reportaAlergias, string? especificarAlergias,
+        int? medicamentoId)
+    {
+        try
         {
+            var dni    = buscarDni?.Trim();
+            var motivo = motivoAtencion?.Trim();
+
             if (string.IsNullOrWhiteSpace(dni))
+                return Json(new { success = false, message = "Debe buscar y validar un DNI primero." });
+            if (string.IsNullOrWhiteSpace(motivo))
+                return Json(new { success = false, message = "El motivo de atención es obligatorio." });
+
+            DateTime fecha = DateTime.Now;
+            if (!string.IsNullOrEmpty(fechaHora) && DateTime.TryParse(fechaHora, out var p)) fecha = p;
+
+            bool esAlergico    = !string.IsNullOrEmpty(reportaAlergias);
+            string obsCompleta = observacionesTratamiento ?? "";
+            if (!string.IsNullOrWhiteSpace(medicamentosAdministrados))
+                obsCompleta = $"Medicamento recetado: {medicamentosAdministrados}\n{obsCompleta}".Trim();
+
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+
+            var personaId = await conn.ExecuteScalarAsync<int?>(
+                "SELECT id FROM core.personas WHERE dni = @dni LIMIT 1", new { dni });
+            if (personaId == null)
+                return Json(new { success = false, message = "El DNI no está registrado en el sistema." });
+
+            int atendidoPorId = UsuarioActualId ?? 1;
+
+            int rows = await conn.ExecuteAsync(
+                @"INSERT INTO mod05.atenciones_topico
+                    (persona_id, atendido_por, fecha_hora, motivo, medicamento_id,
+                     es_alergico, detalle_alergia, seguro_salud, observacion)
+                  VALUES (@personaId, @atendidoPor, @fecha, @motivo, @medId,
+                          @esAlergico, @detalle, @seguro, @obs)",
+                new
+                {
+                    personaId,
+                    atendidoPor = atendidoPorId,
+                    fecha,
+                    motivo,
+                    medId      = medicamentoId.HasValue && medicamentoId > 0 ? (object)medicamentoId.Value : null!,
+                    esAlergico,
+                    detalle    = string.IsNullOrEmpty(especificarAlergias) ? (object)null! : especificarAlergias,
+                    seguro     = string.IsNullOrEmpty(tipoSeguroSalud) ? "NINGUNO" : tipoSeguroSalud.ToUpper(),
+                    obs        = string.IsNullOrEmpty(obsCompleta) ? (object)null! : obsCompleta
+                });
+
+            if (rows > 0 && medicamentoId.HasValue && medicamentoId > 0)
             {
-                return Json(new { success = false, message = "DNI no proporcionado." });
+                await conn.ExecuteAsync(
+                    "UPDATE mod05.botica_medicamentos SET stock_actual = GREATEST(stock_actual - 1, 0) WHERE id = @id",
+                    new { id = medicamentoId.Value });
             }
 
-            try
-            {
-                var atenciones = _repo.ObtenerHistorialPorDni(dni);
-                return Json(new { success = true, data = atenciones });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al consultar historial: " + ex.Message });
-            }
+            MostrarAlertaExito("¡Atención clínica registrada exitosamente en el sistema de Tópico!");
+            return Json(new { success = true, message = "¡Atención clínica registrada exitosamente!" });
         }
-
-        // GET: /Modulo05/Enfermeria/Medicamentos
-        [HttpGet("Medicamentos")]
-        public IActionResult Medicamentos()
+        catch (Exception ex)
         {
-            try
-            {
-                var lista = _repo.ListarMedicamentos();
-                return Json(new { success = true, data = lista });
-            }
-            catch (Exception ex)
-            {
-                return Json(new { success = false, message = "Error al listar botica: " + ex.Message });
-            }
+            return Json(new { success = false, message = "Error al procesar registro: " + ex.Message });
+        }
+    }
+
+    // GET: /Modulo05/Enfermeria/Historial?dni=...   (API JSON)
+    [HttpGet("Historial")]
+    public async Task<IActionResult> Historial(string dni)
+    {
+        if (string.IsNullOrWhiteSpace(dni))
+            return Json(new { success = false, message = "DNI no proporcionado." });
+
+        try
+        {
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+            var lista = await conn.QueryAsync(
+                @"SELECT a.fecha_hora, a.motivo, a.seguro_salud, a.observacion, a.es_alergico, a.detalle_alergia
+                  FROM mod05.atenciones_topico a
+                  INNER JOIN core.personas p ON a.persona_id = p.id
+                  WHERE p.dni = @dni ORDER BY a.fecha_hora DESC",
+                new { dni = dni.Trim() });
+            return Json(new { success = true, data = lista });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "Error al consultar historial: " + ex.Message });
+        }
+    }
+
+    // GET: /Modulo05/Enfermeria/Medicamentos   (API JSON)
+    [HttpGet("Medicamentos")]
+    public async Task<IActionResult> Medicamentos()
+    {
+        try
+        {
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+            var lista = await conn.QueryAsync(
+                "SELECT id, nombre, presentacion, stock_actual, fecha_vencimiento, estado " +
+                "FROM mod05.botica_medicamentos WHERE estado = 'Disponible' ORDER BY nombre");
+            return Json(new { success = true, data = lista });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "Error al listar botica: " + ex.Message });
         }
     }
 }
