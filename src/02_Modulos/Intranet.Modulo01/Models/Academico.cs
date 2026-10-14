@@ -11,9 +11,13 @@ public class RendimientoCiclo
     public int Aprobados { get; set; }
 }
 
-/// <summary>Un curso dentro del record académico (fila de la tabla SIGA).</summary>
-public class CursoRecord
+/// <summary>Un curso del historial (fila cruda con ciclo y período).</summary>
+public class CursoHistorial
 {
+    public string Ciclo { get; set; } = "";
+    public string PeriodoCodigo { get; set; } = "";
+    public int PeriodoId { get; set; }
+    public int UnidadId { get; set; }
     public string Codigo { get; set; } = "";
     public string UnidadNombre { get; set; } = "";
     public decimal Creditos { get; set; }
@@ -22,13 +26,12 @@ public class CursoRecord
     public DateTime Fecha { get; set; }
 }
 
-/// <summary>Un período con sus cursos y totales (bloque del record académico).</summary>
-public class PeriodoAcademico
+/// <summary>Un ciclo del record académico (bloque SIGA): sus cursos y totales.</summary>
+public class CicloAcademico
 {
-    public int PeriodoId { get; set; }
-    public string Codigo { get; set; } = "";
-    public bool TieneNotas { get; set; }
-    public List<CursoRecord> Cursos { get; set; } = new();
+    public string Ciclo { get; set; } = "";
+    public string PeriodoCodigo { get; set; } = "";
+    public List<CursoHistorial> Cursos { get; set; } = new();
     public decimal CreditosMatriculados { get; set; }
     public decimal CreditosAprobados { get; set; }
     public decimal PromedioPonderado { get; set; }
@@ -48,7 +51,7 @@ public class AcademicoVista
 {
     public ResumenAcademico Resumen { get; set; } = new();
     public List<RendimientoCiclo> Rendimiento { get; set; } = new();
-    public List<PeriodoAcademico> Record { get; set; } = new();
-    public PeriodoAcademico PeriodoSeleccionado { get; set; } = new();
+    public List<CicloAcademico> Record { get; set; } = new();
+    public CicloAcademico CicloSeleccionado { get; set; } = new();
     public string EstudianteNombre { get; set; } = "";
 }
