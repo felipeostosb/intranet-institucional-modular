@@ -1,5 +1,5 @@
 using Dapper;
-using Intranet.Core.Data;
+using Intranet.Core.Contracts;
 using Intranet.Modulo01.Models;
 
 namespace Intranet.Modulo01.Services;
