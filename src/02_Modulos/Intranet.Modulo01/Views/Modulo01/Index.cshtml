@@ -321,20 +321,20 @@
                     </div>
                 </div>
 
-                <!-- Barras de notas del historial -->
+                <!-- Barras de notas del ÚLTIMO ciclo culminado (el historial completo está en Mi académico) -->
                 <div class="lg:col-span-3 bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
                     <div class="flex justify-between items-center mb-4">
-                        <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📊 Mis notas</h2>
+                        <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">📊 Mis notas <span class="font-medium text-slate-400 normal-case">· ciclo @p.CicloActual</span></h2>
                         <span class="text-[10px] text-slate-400">escala 0 – 20</span>
                     </div>
-                    @if (!p.Historial.Any())
+                    @if (!p.NotasUltimoCiclo.Any())
                     {
                         <p class="text-xs text-slate-400 italic">Aún no tienes historial académico registrado.</p>
                     }
                     else
                     {
                         <div class="space-y-2.5">
-                            @foreach (var h in p.Historial)
+                            @foreach (var h in p.NotasUltimoCiclo)
                             {
                                 var pct = Math.Min(100, (int)Math.Round(h.Nota * 5));
                                 <div class="flex items-center gap-2">
