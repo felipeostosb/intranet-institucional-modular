@@ -7,3 +7,4 @@
 2. **Su Ruta Web:** Su módulo se accede en el navegador en la ruta: `/Modulo05`.
 3. **Su Base de Datos:** Tienen asignado el esquema soberano `mod05` en PostgreSQL 16 (Servidor `postgres` en `db_intranet_iestp` / Adminer puerto 8080).
 4. **Git Branch:** Creen sus ramas de trabajo como `modulo05/nombre-de-tarea` (usa la opción 2 del asistente `./dev.sh` o `.\dev.ps1`).
+xddd
