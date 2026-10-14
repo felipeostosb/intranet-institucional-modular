@@ -325,9 +325,12 @@ ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo, nombre = EXCLUDED.nombr
 SELECT setval('core.carreras_id_seq', (SELECT MAX(id) FROM core.carreras));
 
 -- 3. Periodos Académicos
+-- (2026-I ya cerrado; 2026-II activo en curso. Los 2025 son historia de los alumnos de ciclo III.)
 INSERT INTO core.periodos_academicos (id, codigo, fecha_inicio, fecha_fin, es_activo, permite_matricula) VALUES
-(1, '2026-I', '2026-03-15', '2026-07-25', TRUE, TRUE),
-(2, '2026-II', '2026-08-15', '2026-12-20', FALSE, FALSE)
+(1, '2026-I', '2026-03-15', '2026-07-25', FALSE, FALSE),
+(2, '2026-II', '2026-08-15', '2026-12-20', TRUE, TRUE),
+(3, '2025-I',  '2025-03-15', '2025-07-25', FALSE, FALSE),
+(4, '2025-II', '2025-08-15', '2025-12-20', FALSE, FALSE)
 ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
 
 SELECT setval('core.periodos_academicos_id_seq', (SELECT MAX(id) FROM core.periodos_academicos));
@@ -500,8 +503,8 @@ SELECT setval('core.usuario_roles_id_seq', (SELECT MAX(id) FROM core.usuario_rol
 
 -- 9. Perfiles de Alumno
 INSERT INTO core.estudiantes (id, persona_id, codigo_estudiante, carrera_id, periodo_ingreso_id, ciclo_actual, turno, condicion) VALUES
-(1, 7, 'EST-DSI-2026-001', 1, 1, 'III', 'Noche', 'Regular'),
-(2, 8, 'EST-DSI-2026-002', 1, 1, 'III', 'Manana', 'Regular'),
+(1, 7, 'EST-DSI-2026-001', 1, 3, 'III', 'Noche', 'Regular'),
+(2, 8, 'EST-DSI-2026-002', 1, 3, 'III', 'Manana', 'Regular'),
 (3, 9, 'EST-CONT-2026-001', 2, 1, 'I', 'Noche', 'Regular')
 ON CONFLICT (id) DO UPDATE SET codigo_estudiante = EXCLUDED.codigo_estudiante;
 
