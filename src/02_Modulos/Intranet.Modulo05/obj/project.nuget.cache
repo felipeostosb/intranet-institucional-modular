@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "fJHl+LevX9Q=",
+  "success": true,
+  "projectFilePath": "C:\\Users\\Arias\\Videos\\intranet-institucional-modular\\src\\02_Modulos\\Intranet.Modulo05\\Intranet.Modulo05.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\Arias\\.nuget\\packages\\dapper\\2.1.35\\dapper.2.1.35.nupkg.sha512",
+    "C:\\Users\\Arias\\.nuget\\packages\\npgsql\\8.0.5\\npgsql.8.0.5.nupkg.sha512"
+  ],
+  "logs": []
+}
