@@ -30,6 +30,7 @@ public class AtencionMedicaItem
 public class MedicamentoItem
 {
     public int      Id               { get; set; }
+    public int      IdMedicamento    { get => Id; set => Id = value; }
     public string   Nombre           { get; set; } = string.Empty;
     public string   Presentacion     { get; set; } = string.Empty;
     public int      StockActual      { get; set; }
