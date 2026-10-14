@@ -308,7 +308,9 @@ INSERT INTO core.roles (id, nombre, descripcion) VALUES
 (7, 'Alumno', 'Estudiante de Carrera Profesional'),
 (8, 'Jefe Patrimonial', 'Jefatura Patrimonial de Almacén e Inventario (control total del inventario)'),
 (9, 'Coordinador de Carrera', 'Coordinador de carrera: gestiona los bienes y ambientes de SU carrera'),
-(10, 'OTIS', 'Oficina Técnica: mantenimiento, reparación y estado técnico de equipos')
+(10, 'OTIS', 'Oficina Técnica: mantenimiento, reparación y estado técnico de equipos'),
+(11, 'Enfermeria', 'Tópico/Enfermería: atenciones médicas, historial clínico y botica'),
+(12, 'Psicologia', 'Consultorio psicológico: citas, sesiones y expediente del alumno')
 ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre, descripcion = EXCLUDED.descripcion;
 
 SELECT setval('core.roles_id_seq', (SELECT MAX(id) FROM core.roles));
@@ -373,7 +375,9 @@ INSERT INTO core.personas (id, dni, nombres, apellidos, email_personal, telefono
 (13, '51000002', 'María',            'Torres Vega',          'maria.torres@iestpargentina.edu.pe',   '999510002', 'F'),
 (14, '51000003', 'Carlos',           'Huamán Ríos',          'carlos.huaman@iestpargentina.edu.pe', '999510003', 'M'),
 (15, '51000004', 'Rosa',             'Vargas Muñoz',         'rosa.vargas@iestpargentina.edu.pe',   '999510004', 'F'),
-(16, '51000005', 'Luis',             'Chávez Paredes',       'luis.chavez@iestpargentina.edu.pe',   '999510005', 'M')
+(16, '51000005', 'Luis',             'Chávez Paredes',       'luis.chavez@iestpargentina.edu.pe',   '999510005', 'M'),
+(17, '51000006', 'Lucía',            'Fernández Quispe',     'lucia.fernandez@iestpargentina.edu.pe', '999510006', 'F'),
+(18, '51000007', 'Andrés',           'Salazar Morales',      'andres.salazar@iestpargentina.edu.pe',  '999510007', 'M')
 ON CONFLICT (id) DO UPDATE SET dni = EXCLUDED.dni, nombres = EXCLUDED.nombres, apellidos = EXCLUDED.apellidos;
 
 -- Asegurar que Montero y Felipe existan por DNI aunque los IDs difieran
@@ -405,7 +409,9 @@ INSERT INTO core.usuarios (id, persona_id, codigo_institucional, email, password
 (13, 13, '51000002', 'jefe.esp.dsi@iestpargentina.edu.pe',  '123456', TRUE),
 (14, 14, '51000003', 'jefe.esp.cont@iestpargentina.edu.pe', '123456', TRUE),
 (15, 15, '51000004', 'jefe.esp.adm@iestpargentina.edu.pe',   '123456', TRUE),
-(16, 16, '51000005', 'otis@iestpargentina.edu.pe',           '123456', TRUE)
+(16, 16, '51000005', 'otis@iestpargentina.edu.pe',           '123456', TRUE),
+(17, 17, '51000006', 'enfermeria@iestpargentina.edu.pe',      '123456', TRUE),
+(18, 18, '51000007', 'psicologia@iestpargentina.edu.pe',      '123456', TRUE)
 ON CONFLICT (id) DO UPDATE SET
     codigo_institucional = EXCLUDED.codigo_institucional,
     email = EXCLUDED.email,
@@ -451,8 +457,27 @@ INSERT INTO core.usuario_roles (id, usuario_id, rol_id) VALUES
 (19, 13, 9),  -- Coordinador de Carrera: María Torres (DSI) 51000002
 (20, 14, 9),  -- Coordinador de Carrera: Carlos Huamán (CONT) 51000003
 (21, 15, 9),  -- Coordinador de Carrera: Rosa Vargas (ADM) 51000004
-(22, 16, 10)  -- OTIS: Luis Chávez 51000005
+(22, 16, 10),  -- OTIS: Luis Chávez 51000005
+(23, 17, 11),  -- Enfermería: Lucía Fernández 51000006
+(24, 18, 12)   -- Psicología: Andrés Salazar 51000007
 ON CONFLICT (id) DO NOTHING;
+
+-- Asegurar roles de Enfermería/Psicología por DNI (robusto contra ids diferentes en producción)
+INSERT INTO core.usuario_roles (usuario_id, rol_id)
+SELECT u.id, 11
+FROM core.usuarios u
+JOIN core.personas p ON p.id = u.persona_id
+WHERE p.dni = '51000006'
+ON CONFLICT DO NOTHING;
+
+INSERT INTO core.usuario_roles (usuario_id, rol_id)
+SELECT u.id, 12
+FROM core.usuarios u
+JOIN core.personas p ON p.id = u.persona_id
+WHERE p.dni = '51000007'
+ON CONFLICT DO NOTHING;
+
+SELECT setval('core.usuario_roles_id_seq', (SELECT MAX(id) FROM core.usuario_roles));
 
 -- Asegurar rol Docente para Montero (robusto contra id diferente en producción)
 INSERT INTO core.usuario_roles (usuario_id, rol_id)
