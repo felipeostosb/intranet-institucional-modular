@@ -367,7 +367,7 @@ INSERT INTO core.roles (id, nombre, descripcion) VALUES
 (6, 'Docente', 'Plana Docente'),
 (7, 'Alumno', 'Estudiante de Carrera Profesional'),
 (8, 'Jefe General', 'Jefatura General de Almacén e Inventario (control total del inventario)'),
-(9, 'Jefe de Especialidad', 'Jefe de carrera: gestiona los bienes y ambientes de SU especialidad'),
+(9, 'Coordinador de Carrera', 'Coordinador de carrera: gestiona los bienes y ambientes de SU carrera'),
 (10, 'OTIS', 'Oficina Técnica: mantenimiento, reparación y estado técnico de equipos')
 ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre, descripcion = EXCLUDED.descripcion;
 
@@ -468,9 +468,9 @@ INSERT INTO core.usuario_roles (id, usuario_id, rol_id) VALUES
 (10, 8, 7),
 (11, 9, 7),
 (12, 10, 8),   -- Jefe General: Jorge Ramírez 51000001
-(13, 11, 9),   -- Jefe de Especialidad: María Torres (DSI) 51000002
-(14, 12, 9),   -- Jefe de Especialidad: Carlos Huamán (CONT) 51000003
-(15, 13, 9),   -- Jefe de Especialidad: Rosa Vargas (ADM) 51000004
+(13, 11, 9),   -- Coordinador de Carrera: María Torres (DSI) 51000002
+(14, 12, 9),   -- Coordinador de Carrera: Carlos Huamán (CONT) 51000003
+(15, 13, 9),   -- Coordinador de Carrera: Rosa Vargas (ADM) 51000004
 (16, 14, 10)   -- OTIS: Luis Chávez 51000005
 ON CONFLICT (id) DO NOTHING;
 
@@ -498,9 +498,9 @@ INSERT INTO core.administrativos (id, persona_id, codigo_staff, cargo, area) VAL
 (1, 4, 'ADM-SEC-01', 'Secretaria Académica', 'Secretaría General'),
 (2, 5, 'ADM-TES-01', 'Jefa de Caja y Tesorería', 'Tesorería'),
 (3, 10, 'JEF-GRAL-01', 'Jefe General de Almacén e Inventario', 'Almacén e Inventario'),
-(4, 11, 'JEF-ESP-DSI', 'Jefe de Especialidad - DSI', 'Departamento Académico'),
-(5, 12, 'JEF-ESP-CONT', 'Jefe de Especialidad - Contabilidad', 'Departamento Académico'),
-(6, 13, 'JEF-ESP-ADM', 'Jefe de Especialidad - Administración', 'Departamento Académico'),
+(4, 11, 'JEF-ESP-DSI', 'Coordinador de Carrera - DSI', 'Departamento Académico'),
+(5, 12, 'JEF-ESP-CONT', 'Coordinador de Carrera - Contabilidad', 'Departamento Académico'),
+(6, 13, 'JEF-ESP-ADM', 'Coordinador de Carrera - Administración', 'Departamento Académico'),
 (7, 14, 'OTIS-01', 'Técnico OTIS', 'Oficina Técnica')
 ON CONFLICT (id) DO UPDATE SET codigo_staff = EXCLUDED.codigo_staff;
 
