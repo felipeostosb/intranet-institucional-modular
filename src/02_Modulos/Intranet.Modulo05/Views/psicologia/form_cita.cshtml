@@ -1,0 +1,607 @@
+@model List<Intranet.Modulo05.Models.CitaPsicologiaItem>
+@{
+    ViewData["Title"] = "Agendamiento de Citas Psicológicas";
+    var psicologos = ViewBag.Psicologos as List<Intranet.Modulo05.Models.PsicologoItemDto> ?? new List<Intranet.Modulo05.Models.PsicologoItemDto>();
+    var hoy = DateTime.Now.ToString("yyyy-MM-dd");
+}
+
+<style>
+    :root {
+        --psy-bg-card: #0c101c;
+        --psy-bg-input: #080c16;
+        --psy-bg-locked: #070a13;
+        --psy-border: rgba(255, 255, 255, 0.08);
+        --psy-border-focus: #818cf8;
+        --psy-primary: #6366f1;
+        --psy-primary-hover: #4f46e5;
+        --psy-primary-grad: linear-gradient(135deg, #6366f1, #8b5cf6);
+        --psy-text-title: #a5b4fc;
+        --psy-text-label: #94a3b8;
+        --psy-text-value: #f8fafc;
+        --psy-text-muted: #64748b;
+    }
+
+    .cita-container {
+        max-width: 1300px;
+        margin: 0 auto 3rem auto;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    .cita-card {
+        background-color: var(--psy-bg-card);
+        border: 1px solid var(--psy-border);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+        color: #fff;
+    }
+
+    .cita-section-title {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        font-size: 0.82rem;
+        font-weight: 800;
+        letter-spacing: 1.2px;
+        color: var(--psy-text-title);
+        text-transform: uppercase;
+        margin-bottom: 1.25rem;
+    }
+
+    .cita-field-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 1.2rem;
+    }
+
+    .cita-field-label {
+        font-size: 0.74rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--psy-text-label);
+        margin-bottom: 0.45rem;
+    }
+
+    .cita-input-box {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .cita-input {
+        width: 100%;
+        background-color: var(--psy-bg-input);
+        border: 1px solid var(--psy-border);
+        border-radius: 9px;
+        padding: 0.65rem 0.9rem;
+        color: var(--psy-text-value);
+        font-size: 0.88rem;
+        font-weight: 500;
+        transition: all 0.2s ease;
+        outline: none;
+        box-sizing: border-box;
+    }
+
+    .cita-input:focus {
+        border-color: var(--psy-border-focus);
+        box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.25);
+    }
+
+    .cita-input[readonly] {
+        background-color: var(--psy-bg-locked);
+        color: #cbd5e1;
+        cursor: not-allowed;
+    }
+
+    .cita-select {
+        width: 100%;
+        background-color: var(--psy-bg-input);
+        border: 1px solid var(--psy-border);
+        border-radius: 9px;
+        padding: 0.65rem 0.9rem;
+        color: var(--psy-text-value);
+        font-size: 0.88rem;
+        outline: none;
+        cursor: pointer;
+    }
+
+    .cita-select option {
+        background-color: #0d1222;
+        color: #fff;
+    }
+
+    .cita-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        padding: 0.7rem 1.4rem;
+        border-radius: 9px;
+        font-size: 0.88rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        border: none;
+        text-decoration: none;
+    }
+
+    .cita-btn-primary {
+        background: var(--psy-primary-grad);
+        color: #fff;
+        box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+    }
+
+    .cita-btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 20px rgba(99, 102, 241, 0.45);
+    }
+
+    .cita-btn-outline {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--psy-border);
+        color: #cbd5e1;
+    }
+
+    .cita-btn-outline:hover {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+    }
+
+    .badge-estado {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.3rem 0.65rem;
+        border-radius: 6px;
+        font-size: 0.74rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-programada {
+        background: rgba(99, 102, 241, 0.18);
+        color: #a5b4fc;
+        border: 1px solid rgba(99, 102, 241, 0.35);
+    }
+
+    .badge-confirmada {
+        background: rgba(16, 185, 129, 0.18);
+        color: #34d399;
+        border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .badge-atendida {
+        background: rgba(59, 130, 246, 0.18);
+        color: #60a5fa;
+        border: 1px solid rgba(59, 130, 246, 0.35);
+    }
+
+    .badge-cancelada {
+        background: rgba(239, 68, 68, 0.18);
+        color: #f87171;
+        border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+
+    .badge-no-asistio {
+        background: rgba(245, 158, 11, 0.18);
+        color: #fbbf24;
+        border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+
+    .table-citas {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 0.85rem;
+        text-align: left;
+    }
+
+    .table-citas th {
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--psy-text-title);
+        padding: 0.85rem 1rem;
+        font-size: 0.72rem;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        font-weight: 800;
+        border-bottom: 1px solid var(--psy-border);
+    }
+
+    .table-citas td {
+        padding: 0.85rem 1rem;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        vertical-align: middle;
+    }
+
+    .table-citas tr:hover td {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .grid-form {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 2rem;
+    }
+
+    @@media (max-width: 992px) {
+        .grid-form {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<div class="cita-container">
+    <!-- Header del Módulo y Acciones -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.75rem; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
+                <span style="font-size: 0.75rem; font-weight: 800; background: rgba(99, 102, 241, 0.2); color: #a5b4fc; padding: 0.2rem 0.6rem; border-radius: 6px; border: 1px solid rgba(99, 102, 241, 0.3);">
+                    MÓDULO 05
+                </span>
+                <span style="font-size: 0.75rem; font-weight: 700; color: #94a3b8;">BIENESTAR ESTUDIANTIL</span>
+            </div>
+            <h1 style="font-size: 1.85rem; font-weight: 800; background: linear-gradient(90deg, #a5b4fc, #c084fc); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin: 0;">
+                📅 Agendamiento de Citas Psicológicas
+            </h1>
+            <p style="color: var(--psy-text-muted); font-size: 0.86rem; margin: 0.3rem 0 0 0;">
+                Programa citas de orientación emocional (bloques de 30 minutos acoplados a <code style="color: #a5b4fc;">mod05.citas_psicologia</code>).
+            </p>
+        </div>
+        <div style="display: flex; gap: 0.75rem;">
+            <a href="/Modulo05/Psicologia/Panel" class="cita-btn cita-btn-outline">
+                <i class="ph-bold ph-arrow-left"></i> Volver al Panel
+            </a>
+            <a href="/Modulo05/Psicologia/FormSesion" class="cita-btn cita-btn-outline">
+                <i class="ph-bold ph-notebook"></i> Registro de Sesión
+            </a>
+            <a href="/Modulo05/Psicologia/ExpedienteAlumno" class="cita-btn cita-btn-outline">
+                <i class="ph-bold ph-folder"></i> Expediente
+            </a>
+        </div>
+    </div>
+
+    <!-- Contenido Principal: Formulario + Próximas Citas -->
+    <div class="grid-form">
+        <!-- Columna Izquierda: Formulario de Nueva Cita -->
+        <div class="cita-card">
+            <div class="cita-section-title">
+                <i class="ph-bold ph-calendar-plus" style="font-size: 1.15rem; color: #818cf8;"></i>
+                <span>Nueva Cita de Orientación</span>
+            </div>
+
+            <form id="formAgendarCita">
+                @Html.AntiForgeryToken()
+
+                <!-- Búsqueda rápida por DNI -->
+                <div style="background: rgba(99, 102, 241, 0.08); border: 1px solid rgba(99, 102, 241, 0.25); border-radius: 12px; padding: 1rem; margin-bottom: 1.5rem;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                        <span style="font-size: 0.75rem; font-weight: 800; color: #a5b4fc; text-transform: uppercase;">
+                            🔍 Autocompletar Estudiante (Opcional)
+                        </span>
+                        <span id="txtEstadoBusqueda" style="font-size: 0.75rem; color: #94a3b8;">Ingrese DNI para cargar datos</span>
+                    </div>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="busquedaDni" maxlength="15" placeholder="Ingrese DNI (ej: 72849102)" class="cita-input" style="flex: 1;" />
+                        <button type="button" id="btnBuscarDni" class="cita-btn cita-btn-primary" style="padding: 0.65rem 1.1rem; font-size: 0.82rem;">
+                            Buscar
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Datos del Solicitante -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="cita-field-group">
+                        <label class="cita-field-label">Nombres <span style="color: #f87171;">*</span></label>
+                        <input type="text" id="nombres" name="Nombres" required maxlength="100" placeholder="Nombres del alumno" class="cita-input" />
+                    </div>
+                    <div class="cita-field-group">
+                        <label class="cita-field-label">Apellidos <span style="color: #f87171;">*</span></label>
+                        <input type="text" id="apellidos" name="Apellidos" required maxlength="100" placeholder="Apellidos del alumno" class="cita-input" />
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1.3fr 1fr; gap: 1rem;">
+                    <div class="cita-field-group">
+                        <label class="cita-field-label">Correo Electrónico <span style="color: #f87171;">*</span></label>
+                        <input type="email" id="email" name="Email" required maxlength="150" placeholder="estudiante@iestpargentina.edu.pe" class="cita-input" />
+                        <span style="font-size: 0.7rem; color: var(--psy-text-muted); margin-top: 0.25rem;">
+                            Se vincula automáticamente a <code>core.personas</code> vía correo.
+                        </span>
+                    </div>
+                    <div class="cita-field-group">
+                        <label class="cita-field-label">DNI / Documento</label>
+                        <input type="text" id="dni" name="Dni" maxlength="20" placeholder="DNI del estudiante" class="cita-input" />
+                    </div>
+                </div>
+
+                <!-- Programación de Fecha y Hora -->
+                <div style="display: grid; grid-template-columns: 1.1fr 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                    <div class="cita-field-group">
+                        <label class="cita-field-label">Fecha de Cita <span style="color: #f87171;">*</span></label>
+                        <input type="date" id="fechaCita" name="Fecha" required value="@hoy" min="@hoy" class="cita-input" />
+                    </div>
+                    <div class="cita-field-group">
+                        <label class="cita-field-label">Hora Inicio <span style="color: #f87171;">*</span></label>
+                        <input type="time" id="horaInicio" name="HoraInicio" required value="09:00" step="1800" class="cita-input" />
+                    </div>
+                    <div class="cita-field-group">
+                        <label class="cita-field-label">Duración</label>
+                        <select id="duracionMinutos" name="DuracionMinutos" class="cita-select">
+                            <option value="30" selected>30 min (Estándar)</option>
+                            <option value="45">45 min</option>
+                            <option value="60">60 min</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Origen y Psicólogo Asignado -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="cita-field-group">
+                        <label class="cita-field-label">Origen de la Cita</label>
+                        <select id="origen" name="Origen" class="cita-select">
+                            <option value="Sistema" selected>💻 Sistema / Intranet</option>
+                            <option value="Presencial">🏫 Presencial / Tópico</option>
+                            <option value="Google Calendar">📅 Google Calendar</option>
+                        </select>
+                    </div>
+                    <div class="cita-field-group">
+                        <label class="cita-field-label">Psicólogo Asignado</label>
+                        <select id="psicologoId" name="PsicologoId" class="cita-select">
+                            <option value="">-- Asignación Automática / Actual --</option>
+                            @foreach (var ps in psicologos)
+                            {
+                                <option value="@ps.UsuarioId">@ps.NombreCompleto</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Motivo de la Cita -->
+                <div class="cita-field-group">
+                    <label class="cita-field-label">Motivo de la Cita / Consulta</label>
+                    <div style="display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 0.5rem;">
+                        <button type="button" class="btn-quick-motivo cita-btn cita-btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.72rem;" data-motivo="Orientación vocacional y plan de vida">Vocacional</button>
+                        <button type="button" class="btn-quick-motivo cita-btn cita-btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.72rem;" data-motivo="Manejo de estrés académico y ansiedad">Ansiedad/Estrés</button>
+                        <button type="button" class="btn-quick-motivo cita-btn cita-btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.72rem;" data-motivo="Bajo rendimiento y dificultades de aprendizaje">Académico</button>
+                        <button type="button" class="btn-quick-motivo cita-btn cita-btn-outline" style="padding: 0.25rem 0.6rem; font-size: 0.72rem;" data-motivo="Apoyo socioemocional y familiar">Socioemocional</button>
+                    </div>
+                    <textarea id="motivo" name="Motivo" rows="2" maxlength="250" placeholder="Detalle breve del motivo de la cita (máx 250 caracteres)..." class="cita-input" style="resize: vertical;"></textarea>
+                </div>
+
+                <!-- Botón Submit -->
+                <div style="display: flex; justify-content: flex-end; gap: 0.75rem; margin-top: 1.5rem;">
+                    <button type="reset" class="cita-btn cita-btn-outline">
+                        Limpiar
+                    </button>
+                    <button type="submit" id="btnGuardarCita" class="cita-btn cita-btn-primary">
+                        <i class="ph-bold ph-check"></i> Agendar Cita
+                    </button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Columna Derecha: Próximas Citas y Reglas de Agenda -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            <!-- Tarjeta Informativa de Reglas -->
+            <div class="cita-card" style="padding: 1.5rem; background: linear-gradient(145deg, #0e1424, #131b30); border-left: 4px solid #6366f1;">
+                <div style="display: flex; align-items: flex-start; gap: 0.85rem;">
+                    <div style="width: 36px; height: 36px; border-radius: 8px; background: rgba(99, 102, 241, 0.2); color: #a5b4fc; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; shrink-0;">
+                        <i class="ph-bold ph-shield-check"></i>
+                    </div>
+                    <div>
+                        <h4 style="margin: 0 0 0.35rem 0; font-size: 0.92rem; font-weight: 700; color: #fff;">Reglas de la Agenda Psicológica</h4>
+                        <p style="margin: 0; font-size: 0.78rem; color: #94a3b8; line-height: 1.45;">
+                            • Cada cita tiene una duración predeterminada de <strong>30 minutos</strong>.<br />
+                            • No se permite solapamiento: el sistema valida el índice <code style="color: #a5b4fc;">uq_cita_franja_activa</code> para evitar citas duplicadas en el mismo horario.<br />
+                            • Al guardar, la cita se registra en estado <strong>Programada</strong>.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Listado de Citas Agendadas -->
+            <div class="cita-card" style="padding: 1.5rem; flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem;">
+                    <div class="cita-section-title" style="margin-bottom: 0;">
+                        <i class="ph-bold ph-clock-countdown" style="font-size: 1.15rem; color: #a855f7;"></i>
+                        <span>Citas Recientes y Próximas</span>
+                    </div>
+                    <span style="font-size: 0.75rem; color: var(--psy-text-muted);">
+                        Total: <strong>@(Model?.Count ?? 0)</strong>
+                    </span>
+                </div>
+
+                @if (Model != null && Model.Any())
+                {
+                    <div style="overflow-x: auto; max-height: 480px; overflow-y: auto;">
+                        <table class="table-citas">
+                            <thead>
+                                <tr>
+                                    <th>Horario</th>
+                                    <th>Estudiante</th>
+                                    <th>Motivo</th>
+                                    <th>Estado</th>
+                                    <th style="text-align: center;">Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var c in Model)
+                                {
+                                    var badgeClass = c.Estado switch
+                                    {
+                                        "Confirmada" => "badge-confirmada",
+                                        "Atendida" => "badge-atendida",
+                                        "Cancelada" => "badge-cancelada",
+                                        "No asistió" => "badge-no-asistio",
+                                        _ => "badge-programada"
+                                    };
+
+                                    <tr>
+                                        <td>
+                                            <div style="font-weight: 700; color: #fff;">
+                                                @c.Inicio.ToLocalTime().ToString("dd/MM/yyyy")
+                                            </div>
+                                            <div style="font-size: 0.75rem; color: #818cf8;">
+                                                @c.Inicio.ToLocalTime().ToString("hh:mm tt") - @c.Fin.ToLocalTime().ToString("hh:mm tt")
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <div style="font-weight: 600; color: #f1f5f9;">@c.NombreCompleto</div>
+                                            <div style="font-size: 0.72rem; color: var(--psy-text-muted);">@c.Email</div>
+                                        </td>
+                                        <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="@c.Motivo">
+                                            @(string.IsNullOrWhiteSpace(c.Motivo) ? "Consulta general" : c.Motivo)
+                                        </td>
+                                        <td>
+                                            <span class="badge-estado @badgeClass">@c.Estado</span>
+                                        </td>
+                                        <td style="text-align: center;">
+                                            @if (c.Estado == "Programada" || c.Estado == "Confirmada")
+                                            {
+                                                <button type="button" class="btn-cancelar-cita" data-id="@c.Id" data-nombre="@c.NombreCompleto" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; padding: 0.3rem 0.5rem; font-size: 0.72rem; cursor: pointer;" title="Cancelar cita">
+                                                    <i class="ph-bold ph-x"></i>
+                                                </button>
+                                            }
+                                            else
+                                            {
+                                                <span style="color: var(--psy-text-muted); font-size: 0.75rem;">—</span>
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                else
+                {
+                    <div style="text-align: center; padding: 3rem 1rem; color: var(--psy-text-muted);">
+                        <i class="ph-bold ph-calendar-x" style="font-size: 2.5rem; color: #475569; display: block; margin-bottom: 0.75rem;"></i>
+                        <p style="margin: 0; font-size: 0.9rem;">No se encontraron citas agendadas aún.</p>
+                        <p style="margin: 0.3rem 0 0 0; font-size: 0.75rem;">Usa el formulario para registrar la primera cita.</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('formAgendarCita');
+        const btnGuardar = document.getElementById('btnGuardarCita');
+        const btnBuscar = document.getElementById('btnBuscarDni');
+        const inputDni = document.getElementById('busquedaDni');
+        const txtEstado = document.getElementById('txtEstadoBusqueda');
+
+        // Búsqueda rápida por DNI
+        btnBuscar.addEventListener('click', async function () {
+            const dniVal = inputDni.value.trim();
+            if (!dniVal) {
+                txtEstado.textContent = 'Ingrese un DNI primero';
+                txtEstado.style.color = '#f87171';
+                return;
+            }
+
+            txtEstado.textContent = 'Buscando en core...';
+            txtEstado.style.color = '#818cf8';
+
+            try {
+                const res = await fetch(`/Modulo05/Psicologia/BuscarEstudianteParaCita?dni=${encodeURIComponent(dniVal)}`);
+                const data = await res.json();
+
+                if (data.success) {
+                    document.getElementById('nombres').value = data.nombres || '';
+                    document.getElementById('apellidos').value = data.apellidos || '';
+                    document.getElementById('email').value = data.email || '';
+                    document.getElementById('dni').value = data.dni || dniVal;
+
+                    txtEstado.textContent = `✓ ${data.nombres} ${data.apellidos} (${data.carrera})`;
+                    txtEstado.style.color = '#34d399';
+                } else {
+                    txtEstado.textContent = data.message || 'No encontrado. Complete los campos manualmente.';
+                    txtEstado.style.color = '#fbbf24';
+                    document.getElementById('dni').value = dniVal;
+                }
+            } catch (err) {
+                txtEstado.textContent = 'Error al consultar datos';
+                txtEstado.style.color = '#f87171';
+            }
+        });
+
+        // Botones rápidos de motivo
+        document.querySelectorAll('.btn-quick-motivo').forEach(btn => {
+            btn.addEventListener('click', function () {
+                const motivoInput = document.getElementById('motivo');
+                motivoInput.value = this.dataset.motivo;
+                motivoInput.focus();
+            });
+        });
+
+        // Envío AJAX del formulario
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            btnGuardar.disabled = true;
+            btnGuardar.innerHTML = '<i class="ph-bold ph-spinner" style="animation: spin 1s linear infinite;"></i> Agendando...';
+
+            const formData = new FormData(form);
+
+            try {
+                const resp = await fetch('/Modulo05/Psicologia/GuardarCita', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const json = await resp.json();
+
+                if (json.success) {
+                    alert(json.message || '¡Cita agendada exitosamente!');
+                    window.location.reload();
+                } else {
+                    alert('Atención: ' + (json.message || 'No se pudo agendar la cita.'));
+                }
+            } catch (err) {
+                alert('Error al comunicar con el servidor: ' + err.message);
+            } finally {
+                btnGuardar.disabled = false;
+                btnGuardar.innerHTML = '<i class="ph-bold ph-check"></i> Agendar Cita';
+            }
+        });
+
+        // Cancelar Cita
+        document.querySelectorAll('.btn-cancelar-cita').forEach(btn => {
+            btn.addEventListener('click', async function () {
+                const id = this.dataset.id;
+                const nombre = this.dataset.nombre;
+
+                const motivo = prompt(`¿Desea cancelar la cita de ${nombre}?\nIngrese el motivo de cancelación:`);
+                if (motivo === null) return;
+
+                const token = document.querySelector('input[name="__RequestVerificationToken"]')?.value || '';
+                const formCancel = new FormData();
+                formCancel.append('id', id);
+                formCancel.append('motivoCancelacion', motivo);
+                formCancel.append('__RequestVerificationToken', token);
+
+                try {
+                    const resp = await fetch('/Modulo05/Psicologia/CancelarCita', {
+                        method: 'POST',
+                        body: formCancel
+                    });
+
+                    const json = await resp.json();
+                    if (json.success) {
+                        alert(json.message);
+                        window.location.reload();
+                    } else {
+                        alert(json.message || 'No se pudo cancelar la cita.');
+                    }
+                } catch (err) {
+                    alert('Error: ' + err.message);
+                }
+            });
+        });
+    });
+</script>

@@ -194,4 +194,273 @@ public class PsicologiaController : ModuloBaseController
             return Json(new { success = false, message = "Error al consultar historial: " + ex.Message });
         }
     }
+
+    // =========================================================================
+    // GESTIÓN DE CITAS PSICOLÓGICAS (mod05.citas_psicologia)
+    // =========================================================================
+
+    // GET: /Modulo05/Psicologia/Citas   o   /Modulo05/Psicologia/FormCita
+    [HttpGet("Citas")]
+    [HttpGet("FormCita")]
+    [HttpGet("AgendarCita")]
+    public async Task<IActionResult> Citas()
+    {
+        ViewData["Title"]         = "Agendamiento de Citas Psicológicas";
+        ViewData["UsuarioNombre"] = UsuarioActualNombre;
+        ViewData["UsuarioRol"]    = UsuarioActualRol;
+        ViewData["RolesUsuario"]  = User.FindFirst("ActiveRole")?.Value ?? UsuarioActualRol;
+
+        var citas = new List<CitaPsicologiaItem>();
+        var psicologos = new List<PsicologoItemDto>();
+
+        try
+        {
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+
+            citas = (await conn.QueryAsync<CitaPsicologiaItem>(
+                @"SELECT c.id AS Id, c.persona_id AS PersonaId, c.nombres AS Nombres, c.apellidos AS Apellidos,
+                         c.email AS Email, c.inicio AS Inicio, c.fin AS Fin, c.motivo AS Motivo,
+                         c.estado AS Estado, c.origen AS Origen, c.google_event_id AS GoogleEventId,
+                         c.psicologo_id AS PsicologoId, c.motivo_cancelacion AS MotivoCancelacion,
+                         c.creado_en AS CreadoEn,
+                         p.dni AS Dni,
+                         CONCAT(pp.nombres, ' ', pp.apellidos) AS PsicologoNombre
+                  FROM mod05.citas_psicologia c
+                  LEFT JOIN core.personas p ON c.persona_id = p.id
+                  LEFT JOIN core.usuarios u ON c.psicologo_id = u.id
+                  LEFT JOIN core.personas pp ON u.persona_id = pp.id
+                  ORDER BY c.inicio DESC
+                  LIMIT 50")).AsList();
+
+            psicologos = (await conn.QueryAsync<PsicologoItemDto>(
+                @"SELECT u.id AS UsuarioId,
+                         CONCAT(p.nombres, ' ', p.apellidos) AS NombreCompleto,
+                         u.email AS Email
+                  FROM core.usuarios u
+                  JOIN core.personas p ON u.persona_id = p.id
+                  WHERE u.estado = TRUE
+                  ORDER BY p.apellidos, p.nombres
+                  LIMIT 20")).AsList();
+        }
+        catch (Exception ex)
+        {
+            ViewBag.ErrorMessage = "Nota de base de datos: " + ex.Message;
+        }
+
+        ViewBag.Psicologos = psicologos;
+        return View("~/Views/psicologia/form_cita.cshtml", citas);
+    }
+
+    // POST: /Modulo05/Psicologia/GuardarCita
+    [HttpPost("GuardarCita")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> GuardarCita(RegistrarCitaInputDto input)
+    {
+        if (input == null)
+            return Json(new { success = false, message = "Datos del formulario no recibidos." });
+
+        if (string.IsNullOrWhiteSpace(input.Nombres))
+            return Json(new { success = false, message = "El nombre del estudiante es obligatorio." });
+        if (string.IsNullOrWhiteSpace(input.Apellidos))
+            return Json(new { success = false, message = "Los apellidos del estudiante son obligatorios." });
+        if (string.IsNullOrWhiteSpace(input.Email))
+            return Json(new { success = false, message = "El correo electrónico es obligatorio." });
+        if (string.IsNullOrWhiteSpace(input.Fecha) || string.IsNullOrWhiteSpace(input.HoraInicio))
+            return Json(new { success = false, message = "La fecha y hora de la cita son obligatorias." });
+
+        if (!DateTime.TryParse($"{input.Fecha.Trim()} {input.HoraInicio.Trim()}", out var fechaHoraInicio))
+            return Json(new { success = false, message = "La fecha u hora ingresada no tienen un formato válido." });
+
+        var inicioUtc = DateTime.SpecifyKind(fechaHoraInicio, DateTimeKind.Utc);
+        int duracion = input.DuracionMinutos > 0 ? input.DuracionMinutos : 30;
+        var finUtc = inicioUtc.AddMinutes(duracion);
+
+        try
+        {
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+
+            // Validar si ya existe una cita activa en ese mismo bloque (índice único uq_cita_franja_activa)
+            var existeConflicto = await conn.ExecuteScalarAsync<bool>(
+                @"SELECT EXISTS (
+                    SELECT 1 FROM mod05.citas_psicologia
+                    WHERE inicio = @inicioUtc AND estado IN ('Programada', 'Confirmada')
+                  )",
+                new { inicioUtc });
+
+            if (existeConflicto)
+            {
+                return Json(new
+                {
+                    success = false,
+                    message = "El horario seleccionado ya se encuentra ocupado por otra cita activa. Por favor seleccione otro bloque o fecha."
+                });
+            }
+
+            // Buscar persona_id por DNI o correo
+            int? personaId = null;
+            if (!string.IsNullOrWhiteSpace(input.Dni))
+            {
+                personaId = await conn.ExecuteScalarAsync<int?>(
+                    "SELECT id FROM core.personas WHERE dni = @dni LIMIT 1",
+                    new { dni = input.Dni.Trim() });
+            }
+            if (personaId == null)
+            {
+                personaId = await conn.ExecuteScalarAsync<int?>(
+                    @"SELECT u.persona_id FROM core.usuarios u
+                      WHERE lower(u.email) = lower(@email) LIMIT 1",
+                    new { email = input.Email.Trim() });
+            }
+
+            string origen = string.IsNullOrWhiteSpace(input.Origen) ? "Sistema" : input.Origen.Trim();
+            if (origen != "Google Calendar" && origen != "Presencial" && origen != "Sistema")
+                origen = "Sistema";
+
+            int? psicologoId = input.PsicologoId.HasValue && input.PsicologoId > 0
+                ? input.PsicologoId
+                : UsuarioActualId;
+
+            int nuevoId = await conn.ExecuteScalarAsync<int>(
+                @"INSERT INTO mod05.citas_psicologia
+                    (persona_id, nombres, apellidos, email, inicio, fin, motivo, estado, origen, psicologo_id, creado_en)
+                  VALUES
+                    (@personaId, @nombres, @apellidos, @email, @inicioUtc, @finUtc, @motivo, 'Programada', @origen, @psicologoId, CURRENT_TIMESTAMP)
+                  RETURNING id",
+                new
+                {
+                    personaId,
+                    nombres = input.Nombres.Trim(),
+                    apellidos = input.Apellidos.Trim(),
+                    email = input.Email.Trim(),
+                    inicioUtc,
+                    finUtc,
+                    motivo = string.IsNullOrWhiteSpace(input.Motivo) ? null : input.Motivo.Trim(),
+                    origen,
+                    psicologoId
+                });
+
+            MostrarAlertaExito("¡Cita agendada exitosamente!");
+            return Json(new
+            {
+                success = true,
+                id = nuevoId,
+                message = $"¡Cita #{nuevoId} agendada exitosamente para {input.Nombres} {input.Apellidos}!"
+            });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "Error al agendar cita: " + ex.Message });
+        }
+    }
+
+    // POST: /Modulo05/Psicologia/CancelarCita
+    [HttpPost("CancelarCita")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CancelarCita(int id, string? motivoCancelacion)
+    {
+        if (id <= 0)
+            return Json(new { success = false, message = "ID de cita inválido." });
+
+        try
+        {
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+
+            int affected = await conn.ExecuteAsync(
+                @"UPDATE mod05.citas_psicologia
+                  SET estado = 'Cancelada',
+                      motivo_cancelacion = @motivo
+                  WHERE id = @id",
+                new { id, motivo = string.IsNullOrWhiteSpace(motivoCancelacion) ? "Cancelado por el usuario" : motivoCancelacion.Trim() });
+
+            if (affected > 0)
+                return Json(new { success = true, message = "La cita fue cancelada correctamente." });
+
+            return Json(new { success = false, message = "No se encontró la cita especificada." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "Error al cancelar cita: " + ex.Message });
+        }
+    }
+
+    // POST: /Modulo05/Psicologia/CambiarEstadoCita
+    [HttpPost("CambiarEstadoCita")]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> CambiarEstadoCita(int id, string nuevoEstado)
+    {
+        if (id <= 0 || string.IsNullOrWhiteSpace(nuevoEstado))
+            return Json(new { success = false, message = "Parámetros inválidos." });
+
+        var estadosValidos = new[] { "Programada", "Confirmada", "Atendida", "Cancelada", "No asistió" };
+        if (!estadosValidos.Contains(nuevoEstado))
+            return Json(new { success = false, message = "Estado no permitido." });
+
+        try
+        {
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+
+            int affected = await conn.ExecuteAsync(
+                "UPDATE mod05.citas_psicologia SET estado = @nuevoEstado WHERE id = @id",
+                new { id, nuevoEstado });
+
+            if (affected > 0)
+                return Json(new { success = true, message = $"Estado de la cita actualizado a '{nuevoEstado}'." });
+
+            return Json(new { success = false, message = "No se encontró la cita especificada." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "Error al actualizar estado: " + ex.Message });
+        }
+    }
+
+    // GET: /Modulo05/Psicologia/BuscarEstudianteParaCita?dni=...
+    [HttpGet("BuscarEstudianteParaCita")]
+    public async Task<IActionResult> BuscarEstudianteParaCita(string dni)
+    {
+        if (string.IsNullOrWhiteSpace(dni))
+            return Json(new { success = false, message = "DNI no proporcionado." });
+
+        try
+        {
+            var fabrica = HttpContext.RequestServices.GetRequiredService<IModuleDbConnectionFactory>();
+            using var conn = fabrica.CreateConnection("05");
+
+            var datos = await conn.QueryFirstOrDefaultAsync(
+                @"SELECT p.id AS PersonaId, p.dni, p.nombres, p.apellidos,
+                         COALESCE(u.email, p.email_personal, CONCAT(lower(replace(p.dni, ' ', '')), '@iestpargentina.edu.pe')) AS email,
+                         c.nombre AS Carrera
+                  FROM core.personas p
+                  LEFT JOIN core.usuarios u ON u.persona_id = p.id
+                  LEFT JOIN core.estudiantes e ON e.persona_id = p.id
+                  LEFT JOIN core.carreras c ON c.id = e.carrera_id
+                  WHERE p.dni = @dni
+                  LIMIT 1",
+                new { dni = dni.Trim() });
+
+            if (datos != null)
+            {
+                return Json(new
+                {
+                    success = true,
+                    personaId = (int)datos.personaid,
+                    dni = (string)datos.dni,
+                    nombres = (string)datos.nombres,
+                    apellidos = (string)datos.apellidos,
+                    email = (string)datos.email,
+                    carrera = (string)(datos.carrera ?? "Estudiante General")
+                });
+            }
+
+            return Json(new { success = false, message = $"No se encontró registro con el DNI {dni}." });
+        }
+        catch (Exception ex)
+        {
+            return Json(new { success = false, message = "Error al buscar estudiante: " + ex.Message });
+        }
+    }
 }
