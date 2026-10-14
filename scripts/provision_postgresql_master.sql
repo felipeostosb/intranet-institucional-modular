@@ -489,8 +489,8 @@ SELECT setval('core.usuario_roles_id_seq', (SELECT MAX(id) FROM core.usuario_rol
 
 -- Estudiantes
 INSERT INTO core.estudiantes (id, persona_id, codigo_estudiante, carrera_id, periodo_ingreso_id, ciclo_actual, turno, condicion) VALUES
-(1, 7, 'EST-DSI-2026-001', 1, 3, 'III', 'Noche', 'Regular'),
-(2, 8, 'EST-DSI-2026-002', 1, 3, 'III', 'Manana', 'Regular'),
+(1, 7, 'EST-DSI-2026-001', 1, 3, 'IV', 'Noche', 'Regular'),
+(2, 8, 'EST-DSI-2026-002', 1, 3, 'IV', 'Manana', 'Regular'),
 (3, 9, 'EST-CONT-2026-001', 2, 1, 'I', 'Noche', 'Regular')
 ON CONFLICT (id) DO UPDATE SET codigo_estudiante = EXCLUDED.codigo_estudiante;
 
