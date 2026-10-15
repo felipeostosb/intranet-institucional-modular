@@ -28,4 +28,11 @@ public abstract class Modulo09BaseController : ModuloBaseController
     public new bool EsSecretaria => EsAdmin || UsuarioActualRol.Equals("Secretaria", StringComparison.OrdinalIgnoreCase);
     public new bool EsTesoreria => EsAdmin || UsuarioActualRol.Equals("Tesoreria", StringComparison.OrdinalIgnoreCase);
     public new bool EsAlumno => UsuarioActualRol.Equals("Alumno", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// ¿El rol ACTIVO tiene funciones en este módulo? Decide la puerta de entrada:
+    /// un rol fuera de la lista recibe la vista SinAcceso (antes un Docente por URL
+    /// directa veía la Mesa de trámites completa de todos los alumnos — fuga E2E).
+    /// </summary>
+    public bool AccedeAlModulo => EsAlumno || EsSecretaria || EsTesoreria || EsDirector || EsAdmin;
 }

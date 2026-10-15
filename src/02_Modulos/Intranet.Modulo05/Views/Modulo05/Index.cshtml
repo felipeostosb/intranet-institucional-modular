@@ -1,8 +1,22 @@
 @{
     ViewData["Title"] = "05. Incidencias & Requerimientos";
+    var rol = ViewData["RolesUsuario"] as string ?? "";
 }
 
 <div class="space-y-6">
+    <!-- Tabs del módulo (patrón estándar de la intranet) -->
+    <div class="tabs-modulo flex flex-wrap gap-1.5 mb-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl p-1.5 w-fit" data-modulo="05">
+        <a href="/Modulo05" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition">Resumen</a>
+        <a href="/Modulo05/Enfermeria/FormAtencion" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Admin,Director,Coordinador">🩺 Tópico</a>
+        <a href="/Modulo05/Enfermeria/HistorialPaciente" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Admin,Director,Coordinador">📋 Historial Clínico</a>
+        <a href="/Modulo05/Psicologia/FormSesion" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Admin,Director,Coordinador">🧠 Psicología</a>
+        <a href="/Modulo05/Psicologia/ExpedienteAlumno" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Admin,Director,Coordinador">📁 Expediente</a>
+        <a href="/Modulo05/Soporte/Consola" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Admin,Director,Coordinador">💻 Soporte TI</a>
+        <a href="/Modulo05/Soporte/HistorialEquipos" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Admin,Director,Coordinador">🖥️ Equipos</a>
+        <a href="/Modulo05/AveriaDocente/Reporte" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Docente,Admin,Director,Coordinador">⚠️ Reportar Avería</a>
+        <a href="/Modulo05/AveriaDocente/MisReportes" class="tab-link px-4 py-2 rounded-xl text-xs font-bold transition" data-solo-rol="Docente,Admin,Director">📝 Mis Reportes</a>
+    </div>
+
     <!-- Header Zen del Módulo -->
     <div class="bg-white dark:bg-[#111827] rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-4">
@@ -15,17 +29,16 @@
                     <span class="text-xs font-bold text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/40 px-2 py-0.5 rounded-md border border-purple-200 dark:border-purple-800">🗄️ Responsable BD: Oliva</span>
                 </div>
                 <h1 class="text-lg sm:text-xl font-black text-slate-900 dark:text-slate-100 tracking-tight">
-                    Incidencias & Requerimientos TI
+                    Incidencias &amp; Requerimientos TI
                 </h1>
                 <p class="text-xs text-slate-500 dark:text-slate-400">
                     Mesa de ayuda técnica, gestión de tickets de soporte, incidencias de red, equipos y requerimientos.
                 </p>
             </div>
         </div>
-        <div class="flex gap-2">
-            <button class="btn btn-primary btn-sm rounded-xl text-xs font-bold" onclick="modal_nuevo_05.showModal()">
-                + Nuevo Ticket
-            </button>
+        <div class="flex flex-wrap gap-2">
+            <a href="/Modulo05/Soporte/Consola" class="btn btn-primary btn-sm rounded-xl text-xs font-bold shadow-sm">💻 Soporte TI</a>
+            <a href="/Modulo05/AveriaDocente/Reporte" class="btn btn-outline btn-sm rounded-xl text-xs font-semibold">⚠️ Reportar Avería <span aria-hidden="true">↗</span></a>
         </div>
     </div>
 
@@ -33,16 +46,16 @@
     <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Tickets Abiertos</span>
-            <div class="text-xl font-bold text-purple-600 dark:text-purple-400 mt-1">14</div>
+            <div class="text-xl font-bold text-purple-600 dark:text-purple-400 mt-1">—</div>
             <p class="text-[10px] text-slate-400 mt-0.5">En Atención</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Resueltos (Mes)</span>
-            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 font-mono">89</div>
+            <div class="text-xl font-bold text-emerald-600 dark:text-emerald-400 mt-1 font-mono">—</div>
             <p class="text-[10px] text-slate-400 mt-0.5">SLA Cumplido</p>
         </div>
         <div class="bg-white dark:bg-[#111827] rounded-2xl p-4 border border-slate-200/80 dark:border-slate-800 shadow-sm">
-            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema & DBA</span>
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Esquema &amp; DBA</span>
             <div class="text-xl font-bold text-slate-900 dark:text-slate-100 font-mono mt-1">mod05</div>
             <p class="text-[10px] text-purple-600 dark:text-purple-400 font-semibold mt-0.5">DBA: Oliva</p>
         </div>
@@ -53,63 +66,59 @@
         </div>
     </div>
 
-    <!-- Listado Zen de Tickets -->
-    <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm overflow-hidden">
-        <div class="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
-            <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">
-                Tickets de Soporte Recientes
-            </h2>
+    <!-- Accesos rápidos por área -->
+    <div class="grid lg:grid-cols-3 gap-4">
+        <!-- Tópico / Enfermería -->
+        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 flex items-center justify-center text-base shrink-0">🩺</div>
+                <div>
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Tópico / Enfermería</h2>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Registro clínico y botica</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="/Modulo05/Enfermeria/FormAtencion" class="btn btn-sm btn-outline rounded-xl text-xs font-bold">+ Nueva Atención</a>
+                <a href="/Modulo05/Enfermeria/HistorialPaciente" class="btn btn-sm btn-ghost rounded-xl text-xs">Historial Clínico ↗</a>
+            </div>
         </div>
-        <div class="overflow-x-auto">
-            <table class="table table-zebra w-full text-xs">
-                <thead>
-                    <tr class="text-slate-400 dark:text-slate-500 uppercase text-[10px]">
-                        <th>Ticket</th>
-                        <th>Solicitante</th>
-                        <th>Asunto / Incidencia</th>
-                        <th>Prioridad</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody class="text-slate-700 dark:text-slate-300">
-                    <tr>
-                        <td class="font-mono font-bold text-purple-600 dark:text-purple-400">#TK-1042</td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Lab 02 Cómputo</td>
-                        <td>Fallo de conexión switch switch-rack-3</td>
-                        <td><span class="badge badge-error badge-xs font-bold text-white">Alta</span></td>
-                        <td><span class="badge badge-warning badge-xs font-semibold">En Proceso</span></td>
-                    </tr>
-                    <tr>
-                        <td class="font-mono font-bold text-purple-600 dark:text-purple-400">#TK-1041</td>
-                        <td class="font-medium text-slate-900 dark:text-slate-100">Coordinación DSI</td>
-                        <td>Instalación de SDK .NET 10 en PCs docentes</td>
-                        <td><span class="badge badge-neutral badge-xs font-semibold">Media</span></td>
-                        <td><span class="badge badge-success badge-xs font-semibold text-white">Cerrado</span></td>
-                    </tr>
-                </tbody>
-            </table>
+
+        <!-- Psicología -->
+        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-xl bg-violet-50 dark:bg-violet-950/50 text-violet-600 flex items-center justify-center text-base shrink-0">🧠</div>
+                <div>
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Psicología</h2>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Sesiones y expedientes</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="/Modulo05/Psicologia/FormSesion" class="btn btn-sm btn-outline rounded-xl text-xs font-bold">+ Nueva Sesión</a>
+                <a href="/Modulo05/Psicologia/ExpedienteAlumno" class="btn btn-sm btn-ghost rounded-xl text-xs">Expediente ↗</a>
+            </div>
+        </div>
+
+        <!-- Soporte TI -->
+        <div class="bg-white dark:bg-[#111827] rounded-2xl border border-slate-200/80 dark:border-slate-800 shadow-sm p-5">
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-9 h-9 rounded-xl bg-sky-50 dark:bg-sky-950/50 text-sky-600 flex items-center justify-center text-base shrink-0">💻</div>
+                <div>
+                    <h2 class="text-xs font-bold text-slate-800 dark:text-slate-200 uppercase tracking-wider">Soporte TI</h2>
+                    <p class="text-[10px] text-slate-500 dark:text-slate-400">Tickets, averías, inventario</p>
+                </div>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="/Modulo05/Soporte/Consola" class="btn btn-sm btn-outline rounded-xl text-xs font-bold">Consola TI</a>
+                <a href="/Modulo05/Soporte/HistorialEquipos" class="btn btn-sm btn-ghost rounded-xl text-xs">Equipos ↗</a>
+                <a href="/Modulo05/AveriaDocente/Reporte" class="btn btn-sm btn-ghost rounded-xl text-xs">⚠️ Reportar</a>
+            </div>
         </div>
     </div>
+
+    <!-- Pie de módulo -->
+    <p class="text-[10px] text-slate-400 text-center">
+        Módulo 05 · Esquema PostgreSQL <span class="font-mono">mod05</span> · Aislamiento Zero-Blast-Radius
+    </p>
 </div>
 
-<dialog id="modal_nuevo_05" class="modal">
-    <div class="modal-box max-w-md bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-200 rounded-3xl p-6 border border-slate-200/80 dark:border-slate-800 shadow-2xl">
-        <h3 class="text-sm font-bold mb-3">Registrar Ticket de Soporte</h3>
-        <div class="space-y-3 text-xs">
-            <div>
-                <label class="font-bold block mb-1 text-[11px]">Solicitante / Ambiente</label>
-                <input type="text" placeholder="Ej: Aula 204 Pabellón A" class="input input-xs input-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700 h-9" />
-            </div>
-            <div>
-                <label class="font-bold block mb-1 text-[11px]">Descripción de la Incidencia</label>
-                <textarea rows="2" placeholder="Detalle del problema..." class="textarea textarea-xs textarea-bordered w-full rounded-xl dark:bg-slate-800 dark:border-slate-700"></textarea>
-            </div>
-        </div>
-        <div class="modal-action pt-2">
-            <form method="dialog">
-                <button class="btn btn-ghost btn-xs rounded-xl">Cancelar</button>
-                <button class="btn btn-primary btn-xs rounded-xl font-bold">Guardar Ticket</button>
-            </form>
-        </div>
-    </div>
-</dialog>
+<partial name="~/Views/Modulo05/_TabsModulo.cshtml" />

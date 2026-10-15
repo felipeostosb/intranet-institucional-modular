@@ -28,6 +28,11 @@ public class Modulo09Controller : Modulo09BaseController
     [HttpGet("Index")]
     public async Task<IActionResult> Index()
     {
+        // Puerta por rol: fuera de Alumno/Secretaría/Tesorería/Director/Admin no hay
+        // funciones aquí — antes un Docente por URL directa veía la mesa completa de
+        // trámites de todos los alumnos (fuga E2E). Ahora recibe la página SinAcceso.
+        if (!AccedeAlModulo) return View("SinAcceso");
+
         ViewData["Title"] = "09. Tesorería & Pagos";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;

@@ -48,7 +48,7 @@ public static class FichaMatriculaPdf
                 {
                     col.Spacing(10);
 
-                    // ── Datos del estudiante ──
+                    // Datos del estudiante
                     col.Item().Background("#f1f5f9").Border(1).BorderColor("#cbd5e1")
                        .Padding(10).Column(secc =>
                     {
@@ -63,7 +63,7 @@ public static class FichaMatriculaPdf
                         secc.Item().Text($"Ciclo culminado: {ficha.CicloCulminado} → Nuevo ciclo: {ficha.CicloProximo}");
                     });
 
-                    // ── Matrícula ──
+                    // Matrícula
                     col.Item().Background("#f1f5f9").Border(1).BorderColor("#cbd5e1")
                        .Padding(10).Column(secc =>
                     {
@@ -75,7 +75,7 @@ public static class FichaMatriculaPdf
                         secc.Item().Text($"Estado: {ficha.Estado}");
                     });
 
-                    // ── Unidades didácticas inscritas ──
+                    // Unidades didácticas inscritas
                     col.Item().Column(secc =>
                     {
                         secc.Item().PaddingBottom(4).Text("Unidades didácticas inscritas").FontSize(11).Bold().FontColor("#0f4c81");

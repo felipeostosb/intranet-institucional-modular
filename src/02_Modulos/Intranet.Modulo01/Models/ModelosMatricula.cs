@@ -80,9 +80,7 @@ public class ModeloResumenMatricula
     public int Reservadas { get; set; }
 }
 
-// =====================================================================
 // Resumen del Módulo 01 por puesto (rol activo)
-// =====================================================================
 
 /// <summary>Panel del puesto de Tesorería: vouchers de reserva (CT13/TM05).</summary>
 public class ModeloResumenTesoreriaMatricula
@@ -135,9 +133,7 @@ public class ModeloVacanteConsumo
 }
 
 
-// =====================================================================
 // Matriculatura de Secretaría (flujo Reserva de Matrícula TM05/CT13)
-// =====================================================================
 
 /// <summary>Expediente del alumno listo para matricular (búsqueda por DNI).</summary>
 public class ModeloExpedienteMatricula
@@ -179,9 +175,7 @@ public class ModeloHistorialFila
     public string Estado { get; set; } = "";   // Aprobado | Desaprobado | Retirado
 }
 
-// =====================================================================
 // Panel del alumno (Resumen del Módulo 01)
-// =====================================================================
 
 /// <summary>Mini-dashboard personal del alumno para la pestaña Resumen.</summary>
 public class ModeloPanelAlumno
@@ -197,6 +191,9 @@ public class ModeloPanelAlumno
     public decimal Promedio { get; set; }               // ponderado del historial
     public int CreditosAprobados { get; set; }
     public List<ModeloHistorialFila> Historial { get; set; } = [];
+    /// <summary>Notas SOLO del último ciclo culminado (las barras del Resumen;
+    /// el historial completo vive en Mi académico — aquí satura el panel).</summary>
+    public List<ModeloHistorialFila> NotasUltimoCiclo { get; set; } = [];
 
     /// <summary>Pasos del flujo de reserva de matrícula para el timeline.</summary>
     public List<ModeloPasoFlujo> PasosFlujo { get; set; } = [];
