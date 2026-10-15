@@ -29,11 +29,6 @@ public class Modulo01Controller : Modulo01BaseController
     [HttpGet("Index")]
     public async Task<IActionResult> Index()
     {
-        // Puerta por rol: fuera de Alumno/Secretaría/Tesorería/Director/Admin no hay
-        // funciones aquí — antes un Docente por URL directa veía el panel con datos
-        // de matrículas de terceros (fuga E2E). Ahora recibe la página SinAcceso.
-        if (!AccedeAlModulo) return View("SinAcceso");
-
         ViewData["Title"] = "01. Matrícula Académica";
         ViewData["UsuarioNombre"] = UsuarioActualNombre;
         ViewData["UsuarioRol"] = UsuarioActualRol;

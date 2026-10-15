@@ -53,7 +53,9 @@ public class PagoServicio : IPagoServicio
                                          FROM pagos WHERE codigo ~ '^REC-[0-9]{4}$'), 0) + 1)::text, 4, '0');
         """;
 
+    // ------------------------------------------------------------------
     // ALUMNO: sus pagos con el concepto y estado del voucher
+    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloPagoLista>> ListarPorEstudianteAsync(int estudianteId)
     {
         using var db = CreateConnection();
@@ -79,7 +81,9 @@ public class PagoServicio : IPagoServicio
         return await db.QueryAsync<ModeloPagoLista>(sql, new { EstudianteId = estudianteId });
     }
 
+    // ------------------------------------------------------------------
     // BANDEJA DE TESORERÍA: todos los pagos con datos del estudiante
+    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloPagoBandeja>> ListarBandejaAsync(string? voucherEstado)
     {
         using var db = CreateConnection();
@@ -139,7 +143,9 @@ public class PagoServicio : IPagoServicio
         return await db.QueryFirstOrDefaultAsync<ModeloPagoBandeja>(sql, new { Id = pagoId });
     }
 
+    // ------------------------------------------------------------------
     // ALUMNO: registrar pago con voucher (queda Pendiente → bandeja)
+    // ------------------------------------------------------------------
     public async Task<(bool, string)> RegistrarPagoEstudianteAsync(
         int estudianteId, int periodoId, string conceptoCodigo, string tipoPagoCodigo, decimal monto, string? nota)
     {
@@ -153,7 +159,9 @@ public class PagoServicio : IPagoServicio
             tipoPagoCodigo, monto, "Pendiente", null, nota, usarMontoDelCatalogo: true);
     }
 
+    // ------------------------------------------------------------------
     // TESORERÍA: recibo directo de caja (ya validado por quien lo emite)
+    // ------------------------------------------------------------------
     public async Task<(bool, string)> EmitirReciboDirectoAsync(
         int estudianteId, int periodoId, string conceptoCodigo, string tipoPagoCodigo, decimal monto, int cajeroId)
     {
@@ -234,10 +242,12 @@ public class PagoServicio : IPagoServicio
             : (false, "No se pudo registrar el pago.");
     }
 
+    // ------------------------------------------------------------------
     // BANDEJA: validar voucher — la acción central de Tesorería.
     // Aprobar marca Validado con fecha y validador (CHECK de coherencia
     // de la tabla lo exige); Rechazar exige motivo para el estudiante
     // e incrementa intentos (máx 20 por CHECK).
+    // ------------------------------------------------------------------
     public async Task<(bool, string)> ValidarVoucherAsync(int pagoId, bool aprobar, string? motivo, int validadorId)
     {
         using var db = CreateConnection();
@@ -261,6 +271,7 @@ public class PagoServicio : IPagoServicio
 
         if (filas == 0) return (false, "El pago no existe o ya fue validado.");
 
+        // ------------------------------------------------------------------
         // Propagación trámite↔pago: si el pago pertenece a un trámite en curso
         // (p. ej. Reserva de Matrícula TM05), la validación de Tesorería
         // impulsa su avance: rechazo → trámite Observado con el motivo;
@@ -269,6 +280,7 @@ public class PagoServicio : IPagoServicio
         // La vinculación se resuelve SOLO por tramites.pago_id, presente en
         // producción (pagos) y en espejos (pagos); la columna inversa
         // pagos.tramite_id solo existe en algunos espejos y NO en producción.
+        // ------------------------------------------------------------------
         var tablaPagos = "pagos";
         var sqlTramite = "SELECT t.id FROM mod09.tramites t " +
                          "WHERE t.pago_id = @Id LIMIT 1;";
@@ -294,8 +306,10 @@ public class PagoServicio : IPagoServicio
             : "Voucher rechazado con motivo. El estudiante debe corregirlo.");
     }
 
+    // ------------------------------------------------------------------
     // ALUMNO: adjuntar el voucher PDF de su pago. Verifica que el pago sea
     // del estudiante (Zero-Blast-Radius: no se puede adjuntar a pagos ajenos).
+    // ------------------------------------------------------------------
     public async Task<(bool, string)> SubirVoucherAsync(
         int pagoId, int estudianteId, string nombre, string tipo, byte[] contenido)
     {
@@ -317,11 +331,13 @@ public class PagoServicio : IPagoServicio
 
         if (filas == 0) return (false, "No se pudo guardar el voucher.");
 
+        // ------------------------------------------------------------------
         // Corrección de voucher rechazado: el re-envío devuelve el pago a la
         // cola de validación de Tesorería (voucher_estado = 'Pendiente') con
         // el intento registrado. Antes el pago quedaba en 'Rechazado' y el
         // voucher corregido no reaparecía en la bandeja "Por validar" —
         // Tesorería tenía que filtrar por Rechazado para encontrarlo.
+        // ------------------------------------------------------------------
         await db.ExecuteAsync("""
             UPDATE pagos
             SET voucher_estado = 'Pendiente',
@@ -349,7 +365,9 @@ public class PagoServicio : IPagoServicio
         return (true, "Voucher adjuntado. Tesorería lo validará desde su bandeja.");
     }
 
+    // ------------------------------------------------------------------
     // PERSONAL: leer el voucher PDF de un pago (validación con evidencia)
+    // ------------------------------------------------------------------
     public async Task<ModeloArchivoVoucher?> ObtenerVoucherAsync(int pagoId)
     {
         using var db = CreateConnection();
@@ -361,9 +379,11 @@ public class PagoServicio : IPagoServicio
             """, new { Id = pagoId });
     }
 
+    // ------------------------------------------------------------------
     // ALUMNO: el voucher solo si el pago le pertenece. Se usa desde
     // PagosController.Voucher para que el alumno vea SU propio PDF sin
     // abrirle la bandeja de Tesorería.
+    // ------------------------------------------------------------------
     public async Task<bool> PerteneceAlEstudianteAsync(int pagoId, int estudianteId)
     {
         using var db = CreateConnection();
@@ -372,7 +392,9 @@ public class PagoServicio : IPagoServicio
             new { PagoId = pagoId, EstudianteId = estudianteId }) > 0;
     }
 
+    // ------------------------------------------------------------------
     // Métricas del dashboard del módulo
+    // ------------------------------------------------------------------
     public async Task<ModeloResumenPagos> ResumenAsync()
     {
         using var db = CreateConnection();
@@ -386,8 +408,10 @@ public class PagoServicio : IPagoServicio
         return await db.QueryFirstOrDefaultAsync<ModeloResumenPagos>(sql) ?? new ModeloResumenPagos();
     }
 
+    // ------------------------------------------------------------------
     // Panel del puesto de TESORERÍA (Resumen del módulo): vouchers y
     // recaudación — sin nada de la mesa de trámites (eso es de Secretaría).
+    // ------------------------------------------------------------------
     public async Task<ModeloResumenTesoreria> ResumenTesoreriaAsync()
     {
         using var db = CreateConnection();
@@ -421,8 +445,10 @@ public class PagoServicio : IPagoServicio
         return dto;
     }
 
+    // ------------------------------------------------------------------
     // Panel personal del ALUMNO (Resumen del módulo): SUS trámites,
     // pagos y vouchers — cero cifras globales del instituto.
+    // ------------------------------------------------------------------
     public async Task<ModeloResumenAlumno> ResumenAlumnoAsync(int estudianteId)
     {
         // Cerrar vencidos primero: los trámites cuyo plazo de corrección expiró

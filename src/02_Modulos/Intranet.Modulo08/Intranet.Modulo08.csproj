@@ -15,4 +15,12 @@
   <ItemGroup>
     <ProjectReference Include="../../01_Core/Intranet.Core/Intranet.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.2.0" />
+    <PackageReference Include="Npgsql" Version="10.0.3" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="Program.cs" />
+  </ItemGroup>
 </Project>

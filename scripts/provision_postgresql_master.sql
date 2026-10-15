@@ -366,11 +366,9 @@ INSERT INTO core.roles (id, nombre, descripcion) VALUES
 (5, 'Tesoreria', 'Área de Tesorería, Facturación y Caja'),
 (6, 'Docente', 'Plana Docente'),
 (7, 'Alumno', 'Estudiante de Carrera Profesional'),
-(8, 'Jefe Patrimonial', 'Jefatura Patrimonial de Almacén e Inventario (control total del inventario)'),
-(9, 'Coordinador de Carrera', 'Coordinador de carrera: gestiona los bienes y ambientes de SU carrera'),
-(10, 'OTIS', 'Oficina Técnica: mantenimiento, reparación y estado técnico de equipos'),
-(11, 'Enfermeria', 'Tópico/Enfermería: atenciones médicas, historial clínico y botica'),
-(12, 'Psicologia', 'Consultorio psicológico: citas, sesiones y expediente del alumno')
+(8, 'Jefe General', 'Jefatura General de Almacén e Inventario (control total del inventario)'),
+(9, 'Jefe de Especialidad', 'Jefe de carrera: gestiona los bienes y ambientes de SU especialidad'),
+(10, 'OTIS', 'Oficina Técnica: mantenimiento, reparación y estado técnico de equipos')
 ON CONFLICT (id) DO UPDATE SET nombre = EXCLUDED.nombre, descripcion = EXCLUDED.descripcion;
 
 SELECT setval('core.roles_id_seq', (SELECT MAX(id) FROM core.roles));
@@ -385,12 +383,9 @@ ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo, nombre = EXCLUDED.nombr
 SELECT setval('core.carreras_id_seq', (SELECT MAX(id) FROM core.carreras));
 
 -- Periodos Académicos
--- (2026-I ya cerrado; 2026-II activo en curso. Los 2025 son historia de los alumnos de ciclo III.)
 INSERT INTO core.periodos_academicos (id, codigo, fecha_inicio, fecha_fin, es_activo, permite_matricula) VALUES
-(1, '2026-I', '2026-03-15', '2026-07-25', FALSE, FALSE),
-(2, '2026-II', '2026-08-15', '2026-12-20', TRUE, TRUE),
-(3, '2025-I',  '2025-03-15', '2025-07-25', FALSE, FALSE),
-(4, '2025-II', '2025-08-15', '2025-12-20', FALSE, FALSE)
+(1, '2026-I', '2026-03-15', '2026-07-25', TRUE, TRUE),
+(2, '2026-II', '2026-08-15', '2026-12-20', FALSE, FALSE)
 ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
 
 SELECT setval('core.periodos_academicos_id_seq', (SELECT MAX(id) FROM core.periodos_academicos));
@@ -414,16 +409,7 @@ INSERT INTO core.unidades_didacticas (id, carrera_id, ciclo, codigo, nombre, cre
 (5, 1, 'III', 'DSI-301', 'Desarrollo de Aplicaciones Web y Servicios', 4, 6, 'Formativa'),
 (6, 1, 'III', 'DSI-302', 'Ingeniería de Requerimientos y Casos de Uso', 3, 4, 'Formativa'),
 (7, 2, 'I', 'CONT-101', 'Contabilidad Básica y Principios Contables', 4, 6, 'Formativa'),
-(8, 2, 'I', 'CONT-102', 'Legislación Tributaria y Laboral', 3, 4, 'Transversal'),
-(18, 1, 'I',   'DSI-103', 'Matemática Básica', 3, 4, 'Transversal'),
-(19, 1, 'I',   'DSI-104', 'Comunicación Oral y Escrita', 2, 2, 'Transversal'),
-(20, 1, 'I',   'DSI-105', 'Desarrollo Personal y Ciudadanía', 2, 2, 'Transversal'),
-(21, 1, 'II',  'DSI-203', 'Estadística Aplicada', 3, 4, 'Transversal'),
-(22, 1, 'II',  'DSI-204', 'Estructuras de Datos y Algoritmos', 4, 6, 'Formativa'),
-(23, 1, 'II',  'DSI-205', 'Inglés Técnico I', 2, 2, 'Transversal'),
-(24, 1, 'III', 'DSI-303', 'Programación de Base de Datos', 4, 6, 'Formativa'),
-(25, 1, 'III', 'DSI-304', 'Metodologías Ágiles de Desarrollo', 3, 4, 'Formativa'),
-(26, 1, 'III', 'DSI-305', 'Inglés Técnico II', 2, 2, 'Transversal')
+(8, 2, 'I', 'CONT-102', 'Legislación Tributaria y Laboral', 3, 4, 'Transversal')
 ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
 
 SELECT setval('core.unidades_didacticas_id_seq', (SELECT MAX(id) FROM core.unidades_didacticas));
@@ -443,9 +429,7 @@ INSERT INTO core.personas (id, dni, nombres, apellidos, email_personal, telefono
 (11, '51000002', 'María', 'Torres Vega', 'maria.torres@iestpargentina.edu.pe', '999510002', 'F'),
 (12, '51000003', 'Carlos', 'Huamán Ríos', 'carlos.huaman@iestpargentina.edu.pe', '999510003', 'M'),
 (13, '51000004', 'Rosa', 'Vargas Muñoz', 'rosa.vargas@iestpargentina.edu.pe', '999510004', 'F'),
-(14, '51000005', 'Luis', 'Chávez Paredes', 'luis.chavez@iestpargentina.edu.pe', '999510005', 'M'),
-(15, '51000006', 'Lucía', 'Fernández Quispe', 'lucia.fernandez@iestpargentina.edu.pe', '999510006', 'F'),
-(16, '51000007', 'Andrés', 'Salazar Morales', 'andres.salazar@iestpargentina.edu.pe', '999510007', 'M')
+(14, '51000005', 'Luis', 'Chávez Paredes', 'luis.chavez@iestpargentina.edu.pe', '999510005', 'M')
 ON CONFLICT (id) DO UPDATE SET dni = EXCLUDED.dni, nombres = EXCLUDED.nombres, apellidos = EXCLUDED.apellidos;
 
 SELECT setval('core.personas_id_seq', (SELECT MAX(id) FROM core.personas));
@@ -465,9 +449,7 @@ INSERT INTO core.usuarios (id, persona_id, codigo_institucional, email, password
 (11, 11, '51000002', 'jefe.esp.dsi@iestpargentina.edu.pe', '123456', TRUE),
 (12, 12, '51000003', 'jefe.esp.cont@iestpargentina.edu.pe', '123456', TRUE),
 (13, 13, '51000004', 'jefe.esp.adm@iestpargentina.edu.pe', '123456', TRUE),
-(14, 14, '51000005', 'otis@iestpargentina.edu.pe', '123456', TRUE),
-(15, 15, '51000006', 'enfermeria@iestpargentina.edu.pe', '123456', TRUE),
-(16, 16, '51000007', 'psicologia@iestpargentina.edu.pe', '123456', TRUE)
+(14, 14, '51000005', 'otis@iestpargentina.edu.pe', '123456', TRUE)
 ON CONFLICT (id) DO UPDATE SET codigo_institucional = EXCLUDED.codigo_institucional;
 
 SELECT setval('core.usuarios_id_seq', (SELECT MAX(id) FROM core.usuarios));
@@ -485,21 +467,19 @@ INSERT INTO core.usuario_roles (id, usuario_id, rol_id) VALUES
 (9, 7, 1),
 (10, 8, 7),
 (11, 9, 7),
-(12, 10, 8),   -- Jefe Patrimonial: Jorge Ramírez 51000001
-(13, 11, 9),   -- Coordinador de Carrera: María Torres (DSI) 51000002
-(14, 12, 9),   -- Coordinador de Carrera: Carlos Huamán (CONT) 51000003
-(15, 13, 9),   -- Coordinador de Carrera: Rosa Vargas (ADM) 51000004
-(16, 14, 10),  -- OTIS: Luis Chávez 51000005
-(17, 15, 11),  -- Enfermería: Lucía Fernández 51000006
-(18, 16, 12)   -- Psicología: Andrés Salazar 51000007
+(12, 10, 8),   -- Jefe General: Jorge Ramírez 51000001
+(13, 11, 9),   -- Jefe de Especialidad: María Torres (DSI) 51000002
+(14, 12, 9),   -- Jefe de Especialidad: Carlos Huamán (CONT) 51000003
+(15, 13, 9),   -- Jefe de Especialidad: Rosa Vargas (ADM) 51000004
+(16, 14, 10)   -- OTIS: Luis Chávez 51000005
 ON CONFLICT (id) DO NOTHING;
 
 SELECT setval('core.usuario_roles_id_seq', (SELECT MAX(id) FROM core.usuario_roles));
 
 -- Estudiantes
 INSERT INTO core.estudiantes (id, persona_id, codigo_estudiante, carrera_id, periodo_ingreso_id, ciclo_actual, turno, condicion) VALUES
-(1, 7, 'EST-DSI-2026-001', 1, 3, 'IV', 'Noche', 'Regular'),
-(2, 8, 'EST-DSI-2026-002', 1, 3, 'IV', 'Manana', 'Regular'),
+(1, 7, 'EST-DSI-2026-001', 1, 1, 'III', 'Noche', 'Regular'),
+(2, 8, 'EST-DSI-2026-002', 1, 1, 'III', 'Manana', 'Regular'),
 (3, 9, 'EST-CONT-2026-001', 2, 1, 'I', 'Noche', 'Regular')
 ON CONFLICT (id) DO UPDATE SET codigo_estudiante = EXCLUDED.codigo_estudiante;
 
@@ -517,10 +497,10 @@ SELECT setval('core.docentes_id_seq', (SELECT MAX(id) FROM core.docentes));
 INSERT INTO core.administrativos (id, persona_id, codigo_staff, cargo, area) VALUES
 (1, 4, 'ADM-SEC-01', 'Secretaria Académica', 'Secretaría General'),
 (2, 5, 'ADM-TES-01', 'Jefa de Caja y Tesorería', 'Tesorería'),
-(3, 10, 'JEF-GRAL-01', 'Jefe Patrimonial de Almacén e Inventario', 'Almacén e Inventario'),
-(4, 11, 'JEF-ESP-DSI', 'Coordinador de Carrera - DSI', 'Departamento Académico'),
-(5, 12, 'JEF-ESP-CONT', 'Coordinador de Carrera - Contabilidad', 'Departamento Académico'),
-(6, 13, 'JEF-ESP-ADM', 'Coordinador de Carrera - Administración', 'Departamento Académico'),
+(3, 10, 'JEF-GRAL-01', 'Jefe General de Almacén e Inventario', 'Almacén e Inventario'),
+(4, 11, 'JEF-ESP-DSI', 'Jefe de Especialidad - DSI', 'Departamento Académico'),
+(5, 12, 'JEF-ESP-CONT', 'Jefe de Especialidad - Contabilidad', 'Departamento Académico'),
+(6, 13, 'JEF-ESP-ADM', 'Jefe de Especialidad - Administración', 'Departamento Académico'),
 (7, 14, 'OTIS-01', 'Técnico OTIS', 'Oficina Técnica')
 ON CONFLICT (id) DO UPDATE SET codigo_staff = EXCLUDED.codigo_staff;
 

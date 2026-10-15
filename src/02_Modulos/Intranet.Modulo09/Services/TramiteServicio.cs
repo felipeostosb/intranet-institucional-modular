@@ -52,11 +52,13 @@ public class TramiteServicio : ITramiteServicio
 
     private IDbConnection CreateConnection() => _fabricaConexion.CreateConnection("09");
 
+    // ------------------------------------------------------------------
     // Cierre por vencimiento (lazy, idempotente): trámites Observados cuyo
     // plazo de corrección (15 días hábiles) expiró pasan a 'Vencido'.
     // No hay scheduler en el deploy (docker compose), así que se evalúa
     // al entrar a Mis trámites / Detalle / Mesa / resúmenes y antes de
     // Corregir. Usa idx_tramites_estado; seguro correrlo mil veces.
+    // ------------------------------------------------------------------
     public async Task<int> CerrarVencidosAsync()
     {
         using var db = CreateConnection();
@@ -71,11 +73,15 @@ public class TramiteServicio : ITramiteServicio
             """);
     }
 
+    // ------------------------------------------------------------------
     // Nombres reales de tablas de pago (producción usa pagos porque
     // “pagos” es legacy de otro dueño; local usa “pagos”).
+    // ------------------------------------------------------------------
+    // ------------------------------------------------------------------
     // Resolución del nombre real de la tabla de pagos (legacy en
     // producción: "pagos" es una tabla antigua de otro dueño; la
     // nuestra es pagos hasta que el DBA restaure el nombre oficial).
+    // ------------------------------------------------------------------
     // Número correlativo de trámite: T0001, T0002... según el diseño del prototipo.
     // El correlativo se deriva del MÁXIMO del sufijo numérico, NO de count(*)+1.
     // Con count(*) cualquier borrado (un cajero anula un trámite, una prueba en
@@ -88,7 +94,9 @@ public class TramiteServicio : ITramiteServicio
                                        FROM tramites WHERE codigo ~ '^T[0-9]{4}$'), 0) + 1)::text, 4, '0');
         """;
 
+    // ------------------------------------------------------------------
     // ALUMNO: sus trámites con días transcurridos y estado de pago
+    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloTramiteLista>> ListarPorEstudianteAsync(int estudianteId, string? estado)
     {
         await CerrarVencidosAsync();
@@ -121,7 +129,9 @@ public class TramiteServicio : ITramiteServicio
             new { EstudianteId = estudianteId, Estado = string.IsNullOrWhiteSpace(estado) ? null : estado });
     }
 
+    // ------------------------------------------------------------------
     // MESA (Secretaría): todos los trámites con su estado de pago
+    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloTramiteMesa>> ListarMesaAsync(string? estado)
     {
         await CerrarVencidosAsync();
@@ -220,8 +230,10 @@ public class TramiteServicio : ITramiteServicio
         return id is null ? null : await ObtenerDetalleAsync(id.Value);
     }
 
+    // ------------------------------------------------------------------
     // PERSONAL (Secretaría/Tesorería/Admin): leer el archivo adjunto de un
     // requisito del trámite — evidencia antes de validar/observar.
+    // ------------------------------------------------------------------
     public async Task<ModeloArchivoRequisito?> ObtenerArchivoRequisitoAsync(int tramiteId, int requisitoCatalogoId)
     {
         using var db = CreateConnection();
@@ -238,8 +250,10 @@ public class TramiteServicio : ITramiteServicio
             new { TramiteId = tramiteId, ReqId = requisitoCatalogoId });
     }
 
+    // ------------------------------------------------------------------
     // Catálogo: tipos TUPA y requisitos dinámicos por tipo (el AutoPostBack
     // del prototipo: al elegir tipo se cargan sus requisitos y ficha TUPA)
+    // ------------------------------------------------------------------
     public async Task<IEnumerable<ModeloTipoTramite>> ListarTiposAsync()
     {
         using var db = CreateConnection();
@@ -299,10 +313,12 @@ public class TramiteServicio : ITramiteServicio
         return await db.QueryAsync<ModeloEstadoRequisito>(sql, new { Id = tramiteId });
     }
 
+    // ------------------------------------------------------------------
     // ALUMNO: crear trámite con TODOS los requisitos marcados como
     // presentados (los archivos se adjuntan en el propio formulario —
     // sin archivos no se registra, regla del prototipo).
     // La fecha límite = fecha_solicitud + dias_habiles del TUPA.
+    // ------------------------------------------------------------------
     public async Task<(bool Ok, string Mensaje, string? Codigo)> CrearTramiteAsync(
         int estudianteId, int periodoId, string tipoCodigo, string? datos,
         IReadOnlyDictionary<int, (string Nombre, string Tipo, byte[] Contenido)>? archivos = null)
@@ -355,11 +371,13 @@ public class TramiteServicio : ITramiteServicio
                            Nombre = archivo.Nombre, Tipo = archivo.Tipo, Contenido = archivo.Contenido }, tx);
         }
 
+                // ------------------------------------------------------------------
         // Si el tipo de trámite tiene concepto de pago asociado (p. ej. TM05
         // Reserva de Matrícula → CT13), se genera AQUÍ el pago Pendiente:
         // el estudiante lo paga, sube el voucher PDF en «Mis pagos» y
         // Tesorería lo valida desde su bandeja. Antes el voucher nacía
         // suelto y nada lo ataba al trámite.
+        // ------------------------------------------------------------------
         int? pagoId = null;
         if (tipo.ConceptoPagoId is int conceptoId)
         {
@@ -394,8 +412,10 @@ public class TramiteServicio : ITramiteServicio
         return (true, mensaje, codigo);
     }
 
+    // ------------------------------------------------------------------
     // ALUMNO: corrección de trámite Observado/Rechazado — solo se
     // re-adjunta el requisito observado, NO se crea trámite nuevo.
+    // ------------------------------------------------------------------
     public async Task<(bool Ok, string Mensaje)> CorregirRequisitoAsync(
         int tramiteId, int requisitoCatalogoId, string observacion,
         (string Nombre, string Tipo, byte[] Contenido)? archivo = null)
@@ -441,10 +461,12 @@ public class TramiteServicio : ITramiteServicio
         return (true, "Requisito corregido. El trámite volvió a evaluación.");
     }
 
+    // ------------------------------------------------------------------
     // MESA (Secretaría): avanzar el flujo con reglas:
     //   Aprobado  — exige voucher Validado en pagos (doble control)
     //   Observado/Rechazado — exige resolución (motivo) para el alumno
     //   Entregado — solo desde Aprobado
+    // ------------------------------------------------------------------
     public async Task<(bool, string)> AvanzarEstadoAsync(
         int tramiteId, string nuevoEstado, string? resolucion, int usuarioId)
     {
@@ -517,8 +539,10 @@ public class TramiteServicio : ITramiteServicio
             "SELECT count(*) FROM tramites WHERE estado IN ('Recibido','En evaluación');");
     }
 
+    // ------------------------------------------------------------------
     // Panel del puesto de SECRETARÍA (Resumen del módulo): mesa de partes
     // TUPA — trámites por estado y por tipo. Cero datos financieros.
+    // ------------------------------------------------------------------
     public async Task<ModeloResumenSecretaria> ResumenSecretariaAsync()
     {
         await CerrarVencidosAsync();
