@@ -134,6 +134,7 @@ CROSS JOIN mod01.ciclos ci
 WHERE t.codigo IN ('M','N') AND ci.codigo IN ('I','II','III')
 ON CONFLICT (periodo_id, carrera_id, turno_id, ciclo_id) DO NOTHING;
 
+
 -- ============================================================================
 -- FLUJO DE MATRICULATURA DE SECRETARÍA (Reserva de Matrícula TM05 / CT13)
 -- Cierre: expediente por DNI → UDs del nuevo ciclo → ficha PDF al correo.
@@ -153,6 +154,42 @@ CREATE TABLE IF NOT EXISTS mod01.historial_academico (
     creado_en    TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     UNIQUE (estudiante_id, periodo_id, unidad_didactica_id)
 );
+
+-- Semilla demo: historial de Felipe/Ana con las notas exactas de la malla SI
+-- (períodos: 3=2025-I, 4=2025-II, 1=2026-I; EFSRT SI-209 sin nota aún).
+DELETE FROM mod01.historial_academico WHERE estudiante_id IN (1, 2);
+
+INSERT INTO mod01.historial_academico (estudiante_id, periodo_id, unidad_didactica_id, nota, estado) VALUES
+-- Felipe Ostos — Ciclo I · 2025-I
+(1, 3, 1,   16, 'Aprobado'), (1, 3, 2,   17, 'Aprobado'),
+(1, 3, 18,  15, 'Aprobado'), (1, 3, 19,  16, 'Aprobado'),
+(1, 3, 20,  17, 'Aprobado'), (1, 3, 100, 13, 'Aprobado'),
+(1, 3, 101, 17, 'Aprobado'), (1, 3, 102, 16, 'Aprobado'),
+-- Felipe — Ciclo II · 2025-II
+(1, 4, 3,   16, 'Aprobado'), (1, 4, 21,  18, 'Aprobado'),
+(1, 4, 22,  17, 'Aprobado'), (1, 4, 4,   17, 'Aprobado'),
+(1, 4, 23,  15, 'Aprobado'), (1, 4, 103, 14, 'Aprobado'),
+(1, 4, 104, 16, 'Aprobado'), (1, 4, 105, 18, 'Aprobado'),
+-- Felipe — Ciclo III · 2026-I
+(1, 1, 107, 17, 'Aprobado'), (1, 1, 6,   18, 'Aprobado'),
+(1, 1, 5,   15, 'Aprobado'), (1, 1, 24,  17, 'Aprobado'),
+(1, 1, 25,  15, 'Aprobado'), (1, 1, 26,  15, 'Aprobado'),
+(1, 1, 108, 16, 'Aprobado'), (1, 1, 109, 15, 'Aprobado'),
+-- Ana García — Ciclo I · 2025-I
+(2, 3, 1,   15, 'Aprobado'), (2, 3, 2,   16, 'Aprobado'),
+(2, 3, 18,  14, 'Aprobado'), (2, 3, 19,  15, 'Aprobado'),
+(2, 3, 20,  16, 'Aprobado'), (2, 3, 100, 12, 'Aprobado'),
+(2, 3, 101, 16, 'Aprobado'), (2, 3, 102, 15, 'Aprobado'),
+-- Ana — Ciclo II · 2025-II
+(2, 4, 3,   15, 'Aprobado'), (2, 4, 21,  17, 'Aprobado'),
+(2, 4, 22,  16, 'Aprobado'), (2, 4, 4,   16, 'Aprobado'),
+(2, 4, 23,  14, 'Aprobado'), (2, 4, 103, 13, 'Aprobado'),
+(2, 4, 104, 15, 'Aprobado'), (2, 4, 105, 17, 'Aprobado'),
+-- Ana — Ciclo III · 2026-I (SI-305 desaprobado → conserva el caso "curso a cargo" en el demo)
+(2, 1, 107, 16, 'Aprobado'), (2, 1, 6,   17, 'Aprobado'),
+(2, 1, 5,   14, 'Aprobado'), (2, 1, 24,  16, 'Aprobado'),
+(2, 1, 25,   8, 'Desaprobado'), (2, 1, 26, 14, 'Aprobado'),
+(2, 1, 108, 15, 'Aprobado'), (2, 1, 109, 14, 'Aprobado');
 
 -- 2) Oferta del próximo ciclo (espejo del plan cuando core aún no lo tiene)
 CREATE TABLE IF NOT EXISTS mod01.oferta_ciclo (
