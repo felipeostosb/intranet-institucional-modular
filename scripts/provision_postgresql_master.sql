@@ -405,26 +405,71 @@ ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
 
 SELECT setval('core.aulas_id_seq', (SELECT MAX(id) FROM core.aulas));
 
--- Unidades Didácticas
+-- 5. Unidades Didácticas — MALLA OFICIAL SI (Desarrollo de Sistemas de Información)
 INSERT INTO core.unidades_didacticas (id, carrera_id, ciclo, codigo, nombre, creditos, horas_semanales, tipo) VALUES
-(1, 1, 'I', 'DSI-101', 'Introducción a la Algoritmia y Programación', 4, 6, 'Formativa'),
-(2, 1, 'I', 'DSI-102', 'Arquitectura de Computadoras y Redes', 3, 4, 'Formativa'),
-(3, 1, 'II', 'DSI-201', 'Bases de Datos y Modelamiento SQL', 4, 6, 'Formativa'),
-(4, 1, 'II', 'DSI-202', 'Programación Orientada a Objetos en C#', 4, 6, 'Formativa'),
-(5, 1, 'III', 'DSI-301', 'Desarrollo de Aplicaciones Web y Servicios', 4, 6, 'Formativa'),
-(6, 1, 'III', 'DSI-302', 'Ingeniería de Requerimientos y Casos de Uso', 3, 4, 'Formativa'),
+-- 01 CICLO
+(1,   1, 'I',  'SI-101', 'Fundamentos de Programación', 3, 4, 'Formativa'),
+(2,   1, 'I',  'SI-102', 'Networking de Comunicación', 3, 4, 'Formativa'),
+(18,  1, 'I',  'SI-103', 'Arquitectura y Componentes de Computadoras', 3, 4, 'Formativa'),
+(19,  1, 'I',  'SI-104', 'Principios de Diseño Gráfico', 2, 3, 'Formativa'),
+(20,  1, 'I',  'SI-105', 'Fundamentos de Interfaces Web Interactivas', 3, 4, 'Formativa'),
+(100, 1, 'I',  'SI-106', 'Lógica Computacional', 2, 3, 'Transversal'),
+(101, 1, 'I',  'SI-107', 'Comunicación Oral', 1, 2, 'Transversal'),
+(102, 1, 'I',  'SI-108', 'Aplicaciones en Internet', 1, 2, 'Transversal'),
+-- 02 CICLO
+(3,   1, 'II', 'SI-201', 'Diseño y Configuración de Redes', 2, 3, 'Formativa'),
+(21,  1, 'II', 'SI-202', 'Programación de Macros', 3, 4, 'Formativa'),
+(22,  1, 'II', 'SI-203', 'Desarrollo de Interfaces Web Dinámicas', 2, 3, 'Formativa'),
+(4,   1, 'II', 'SI-204', 'Lenguaje de Programación', 3, 4, 'Formativa'),
+(23,  1, 'II', 'SI-205', 'Reparación de Equipos Tecnológicos', 3, 4, 'Formativa'),
+(103, 1, 'II', 'SI-206', 'Herramientas para el Análisis de Datos', 2, 3, 'Formativa'),
+(104, 1, 'II', 'SI-207', 'Interpretación y Producción de Textos', 2, 3, 'Transversal'),
+(105, 1, 'II', 'SI-208', 'Ofimática', 2, 3, 'Transversal'),
+(106, 1, 'II', 'SI-209', 'Experiencias Formativas en Situaciones Reales de Trabajo (EFSRT)', 4, 6, 'Formativa'),
+-- 03 CICLO
+(107, 1, 'III', 'SI-301', 'Automatización de Redes', 2, 3, 'Formativa'),
+(6,   1, 'III', 'SI-302', 'Programación Orientada a Objetos', 4, 6, 'Formativa'),
+(5,   1, 'III', 'SI-303', 'Programación del Lado del Servidor', 2, 3, 'Formativa'),
+(24,  1, 'III', 'SI-304', 'Modelamiento de Bases de Datos', 3, 4, 'Formativa'),
+(25,  1, 'III', 'SI-305', 'Diseño de Sistemas de Información', 2, 3, 'Formativa'),
+(26,  1, 'III', 'SI-306', 'Programación en Lenguajes Relevantes', 3, 4, 'Formativa'),
+(108, 1, 'III', 'SI-307', 'Inglés para la Comunicación Oral', 2, 3, 'Transversal'),
+(109, 1, 'III', 'SI-308', 'Fundamentos de Innovación Tecnológica', 1, 2, 'Transversal'),
+-- 04 CICLO
+(110, 1, 'IV', 'SI-401', 'Marketing Digital y E-Commerce', 2, 3, 'Formativa'),
+(111, 1, 'IV', 'SI-402', 'Desarrollo de Servicios Web Escalables', 3, 4, 'Formativa'),
+(112, 1, 'IV', 'SI-403', 'Administración de Bases de Datos', 3, 4, 'Formativa'),
+(113, 1, 'IV', 'SI-404', 'Metodologías Ágiles en Proyectos de TI', 3, 4, 'Formativa'),
+(114, 1, 'IV', 'SI-405', 'Animación Gráfica', 2, 3, 'Formativa'),
+(115, 1, 'IV', 'SI-406', 'Técnicas de Seguridad Cibernética', 2, 3, 'Formativa'),
+(116, 1, 'IV', 'SI-407', 'Comprensión y Redacción en Inglés', 2, 3, 'Transversal'),
+(117, 1, 'IV', 'SI-408', 'Innovación Tecnológica', 2, 3, 'Formativa'),
+(118, 1, 'IV', 'SI-409', 'Experiencias Formativas en Situaciones Reales de Trabajo (EFSRT)', 4, 6, 'Formativa'),
+-- 05 CICLO
+(119, 1, 'V', 'SI-501', 'Administración de Servicios de TI', 2, 3, 'Formativa'),
+(120, 1, 'V', 'SI-502', 'Desarrollo de Plataformas Móviles', 2, 3, 'Formativa'),
+(121, 1, 'V', 'SI-503', 'Producción de Contenidos Multimedia', 3, 4, 'Formativa'),
+(122, 1, 'V', 'SI-504', 'Herramientas para Business Intelligence', 2, 3, 'Formativa'),
+(123, 1, 'V', 'SI-505', 'Bases de Datos NoSQL', 3, 4, 'Formativa'),
+(124, 1, 'V', 'SI-506', 'Diseño de Integración de Tecnologías de la Información', 3, 4, 'Formativa'),
+(125, 1, 'V', 'SI-507', 'Comportamiento Ético', 2, 3, 'Transversal'),
+(126, 1, 'V', 'SI-508', 'Oportunidades de Negocios', 2, 3, 'Transversal'),
+-- 06 CICLO
+(127, 1, 'VI', 'SI-601', 'Desarrollo de Aplicaciones Móviles Empresariales', 2, 3, 'Formativa'),
+(128, 1, 'VI', 'SI-602', 'Gestión de la Calidad de Software', 2, 3, 'Formativa'),
+(129, 1, 'VI', 'SI-603', 'Inteligencia Artificial y Ciencia de Datos', 3, 4, 'Formativa'),
+(130, 1, 'VI', 'SI-604', 'Big Data y Análisis de Datos', 3, 4, 'Formativa'),
+(131, 1, 'VI', 'SI-605', 'Tecnologías Emergentes', 2, 3, 'Formativa'),
+(132, 1, 'VI', 'SI-606', 'Desarrollo de Proyectos Tecnológicos Integrados', 3, 4, 'Formativa'),
+(133, 1, 'VI', 'SI-607', 'Plan de Negocios', 2, 2, 'Transversal'),
+(134, 1, 'VI', 'SI-608', 'Estrategias para la Solución de Problemas', 2, 2, 'Transversal'),
+(135, 1, 'VI', 'SI-609', 'Experiencias Formativas en Situaciones Reales de Trabajo (EFSRT)', 4, 6, 'Formativa'),
+-- Contabilidad (carrera 2, intacta)
 (7, 2, 'I', 'CONT-101', 'Contabilidad Básica y Principios Contables', 4, 6, 'Formativa'),
-(8, 2, 'I', 'CONT-102', 'Legislación Tributaria y Laboral', 3, 4, 'Transversal'),
-(18, 1, 'I',   'DSI-103', 'Matemática Básica', 3, 4, 'Transversal'),
-(19, 1, 'I',   'DSI-104', 'Comunicación Oral y Escrita', 2, 2, 'Transversal'),
-(20, 1, 'I',   'DSI-105', 'Desarrollo Personal y Ciudadanía', 2, 2, 'Transversal'),
-(21, 1, 'II',  'DSI-203', 'Estadística Aplicada', 3, 4, 'Transversal'),
-(22, 1, 'II',  'DSI-204', 'Estructuras de Datos y Algoritmos', 4, 6, 'Formativa'),
-(23, 1, 'II',  'DSI-205', 'Inglés Técnico I', 2, 2, 'Transversal'),
-(24, 1, 'III', 'DSI-303', 'Programación de Base de Datos', 4, 6, 'Formativa'),
-(25, 1, 'III', 'DSI-304', 'Metodologías Ágiles de Desarrollo', 3, 4, 'Formativa'),
-(26, 1, 'III', 'DSI-305', 'Inglés Técnico II', 2, 2, 'Transversal')
-ON CONFLICT (id) DO UPDATE SET codigo = EXCLUDED.codigo;
+(8, 2, 'I', 'CONT-102', 'Legislación Tributaria y Laboral', 3, 4, 'Transversal')
+ON CONFLICT (id) DO UPDATE SET
+    ciclo = EXCLUDED.ciclo, codigo = EXCLUDED.codigo, nombre = EXCLUDED.nombre,
+    creditos = EXCLUDED.creditos, horas_semanales = EXCLUDED.horas_semanales, tipo = EXCLUDED.tipo;
 
 SELECT setval('core.unidades_didacticas_id_seq', (SELECT MAX(id) FROM core.unidades_didacticas));
 
