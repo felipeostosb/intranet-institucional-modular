@@ -132,6 +132,10 @@
     </div>
 </div>
 
+<!-- Contenedores Dinámicos para Módulo 05 Soporte -->
+<div id="seccion-sop-consola" class="sop-section" style="display: none;"></div>
+<div id="seccion-sop-scanner" class="sop-section" style="display: none;"></div>
+
 <script>
     function mostrarSeccionSoporte(idSeccion, el) {
         document.querySelectorAll('.sop-section').forEach(sec => sec.style.display = 'none');
@@ -145,5 +149,119 @@
         }
 
         if (el) el.classList.add('active');
+    }
+
+    function cargarConsolaSoporte(el) {
+        document.querySelectorAll('.sop-section').forEach(sec => sec.style.display = 'none');
+        document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => item.classList.remove('active'));
+        if (el) el.classList.add('active');
+
+        const container = document.getElementById('seccion-sop-consola');
+        container.style.display = 'block';
+
+        if (!container.dataset.loaded) {
+            container.innerHTML = `
+                <div style="padding: 3rem; text-align: center; color: var(--text-secondary);">
+                    <i class="ph ph-spinner ph-spin" style="font-size: 2.5rem; color: var(--accent-cyan); margin-bottom: 1rem; display: block;"></i>
+                    <p>Cargando Consola Técnica Principal de Soporte TI (Módulo 05)...</p>
+                </div>
+            `;
+
+            fetch('/Modulo05/Soporte/ConsolaPrincipal?partial=true', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Estado HTTP ' + res.status);
+                return res.text();
+            })
+            .then(html => {
+                container.innerHTML = html;
+                container.dataset.loaded = 'true';
+                ejecutarScriptsEnContenedor(container);
+            })
+            .catch(err => {
+                container.innerHTML = `
+                    <div style="padding: 2rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; color: #f59e0b; margin-bottom: 0.75rem;">
+                            <i class="ph ph-warning-circle" style="font-size: 1.5rem;"></i>
+                            <h4 style="margin: 0; font-size: 1.1rem; color: #fff;">Consola Técnica Remota no disponible</h4>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                            No se pudo cargar la vista remota de Módulo 05 (${err.message}). Puede acceder directamente o reintentar:
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="/Modulo05/Soporte/ConsolaPrincipal" target="_blank" style="background: var(--accent-cyan); color: #0a0e17; font-weight: 600; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="ph ph-arrow-square-out"></i> Abrir Consola Técnica
+                            </a>
+                            <button type="button" onclick="cargarConsolaSoporte(document.getElementById('nav-sop-consola'))" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border-color); color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                Reintentar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function cargarScannerSoporte(el) {
+        document.querySelectorAll('.sop-section').forEach(sec => sec.style.display = 'none');
+        document.querySelectorAll('.sidebar-nav .nav-item').forEach(item => item.classList.remove('active'));
+        if (el) el.classList.add('active');
+
+        const container = document.getElementById('seccion-sop-scanner');
+        container.style.display = 'block';
+
+        if (!container.dataset.loaded) {
+            container.innerHTML = `
+                <div style="padding: 3rem; text-align: center; color: var(--text-secondary);">
+                    <i class="ph ph-spinner ph-spin" style="font-size: 2.5rem; color: var(--accent-cyan); margin-bottom: 1rem; display: block;"></i>
+                    <p>Cargando Historial y Escáner de Equipos (Módulo 05)...</p>
+                </div>
+            `;
+
+            fetch('/Modulo05/Soporte/HistorialEquipos?partial=true', {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' }
+            })
+            .then(res => {
+                if (!res.ok) throw new Error('Estado HTTP ' + res.status);
+                return res.text();
+            })
+            .then(html => {
+                container.innerHTML = html;
+                container.dataset.loaded = 'true';
+                ejecutarScriptsEnContenedor(container);
+            })
+            .catch(err => {
+                container.innerHTML = `
+                    <div style="padding: 2rem; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; color: #f59e0b; margin-bottom: 0.75rem;">
+                            <i class="ph ph-warning-circle" style="font-size: 1.5rem;"></i>
+                            <h4 style="margin: 0; font-size: 1.1rem; color: #fff;">Historial de Equipos Remoto no disponible</h4>
+                        </div>
+                        <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 1.25rem;">
+                            No se pudo conectar con el endpoint remoto de Módulo 05 (${err.message}). Puede abrir la vista directa o reintentar:
+                        </p>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                            <a href="/Modulo05/Soporte/HistorialEquipos" target="_blank" style="background: var(--accent-cyan); color: #0a0e17; font-weight: 600; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px;">
+                                <i class="ph ph-arrow-square-out"></i> Abrir Historial de Equipos
+                            </a>
+                            <button type="button" onclick="cargarScannerSoporte(document.getElementById('nav-sop-scanner'))" style="background: rgba(255,255,255,0.08); border: 1px solid var(--border-color); color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                Reintentar
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    function ejecutarScriptsEnContenedor(container) {
+        const scripts = container.querySelectorAll('script');
+        scripts.forEach(oldScript => {
+            const newScript = document.createElement('script');
+            Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+            newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+            oldScript.parentNode.replaceChild(newScript, oldScript);
+        });
     }
 </script>

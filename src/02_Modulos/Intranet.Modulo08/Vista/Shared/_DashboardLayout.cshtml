@@ -5,7 +5,8 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"] - Intranet IESTP Argentina</title>
-    <link rel="stylesheet" href="~/css/dashboard.css" />
+    <link rel="stylesheet" href="/_content/Intranet.Modulo08/css/dashboard.css" />
+    <link rel="stylesheet" href="/Modulo08/assets/css/dashboard.css" />
     <!-- Phosphor Icons -->
     <script src="https://unpkg.com/@@phosphor-icons/web"></script>
 </head>
@@ -16,7 +17,7 @@
             <i class="ph-fill ph-graduation-cap"></i>
         </div>
         <div class="header-actions">
-            @if (Context.Session.GetString("EsDemo") == "true")
+            @if (User.FindFirst("EsDemo")?.Value == "true" || Context.Request.Cookies["M08_EsDemo"] == "true")
             {
                 <span style="font-size: 0.72rem; background: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 4px 10px; border-radius: 20px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px;">
                     <i class="ph ph-shield-check"></i> Sesión Demo Local
@@ -50,9 +51,9 @@
             </nav>
 
             <div class="sidebar-footer">
-                @if (Context.Session.GetString("EsDemo") == "true")
+                @if (User.FindFirst("EsDemo")?.Value == "true" || Context.Request.Cookies["M08_EsDemo"] == "true")
                 {
-                    <a href="/" class="btn-logout" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; margin-bottom: 0.5rem;" title="Volver al selector de roles demo">
+                    <a href="/Modulo08" class="btn-logout" style="background: rgba(59, 130, 246, 0.1); border-color: rgba(59, 130, 246, 0.3); color: #60a5fa; margin-bottom: 0.5rem;" title="Volver al selector de roles demo">
                         <i class="ph ph-swap"></i>
                         Cambiar Panel (Demo)
                     </a>
