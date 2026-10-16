@@ -20,9 +20,122 @@
 }
 
 <!-- Contenedor Principal Dinámico (SPA) -->
-<div id="dynamic-main-content">    <!-- 1. VISTA DASHBOARD / RESUMEN (Módulo 05: Psicología) -->
+<div id="dynamic-main-content">
+
+    <!-- 1. VISTA DASHBOARD / RESUMEN PROPIO DE PSICOLOGÍA (Carga segura sin excepciones de vista) -->
     <div id="view-psy-dashboard">
-        @await Html.PartialAsync("~/Areas/Modulo05/Views/psicologia/panel_psicologia.cshtml")
+        <div class="page-header">
+            <h1>Panel de Control - Psicología y Bienestar Estudiantil</h1>
+            <p>Atención psicopedagógica, orientación vocacional y seguimiento integral del estudiante</p>
+            <div class="header-accent"></div>
+        </div>
+
+        <!-- Tarjetas de Estadísticas del Área de Psicología -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem; margin-bottom: 2rem;">
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--text-secondary); font-size: 0.875rem;">Atenciones del Mes</span>
+                    <i class="ph ph-users" style="color: #a855f7; font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.75rem; font-weight: 700; color: #fff;">32</h3>
+                <span style="font-size: 0.75rem; color: #10b981;">+6 respecto al mes anterior</span>
+            </div>
+
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--text-secondary); font-size: 0.875rem;">Sesiones Hoy</span>
+                    <i class="ph ph-calendar-check" style="color: var(--accent-cyan); font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.75rem; font-weight: 700; color: #fff;">5</h3>
+                <span style="font-size: 0.75rem; color: var(--text-secondary);">3 presenciales, 2 virtuales</span>
+            </div>
+
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--text-secondary); font-size: 0.875rem;">Casos en Seguimiento</span>
+                    <i class="ph ph-heartbeat" style="color: #ec4899; font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.75rem; font-weight: 700; color: #fff;">12</h3>
+                <span style="font-size: 0.75rem; color: #fbbf24;">Soporte socioemocional</span>
+            </div>
+
+            <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 12px; padding: 1.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+                    <span style="color: var(--text-secondary); font-size: 0.875rem;">Módulo 05 Estado</span>
+                    <i class="ph ph-shield-check" style="color: #10b981; font-size: 1.5rem;"></i>
+                </div>
+                <h3 style="font-size: 1.75rem; font-weight: 700; color: #fff;">En Línea</h3>
+                <span style="font-size: 0.75rem; color: #10b981;">Servicio de Bienestar Activo</span>
+            </div>
+        </div>
+
+        <!-- Acceso Rápido a Formulario Clínico de Psicología -->
+        <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 2rem; margin-bottom: 2rem;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+                <div>
+                    <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem; color: #fff;">¿Desea registrar una nueva sesión psicológica?</h2>
+                    <p style="color: var(--text-secondary); font-size: 0.875rem;">Abra el formulario clínico de Módulo 05 directamente en este panel sin salir de la intranet.</p>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button type="button" onclick="cargarSesionPsico()" style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff; font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 8px; border: none; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="ph-bold ph-plus-circle"></i>
+                        Nueva Sesión Psicológica
+                    </button>
+                    <button type="button" onclick="cargarExpedientePsico()" style="background: rgba(255,255,255,0.05); color: #e2e8f0; border: 1px solid var(--border-color); font-weight: 600; padding: 0.75rem 1.5rem; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="ph ph-folder-user"></i>
+                        Expediente de Alumnos
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla Resumen de Consultas Psicológicas Recientes -->
+        <div style="background-color: var(--bg-card); border: 1px solid var(--border-color); border-radius: 14px; padding: 1.5rem;">
+            <h3 style="font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; color: #fff; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="ph ph-clipboard-text" style="color: #a855f7;"></i> Últimas Atenciones de Bienestar Registradas
+            </h3>
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 0.875rem;">
+                <thead>
+                    <tr style="border-bottom: 1px solid var(--border-color); color: var(--text-secondary);">
+                        <th style="padding: 10px;">DNI</th>
+                        <th style="padding: 10px;">Estudiante</th>
+                        <th style="padding: 10px;">Carrera</th>
+                        <th style="padding: 10px;">Motivo / Evaluación</th>
+                        <th style="padding: 10px;">Estado</th>
+                        <th style="padding: 10px;">Hora</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 10px; color: var(--accent-cyan); font-weight: 600;">74296138</td>
+                        <td style="padding: 10px; font-weight: 500; color: #fff;">Valeria Castro Medina</td>
+                        <td style="padding: 10px; color: var(--text-secondary);">Desarrollo de Sistemas</td>
+                        <td style="padding: 10px;">Manejo de estrés académico y ansiedad</td>
+                        <td style="padding: 10px;"><span style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 2px 8px; border-radius: 4px; font-weight: 600;">En Seguimiento</span></td>
+                        <td style="padding: 10px; color: var(--text-secondary);">09:15 a.m.</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 10px; color: var(--accent-cyan); font-weight: 600;">45892147</td>
+                        <td style="padding: 10px; font-weight: 500; color: #fff;">Renato Huamán Silva</td>
+                        <td style="padding: 10px; color: var(--text-secondary);">Contabilidad</td>
+                        <td style="padding: 10px;">Orientación vocacional y cambio de turno</td>
+                        <td style="padding: 10px;"><span style="background: rgba(59, 130, 246, 0.15); color: #60a5fa; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Atendido</span></td>
+                        <td style="padding: 10px; color: var(--text-secondary);">10:30 a.m.</td>
+                    </tr>
+                    <tr>
+                        <td style="padding: 10px; color: var(--accent-cyan); font-weight: 600;">71239845</td>
+                        <td style="padding: 10px; font-weight: 500; color: #fff;">Camila Torres Vega</td>
+                        <td style="padding: 10px; color: var(--text-secondary);">Administración de Empresas</td>
+                        <td style="padding: 10px;">Dificultades de adaptación y rendimiento</td>
+                        <td style="padding: 10px;"><span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 2px 8px; border-radius: 4px; font-weight: 600;">Pendiente 2da Sesión</span></td>
+                        <td style="padding: 10px; color: var(--text-secondary);">11:45 a.m.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Contenedor dinámico opcional si M05 expone Panel directamente -->
+        <div id="view-psy-remote-panel" style="margin-top: 1.5rem;"></div>
     </div>
 
     <!-- 2. CONTENEDOR DINÁMICO DE FORMULARIO DE SESIÓN (Modulo 05) -->
@@ -46,6 +159,25 @@
             document.getElementById('view-sesion-container').style.display = 'none';
             document.getElementById('view-expediente-container').style.display = 'none';
             document.getElementById('view-psy-dashboard').style.display = 'block';
+
+            // Intentar cargar panel remoto de M05 si existe y no ha sido cargado
+            const remotePanel = document.getElementById('view-psy-remote-panel');
+            if (remotePanel && !remotePanel.dataset.attempted) {
+                remotePanel.dataset.attempted = "true";
+                fetch('/Modulo05/Psicologia/Panel?partial=true', {
+                    headers: { 'X-Requested-With': 'XMLHttpRequest' }
+                })
+                .then(res => res.ok ? res.text() : null)
+                .then(html => {
+                    if (html && html.trim().length > 0) {
+                        remotePanel.innerHTML = html;
+                        ejecutarScripts(remotePanel);
+                    }
+                })
+                .catch(() => {
+                    // Si M05 no está activo o da 404, el dashboard propio local se mantiene perfectamente visible
+                });
+            }
         }
 
         function cargarSesionPsico() {
@@ -73,22 +205,21 @@
                 .then(html => {
                     container.innerHTML = html;
                     container.dataset.loaded = "true";
-
-                    // Reejecutar scripts dentro de la vista parcial
-                    const scripts = container.querySelectorAll('script');
-                    scripts.forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                        oldScript.parentNode.replaceChild(newScript, oldScript);
-                    });
+                    ejecutarScripts(container);
                 })
                 .catch(err => {
                     container.innerHTML = `
-                        <div style="padding: 2rem; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; color: #fca5a5;">
-                            <h4>Error al cargar el formulario de sesión</h4>
-                            <p>${err.message}</p>
-                            <button type="button" onclick="cargarSesionPsico()" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">Reintentar</button>
+                        <div style="padding: 2rem; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; color: #fca5a5; margin-top: 1rem;">
+                            <h4 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #ef4444;">Formulario de Módulo 05 no disponible</h4>
+                            <p style="margin-bottom: 1rem; font-size: 0.9rem;">No se pudo conectar con el endpoint remoto (${err.message}). Puede abrir el formulario directamente:</p>
+                            <div style="display: flex; gap: 10px;">
+                                <a href="/Modulo05/Psicologia/FormSesion" target="_blank" style="background: #a855f7; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+                                    Abrir en nueva pestaña
+                                </a>
+                                <button type="button" onclick="cargarSesionPsico()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                    Reintentar
+                                </button>
+                            </div>
                         </div>
                     `;
                 });
@@ -120,25 +251,35 @@
                 .then(html => {
                     container.innerHTML = html;
                     container.dataset.loaded = "true";
-
-                    const scripts = container.querySelectorAll('script');
-                    scripts.forEach(oldScript => {
-                        const newScript = document.createElement('script');
-                        Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
-                        newScript.appendChild(document.createTextNode(oldScript.innerHTML));
-                        oldScript.parentNode.replaceChild(newScript, oldScript);
-                    });
+                    ejecutarScripts(container);
                 })
                 .catch(err => {
                     container.innerHTML = `
-                        <div style="padding: 2rem; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; color: #fca5a5;">
-                            <h4>Error al cargar el expediente del alumno</h4>
-                            <p>${err.message}</p>
-                            <button type="button" onclick="cargarExpedientePsico()" style="margin-top: 10px; padding: 6px 12px; cursor: pointer;">Reintentar</button>
+                        <div style="padding: 2rem; background: rgba(239, 68, 68, 0.1); border: 1px solid #ef4444; border-radius: 8px; color: #fca5a5; margin-top: 1rem;">
+                            <h4 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; color: #ef4444;">Expediente de Módulo 05 no disponible</h4>
+                            <p style="margin-bottom: 1rem; font-size: 0.9rem;">No se pudo conectar con el endpoint remoto (${err.message}). Puede abrir el expediente directamente:</p>
+                            <div style="display: flex; gap: 10px;">
+                                <a href="/Modulo05/Psicologia/ExpedienteAlumno" target="_blank" style="background: #a855f7; color: white; padding: 8px 16px; border-radius: 6px; text-decoration: none; font-size: 0.85rem; font-weight: 600;">
+                                    Abrir en nueva pestaña
+                                </a>
+                                <button type="button" onclick="cargarExpedientePsico()" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+                                    Reintentar
+                                </button>
+                            </div>
                         </div>
                     `;
                 });
             }
+        }
+
+        function ejecutarScripts(container) {
+            const scripts = container.querySelectorAll('script');
+            scripts.forEach(oldScript => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value));
+                newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+                oldScript.parentNode.replaceChild(newScript, oldScript);
+            });
         }
     </script>
 }

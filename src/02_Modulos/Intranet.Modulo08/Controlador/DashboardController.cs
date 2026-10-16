@@ -1,36 +1,58 @@
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Http;
 using System;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Login_Administracion_de_Modulos.Controlador
 {
+    [AllowAnonymous]
     public class DashboardController : Controller
     {
         private void CargarDatosSesion(string nombrePorDefecto, string rolPorDefecto)
         {
-            string? userName = HttpContext.Session.GetString("UsuarioNombre");
-            string? userRole = HttpContext.Session.GetString("UsuarioRol");
+            // 1. Obtener Nombre de Usuario (Claims -> Cookie M08_UserName -> Por Defecto)
+            string? userName = null;
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                userName = User.FindFirst(ClaimTypes.Name)?.Value ?? User.Identity.Name;
+            }
 
-            if (string.IsNullOrEmpty(userName))
+            if (string.IsNullOrWhiteSpace(userName))
+            {
+                userName = Request.Cookies["M08_UserName"];
+            }
+
+            if (string.IsNullOrWhiteSpace(userName))
             {
                 userName = nombrePorDefecto;
-                HttpContext.Session.SetString("UsuarioNombre", userName);
             }
 
-            if (string.IsNullOrEmpty(userRole))
+            // 2. Obtener Rol de Usuario (Claims -> Cookie M08_UserRol -> Por Defecto)
+            string? userRole = null;
+            if (User?.Identity?.IsAuthenticated == true)
+            {
+                userRole = User.FindFirst("RolActivo")?.Value
+                    ?? User.FindFirst("RolPrincipal")?.Value
+                    ?? User.FindFirst(ClaimTypes.Role)?.Value;
+            }
+
+            if (string.IsNullOrWhiteSpace(userRole))
+            {
+                userRole = Request.Cookies["M08_UserRol"];
+            }
+
+            if (string.IsNullOrWhiteSpace(userRole))
             {
                 userRole = rolPorDefecto;
-                HttpContext.Session.SetString("UsuarioRol", userRole);
             }
 
-            if (!HttpContext.Session.GetInt32("UsuarioId").HasValue)
-            {
-                HttpContext.Session.SetInt32("UsuarioId", 999);
-                HttpContext.Session.SetString("EsDemo", "true");
-            }
+            // 3. Obtener bandera de EsDemo
+            bool esDemo = (User?.FindFirst("EsDemo")?.Value == "true")
+                || (Request.Cookies["M08_EsDemo"] == "true");
 
             ViewBag.UserName = userName;
             ViewBag.UserRole = userRole;
+            ViewBag.EsDemo = esDemo;
 
             var parts = userName.Split(' ', StringSplitOptions.RemoveEmptyEntries);
             ViewBag.UserInitials = parts.Length >= 2
