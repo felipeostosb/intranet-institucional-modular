@@ -66,7 +66,9 @@
                 </div>
             }
 
-            <form action="/login-dni" method="POST">
+            <!-- Fix: la ruta pelada /login-dni colisiona con la convención de enrutamiento
+                 del host y responde 500. /Modulo08/login-dni es la misma acción y funciona. -->
+            <form action="/Modulo08/login-dni" method="POST">
                 @Html.AntiForgeryToken()
                 <div class="form-group">
                     <label>DNI del Alumno</label>
